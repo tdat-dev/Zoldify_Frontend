@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Nếu đường dẫn chưa có /public/ thì thêm vào
+    RewriteCond %{REQUEST_URI} !^/public/
+    
+    # Chuyển hướng tất cả request vào folder public
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

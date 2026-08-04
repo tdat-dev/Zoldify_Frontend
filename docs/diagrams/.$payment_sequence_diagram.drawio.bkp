@@ -1,0 +1,383 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.2.9 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.2.9" pages="1">
+  <diagram name="Thanh toán PayOS" id="payment-seq">
+    <mxGraphModel dx="1892" dy="1212" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ========== LIFELINES ========== -->
+        <mxCell id="user-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="80" as="sourcePoint" />
+            <mxPoint x="110" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="view-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="80" as="sourcePoint" />
+            <mxPoint x="260" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="440" y="80" as="sourcePoint" />
+            <mxPoint x="440" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="payos-svc-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="620" y="80" as="sourcePoint" />
+            <mxPoint x="620" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="payos-api-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="820" y="80" as="sourcePoint" />
+            <mxPoint x="820" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1000" y="80" as="sourcePoint" />
+            <mxPoint x="1000" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="escrow-svc-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1180" y="80" as="sourcePoint" />
+            <mxPoint x="1180" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1340" y="80" as="sourcePoint" />
+            <mxPoint x="1340" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PARTICIPANT BOXES ========== -->
+        <mxCell id="user-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;C : User (Buyer)&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="55" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="view-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;A : View&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Controller : PaymentController&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="375" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="payos-svc-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Service : PayOSService&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="565" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="payos-api-box" parent="1" style="html=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" value="&lt;u&gt;External : PayOS API&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="765" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="order-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : Order&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="950" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="escrow-svc-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Service : EscrowService&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="1125" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;DB : Database&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="1290" y="30" as="geometry" />
+        </mxCell>
+        
+        <!-- ========== PHASE 1: CREATE PAYMENT LINK ========== -->
+        <mxCell id="frame1" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 1: Tạo Payment Link" vertex="1">
+          <mxGeometry x="40" y="100" width="1380" height="300" as="geometry" />
+        </mxCell>
+        
+        <!-- User clicks pay -->
+        <mxCell id="msg1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="1 : clickPayNow($orderId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="140" as="sourcePoint" />
+            <mxPoint x="255" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller -->
+        <mxCell id="msg2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="2 : create($_POST['order_id'])">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="265" y="165" as="sourcePoint" />
+            <mxPoint x="435" y="165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="210" width="10" x="435" y="165" as="geometry" />
+        </mxCell>
+        
+        <!-- Validate order -->
+        <mxCell id="msg3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="3 : find($orderId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="195" as="sourcePoint" />
+            <mxPoint x="995" y="195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Order returns -->
+        <mxCell id="msg4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="4 : return $order (validate buyer_id, payment_status)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="995" y="215" as="sourcePoint" />
+            <mxPoint x="445" y="215" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Generate order code note -->
+        <mxCell id="note-code" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;5 : generateOrderCode($orderId) - Unique code for PayOS&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="220" x="450" y="230" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller calls PayOS service -->
+        <mxCell id="msg5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="6 : createPaymentLink($orderCode, $amount, $items)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="265" as="sourcePoint" />
+            <mxPoint x="615" y="265" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- PayOS Service activation -->
+        <mxCell id="payos-svc-act" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="60" width="10" x="615" y="265" as="geometry" />
+        </mxCell>
+        
+        <!-- PayOS Service calls API -->
+        <mxCell id="msg6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="7 : POST /v2/payment-requests">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="625" y="290" as="sourcePoint" />
+            <mxPoint x="815" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- PayOS API returns -->
+        <mxCell id="msg7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="8 : return {checkoutUrl, qrCode, paymentLinkId}">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="815" y="310" as="sourcePoint" />
+            <mxPoint x="625" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service returns to controller -->
+        <mxCell id="msg8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="9 : return $paymentData">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="335" as="sourcePoint" />
+            <mxPoint x="445" y="335" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller updates order -->
+        <mxCell id="msg9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="10 : updatePaymentInfo($orderId, paymentLinkId, orderCode)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="360" as="sourcePoint" />
+            <mxPoint x="995" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Redirect to PayOS -->
+        <mxCell id="msg10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="11 : redirect($checkoutUrl)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="435" y="385" as="sourcePoint" />
+            <mxPoint x="115" y="385" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 2: USER PAYS ON PAYOS ========== -->
+        <mxCell id="frame2" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 2: Thanh toán trên PayOS" vertex="1">
+          <mxGeometry x="40" y="420" width="1380" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- User on PayOS page -->
+        <mxCell id="msg11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="12 : displayPaymentPage(QR Code, Bank Transfer)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="815" y="460" as="sourcePoint" />
+            <mxPoint x="115" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User scans QR -->
+        <mxCell id="msg12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="13 : scanQRAndPay($amount)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="490" as="sourcePoint" />
+            <mxPoint x="815" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- PayOS API activation -->
+        <mxCell id="payos-api-act" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};fillColor=#ffe6cc;strokeColor=#d79b00;" value="" vertex="1">
+          <mxGeometry height="40" width="10" x="815" y="490" as="geometry" />
+        </mxCell>
+        
+        <!-- Payment processed note -->
+        <mxCell id="note-pay" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;14 : processPayment() - Bank confirms transfer&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="200" x="830" y="500" as="geometry" />
+        </mxCell>
+        
+        <!-- PayOS redirects user -->
+        <mxCell id="msg13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="15 : redirect(returnUrl?orderCode=X&amp;status=PAID)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="815" y="550" as="sourcePoint" />
+            <mxPoint x="115" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 3: WEBHOOK CALLBACK ========== -->
+        <mxCell id="frame3" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 3: Webhook Callback (async)" vertex="1">
+          <mxGeometry x="40" y="600" width="1380" height="300" as="geometry" />
+        </mxCell>
+        
+        <!-- PayOS sends webhook -->
+        <mxCell id="msg14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="16 : POST /payment/webhook {orderCode, code, amount, signature}">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="815" y="640" as="sourcePoint" />
+            <mxPoint x="435" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation for webhook -->
+        <mxCell id="ctrl-act2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="250" width="10" x="435" y="640" as="geometry" />
+        </mxCell>
+        
+        <!-- Verify signature -->
+        <mxCell id="msg15" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="17 : verifyWebhookSignature($data, $signature)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="670" as="sourcePoint" />
+            <mxPoint x="615" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Signature verified -->
+        <mxCell id="msg16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="18 : return true (valid HMAC-SHA256)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="690" as="sourcePoint" />
+            <mxPoint x="445" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Find order by code -->
+        <mxCell id="msg17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="19 : findByPayosOrderCode($orderCode)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="720" as="sourcePoint" />
+            <mxPoint x="995" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Order returns -->
+        <mxCell id="msg18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="20 : return $order">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="995" y="740" as="sourcePoint" />
+            <mxPoint x="445" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Alt frame for success -->
+        <mxCell id="alt-success" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#999999;dashed=1;" value="alt [code = '00' - Success]" vertex="1">
+          <mxGeometry x="430" y="755" width="930" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Update payment status -->
+        <mxCell id="msg19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="21 : updatePaymentStatus($orderId, 'paid') + updateStatus($orderId, 'paid')">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="790" as="sourcePoint" />
+            <mxPoint x="995" y="790" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Create escrow hold -->
+        <mxCell id="msg20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="22 : holdFunds($orderId, $amount, $sellerId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="820" as="sourcePoint" />
+            <mxPoint x="1175" y="820" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Escrow inserts to DB -->
+        <mxCell id="msg21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="23 : INSERT INTO escrow_transactions (hold funds)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="1185" y="845" as="sourcePoint" />
+            <mxPoint x="1335" y="845" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Return 200 -->
+        <mxCell id="msg22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="24 : return HTTP 200 {success: true}">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="880" as="sourcePoint" />
+            <mxPoint x="815" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 4: RETURN URL ========== -->
+        <mxCell id="frame4" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 4: Return URL (User redirect)" vertex="1">
+          <mxGeometry x="40" y="920" width="1380" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- User redirected -->
+        <mxCell id="msg23" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="25 : GET /payment/return?orderCode=X&amp;status=PAID">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="960" as="sourcePoint" />
+            <mxPoint x="435" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation for return -->
+        <mxCell id="ctrl-act3" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="150" width="10" x="435" y="960" as="geometry" />
+        </mxCell>
+        
+        <!-- Find order -->
+        <mxCell id="msg24" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="26 : findByPayosOrderCode($orderCode)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="990" as="sourcePoint" />
+            <mxPoint x="995" y="990" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Fallback check note -->
+        <mxCell id="note-fallback" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;27 : [Fallback] If webhook not received, call PayOS API to verify&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="260" x="450" y="1020" as="geometry" />
+        </mxCell>
+        
+        <!-- Fallback API call -->
+        <mxCell id="msg25" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;strokeColor=#999999;" value="28 : getPaymentInfo($paymentLinkId) [optional fallback]">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="1055" as="sourcePoint" />
+            <mxPoint x="815" y="1055" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Set session success -->
+        <mxCell id="note-session" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;29 : $_SESSION['success'] = 'Thanh toán thành công!'&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="200" x="450" y="1075" as="geometry" />
+        </mxCell>
+        
+        <!-- Redirect to order detail -->
+        <mxCell id="msg26" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="30 : redirect('/profile/orders/detail?id=' + $orderId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="435" y="1110" as="sourcePoint" />
+            <mxPoint x="255" y="1110" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View displays success -->
+        <mxCell id="msg27" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="31 : displayOrderDetail('Thanh toán thành công!')">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="255" y="1130" as="sourcePoint" />
+            <mxPoint x="115" y="1130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 5: CANCEL URL (optional) ========== -->
+        <mxCell id="frame5" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 5: Cancel URL (optional)" vertex="1">
+          <mxGeometry x="40" y="1160" width="1380" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Note cancel -->
+        <mxCell id="note-cancel" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;32 : Nếu user hủy thanh toán, PayOS redirect về /payment/cancel&lt;br&gt;Order vẫn được giữ lại với status 'pending_payment', user có thể thanh toán lại sau&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="350" x="520" y="1195" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

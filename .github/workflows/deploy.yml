@@ -1,0 +1,296 @@
+name: 🚀 Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  PHP_VERSION: "8.2"
+  NODE_VERSION: "18"
+
+jobs:
+  # ============================================
+  # JOB 1: Pre-Deploy Checks
+  # ============================================
+  pre-deploy:
+    name: 🔍 Pre-Deploy Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer:v2
+
+      - name: 📦 Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: 🧪 PHP Syntax Check
+        run: find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \; | grep -v "No syntax errors"
+        continue-on-error: true
+
+      - name: ✅ Check critical files
+        run: |
+          echo "🔍 Verifying deployment readiness..."
+          test -f "public/index.php" || (echo "❌ Missing public/index.php" && exit 1)
+          test -f "composer.json" || (echo "❌ Missing composer.json" && exit 1)
+          echo "✅ All checks passed!"
+
+  # ============================================
+  # JOB 2: Deploy to Staging (develop branch)
+  # ============================================
+  deploy-staging:
+    name: 🧪 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: pre-deploy
+    if: |
+      github.ref == 'refs/heads/develop' || 
+      github.ref_name == 'develop' ||
+      github.ref == 'refs/heads/main' ||
+      github.ref_name == 'main' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: https://staging.zoldify.com
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # ✅ Pre-built assets: CSS/JS  đã build local và commit lên Git
+      # Bỏ npm ci + npm run build để CI nhanh hơn
+
+      - name: 🔑 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "🔍 Testing SSH connection to ${{ secrets.SSH_HOST }}:${{ secrets.SSH_PORT }}"
+          ssh-keyscan -H -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>&1 || echo "⚠️ ssh-keyscan failed, continuing anyway"
+          echo "🔍 Checking key file:"
+          ls -la ~/.ssh/deploy_key
+          echo "🔍 Testing SSH connection:"
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no -o BatchMode=yes ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful!'" || echo "❌ SSH connection failed"
+
+      - name: 📤 Deploy to Staging via Rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.env' \
+            --exclude='README.md' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='.agent' \
+            --exclude='docs' \
+            --exclude='*.md' \
+            --exclude='.vscode' \
+            --exclude='.idea' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/cache/*' \
+            --exclude='.user.ini' \
+            --exclude='.well-known' \
+            --exclude='public/uploads' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/www/wwwroot/staging.zoldify.com/
+      - name: 🔔 Notify Success
+        if: success()
+        run: |
+          echo "✅ Staging deployment successful!"
+          echo "🌐 URL: https://staging.zoldify.com"
+          echo "📅 Time: $(date)"
+          echo "📝 Commit: ${{ github.sha }}"
+
+      - name: 🔔 Notify Failure
+        if: failure()
+        run: |
+          echo "❌ Staging deployment FAILED!"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Author: ${{ github.actor }}"
+
+  # ============================================
+  # JOB 3: Deploy to Production (main branch)
+  # ============================================
+  deploy-production:
+    name: 🚀 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: pre-deploy
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://zoldify.com
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # ✅ Pre-built assets strategy: CSS/JS đã được build local và commit lên Git
+      # Không cần npm ci + npm run build ở đây nữa
+
+      - name: 📦 Install Composer dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader --no-dev
+
+      - name: 🔐 Create deployment info
+        run: |
+          echo "{
+            \"version\": \"${{ github.sha }}\",
+            \"branch\": \"${{ github.ref_name }}\",
+            \"deployed_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",
+            \"deployed_by\": \"${{ github.actor }}\"
+          }" > public/version.json
+
+      - name: 🔑 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: 📤 Deploy to Production via Rsync
+        run: |
+          rsync -avz --delete \
+            --exclude='.git*' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='.env' \
+            --exclude='README.md' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='.agent' \
+            --exclude='docs' \
+            --exclude='*.md' \
+            --exclude='.vscode' \
+            --exclude='.idea' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/cache/*' \
+            --exclude='.user.ini' \
+            --exclude='.well-known' \
+            --exclude='public/uploads' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/www/wwwroot/zoldify.com/
+
+      - name: 🗄️ Run Database Migrations
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "cd /www/wwwroot/zoldify.com && php database/migrate.php"
+
+      - name: 🔔 Notify Success
+        if: success()
+        run: |
+          echo "========================================"
+          echo "   🎉 PRODUCTION DEPLOYMENT SUCCESS!   "
+          echo "========================================"
+          echo "🌐 URL: https://zoldify.com"
+          echo "📅 Time: $(date)"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Author: ${{ github.actor }}"
+          echo "========================================"
+
+      - name: ❌ Notify Failure
+        if: failure()
+        run: |
+          echo "========================================"
+          echo "   ❌ PRODUCTION DEPLOYMENT FAILED!    "
+          echo "========================================"
+          echo "📝 Commit: ${{ github.sha }}"
+          echo "👤 Author: ${{ github.actor }}"
+          echo "🔍 Please check logs for details"
+          echo "========================================"
+
+  # ============================================
+  # JOB 4: Deploy Chat Server (Manual)
+  # ============================================
+  deploy-chat-server:
+    name: 💬 Deploy Chat Server
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install dependencies (production)
+        working-directory: ./chat-server
+        run: npm ci --production
+
+      - name: 🔑 Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>&1 || true
+
+      - name: 📤 Deploy Chat Server via SSH
+        run: |
+          rsync -avz --delete \
+            --exclude='.git*' \
+            --exclude='.env' \
+            --exclude='README.md' \
+            --exclude='*.md' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./chat-server/ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:/www/wwwroot/zoldify.com/chat-server/
+
+      - name: 🔄 Restart Chat Server
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+            "cd /www/wwwroot/zoldify.com/chat-server && pm2 restart zoldify-chat || pm2 start index.js --name zoldify-chat"
+
+      - name: 📋 Deployment Success
+        run: |
+          echo "========================================"
+          echo "   💬 CHAT SERVER DEPLOYED!            "
+          echo "========================================"
+          echo "🌐 Chat server restarted via PM2"
+          echo "========================================"
+
+  # ============================================
+  # Deployment Summary
+  # ============================================
+  deploy-summary:
+    name: 📋 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+
+    steps:
+      - name: 📊 Summary
+        run: |
+          echo "========================================"
+          echo "       DEPLOYMENT PIPELINE SUMMARY      "
+          echo "========================================"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Author: ${{ github.actor }}"
+          echo "Time:   $(date)"
+          echo "========================================"
+          echo ""
+          echo "Results:"
+          echo "  Staging:    ${{ needs.deploy-staging.result || 'skipped' }}"
+          echo "  Production: ${{ needs.deploy-production.result || 'skipped' }}"
+          echo "========================================"

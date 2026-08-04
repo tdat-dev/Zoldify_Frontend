@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.rsyncignore
+node_modules
+.env
+.env.example
+\*.sql
+composer.lock
+package-lock.json
+README.md
+README2.md
+ARCHITECTURE.md
+.ftp-deploy-sync-state.json
+.vscode
+.idea

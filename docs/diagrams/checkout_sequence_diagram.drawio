@@ -1,0 +1,262 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram name="Thanh toán đơn hàng" id="checkout-seq">
+    <mxGraphModel dx="946" dy="606" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="80" as="sourcePoint" />
+            <mxPoint x="110" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="view-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="260" y="80" as="sourcePoint" />
+            <mxPoint x="260" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="440" y="80" as="sourcePoint" />
+            <mxPoint x="440" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="620" y="80" as="sourcePoint" />
+            <mxPoint x="620" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="product-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="800" y="80" as="sourcePoint" />
+            <mxPoint x="800" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cart-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="980" y="80" as="sourcePoint" />
+            <mxPoint x="980" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="payment-ctrl-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1160" y="80" as="sourcePoint" />
+            <mxPoint x="1160" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1340" y="80" as="sourcePoint" />
+            <mxPoint x="1340" y="1500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="view-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;A : View&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Controller : CheckoutController&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="130" x="375" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="order-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : Order&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="570" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="product-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : Product&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="750" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cart-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : Cart&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="930" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;DB : Database&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="1290" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="frame1" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 1: Display the payment page" vertex="1">
+          <mxGeometry height="260" width="1380" x="40" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="msg1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="1 : selectProducts() + clickCheckout()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="140" as="sourcePoint" />
+            <mxPoint x="255" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="2 : process($_POST) [PRG Pattern]">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="265" y="165" as="sourcePoint" />
+            <mxPoint x="435" y="165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="170" width="10" x="435" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="msg3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="4 : getByUserId($userId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="220" as="sourcePoint" />
+            <mxPoint x="975" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="5 : return $cartItems">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="240" as="sourcePoint" />
+            <mxPoint x="445" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="6 : find($productId) [foreach selected]">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="265" as="sourcePoint" />
+            <mxPoint x="795" y="265" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="7 : return $product">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="795" y="285" as="sourcePoint" />
+            <mxPoint x="445" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="8 : view(&#39;cart/checkout&#39;, $products, $user)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="435" y="315" as="sourcePoint" />
+            <mxPoint x="255" y="315" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="9 : displayCheckoutForm(products, address, payment_methods)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="255" y="340" as="sourcePoint" />
+            <mxPoint x="115" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frame2" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 2: Order Confirmation" vertex="1">
+          <mxGeometry height="180" width="1380" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="msg9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="420" as="sourcePoint" />
+            <mxPoint x="255" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="11 : confirm($_POST)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="265" y="450" as="sourcePoint" />
+            <mxPoint x="435" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-act2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="90" width="10" x="435" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="msg11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="12 : find($productId) - Validate stock">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="480" as="sourcePoint" />
+            <mxPoint x="795" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="13 : return $product (check quantity)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="795" y="500" as="sourcePoint" />
+            <mxPoint x="445" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frame3" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 3: Create orders (loop for each seller)" vertex="1">
+          <mxGeometry height="280" width="1380" x="40" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-act3" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="240" width="10" x="435" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="loop-frame" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#999999;dashed=1;" value="loop [foreach seller]" vertex="1">
+          <mxGeometry height="230" width="960" x="420" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="msg13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="15 : create(buyer_id, seller_id, total, status)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="650" as="sourcePoint" />
+            <mxPoint x="615" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="order-act" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="60" width="10" x="615" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="msg14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="16 : INSERT INTO orders + order_items">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="625" y="675" as="sourcePoint" />
+            <mxPoint x="1335" y="675" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg15" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="17 : return $orderId">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1335" y="695" as="sourcePoint" />
+            <mxPoint x="625" y="695" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="18 : decreaseQuantity($productId, $qty)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="730" as="sourcePoint" />
+            <mxPoint x="795" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="19 : UPDATE products SET quantity = quantity - ?">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="805" y="750" as="sourcePoint" />
+            <mxPoint x="1335" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="20 : removeItem($userId, $productId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="785" as="sourcePoint" />
+            <mxPoint x="975" y="785" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="21 : DELETE FROM cart_items">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="985" y="805" as="sourcePoint" />
+            <mxPoint x="1335" y="805" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frame4a" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 4a: COD - Successful" vertex="1">
+          <mxGeometry height="120" width="1380" x="40" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-cod" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#999999;dashed=1;" value="alt [payment_method = COD]" vertex="1">
+          <mxGeometry height="80" width="600" x="420" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="msg20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="22 : view(&#39;cart/success&#39;, $orderIds, &#39;COD&#39;)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="435" y="940" as="sourcePoint" />
+            <mxPoint x="255" y="940" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="23 : displaySuccess(&#39;Đặt hàng thành công!&#39;)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="255" y="960" as="sourcePoint" />
+            <mxPoint x="115" y="960" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frame4b" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 4b: PayOS - Payment Redirection" vertex="1">
+          <mxGeometry height="180" width="1380" x="40" y="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="alt-payos" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#999999;dashed=1;" value="alt [payment_method = PayOS]" vertex="1">
+          <mxGeometry height="140" width="800" x="420" y="1040" as="geometry" />
+        </mxCell>
+        <mxCell id="msg22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="24 : create($orderId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="445" y="1080" as="sourcePoint" />
+            <mxPoint x="1155" y="1080" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg23" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="26 : redirect(PayOS Checkout URL)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="1155" y="1150" as="sourcePoint" />
+            <mxPoint x="115" y="1150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frame5" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 5: Notify the seller (async)" vertex="1">
+          <mxGeometry height="100" width="1380" x="40" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="Bekr0cM-YlQn5jcja_Dc-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;u&gt;PaymentController&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="1100" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Bekr0cM-YlQn5jcja_Dc-2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="60" width="10" x="1160" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="XdpW9SWebqpPNgFZM-Jh-3" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="User" vertex="1">
+          <mxGeometry height="60" width="30" x="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,341 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.2.9 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.2.9" pages="1">
+  <diagram name="Xác thực email" id="email-verify-seq">
+    <mxGraphModel dx="1892" dy="1212" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ========== LIFELINES ========== -->
+        <mxCell id="user-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="80" as="sourcePoint" />
+            <mxPoint x="110" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="view-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="280" y="80" as="sourcePoint" />
+            <mxPoint x="280" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="480" y="80" as="sourcePoint" />
+            <mxPoint x="480" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="verify-svc-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="700" y="80" as="sourcePoint" />
+            <mxPoint x="700" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="email-svc-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="900" y="80" as="sourcePoint" />
+            <mxPoint x="900" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="user-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1080" y="80" as="sourcePoint" />
+            <mxPoint x="1080" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1240" y="80" as="sourcePoint" />
+            <mxPoint x="1240" y="1250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PARTICIPANT BOXES ========== -->
+        <mxCell id="user-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;C : User&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="60" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="view-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;A : View&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="230" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Controller : VerificationController&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="410" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="verify-svc-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Service : EmailVerificationService&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="140" x="630" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="email-svc-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Service : EmailService&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="845" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="user-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : User&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="1030" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;DB : Database&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="100" x="1190" y="30" as="geometry" />
+        </mxCell>
+        
+        <!-- ========== PHASE 1: SEND VERIFICATION EMAIL (after registration) ========== -->
+        <mxCell id="frame1" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 1: Gửi email xác thực (sau đăng ký)" vertex="1">
+          <mxGeometry x="40" y="100" width="1280" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- After registration -->
+        <mxCell id="note-reg" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;[After AuthController::register() - User created but not verified]&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="280" x="400" y="120" as="geometry" />
+        </mxCell>
+        
+        <!-- Generate token -->
+        <mxCell id="msg1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="1 : generateVerificationToken($userId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="165" as="sourcePoint" />
+            <mxPoint x="695" y="165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service activation -->
+        <mxCell id="verify-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="695" y="165" as="geometry" />
+        </mxCell>
+        
+        <!-- Generate OTP and token -->
+        <mxCell id="note-gen" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;2 : generateOTP() + generateToken() + saveToUser()&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="230" x="710" y="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Save to DB -->
+        <mxCell id="msg2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="3 : UPDATE users SET email_verification_token, email_otp, expires_at">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="220" as="sourcePoint" />
+            <mxPoint x="1235" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service sends email -->
+        <mxCell id="msg3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="4 : sendVerificationEmail($email, $otp, $token)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="255" as="sourcePoint" />
+            <mxPoint x="895" y="255" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Email Service activation -->
+        <mxCell id="email-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="50" width="10" x="895" y="255" as="geometry" />
+        </mxCell>
+        
+        <!-- Email sent to user -->
+        <mxCell id="msg4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="5 : send email (OTP + verification link)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="895" y="285" as="sourcePoint" />
+            <mxPoint x="115" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Save session -->
+        <mxCell id="msg5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="6 : $_SESSION['pending_verification_email'] = $email">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="320" as="sourcePoint" />
+            <mxPoint x="275" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Redirect to verify form -->
+        <mxCell id="msg6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="7 : redirect('/verify-email')">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="275" y="345" as="sourcePoint" />
+            <mxPoint x="115" y="345" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 2: VERIFY BY OTP ========== -->
+        <mxCell id="frame2" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 2: Xác thực bằng mã OTP" vertex="1">
+          <mxGeometry x="40" y="380" width="1280" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- User receives email and opens form -->
+        <mxCell id="msg7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="8 : openVerifyForm()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="420" as="sourcePoint" />
+            <mxPoint x="275" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller -->
+        <mxCell id="msg8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="9 : showVerifyForm()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="445" as="sourcePoint" />
+            <mxPoint x="475" y="445" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller returns form -->
+        <mxCell id="msg9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="10 : view('auth/verify-email', $email)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="470" as="sourcePoint" />
+            <mxPoint x="115" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User enters OTP -->
+        <mxCell id="msg10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="11 : enterOTP($otp) + submit()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="505" as="sourcePoint" />
+            <mxPoint x="275" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls verifyByOtp -->
+        <mxCell id="msg11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="12 : verifyByOtp($_POST['otp'])">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="535" as="sourcePoint" />
+            <mxPoint x="475" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="80" width="10" x="475" y="535" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller calls service -->
+        <mxCell id="msg12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="13 : verifyByOtp($email, $otp)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="560" as="sourcePoint" />
+            <mxPoint x="695" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service checks OTP -->
+        <mxCell id="msg13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="14 : findByEmail($email) + compare OTP + check expiry">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="585" as="sourcePoint" />
+            <mxPoint x="1075" y="585" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service marks as verified -->
+        <mxCell id="msg14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="15 : UPDATE users SET email_verified_at = now(), clear tokens">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="610" as="sourcePoint" />
+            <mxPoint x="1235" y="610" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller redirects -->
+        <mxCell id="msg15" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="16 : $_SESSION['user']['email_verified'] = true + redirect('/')">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="635" as="sourcePoint" />
+            <mxPoint x="115" y="635" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 3: VERIFY BY TOKEN/LINK ========== -->
+        <mxCell id="frame3" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 3: Xác thực bằng link trong email" vertex="1">
+          <mxGeometry x="40" y="660" width="1280" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- User clicks link in email -->
+        <mxCell id="msg16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="17 : clickVerificationLink()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="700" as="sourcePoint" />
+            <mxPoint x="275" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller -->
+        <mxCell id="msg17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="18 : verifyByToken(?token=xxx)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="730" as="sourcePoint" />
+            <mxPoint x="475" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act3" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="100" width="10" x="475" y="730" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller calls service -->
+        <mxCell id="msg18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="19 : verifyByToken($token)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="760" as="sourcePoint" />
+            <mxPoint x="695" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service finds user by token -->
+        <mxCell id="msg19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="20 : findByVerificationToken($token) + check expiry">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="785" as="sourcePoint" />
+            <mxPoint x="1075" y="785" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service marks as verified -->
+        <mxCell id="msg20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="21 : markAsVerified($userId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="810" as="sourcePoint" />
+            <mxPoint x="1075" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller redirects -->
+        <mxCell id="msg21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="22 : redirect('/login') + success message">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="845" as="sourcePoint" />
+            <mxPoint x="115" y="845" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 4: RESEND VERIFICATION ========== -->
+        <mxCell id="frame4" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 4: Gửi lại email xác thực" vertex="1">
+          <mxGeometry x="40" y="900" width="1280" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- User clicks resend -->
+        <mxCell id="msg22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="23 : clickResendButton()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="940" as="sourcePoint" />
+            <mxPoint x="275" y="940" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller -->
+        <mxCell id="msg23" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="24 : resendVerification()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="970" as="sourcePoint" />
+            <mxPoint x="475" y="970" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller calls service -->
+        <mxCell id="msg24" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="25 : resendVerification($email)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="1000" as="sourcePoint" />
+            <mxPoint x="695" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service generates new tokens -->
+        <mxCell id="note-new-token" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;26 : generateNewOTP() + generateNewToken() + updateExpiry()&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="270" x="710" y="1015" as="geometry" />
+        </mxCell>
+        
+        <!-- Service sends email -->
+        <mxCell id="msg25" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="27 : sendVerificationEmail($email, $newOtp, $newToken)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="705" y="1055" as="sourcePoint" />
+            <mxPoint x="895" y="1055" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller returns view -->
+        <mxCell id="msg26" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="28 : view('auth/verify-email', success='Đã gửi lại mã!')">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="1085" as="sourcePoint" />
+            <mxPoint x="115" y="1085" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

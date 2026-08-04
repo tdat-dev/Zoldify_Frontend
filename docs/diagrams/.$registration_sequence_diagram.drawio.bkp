@@ -1,0 +1,382 @@
+<mxfile host="app.diagrams.net" modified="2026-01-11T14:49:00.000Z" agent="Mozilla/5.0" version="21.0.0">
+  <diagram name="Registration Sequence Diagram" id="register-seq">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ========== PARTICIPANTS (Objects) ========== -->
+        
+        <!-- C: User -->
+        <mxCell id="user-head" value="&lt;u&gt;C : User&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="user-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="110" y="80" as="sourcePoint" />
+            <mxPoint x="110" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- A: View (register.php) -->
+        <mxCell id="view-head" value="&lt;u&gt;A : View&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="220" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="view-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="270" y="80" as="sourcePoint" />
+            <mxPoint x="270" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller: AuthController -->
+        <mxCell id="ctrl-head" value="&lt;u&gt;Controller :&lt;br&gt;AuthController&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="380" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="440" y="80" as="sourcePoint" />
+            <mxPoint x="440" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Validator: AuthValidator -->
+        <mxCell id="val-head" value="&lt;u&gt;Validator :&lt;br&gt;AuthValidator&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="560" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="val-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="620" y="80" as="sourcePoint" />
+            <mxPoint x="620" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Service: AuthService -->
+        <mxCell id="svc-head" value="&lt;u&gt;Service :&lt;br&gt;AuthService&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="740" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="svc-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="80" as="sourcePoint" />
+            <mxPoint x="800" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Model: User -->
+        <mxCell id="model-head" value="&lt;u&gt;Model : User&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="920" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="model-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="970" y="80" as="sourcePoint" />
+            <mxPoint x="970" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="db-head" value="&lt;u&gt;DB : Database&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="db-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1130" y="80" as="sourcePoint" />
+            <mxPoint x="1130" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- EmailService -->
+        <mxCell id="email-head" value="&lt;u&gt;EmailService&lt;/u&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="40" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="email-line" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1290" y="80" as="sourcePoint" />
+            <mxPoint x="1290" y="950" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== ACTIVATION BARS ========== -->
+        
+        <!-- User Activation 1 -->
+        <mxCell id="user-act1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="105" y="110" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- View Activation 1 -->
+        <mxCell id="view-act1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="265" y="130" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- User Activation 2 -->
+        <mxCell id="user-act2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="105" y="210" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- View Activation 2 -->
+        <mxCell id="view-act2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="265" y="260" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller Activation -->
+        <mxCell id="ctrl-act" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="435" y="290" width="10" height="560" as="geometry" />
+        </mxCell>
+        
+        <!-- Validator Activation -->
+        <mxCell id="val-act" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="615" y="340" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Service Activation -->
+        <mxCell id="svc-act" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="795" y="430" width="10" height="330" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Activation 1 (checkEmail) -->
+        <mxCell id="model-act1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="965" y="470" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Database Activation 1 -->
+        <mxCell id="db-act1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="490" width="10" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Activation 2 (register) -->
+        <mxCell id="model-act2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="965" y="560" width="10" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Database Activation 2 -->
+        <mxCell id="db-act2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="580" width="10" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- EmailService Activation -->
+        <mxCell id="email-act" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="1285" y="680" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- View Activation 3 (Response) -->
+        <mxCell id="view-act3" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="265" y="870" width="10" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ========== MESSAGES ========== -->
+        
+        <!-- 1: User -> View: accessRegister() -->
+        <mxCell id="msg1" value="1 : accessRegister()" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="120" as="sourcePoint" />
+            <mxPoint x="265" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 2: View -> User: displayForm() -->
+        <mxCell id="msg2" value="2 : displayForm()" style="html=1;verticalAlign=bottom;endArrow=open;dashed=0;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="170" as="sourcePoint" />
+            <mxPoint x="115" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 3: User -> View: enterData() -->
+        <mxCell id="msg3" value="3 : enterData(username, email, phone, password)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="220" as="sourcePoint" />
+            <mxPoint x="265" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 4: User -> View: submitForm() -->
+        <mxCell id="msg4" value="4 : submitForm()" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="115" y="260" as="sourcePoint" />
+            <mxPoint x="265" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 5: View -> Controller: processRegister() -->
+        <mxCell id="msg5" value="5 : processRegister($_POST)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="275" y="300" as="sourcePoint" />
+            <mxPoint x="435" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 6: Controller -> Validator: validateRegister() -->
+        <mxCell id="msg6" value="6 : validateRegister($_POST)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="350" as="sourcePoint" />
+            <mxPoint x="615" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 7: Validator -> Controller: return $errors -->
+        <mxCell id="msg7" value="7 : return $errors" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="615" y="390" as="sourcePoint" />
+            <mxPoint x="445" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 8: Controller -> Service: registerUser() -->
+        <mxCell id="msg8" value="8 : registerUser($_POST)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="440" as="sourcePoint" />
+            <mxPoint x="795" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 9: Service -> Model: checkEmailExists() -->
+        <mxCell id="msg9" value="9 : checkEmailExists($email)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="480" as="sourcePoint" />
+            <mxPoint x="965" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 10: Model -> Database: SELECT email -->
+        <mxCell id="msg10" value="10 : SELECT email FROM users" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="500" as="sourcePoint" />
+            <mxPoint x="1125" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 11: Database -> Model: return result -->
+        <mxCell id="msg11" value="11 : return result" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1125" y="520" as="sourcePoint" />
+            <mxPoint x="975" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 12: Model -> Service: return false (email not exists) -->
+        <mxCell id="msg12" value="12 : return false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="545" as="sourcePoint" />
+            <mxPoint x="805" y="545" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 13: Service -> Model: register() -->
+        <mxCell id="msg13" value="13 : register($data)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="570" as="sourcePoint" />
+            <mxPoint x="965" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 14: Model -> Database: INSERT user -->
+        <mxCell id="msg14" value="14 : INSERT INTO users (hash password)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="975" y="595" as="sourcePoint" />
+            <mxPoint x="1125" y="595" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 15: Database -> Model: return userId -->
+        <mxCell id="msg15" value="15 : return $userId" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1125" y="620" as="sourcePoint" />
+            <mxPoint x="975" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 16: Model -> Service: return $userId -->
+        <mxCell id="msg16" value="16 : return $userId" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="965" y="650" as="sourcePoint" />
+            <mxPoint x="805" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 17: Service -> EmailService: sendVerification() -->
+        <mxCell id="msg17" value="17 : sendVerification($userId, $email)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="690" as="sourcePoint" />
+            <mxPoint x="1285" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 18: EmailService: Generate OTP + Token -->
+        <mxCell id="msg18" value="18 : generateOTP()" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1295" y="710" as="sourcePoint" />
+            <mxPoint x="1350" y="710" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1350" y="710" />
+              <mxPoint x="1350" y="725" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg18-return" value="" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1350" y="725" as="sourcePoint" />
+            <mxPoint x="1295" y="725" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 19: EmailService -> User: Send Email with OTP -->
+        <mxCell id="msg19" value="19 : sendEmail(OTP)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1285" y="745" as="sourcePoint" />
+            <mxPoint x="115" y="745" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 20: EmailService -> Service: return true -->
+        <mxCell id="msg20" value="20 : return true" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1285" y="770" as="sourcePoint" />
+            <mxPoint x="805" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 21: Service -> Controller: return success -->
+        <mxCell id="msg21" value="21 : return success" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="795" y="800" as="sourcePoint" />
+            <mxPoint x="445" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 22: Controller: saveSession -->
+        <mxCell id="msg22" value="22 : saveSession(email)" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="445" y="830" as="sourcePoint" />
+            <mxPoint x="510" y="830" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="510" y="830" />
+              <mxPoint x="510" y="845" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg22-return" value="" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="510" y="845" as="sourcePoint" />
+            <mxPoint x="445" y="845" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 23: Controller -> View: redirect /verify-email -->
+        <mxCell id="msg23" value="23 : redirect('/verify-email')" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="435" y="870" as="sourcePoint" />
+            <mxPoint x="265" y="880" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 24: View -> User: displayVerifyPage() -->
+        <mxCell id="msg24" value="24 : displayVerifyPage()" style="html=1;verticalAlign=bottom;endArrow=open;dashed=0;endSize=8;curved=0;rounded=0;fillColor=#fff2cc;strokeColor=#d6b656;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="265" y="910" as="sourcePoint" />
+            <mxPoint x="115" y="910" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

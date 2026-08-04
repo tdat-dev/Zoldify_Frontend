@@ -1,0 +1,308 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.2.9 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.2.9" pages="1">
+  <diagram name="Chat nhắn tin" id="chat-seq">
+    <mxGraphModel dx="1892" dy="1212" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- ========== LIFELINES ========== -->
+        <mxCell id="user-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="80" as="sourcePoint" />
+            <mxPoint x="110" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="view-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="280" y="80" as="sourcePoint" />
+            <mxPoint x="280" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ctrl-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="480" y="80" as="sourcePoint" />
+            <mxPoint x="480" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="680" y="80" as="sourcePoint" />
+            <mxPoint x="680" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="user-model-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="880" y="80" as="sourcePoint" />
+            <mxPoint x="880" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="db-line" edge="1" parent="1" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="1060" y="80" as="sourcePoint" />
+            <mxPoint x="1060" y="1000" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PARTICIPANT BOXES ========== -->
+        <mxCell id="user-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;C : User (Sender)&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="55" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="view-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;A : View&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="225" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Controller : ChatController&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="120" x="420" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="msg-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : Message&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="625" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="user-model-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;Model : User&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="825" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="db-box" parent="1" style="html=1;whiteSpace=wrap;" value="&lt;u&gt;DB : Database&lt;/u&gt;" vertex="1">
+          <mxGeometry height="50" width="110" x="1005" y="30" as="geometry" />
+        </mxCell>
+        
+        <!-- ========== PHASE 1: VIEW CHAT LIST ========== -->
+        <mxCell id="frame1" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 1: Hiển thị danh sách cuộc trò chuyện" vertex="1">
+          <mxGeometry x="40" y="100" width="1100" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- User opens chat -->
+        <mxCell id="msg1" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="1 : clickChatMenu()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="140" as="sourcePoint" />
+            <mxPoint x="275" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller -->
+        <mxCell id="msg2" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="2 : index()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="165" as="sourcePoint" />
+            <mxPoint x="475" y="165" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="120" width="10" x="475" y="165" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller gets conversations -->
+        <mxCell id="msg3" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="3 : getRecentConversations($currentUserId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="195" as="sourcePoint" />
+            <mxPoint x="675" y="195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Message Model activation -->
+        <mxCell id="msg-act1" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="50" width="10" x="675" y="195" as="geometry" />
+        </mxCell>
+        
+        <!-- Message queries DB -->
+        <mxCell id="msg4" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="4 : SELECT DISTINCT partner_id, last_message FROM messages">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="685" y="220" as="sourcePoint" />
+            <mxPoint x="1055" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- DB returns -->
+        <mxCell id="msg5" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="5 : return $conversations[]">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1055" y="240" as="sourcePoint" />
+            <mxPoint x="685" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Message returns to controller -->
+        <mxCell id="msg6" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="6 : return $conversations">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="675" y="260" as="sourcePoint" />
+            <mxPoint x="485" y="260" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller returns view -->
+        <mxCell id="msg7" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="7 : view('chat/index', $conversations)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="285" as="sourcePoint" />
+            <mxPoint x="275" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View displays -->
+        <mxCell id="msg8" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="8 : displayConversationList()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="275" y="305" as="sourcePoint" />
+            <mxPoint x="115" y="305" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 2: OPEN CONVERSATION ========== -->
+        <mxCell id="frame2" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 2: Mở cuộc trò chuyện" vertex="1">
+          <mxGeometry x="40" y="340" width="1100" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- User clicks conversation -->
+        <mxCell id="msg9" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="9 : selectConversation($partnerId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="380" as="sourcePoint" />
+            <mxPoint x="275" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls controller with user_id -->
+        <mxCell id="msg10" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="10 : index(?user_id=$partnerId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="405" as="sourcePoint" />
+            <mxPoint x="475" y="405" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="140" width="10" x="475" y="405" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller finds partner -->
+        <mxCell id="msg11" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="11 : find($partnerId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="435" as="sourcePoint" />
+            <mxPoint x="875" y="435" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- User Model returns -->
+        <mxCell id="msg12" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="12 : return $activePartner">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="875" y="455" as="sourcePoint" />
+            <mxPoint x="485" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller gets messages -->
+        <mxCell id="msg13" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="13 : getConversation($currentUserId, $partnerId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="480" as="sourcePoint" />
+            <mxPoint x="675" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Message queries DB -->
+        <mxCell id="msg14" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="14 : SELECT * FROM messages WHERE (sender,receiver) ORDER BY created_at">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="685" y="505" as="sourcePoint" />
+            <mxPoint x="1055" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- DB returns messages -->
+        <mxCell id="msg15" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="15 : return $messages[]">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1055" y="525" as="sourcePoint" />
+            <mxPoint x="685" y="525" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller returns view -->
+        <mxCell id="msg16" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="16 : view('chat/index', $conversations, $activePartner, $messages)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="550" as="sourcePoint" />
+            <mxPoint x="275" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View displays messages -->
+        <mxCell id="msg17" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="17 : displayChatMessages()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="275" y="570" as="sourcePoint" />
+            <mxPoint x="115" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 3: SEND MESSAGE ========== -->
+        <mxCell id="frame3" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 3: Gửi tin nhắn" vertex="1">
+          <mxGeometry x="40" y="600" width="1100" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- User types and submits -->
+        <mxCell id="msg18" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="18 : typeMessage($content) + submitForm()">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="115" y="640" as="sourcePoint" />
+            <mxPoint x="275" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- View calls send -->
+        <mxCell id="msg19" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="19 : send($_POST['receiver_id'], $_POST['content'])">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="285" y="670" as="sourcePoint" />
+            <mxPoint x="475" y="670" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller activation -->
+        <mxCell id="ctrl-act3" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="110" width="10" x="475" y="670" as="geometry" />
+        </mxCell>
+        
+        <!-- Validate note -->
+        <mxCell id="note-validate" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;20 : validate() - Check not empty, not sending to self&lt;/span&gt;" vertex="1">
+          <mxGeometry height="30" width="220" x="490" y="690" as="geometry" />
+        </mxCell>
+        
+        <!-- Controller creates message -->
+        <mxCell id="msg20" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="21 : create(sender_id, receiver_id, content)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="485" y="730" as="sourcePoint" />
+            <mxPoint x="675" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Message Model activation -->
+        <mxCell id="msg-act2" parent="1" style="html=1;points=[[0,0,0,0,5],[0,1,0,0,-5],[1,0,0,0,5],[1,1,0,0,-5]];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;curved&quot;:0,&quot;rounded&quot;:0};" value="" vertex="1">
+          <mxGeometry height="40" width="10" x="675" y="730" as="geometry" />
+        </mxCell>
+        
+        <!-- Message inserts to DB -->
+        <mxCell id="msg21" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="22 : INSERT INTO messages (sender_id, receiver_id, content, created_at)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="685" y="750" as="sourcePoint" />
+            <mxPoint x="1055" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- DB returns ID -->
+        <mxCell id="msg22" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" value="23 : return $messageId">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1055" y="770" as="sourcePoint" />
+            <mxPoint x="685" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Controller redirects -->
+        <mxCell id="msg23" edge="1" parent="1" style="html=1;verticalAlign=bottom;endArrow=block;curved=0;rounded=0;" value="24 : redirect('/chat?user_id=' + $receiverId)">
+          <mxGeometry relative="1" width="80" as="geometry">
+            <mxPoint x="475" y="795" as="sourcePoint" />
+            <mxPoint x="115" y="795" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- ========== PHASE 4: START NEW CHAT ========== -->
+        <mxCell id="frame4" parent="1" style="shape=umlFrame;whiteSpace=wrap;html=1;pointerEvents=0;fillColor=none;strokeColor=#666666;" value="Phase 4: Bắt đầu chat mới (từ trang shop/product)" vertex="1">
+          <mxGeometry x="40" y="840" width="1100" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Note for new chat -->
+        <mxCell id="note-new" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;font-size: 11px; background-color: rgb(18, 18, 18);&quot;&gt;25 : User click 'Chat với shop' trên trang sản phẩm hoặc shop&lt;br&gt;→ Redirect đến /chat?user_id=$sellerId&lt;br&gt;→ Tạo cuộc trò chuyện mới nếu chưa có&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="300" x="400" y="875" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

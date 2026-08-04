@@ -1,0 +1,24 @@
+# Robots.txt for Zoldify
+# Hướng dẫn các search engine bot cách index website
+
+User-agent: *
+Allow: /
+
+# Không index các trang private/admin
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile/
+Disallow: /wallet
+Disallow: /chat
+Disallow: /addresses/
+
+# Không index các trang API
+Disallow: /api/
+
+# Không index các file hệ thống
+Disallow: /*.json$
+Disallow: /*.php$
+
+# Sitemap location (Production)
+Sitemap: https://zoldify.com/sitemap.xml

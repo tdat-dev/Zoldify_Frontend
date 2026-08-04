@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # dependencies
 /node_modules
 /.pnp
@@ -32,3 +33,104 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+=======
+# Dependencies
+/vendor/
+/node_modules/
+chat-server/node_modules/
+/package-lock.json
+/composer.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+CREDENTIALS.md
+docs/CREDENTIALS.md
+
+# Logs
+*.log
+/logs/
+/storage/logs/
+
+# Cache
+/cache/
+/storage/cache/
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+/tests/security/
+
+# Uploads (giữ cấu trúc thư mục nhưng ignore files)
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+footer-screenshot.png
+no-footer-debug.png
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.agent
+
+# Build files
+/dist/
+/build/
+*.zip
+*.rar
+*.tar.gz
+UniMarket.zip
+UniMarket.rar
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Database
+*.sql.backup
+*.sql.bak
+
+# PHP
+*.php~
+*.phps
+
+# Composer
+composer.phar
+
+# NPM
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Coverage reports
+/coverage/
+*.lcov
+
+# System files
+.htaccess.local
+.htpasswd
+>>>>>>> 203293aacb4262d2171d95f2c25a1cc15cb7c8ca

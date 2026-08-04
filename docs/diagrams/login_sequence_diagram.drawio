@@ -1,0 +1,409 @@
+<mxfile host="app.diagrams.net" modified="2026-01-20T12:08:00.000Z" agent="Zoldify" version="24.0.0" type="device">
+  <diagram id="login-sequence" name="Login Sequence Diagram">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Actor: User (stick figure) -->
+        <mxCell id="actor_user" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="35" y="30" width="30" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Actor lifeline -->
+        <mxCell id="actor_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="50" y="90" as="sourcePoint" />
+            <mxPoint x="50" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Participant: LoginView -->
+        <mxCell id="loginview_box" value="LoginView" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="120" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="loginview_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="70" as="sourcePoint" />
+            <mxPoint x="170" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Participant: AuthController -->
+        <mxCell id="authcontroller_box" value="AuthController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="280" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="authcontroller_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="330" y="70" as="sourcePoint" />
+            <mxPoint x="330" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Participant: AuthService -->
+        <mxCell id="authservice_box" value="AuthService" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="440" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="authservice_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="490" y="70" as="sourcePoint" />
+            <mxPoint x="490" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Participant: UserModel -->
+        <mxCell id="usermodel_box" value="UserModel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="600" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="usermodel_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="650" y="70" as="sourcePoint" />
+            <mxPoint x="650" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Participant: Database -->
+        <mxCell id="database_box" value="Database" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="760" y="30" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="database_lifeline" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 4;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="810" y="70" as="sourcePoint" />
+            <mxPoint x="810" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message 1: User -> LoginView: ViewLoginPage -->
+        <mxCell id="msg1" value="ViewLoginPage" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="50" y="100" as="sourcePoint" />
+            <mxPoint x="170" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message 2: LoginView -> AuthController: processLogin() -->
+        <mxCell id="msg2" value="processLogin()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="130" as="sourcePoint" />
+            <mxPoint x="330" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: AuthController -> LoginView: ShowLoginForm() -->
+        <mxCell id="msg3_return" value="ShowLoginForm()" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="150" as="sourcePoint" />
+            <mxPoint x="170" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== ALT FRAGMENT ==================== -->
+        <mxCell id="alt_frame" value="alt" style="shape=umlFrame;whiteSpace=wrap;html=1;width=30;height=20;fillColor=none;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="30" y="170" width="850" height="720" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CASE 1: [valid input, valid] ==================== -->
+        <mxCell id="alt_condition1" value="[valid input, valid]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="190" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ========== ACTIVATION BOXES - CASE 1 ========== -->
+        <!-- LoginView activation -->
+        <mxCell id="act_loginview_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="165" y="215" width="10" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- AuthController activation -->
+        <mxCell id="act_authcontroller_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="325" y="220" width="10" height="195" as="geometry" />
+        </mxCell>
+        
+        <!-- AuthService activation -->
+        <mxCell id="act_authservice_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="485" y="250" width="10" height="145" as="geometry" />
+        </mxCell>
+        
+        <!-- UserModel activation -->
+        <mxCell id="act_usermodel_1" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="645" y="280" width="10" height="95" as="geometry" />
+        </mxCell>
+        
+        <!-- Database activation 1 -->
+        <mxCell id="act_database_1a" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="805" y="310" width="10" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Database activation 2 -->
+        <mxCell id="act_database_1b" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="805" y="350" width="10" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Message: LoginView -> AuthController: validateLogin() -->
+        <mxCell id="msg4" value="validateLogin()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="175" y="220" as="sourcePoint" />
+            <mxPoint x="325" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: AuthController -> AuthService: loginUser() -->
+        <mxCell id="msg5" value="loginUser()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="250" as="sourcePoint" />
+            <mxPoint x="485" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: AuthService -> UserModel: login() -->
+        <mxCell id="msg6" value="login()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="495" y="280" as="sourcePoint" />
+            <mxPoint x="645" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: UserModel -> Database: getConnection() -->
+        <mxCell id="msg7" value="getConnection()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="310" as="sourcePoint" />
+            <mxPoint x="805" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: Database -> UserModel: connection -->
+        <mxCell id="msg8_return" value="connection" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="330" as="sourcePoint" />
+            <mxPoint x="655" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: UserModel -> Database: findByEmail() -->
+        <mxCell id="msg9" value="findByEmail()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="350" as="sourcePoint" />
+            <mxPoint x="805" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: Database -> UserModel: User -->
+        <mxCell id="msg10_return" value="User" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="370" as="sourcePoint" />
+            <mxPoint x="655" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: UserModel -> AuthService: return User -->
+        <mxCell id="msg11_return" value="return User" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="390" as="sourcePoint" />
+            <mxPoint x="495" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: AuthService -> AuthController: return User -->
+        <mxCell id="msg12_return" value="return User" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="485" y="410" as="sourcePoint" />
+            <mxPoint x="335" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: AuthController -> LoginView: User -->
+        <mxCell id="msg13_return" value="User" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="325" y="430" as="sourcePoint" />
+            <mxPoint x="175" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: LoginView -> User: redirect('/') -->
+        <mxCell id="msg14_return" value="redirect('/')" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="165" y="450" as="sourcePoint" />
+            <mxPoint x="50" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== SEPARATOR LINE 1 ==================== -->
+        <mxCell id="separator1" value="" style="endArrow=none;dashed=1;html=1;dashPattern=8 8;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="480" as="sourcePoint" />
+            <mxPoint x="870" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== CASE 2: [connection failed] ==================== -->
+        <mxCell id="alt_condition2" value="[connection failed]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="490" width="120" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ========== ACTIVATION BOXES - CASE 2 ========== -->
+        <!-- LoginView activation 2 -->
+        <mxCell id="act_loginview_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="165" y="515" width="10" height="195" as="geometry" />
+        </mxCell>
+        
+        <!-- AuthController activation 2 -->
+        <mxCell id="act_authcontroller_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="325" y="520" width="10" height="165" as="geometry" />
+        </mxCell>
+        
+        <!-- AuthService activation 2 -->
+        <mxCell id="act_authservice_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="485" y="540" width="10" height="125" as="geometry" />
+        </mxCell>
+        
+        <!-- UserModel activation 2 -->
+        <mxCell id="act_usermodel_2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="645" y="560" width="10" height="85" as="geometry" />
+        </mxCell>
+        
+        <!-- Database activation 2a -->
+        <mxCell id="act_database_2a" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="805" y="580" width="10" height="25" as="geometry" />
+        </mxCell>
+        
+        <!-- Database activation 2b -->
+        <mxCell id="act_database_2b" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" parent="1" vertex="1">
+          <mxGeometry x="805" y="620" width="10" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Message: LoginView -> AuthController: validateLogin() -->
+        <mxCell id="msg15" value="validateLogin()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="175" y="520" as="sourcePoint" />
+            <mxPoint x="325" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: AuthController -> AuthService: loginUser() -->
+        <mxCell id="msg16" value="loginUser()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="335" y="540" as="sourcePoint" />
+            <mxPoint x="485" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: AuthService -> UserModel: login() -->
+        <mxCell id="msg17" value="login()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="495" y="560" as="sourcePoint" />
+            <mxPoint x="645" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: UserModel -> Database: getConnection() -->
+        <mxCell id="msg18" value="getConnection()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="580" as="sourcePoint" />
+            <mxPoint x="805" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: Database -> UserModel: connection failed -->
+        <mxCell id="msg19_return" value="connection failed" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="600" as="sourcePoint" />
+            <mxPoint x="655" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Message: UserModel -> Database: findByEmail() -->
+        <mxCell id="msg20" value="findByEmail()" style="html=1;verticalAlign=bottom;endArrow=block;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="655" y="620" as="sourcePoint" />
+            <mxPoint x="805" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: Database -> UserModel: return false -->
+        <mxCell id="msg21_return" value="return false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="805" y="640" as="sourcePoint" />
+            <mxPoint x="655" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: UserModel -> AuthService: return false -->
+        <mxCell id="msg22_return" value="return false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="645" y="660" as="sourcePoint" />
+            <mxPoint x="495" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: AuthService -> AuthController: return false -->
+        <mxCell id="msg23_return" value="return false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="485" y="680" as="sourcePoint" />
+            <mxPoint x="335" y="680" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Return: AuthController -> LoginView: return false -->
+        <mxCell id="msg24_return" value="return false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="325" y="700" as="sourcePoint" />
+            <mxPoint x="175" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== SEPARATOR LINE 2 ==================== -->
+        <mxCell id="separator2" value="" style="endArrow=none;dashed=1;html=1;dashPattern=8 8;strokeWidth=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="730" as="sourcePoint" />
+            <mxPoint x="870" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ==================== CASE 3: [invalid input, invalid] ==================== -->
+        <mxCell id="alt_condition3" value="[invalid input, invalid]" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=2;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="740" width="120" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Error: LoginView -> User: report empty input -->
+        <mxCell id="msg25_error" value="report empty input" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="770" as="sourcePoint" />
+            <mxPoint x="50" y="770" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Error: AuthController -> LoginView: return account is not found -->
+        <mxCell id="msg26_error" value="return account is not found" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="800" as="sourcePoint" />
+            <mxPoint x="170" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Error: LoginView -> User: report not found account -->
+        <mxCell id="msg27_error" value="report not found account" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="825" as="sourcePoint" />
+            <mxPoint x="50" y="825" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Error: AuthController -> LoginView: return password is false -->
+        <mxCell id="msg28_error" value="return password is false" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="850" as="sourcePoint" />
+            <mxPoint x="170" y="850" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Error: LoginView -> User: report wrong password -->
+        <mxCell id="msg29_error" value="report wrong password" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="170" y="875" as="sourcePoint" />
+            <mxPoint x="50" y="875" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
