@@ -57,7 +57,7 @@ export default function LoginPage() {
       </div>
       <div className="w-full lg:w-[40%] max-w-[450px] bg-white rounded-3xl shadow-2xl p-8 md:p-10">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">Chào mừng trở lại!</h2>
+          <h1 className="text-3xl font-bold text-gray-800">Chào mừng trở lại!</h1>
           <p className="text-gray-600 text-sm mt-1">Đăng nhập để tiếp tục mua sắm</p>
         </div>
 

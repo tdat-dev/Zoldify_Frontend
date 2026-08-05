@@ -59,17 +59,17 @@ export default function RegisterPage() {
       <div className="hidden lg:flex flex-col items-center justify-center w-[55%]">
         <img src="/images/homepage-text.png" alt="Zoldify Illustration" className="w-full h-auto object-contain drop-shadow-2xl" draggable={false} />
         <div className="mt-8 text-center text-gray-800">
-          <h3 className="text-3xl font-bold mb-2">Tham gia Zoldify</h3>
-          <p className="text-blue-600 text-lg">Cộng đồng trao đổi đồ cũ</p>
+          <p className="text-3xl font-bold mb-2">Tham gia Zoldify</p>
+          <p className="text-blue-700 text-lg">Cộng đồng trao đổi đồ cũ</p>
         </div>
       </div>
 
       {/* Cột Form bên phải */}
       <div className="w-full lg:w-[45%] max-w-lg bg-white rounded-3xl shadow-2xl p-8 md:p-10">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-gray-800">
             {step === 1 ? 'Tạo tài khoản mới' : 'Xác thực OTP'}
-          </h2>
+          </h1>
           {step === 2 && (
             <p className="text-gray-600 mt-2 text-sm">
               Mã xác thực đã được gửi đến email <br/> 

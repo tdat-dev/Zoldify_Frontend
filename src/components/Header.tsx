@@ -248,7 +248,7 @@ export default function Header() {
                           window.location.reload();
                         }
                       }}
-                      className="hover:text-brand cursor-pointer"
+                      className="inline-block py-1 hover:text-brand cursor-pointer"
                     >
                       {kw}
                     </Link>

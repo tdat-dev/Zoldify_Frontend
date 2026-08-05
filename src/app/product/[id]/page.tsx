@@ -29,6 +29,7 @@ export default function ProductDetailPage() {
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const isOwnProduct = product && user && product.seller?.id === user.id;
 
   useEffect(() => {
@@ -47,7 +48,13 @@ export default function ProductDetailPage() {
         productService.getOne(Number(params.id)),
         reviewService.getByProduct(Number(params.id)),
       ]);
-      if (prodRes.status === 'fulfilled') setProduct(prodRes.value.data?.data || prodRes.value.data);
+      if (prodRes.status === 'fulfilled') {
+        setProduct(prodRes.value.data?.data || prodRes.value.data);
+      } else {
+        // Phân biệt "sản phẩm không tồn tại" (404) với "API hỏng" — trước đây
+        // cả hai đều hiện cùng một dòng "Không tìm thấy sản phẩm".
+        setLoadFailed((prodRes.reason as any)?.response?.status !== 404);
+      }
       if (revRes.status === 'fulfilled') {
         const list = revRes.value.data?.data?.result || [];
         setReviews(list);
@@ -170,7 +177,32 @@ export default function ProductDetailPage() {
   }
 
   if (!product) {
-    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-600">Không tìm thấy sản phẩm</p></div>;
+    return (
+      <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          {loadFailed ? (
+            <>
+              <p className="text-gray-900 font-medium mb-2">Không tải được sản phẩm</p>
+              <p className="text-sm text-gray-700 mb-5">Kết nối tới máy chủ đang có vấn đề. Sản phẩm có thể vẫn còn, bạn thử lại giúp nhé.</p>
+              <button
+                onClick={() => { setLoading(true); setLoadFailed(false); fetchData(); }}
+                className="px-5 py-2.5 bg-brand text-white rounded-sm text-sm font-medium hover:bg-brand-dark transition-colors"
+              >
+                Thử lại
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-900 font-medium mb-2">Không tìm thấy sản phẩm</p>
+              <p className="text-sm text-gray-700 mb-5">Sản phẩm này có thể đã bị gỡ hoặc đã bán xong.</p>
+              <Link href="/search" className="px-5 py-2.5 bg-brand text-white rounded-sm text-sm font-medium hover:bg-brand-dark transition-colors">
+                Xem sản phẩm khác
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (

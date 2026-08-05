@@ -18,11 +18,11 @@ export default function Footer() {
             <div>
               <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wide">MUA VÀ BÁN</h3>
               <ul className="space-y-3 text-sm text-gray-700">
-                <li><Link href="/search" className="hover:text-brand transition-colors">Tìm sản phẩm</Link></li>
-                <li><Link href="/product/create" className="hover:text-brand transition-colors">Đăng bán đồ cũ</Link></li>
-                <li><Link href="/profile/orders" className="hover:text-brand transition-colors">Đơn mua của tôi</Link></li>
-                <li><Link href="/shop/orders" className="hover:text-brand transition-colors">Đơn bán của tôi</Link></li>
-                <li><Link href="/profile/wallet" className="hover:text-brand transition-colors">Ví Zoldify</Link></li>
+                <li><Link href="/search" className="inline-block py-1 hover:text-brand transition-colors">Tìm sản phẩm</Link></li>
+                <li><Link href="/product/create" className="inline-block py-1 hover:text-brand transition-colors">Đăng bán đồ cũ</Link></li>
+                <li><Link href="/profile/orders" className="inline-block py-1 hover:text-brand transition-colors">Đơn mua của tôi</Link></li>
+                <li><Link href="/shop/orders" className="inline-block py-1 hover:text-brand transition-colors">Đơn bán của tôi</Link></li>
+                <li><Link href="/profile/wallet" className="inline-block py-1 hover:text-brand transition-colors">Ví Zoldify</Link></li>
               </ul>
             </div>
 
@@ -44,15 +44,15 @@ export default function Footer() {
               <ul className="space-y-3 text-sm text-gray-700">
                 <li className="flex items-center gap-3">
                   <Mail className="w-4 h-4 text-gray-700" aria-hidden="true" />
-                  <a href="mailto:admin@zoldify.com" className="hover:text-brand transition-colors">admin@zoldify.com</a>
+                  <a href="mailto:admin@zoldify.com" className="inline-block py-1 hover:text-brand transition-colors">admin@zoldify.com</a>
                 </li>
                 <li className="flex items-center gap-3">
                   <MessageSquare className="w-4 h-4 text-gray-700" aria-hidden="true" />
-                  <Link href="/chat" className="hover:text-brand transition-colors">Nhắn tin với người bán</Link>
+                  <Link href="/chat" className="inline-block py-1 hover:text-brand transition-colors">Nhắn tin với người bán</Link>
                 </li>
                 <li className="flex items-center gap-3">
                   <Bell className="w-4 h-4 text-gray-700" aria-hidden="true" />
-                  <Link href="/notifications" className="hover:text-brand transition-colors">Thông báo của tôi</Link>
+                  <Link href="/notifications" className="inline-block py-1 hover:text-brand transition-colors">Thông báo của tôi</Link>
                 </li>
               </ul>
             </div>

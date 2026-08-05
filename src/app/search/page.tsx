@@ -19,6 +19,7 @@ export default function SearchPage() {
   const [sort, setSort] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [trendingKeywords, setTrendingKeywords] = useState<string[]>(['Laptop', 'Sách', 'Điện thoại', 'Tai nghe', 'Áo thun', 'Giày']);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   const fetchProducts = useCallback(async (page: number) => {
     const params: any = {};
@@ -26,9 +27,18 @@ export default function SearchPage() {
     if (selectedCat) params.category_id = parseInt(selectedCat);
     if (sort) params.sort = sort;
 
-    const res = await productService.getAll(page, 20, params);
-    setProducts(res.data?.data?.result || []);
-    setMeta(res.data?.data?.meta || { current: 1, pages: 1, total: 0 });
+    setLoadState('loading');
+    try {
+      const res = await productService.getAll(page, 20, params);
+      setProducts(res.data?.data?.result || []);
+      setMeta(res.data?.data?.meta || { current: 1, pages: 1, total: 0 });
+      setLoadState('ready');
+    } catch {
+      // Trước đây hàm này không bắt lỗi, nên API hỏng lại hiện
+      // "Không tìm thấy sản phẩm nào phù hợp" — sai sự thật.
+      setProducts([]);
+      setLoadState('error');
+    }
   }, [q, selectedCat, sort]);
 
   useEffect(() => {
@@ -77,7 +87,7 @@ export default function SearchPage() {
         <div className="flex gap-4">
           <div className="hidden md:block w-64 flex-shrink-0">
             <div className="bg-white rounded-sm p-4 shadow-sm">
-              <h3 className="font-medium text-gray-800 mb-4 pb-2 border-b">BỘ LỌC TÌM KIẾM</h3>
+              <h2 className="font-medium text-gray-800 mb-4 pb-2 border-b">BỘ LỌC TÌM KIẾM</h2>
               <div className="mb-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Danh mục</h4>
                 <div className="space-y-2 text-sm text-gray-600">
@@ -107,9 +117,13 @@ export default function SearchPage() {
 
           <div className="flex-1 min-w-0">
             <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <input name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-brand text-sm" />
-                <button type="submit" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-blue-700 text-sm">Tìm</button>
+              <h1 className="text-lg font-medium text-gray-900 mb-3">
+                {q ? <>Kết quả tìm kiếm: &ldquo;{q}&rdquo; <span className="text-sm font-normal text-gray-600">({meta.total} sản phẩm)</span></> : 'Tìm sản phẩm trên Zoldify'}
+              </h1>
+              <form onSubmit={handleSearch} className="flex gap-2" role="search">
+                <label htmlFor="search-q" className="sr-only">Từ khoá tìm kiếm</label>
+                <input id="search-q" type="search" name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-brand text-sm" />
+                <button type="submit" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark text-sm">Tìm</button>
               </form>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-600">
                 <span className="font-medium text-gray-600">Phổ biến:</span>
@@ -117,7 +131,7 @@ export default function SearchPage() {
                   <Link
                     key={kw}
                     href={`/search?q=${encodeURIComponent(kw)}`}
-                    className="hover:text-brand cursor-pointer"
+                    className="inline-block py-1 hover:text-brand cursor-pointer"
                   >
                     {kw}
                   </Link>
@@ -125,18 +139,22 @@ export default function SearchPage() {
               </div>
             </div>
 
-            {q && (
-              <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
-                <h1 className="text-xl font-medium text-gray-800 border-l-4 border-brand pl-3">
-                  Kết quả tìm kiếm: &ldquo;{q}&rdquo;
-                  <span className="text-sm font-normal text-gray-600 ml-2">({meta.total} sản phẩm)</span>
-                </h1>
-              </div>
-            )}
-
-            {products.length === 0 ? (
+            {loadState === 'loading' ? (
+              <div className="bg-white rounded p-10 text-center text-sm text-gray-600">Đang tải kết quả…</div>
+            ) : loadState === 'error' ? (
               <div className="bg-white rounded p-10 text-center">
-                <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-800 font-medium">Không tải được kết quả tìm kiếm.</p>
+                <p className="text-sm text-gray-600 mt-2">Kiểm tra kết nối rồi thử lại. Đây không phải là &ldquo;không có sản phẩm&rdquo;.</p>
+                <button
+                  onClick={() => fetchProducts(currentPage)}
+                  className="mt-5 px-5 py-2 bg-brand text-white rounded-sm text-sm hover:bg-brand-dark transition-colors"
+                >
+                  Thử lại
+                </button>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="bg-white rounded p-10 text-center">
+                <Search className="w-10 h-10 text-gray-400 mx-auto mb-3" aria-hidden="true" />
                 <p className="text-gray-600">Không tìm thấy sản phẩm nào phù hợp.</p>
                 <p className="text-sm text-gray-600 mt-2">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
                 <div className="mt-6">
