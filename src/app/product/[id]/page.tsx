@@ -418,7 +418,7 @@ export default function ProductDetailPage() {
             ) : (
               reviews.map((rev: any, idx: number) => (
                 <div key={rev.id || idx} className="flex gap-3 pb-4 border-b last:border-0">
-                  <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(rev.user?.full_name || 'U')}&background=random`} className="w-10 h-10 rounded-full" alt="" />
+                  <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(rev.user?.full_name || 'U')}&background=random`} className="w-10 h-10 rounded-full" alt="" />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-800">{rev.user?.full_name || 'Người dùng'}</p>
                     <div className="flex items-center gap-1 my-1">

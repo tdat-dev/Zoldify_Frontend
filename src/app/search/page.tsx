@@ -178,7 +178,7 @@ export default function SearchPage() {
                   <Link key={item.id} href={`/product/${item.id}`} className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-all group border border-transparent hover:border-brand/30 overflow-hidden">
                     <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
                         <Package className="w-10 h-10 text-gray-600" />
                       )}

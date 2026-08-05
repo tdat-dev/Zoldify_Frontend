@@ -269,7 +269,7 @@ export default function ChatPage() {
                     className={`p-3 border-b border-gray-100 flex gap-3 hover:bg-gray-50 cursor-pointer ${activeConv?.id === conv.id ? 'bg-blue-50/50 border-l-4 border-l-brand' : ''}`}
                   >
                     <div className="relative">
-                      <img src={conv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.partner_name || 'User')}&background=random`} className="w-10 h-10 rounded-full object-cover" alt="" />
+                      <img loading="lazy" decoding="async" src={conv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.partner_name || 'User')}&background=random`} className="w-10 h-10 rounded-full object-cover" alt="" />
                       <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 ${status.dotClass} rounded-full border-2 border-white`}></span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -306,7 +306,7 @@ export default function ChatPage() {
                       <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div className="relative">
-                      <img src={activeConv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'User')}&background=0D8ABC&color=fff`} className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm" alt="" />
+                      <img loading="lazy" decoding="async" src={activeConv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'User')}&background=0D8ABC&color=fff`} className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm" alt="" />
                       <span className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ${headerStatus.dotClass} ring-2 ring-white`}></span>
                     </div>
                     <div>
@@ -331,7 +331,7 @@ export default function ChatPage() {
                       <div key={msg.id || idx} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} group`}>
                         <div className={`flex max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
                           {!isMe && (
-                            <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover shadow-sm mb-1 flex-shrink-0" alt="" />
+                            <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover shadow-sm mb-1 flex-shrink-0" alt="" />
                           )}
                           <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                             <div className={`relative px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words font-normal ${isMe ? 'bg-brand text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-sm'}`}>

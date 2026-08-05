@@ -123,7 +123,7 @@ export default function CartPage() {
                   </div>
                   <div className="col-span-5 flex gap-3">
                     <div className="w-20 h-20 border rounded-sm overflow-hidden flex-shrink-0 bg-gray-100">
-                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                       <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col justify-center">
                       <Link href={`/product/${item.product_id}`} className="text-sm font-medium text-gray-800 line-clamp-2 hover:text-brand">

@@ -129,7 +129,7 @@ export default function CreateProductPage() {
               <div className="flex flex-wrap gap-3">
                 {images.map((url, i) => (
                   <div key={i} className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 group">
-                    <img src={url} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
+                    <img loading="lazy" decoding="async" src={url} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
                     <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <XCircle className="w-4 h-4" />
                     </button>

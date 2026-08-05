@@ -167,7 +167,7 @@ export default function EditProductPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {images.map((url, idx) => (
                 <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border bg-gray-100">
-                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <img loading="lazy" decoding="async" src={url} alt="" className="w-full h-full object-cover" />
                   {idx === 0 && (
                     <span className="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded">
                       Ảnh bìa

@@ -81,7 +81,7 @@ export default function OrderDetailPage() {
                   <div key={idx} className="p-4 hover:bg-gray-50 transition">
                     <div className="flex gap-4">
                       <div className="w-20 h-20 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden border border-gray-200">
-                        <img src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between items-start">

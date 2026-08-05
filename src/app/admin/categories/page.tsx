@@ -137,7 +137,7 @@ export default function CategoriesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Icon danh mục</label>
                 {editingCategory?.image && (
                   <div className="mb-2 flex items-center gap-2">
-                    <img src={editingCategory.image} alt="icon" className="w-10 h-10 object-contain rounded border" />
+                    <img loading="lazy" decoding="async" src={editingCategory.image} alt="icon" className="w-10 h-10 object-contain rounded border" />
                     <span className="text-xs text-gray-600">Ảnh hiện tại</span>
                   </div>
                 )}
@@ -206,7 +206,7 @@ export default function CategoriesPage() {
                     <tr key={cat.id} className={`hover:bg-gray-50 transition ${editingCategory?.id === cat.id ? 'bg-blue-50' : ''}`}>
                       <td className="py-4 px-6">
                         {cat.image ? (
-                          <img src={cat.image} alt={cat.name} className="w-10 h-10 object-contain" />
+                          <img loading="lazy" decoding="async" src={cat.image} alt={cat.name} className="w-10 h-10 object-contain" />
                         ) : (
                           <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600">
                             <Box className="w-6 h-6" />

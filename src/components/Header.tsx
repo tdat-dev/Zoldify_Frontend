@@ -214,7 +214,7 @@ export default function Header() {
           <div className="max-w-[1200px] mx-auto px-4 pt-4">
             <div className="flex flex-row items-center gap-8">
               <Link href="/" aria-label="Zoldify — về trang chủ" className="flex items-center gap-2 flex-shrink-0 group no-underline text-2xl font-bold text-brand">
-                 <img src="/images/logouni.png" alt="Zoldify" className="h-10 w-auto" />
+                 <img loading="lazy" decoding="async" src="/images/logouni.png" alt="Zoldify" className="h-10 w-auto" />
               </Link>
 
               <div className="flex-1 relative">

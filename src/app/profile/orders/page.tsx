@@ -133,7 +133,7 @@ export default function UserOrdersPage() {
 
                   {order.items?.slice(0, 2).map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center gap-3 mb-3">
-                      <img src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
+                      <img loading="lazy" decoding="async" src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-800 truncate">{item.product_name}</p>
                         <p className="text-xs text-gray-600">x{item.quantity}</p>

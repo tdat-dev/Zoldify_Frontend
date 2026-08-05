@@ -109,7 +109,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                   <Link key={item.id} href={`/product/${item.id}`} className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
                     <div className="relative pt-[100%]">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
                         <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                           <Package className="w-10 h-10 text-gray-600" />

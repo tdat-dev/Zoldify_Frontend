@@ -207,7 +207,7 @@ export default function ShopPage() {
         {/* Shop Header */}
         <div className="bg-white p-6 rounded-sm shadow-sm mb-6 flex items-center gap-6">
           <div className="relative">
-            <img src={shopLogo} alt={shopName} className="w-20 h-20 rounded-full border-2 border-gray-100 object-cover" />
+            <img loading="lazy" decoding="async" src={shopLogo} alt={shopName} className="w-20 h-20 rounded-full border-2 border-gray-100 object-cover" />
             <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
 
@@ -282,7 +282,7 @@ export default function ShopPage() {
                   {/* Image */}
                   <div className="relative pt-[100%] overflow-hidden bg-gray-100">
                     {item.image ? (
-                      <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <Package className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-gray-300 w-12 h-12" />
                     )}
