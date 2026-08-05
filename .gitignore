@@ -1,45 +1,28 @@
-<<<<<<< HEAD
-# dependencies
-/node_modules
+# Dependencies
+/node_modules/
+/vendor/
+chat-server/node_modules/
 /.pnp
 .pnp.js
+/composer.lock
 
-# testing
-/coverage
-
-# next.js
+# Next.js
 /.next/
 /out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
 next-env.d.ts
-=======
-# Dependencies
-/vendor/
-/node_modules/
-chat-server/node_modules/
-/package-lock.json
-/composer.lock
+*.tsbuildinfo
+
+# Build files
+/build/
+/dist/
+*.zip
+*.rar
+*.tar.gz
+UniMarket.zip
+UniMarket.rar
+
+# Vercel
+.vercel
 
 # Environment files
 .env
@@ -48,11 +31,16 @@ chat-server/node_modules/
 *.env
 CREDENTIALS.md
 docs/CREDENTIALS.md
+*.pem
 
 # Logs
 *.log
 /logs/
 /storage/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
 # Cache
 /cache/
@@ -60,48 +48,16 @@ docs/CREDENTIALS.md
 /storage/framework/cache/
 /storage/framework/sessions/
 /storage/framework/views/
+
+# Testing
+/coverage/
+*.lcov
 /tests/security/
-
-# Uploads (giữ cấu trúc thư mục nhưng ignore files)
-
-# Playwright
 /test-results/
 /playwright-report/
 /playwright/.cache/
 footer-screenshot.png
 no-footer-debug.png
-
-# OS Files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# IDE Files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.classpath
-.settings/
-*.sublime-project
-*.sublime-workspace
-.agent
-
-# Build files
-/dist/
-/build/
-*.zip
-*.rar
-*.tar.gz
-UniMarket.zip
-UniMarket.rar
 
 # Temporary files
 *.tmp
@@ -117,20 +73,30 @@ UniMarket.rar
 # PHP
 *.php~
 *.phps
-
-# Composer
 composer.phar
 
-# NPM
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# IDE Files
+.idea/
+.vscode/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.agent
 
-# Coverage reports
-/coverage/
-*.lcov
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
 # System files
 .htaccess.local
 .htpasswd
->>>>>>> 203293aacb4262d2171d95f2c25a1cc15cb7c8ca
