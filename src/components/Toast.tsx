@@ -59,7 +59,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     success: 'bg-green-600 text-white',
     error: 'bg-red-600 text-white',
     warning: 'bg-orange-500 text-white',
-    info: 'bg-[#2C67C8] text-white',
+    info: 'bg-brand text-white',
   };
 
   return (

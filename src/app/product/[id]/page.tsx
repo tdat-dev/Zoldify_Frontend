@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4 space-y-6">
         <div className="text-sm text-gray-600 flex items-center gap-2">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800 truncate">{product.name}</span>
         </div>
@@ -199,7 +199,7 @@ export default function ProductDetailPage() {
 
               <div className="bg-gray-50 p-4 rounded-sm">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-bold text-[#EE4D2D]">
+                  <span className="text-3xl font-bold text-brand">
                     {Number(product.price).toLocaleString('vi-VN')}đ
                   </span>
                   {!!product.is_freeship && (
@@ -236,10 +236,10 @@ export default function ProductDetailPage() {
                   </div>
                 ) : (
                   <>
-                    <button onClick={handleAddToCart} disabled={addingCart} className="flex-1 px-6 py-3 bg-white border border-[#2C67C8] text-[#2C67C8] font-medium rounded-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-70">
+                    <button onClick={handleAddToCart} disabled={addingCart} className="flex-1 px-6 py-3 bg-white border border-brand text-brand font-medium rounded-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-70">
                       {addingCart ? 'Đang thêm...' : <><Package className="w-5 h-5" aria-hidden="true" /> Thêm vào giỏ hàng</>}
                     </button>
-                    <button onClick={handleBuyNow} className="flex-1 px-8 py-3 bg-[#2C67C8] text-white font-medium rounded-sm hover:bg-[#22539f] transition-colors shadow-sm text-center">
+                    <button onClick={handleBuyNow} className="flex-1 px-8 py-3 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors shadow-sm text-center">
                       Mua ngay
                     </button>
                   </>
@@ -248,16 +248,16 @@ export default function ProductDetailPage() {
 
               <div className="border-t pt-6 mt-6 grid grid-cols-2 gap-4 text-sm text-gray-700">
                 <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-[#2C67C8] flex-shrink-0" aria-hidden="true" />
+                  <Globe className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />
                   <span>Sàn mua bán đồ cũ dành cho sinh viên</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-[#2C67C8] flex-shrink-0" aria-hidden="true" />
+                  <MessageSquare className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />
                   <span>Trao đổi trực tiếp với người bán trước khi mua</span>
                 </div>
                 <div className="col-span-2 pt-2 flex items-center gap-4 flex-wrap">
                   {!isOwnProduct && (
-                    <button onClick={handleChatWithShop} className="flex items-center gap-2 py-1 hover:text-[#2C67C8] transition-colors">
+                    <button onClick={handleChatWithShop} className="flex items-center gap-2 py-1 hover:text-brand transition-colors">
                       <MessageSquare className="w-4 h-4" aria-hidden="true" />
                       <span>Chat với shop</span>
                     </button>
@@ -287,14 +287,14 @@ export default function ProductDetailPage() {
               <div className="text-sm">
                 <div className="text-gray-800 font-medium flex items-center gap-1">
                   {product.seller.full_name || 'Shop'}
-                  <Store className="w-3.5 h-3.5 text-[#2C67C8]" />
+                  <Store className="w-3.5 h-3.5 text-brand" />
                 </div>
                 <div className="text-xs text-gray-600">Xem tất cả sản phẩm của shop →</div>
               </div>
             </div>
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleChatWithShop(); }}
-              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-[#2C67C8] text-[#2C67C8] text-sm font-medium rounded-sm hover:bg-[#2C67C8] hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-brand text-brand text-sm font-medium rounded-sm hover:bg-brand hover:text-white transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
               Chat ngay
@@ -345,14 +345,14 @@ export default function ProductDetailPage() {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-[#2C67C8]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:border-brand"
                 rows={3}
               />
               <div className="flex justify-end gap-2 mt-3">
                 <button
                   onClick={handleSubmitReview}
                   disabled={submittingReview}
-                  className="px-4 py-2 bg-[#2C67C8] text-white text-sm rounded-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-70"
+                  className="px-4 py-2 bg-brand text-white text-sm rounded-sm hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-70"
                 >
                   {submittingReview ? <Loader className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   Gửi đánh giá
@@ -376,7 +376,7 @@ export default function ProductDetailPage() {
 
           {!isAuthenticated && (
             <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-sm text-sm text-gray-700">
-              <Link href="/login" className="text-[#2C67C8] font-medium hover:underline">Đăng nhập</Link> để đánh giá và xem lịch sử mua hàng.
+              <Link href="/login" className="text-brand font-medium hover:underline">Đăng nhập</Link> để đánh giá và xem lịch sử mua hàng.
             </div>
           )}
 

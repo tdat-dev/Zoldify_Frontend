@@ -87,10 +87,12 @@ export default function RegisterPage() {
         {step === 1 ? (
           <form onSubmit={handleSendOtp} className="space-y-4">
             <div className="w-full">
-              <input 
-                type="text" 
-                name="username" 
-                placeholder="Họ và tên" 
+              <label htmlFor="reg-username" className="block text-sm font-medium text-gray-700 mb-1.5">Họ và tên</label>
+              <input
+                id="reg-username"
+                type="text"
+                name="username"
+                autoComplete="name"
                 required
                 value={formData.username}
                 onChange={handleChange}
@@ -99,10 +101,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <input 
-                type="email" 
-                name="email" 
-                placeholder="Email" 
+              <label htmlFor="reg-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <input
+                id="reg-email"
+                type="email"
+                name="email"
+                autoComplete="email"
                 required
                 value={formData.email}
                 onChange={handleChange}
@@ -111,10 +115,14 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <input 
-                type="text" 
-                name="phone" 
-                placeholder="Số điện thoại (Tuỳ chọn)" 
+              <label htmlFor="reg-phone" className="block text-sm font-medium text-gray-700 mb-1.5">
+                Số điện thoại <span className="font-normal text-gray-600">(tuỳ chọn)</span>
+              </label>
+              <input
+                id="reg-phone"
+                type="tel"
+                name="phone"
+                autoComplete="tel"
                 value={formData.phone}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
@@ -122,10 +130,12 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                name="password" 
-                placeholder="Mật khẩu" 
+              <label htmlFor="reg-password" className="block text-sm font-medium text-gray-700 mb-1.5">Mật khẩu</label>
+              <input
+                id="reg-password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                autoComplete="new-password"
                 required
                 value={formData.password}
                 onChange={handleChange}
@@ -133,37 +143,41 @@ export default function RegisterPage() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 hover:text-gray-600"
+                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                className="absolute right-2 top-[38px] p-2 cursor-pointer text-gray-600 hover:text-gray-800"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
               </button>
             </div>
 
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md mt-2 uppercase text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md mt-2 uppercase text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'TIẾP TỤC'}
             </button>
 
             <div className="text-center mt-6">
               <p className="text-gray-600 text-sm">
-                Đã có tài khoản? <Link href="/login" className="text-[#5A88FF] font-bold hover:underline">Đăng nhập</Link>
+                Đã có tài khoản? <Link href="/login" className="text-brand font-bold hover:underline">Đăng nhập</Link>
               </p>
             </div>
           </form>
         ) : (
           <form onSubmit={handleVerifyOtp} className="space-y-4 mt-6">
             <div>
-              <input 
-                type="text" 
-                value={otp} 
-                onChange={(e) => setOtp(e.target.value)} 
-                placeholder="Nhập mã OTP 6 số" 
-                required 
-                maxLength={6} 
+              <label htmlFor="reg-otp" className="block text-sm font-medium text-gray-700 mb-1.5">Mã OTP 6 số</label>
+              <input
+                id="reg-otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+                maxLength={6}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-center text-2xl tracking-widest font-mono" 
               />
             </div>
@@ -171,7 +185,7 @@ export default function RegisterPage() {
             <button 
               type="submit" 
               disabled={loading || otp.length < 6}
-              className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md mt-2 uppercase text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md mt-2 uppercase text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'XÁC THỰC OTP'}
             </button>

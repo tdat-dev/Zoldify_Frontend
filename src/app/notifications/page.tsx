@@ -75,7 +75,7 @@ export default function NotificationsPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[800px] mx-auto px-4 pt-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Thông báo</span>
         </div>
@@ -102,10 +102,10 @@ export default function NotificationsPage() {
               return (
                 <div
                   key={noti.id}
-                  className={`bg-white rounded-lg shadow-sm p-4 flex gap-4 items-start transition-colors ${!noti.is_read ? 'border-l-4 border-[#2C67C8] bg-blue-50/30' : ''}`}
+                  className={`bg-white rounded-lg shadow-sm p-4 flex gap-4 items-start transition-colors ${!noti.is_read ? 'border-l-4 border-brand bg-blue-50/30' : ''}`}
                 >
                   <div className={`p-2 rounded-full flex-shrink-0 ${!noti.is_read ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                    <Icon className={`w-5 h-5 ${!noti.is_read ? 'text-[#2C67C8]' : 'text-gray-600'}`} />
+                    <Icon className={`w-5 h-5 ${!noti.is_read ? 'text-brand' : 'text-gray-600'}`} />
                   </div>
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => !noti.is_read && handleMarkRead(noti.id)}>
                     <div className="flex justify-between items-start mb-1">
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-600 hover:text-[#EE4D2D] transition-colors inline-flex items-center">
+          <Link href="/" className="text-gray-600 hover:text-brand transition-colors inline-flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại trang chủ
           </Link>
         </div>

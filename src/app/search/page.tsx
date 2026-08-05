@@ -82,12 +82,12 @@ export default function SearchPage() {
                 <h4 className="text-sm font-medium text-gray-700 mb-2">Danh mục</h4>
                 <div className="space-y-2 text-sm text-gray-600">
                   <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="cat" checked={selectedCat === ''} onChange={() => setSelectedCat('')} className="text-[#2C67C8]" />
+                    <input type="radio" name="cat" checked={selectedCat === ''} onChange={() => setSelectedCat('')} className="text-brand" />
                     <span>Tất cả</span>
                   </label>
                   {categories.map((cat: any) => (
                     <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="cat" checked={selectedCat === String(cat.id)} onChange={() => setSelectedCat(String(cat.id))} className="text-[#2C67C8]" />
+                      <input type="radio" name="cat" checked={selectedCat === String(cat.id)} onChange={() => setSelectedCat(String(cat.id))} className="text-brand" />
                       <span>{cat.name}</span>
                     </label>
                   ))}
@@ -108,8 +108,8 @@ export default function SearchPage() {
           <div className="flex-1 min-w-0">
             <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
               <form onSubmit={handleSearch} className="flex gap-2">
-                <input name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-[#2C67C8] text-sm" />
-                <button type="submit" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700 text-sm">Tìm</button>
+                <input name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-brand text-sm" />
+                <button type="submit" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-blue-700 text-sm">Tìm</button>
               </form>
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-600">
                 <span className="font-medium text-gray-600">Phổ biến:</span>
@@ -117,7 +117,7 @@ export default function SearchPage() {
                   <Link
                     key={kw}
                     href={`/search?q=${encodeURIComponent(kw)}`}
-                    className="hover:text-[#2C67C8] cursor-pointer"
+                    className="hover:text-brand cursor-pointer"
                   >
                     {kw}
                   </Link>
@@ -127,7 +127,7 @@ export default function SearchPage() {
 
             {q && (
               <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
-                <h1 className="text-xl font-medium text-gray-800 border-l-4 border-[#2C67C8] pl-3">
+                <h1 className="text-xl font-medium text-gray-800 border-l-4 border-brand pl-3">
                   Kết quả tìm kiếm: &ldquo;{q}&rdquo;
                   <span className="text-sm font-normal text-gray-600 ml-2">({meta.total} sản phẩm)</span>
                 </h1>
@@ -146,7 +146,7 @@ export default function SearchPage() {
                       <Link
                         key={kw}
                         href={`/search?q=${encodeURIComponent(kw)}`}
-                        className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-[#2C67C8] hover:text-white text-gray-700 rounded-sm transition-colors"
+                        className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-brand hover:text-white text-gray-700 rounded-sm transition-colors"
                       >
                         {kw}
                       </Link>
@@ -157,7 +157,7 @@ export default function SearchPage() {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
                 {products.map((item) => (
-                  <Link key={item.id} href={`/product/${item.id}`} className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-all group border border-transparent hover:border-[#2C67C8]/30 overflow-hidden">
+                  <Link key={item.id} href={`/product/${item.id}`} className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-all group border border-transparent hover:border-brand/30 overflow-hidden">
                     <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
@@ -189,7 +189,7 @@ export default function SearchPage() {
                     onClick={() => paginate(page)}
                     className={`px-3 py-1 border rounded-sm text-sm ${
                       page === meta.current
-                        ? 'bg-[#2C67C8] border-[#2C67C8] text-white'
+                        ? 'bg-brand border-brand text-white'
                         : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
                     }`}
                   >

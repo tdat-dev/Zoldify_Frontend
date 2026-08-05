@@ -80,7 +80,7 @@ export default function Header() {
               <Link
                 href="/notifications"
                 aria-label={unreadNotis > 0 ? `Thông báo, ${unreadNotis} chưa đọc` : 'Thông báo'}
-                className="flex items-center gap-1 hover:text-[#2C67C8] transition-colors py-2"
+                className="flex items-center gap-1 hover:text-brand transition-colors py-2"
               >
                 <div className="relative">
                   <Bell className="w-[18px] h-[18px]" aria-hidden="true" />
@@ -94,7 +94,7 @@ export default function Header() {
               </Link>
             </div>
 
-            <a href="mailto:admin@zoldify.com" className="flex items-center gap-1 hover:text-[#2C67C8] transition-colors">
+            <a href="mailto:admin@zoldify.com" className="flex items-center gap-1 hover:text-brand transition-colors">
               <HelpCircle className="w-[18px] h-[18px]" aria-hidden="true" />
               <span>Hỗ Trợ</span>
             </a>
@@ -104,7 +104,7 @@ export default function Header() {
                 <div className="relative" ref={userMenuRef}>
                   <button 
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center gap-2 text-gray-600 font-medium hover:text-[#2C67C8] transition-colors focus:outline-none"
+                    className="flex items-center gap-2 text-gray-600 font-medium hover:text-brand transition-colors focus:outline-none"
                   >
                     <span>Chào, {user?.full_name || 'Người dùng'}</span>
                     <ChevronDown className="w-4 h-4" />
@@ -113,39 +113,39 @@ export default function Header() {
                   {isUserMenuOpen && (
                     <div className="absolute right-0 top-full mt-2 w-[250px] bg-white rounded-lg shadow-xl border border-gray-100 z-50 overflow-hidden">
                       <div className="py-2 border-b border-gray-100">
-                        <Link href="/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/profile" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <User className="w-5 h-5" /> Hồ sơ của tôi
                         </Link>
-                        <Link href="/profile/change-password" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/profile/change-password" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <Key className="w-5 h-5" /> Đổi mật khẩu
                         </Link>
-                        <Link href="/chat" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/chat" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <MessageSquare className="w-5 h-5" /> Tin nhắn
                         </Link>
-                        <Link href="/profile/wallet" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/profile/wallet" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <Wallet className="w-5 h-5" /> Tiền của tôi
                         </Link>
-                        <Link href="/profile/orders" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/profile/orders" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <ShoppingBag className="w-5 h-5" /> Đơn mua
                         </Link>
                       </div>
 
                       <div className="py-2 border-b border-gray-100">
                         <div className="px-4 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider">Bán hàng</div>
-                        <Link href="/product/create" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/product/create" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <Plus className="w-5 h-5" /> Thêm sản phẩm
                         </Link>
-                        <Link href="/shop" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/shop" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <Package className="w-5 h-5" /> Tất cả sản phẩm
                         </Link>
-                        <Link href="/shop/orders" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/shop/orders" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
                           <ClipboardList className="w-5 h-5" /> Đơn bán
                         </Link>
                       </div>
                       {user?.role === 'admin' && (
   <div className="py-2 border-b border-gray-100">
     <div className="px-4 py-1 text-xs font-bold text-gray-600 uppercase tracking-wider">Quản trị</div>
-    <Link href="/admin" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#2C67C8] transition-colors" onClick={() => setIsUserMenuOpen(false)}>
+    <Link href="/admin" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-brand transition-colors" onClick={() => setIsUserMenuOpen(false)}>
       <Shield className="w-5 h-5" /> Admin
     </Link>
   </div>
@@ -174,7 +174,7 @@ export default function Header() {
       </div>
 
       {/* MOBILE HEADER */}
-      <header className="md:hidden w-full z-sticky bg-gradient-to-r from-[#2C67C8] to-[#1990AA] font-sans sticky top-0">
+      <header className="md:hidden w-full z-sticky bg-gradient-to-r from-brand to-brand-accent font-sans sticky top-0">
         <div className="px-3 py-2">
           <div className="flex items-center gap-2">
             <form className="flex-1" onSubmit={handleSearchSubmit} role="search">
@@ -213,7 +213,7 @@ export default function Header() {
         <div className="bg-white pb-3">
           <div className="max-w-[1200px] mx-auto px-4 pt-4">
             <div className="flex flex-row items-center gap-8">
-              <Link href="/" aria-label="Zoldify — về trang chủ" className="flex items-center gap-2 flex-shrink-0 group no-underline text-2xl font-bold text-[#2C67C8]">
+              <Link href="/" aria-label="Zoldify — về trang chủ" className="flex items-center gap-2 flex-shrink-0 group no-underline text-2xl font-bold text-brand">
                  <img src="/images/logouni.png" alt="Zoldify" className="h-10 w-auto" />
               </Link>
 
@@ -221,7 +221,7 @@ export default function Header() {
                 <form
                   onSubmit={handleSearchSubmit}
                   role="search"
-                  className="flex h-[44px] border border-gray-300 rounded-lg overflow-hidden hover:border-[#2C67C8] focus-within:border-[#2C67C8] focus-within:ring-2 focus-within:ring-[#2C67C8]/20 transition-all"
+                  className="flex h-[44px] border border-gray-300 rounded-lg overflow-hidden hover:border-brand focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20 transition-all"
                 >
                   <label htmlFor="desktop-search" className="sr-only">Tìm sản phẩm</label>
                   <input
@@ -233,7 +233,7 @@ export default function Header() {
                     placeholder="Tìm giáo trình, đồ gia dụng, quần áo..."
                     className="flex-1 px-4 text-sm text-[#333] placeholder-gray-500 focus:outline-none bg-transparent"
                   />
-                  <button type="submit" aria-label="Tìm kiếm" className="w-[70px] bg-gradient-to-b from-[#2C67C8] to-[#1990AA] flex items-center justify-center hover:opacity-90 transition-opacity">
+                  <button type="submit" aria-label="Tìm kiếm" className="w-[70px] bg-gradient-to-b from-brand to-brand-accent flex items-center justify-center hover:opacity-90 transition-opacity">
                     <Search className="w-5 h-5 text-white" aria-hidden="true" />
                   </button>
                 </form>
@@ -248,7 +248,7 @@ export default function Header() {
                           window.location.reload();
                         }
                       }}
-                      className="hover:text-[#2C67C8] cursor-pointer"
+                      className="hover:text-brand cursor-pointer"
                     >
                       {kw}
                     </Link>
@@ -258,14 +258,14 @@ export default function Header() {
 
               <div className="flex items-center gap-8 flex-shrink-0">
                 <Link href="/cart" aria-label={cartCount > 0 ? `Giỏ hàng, ${cartCount} sản phẩm` : 'Giỏ hàng'} className="relative group p-1">
-                  <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-[#2C67C8] transition-colors" aria-hidden="true" />
+                  <ShoppingCart className="w-6 h-6 text-gray-600 group-hover:text-brand transition-colors" aria-hidden="true" />
                   {cartCount > 0 && (
                     <span aria-hidden="true" className="absolute top-0 right-0 translate-x-1 -translate-y-1 bg-red-600 text-white text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center font-bold">
                       {cartCount > 99 ? '99+' : cartCount}
                     </span>
                   )}
                 </Link>
-                <Link href="/product/create" className="px-6 py-2.5 bg-gradient-to-r from-[#2C67C8] to-[#1990AA] text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all transform flex items-center gap-2 no-underline">
+                <Link href="/product/create" className="px-6 py-2.5 bg-gradient-to-r from-brand to-brand-accent text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all transform flex items-center gap-2 no-underline">
                   <Plus className="w-4 h-4" />
                   <span>Đăng Bán</span>
                 </Link>

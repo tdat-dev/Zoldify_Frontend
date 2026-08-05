@@ -17,7 +17,7 @@ export default function CartSuccessPage() {
           <p className="text-gray-600 mb-8">Cảm ơn bạn đã mua hàng tại Zoldify. Đơn hàng của bạn đang được xử lý.</p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/" className="px-6 py-2.5 bg-[#EE4D2D] text-white font-medium rounded-sm hover:bg-[#d73211] transition-colors shadow-sm">
+            <Link href="/" className="px-6 py-2.5 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors shadow-sm">
               Về trang chủ
             </Link>
             <Link href="/profile/orders" className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-sm hover:bg-gray-50 transition-colors">

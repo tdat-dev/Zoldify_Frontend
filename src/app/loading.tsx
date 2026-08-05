@@ -4,7 +4,7 @@ export default function Loading() {
       <span className="sr-only">Đang tải trang</span>
       <span
         aria-hidden="true"
-        className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-[#2C67C8] animate-spin"
+        className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-brand animate-spin"
       />
     </div>
   );

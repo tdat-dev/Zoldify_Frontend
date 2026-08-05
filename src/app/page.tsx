@@ -14,7 +14,7 @@ function ProductCard({ item }: { item: any }) {
   return (
     <Link
       href={`/product/${item.id}`}
-      className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow border border-transparent hover:border-[#2C67C8]/30 overflow-hidden"
+      className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow border border-transparent hover:border-brand/30 overflow-hidden"
     >
       <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
         {item.image ? (
@@ -147,8 +147,8 @@ export default function HomePage() {
         {/* SẢN PHẨM NỔI BẬT */}
         <section aria-labelledby="home-featured" className="bg-white rounded-sm shadow-sm p-5">
           <div className="flex justify-between items-center mb-4">
-            <h2 id="home-featured" className="text-[#2C67C8] font-medium uppercase text-base">SẢN PHẨM NỔI BẬT</h2>
-            <Link href="/search" className="text-[#2C67C8] text-sm flex items-center gap-1 py-1">
+            <h2 id="home-featured" className="text-brand font-medium uppercase text-base">SẢN PHẨM NỔI BẬT</h2>
+            <Link href="/search" className="text-brand text-sm flex items-center gap-1 py-1">
               Xem tất cả <ChevronRight className="w-4 h-4" aria-hidden="true" />
             </Link>
           </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
         {/* SẢN PHẨM MỚI NHẤT */}
         <section aria-labelledby="home-latest" className="bg-white rounded-sm shadow-sm p-5">
           <div className="border-b border-gray-100 pb-4 mb-4">
-            <h2 id="home-latest" className="text-[#2C67C8] font-medium uppercase text-base">SẢN PHẨM MỚI NHẤT</h2>
+            <h2 id="home-latest" className="text-brand font-medium uppercase text-base">SẢN PHẨM MỚI NHẤT</h2>
           </div>
 
           {latestState !== 'ready' || latestProducts.length === 0 ? (

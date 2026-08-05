@@ -189,7 +189,7 @@ export default function ShopPage() {
         <div className="text-center">
           <Store className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-600 mb-4">{error}</p>
-          <Link href="/product/create" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700">
+          <Link href="/product/create" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-blue-700">
             Đăng bán ngay
           </Link>
         </div>
@@ -238,7 +238,7 @@ export default function ShopPage() {
                   className={`px-5 py-2 font-medium rounded-sm transition-colors shadow-sm flex items-center gap-2 disabled:opacity-70 ${
                     isFollowing
                       ? 'bg-gray-100 text-gray-700 border border-gray-300 hover:bg-gray-200'
-                      : 'bg-[#EE4D2D] text-white hover:bg-[#d73211]'
+                      : 'bg-brand text-white hover:bg-brand-dark'
                   }`}
                 >
                   {isFollowing ? (
@@ -249,14 +249,14 @@ export default function ShopPage() {
                 </button>
                 <button
                   onClick={handleChatShop}
-                  className="px-5 py-2 bg-white border border-[#2C67C8] text-[#2C67C8] font-medium rounded-sm hover:bg-[#2C67C8] hover:text-white transition-colors shadow-sm flex items-center gap-2"
+                  className="px-5 py-2 bg-white border border-brand text-brand font-medium rounded-sm hover:bg-brand hover:text-white transition-colors shadow-sm flex items-center gap-2"
                 >
                   <MessageCircle className="w-4 h-4" /> Chat
                 </button>
               </>
             )}
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
-              <Link href="/product/create" className="px-6 py-2 bg-[#2C67C8] text-white font-medium rounded-sm hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+              <Link href="/product/create" className="px-6 py-2 bg-brand text-white font-medium rounded-sm hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
                 <Plus className="w-4 h-4" /> Thêm sản phẩm
               </Link>
             )}
@@ -269,7 +269,7 @@ export default function ShopPage() {
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600 mb-4">Chưa có sản phẩm nào</p>
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
-              <Link href="/product/create" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700">
+              <Link href="/product/create" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-blue-700">
                 Đăng bán sản phẩm đầu tiên
               </Link>
             )}
@@ -277,7 +277,7 @@ export default function ShopPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {products.map((item) => (
-              <div key={item.id} className="group bg-white border border-transparent hover:border-[#2C67C8] hover:shadow-md transition-all duration-200 rounded-sm overflow-hidden relative">
+              <div key={item.id} className="group bg-white border border-transparent hover:border-brand hover:shadow-md transition-all duration-200 rounded-sm overflow-hidden relative">
                 <Link href={`/product/${item.id}`} className="block">
                   {/* Image */}
                   <div className="relative pt-[100%] overflow-hidden bg-gray-100">
@@ -318,11 +318,11 @@ export default function ShopPage() {
 
                   {/* Info */}
                   <div className="p-2 space-y-1">
-                    <h3 className="text-xs text-gray-700 font-normal line-clamp-2 leading-tight h-8 group-hover:text-[#2C67C8] transition-colors">
+                    <h3 className="text-xs text-gray-700 font-normal line-clamp-2 leading-tight h-8 group-hover:text-brand transition-colors">
                       {item.name}
                     </h3>
                     <div className="flex items-center justify-between pt-1">
-                      <div className="text-[#EE4D2D] font-medium text-sm">
+                      <div className="text-brand font-medium text-sm">
                         {item.price.toLocaleString('vi-VN')}₫
                       </div>
                       {isOwner ? (

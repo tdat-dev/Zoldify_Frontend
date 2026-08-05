@@ -126,9 +126,9 @@ export default function CheckoutPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
-          <Link href="/cart" className="hover:text-[#2C67C8]">Giỏ hàng</Link>
+          <Link href="/cart" className="hover:text-brand">Giỏ hàng</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Thanh toán</span>
         </div>
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-8 space-y-4">
             {/* Shipping Info */}
             <div className="bg-white rounded-sm shadow-sm p-6">
-              <h3 className="text-base font-medium text-[#EE4D2D] flex items-center gap-2 mb-4">
+              <h3 className="text-base font-medium text-brand flex items-center gap-2 mb-4">
                 <MapPin className="w-5 h-5" /> Thông tin giao hàng
               </h3>
               <AddressPicker onSelect={setAddressInfo} />
@@ -174,7 +174,7 @@ export default function CheckoutPage() {
                     <span className="text-sm text-gray-600">{item.price.toLocaleString('vi-VN')}đ</span>
                     <div className="text-sm text-gray-600">x {item.quantity}</div>
                   </div>
-                  <div className="text-sm font-bold text-[#EE4D2D] w-32 text-right">
+                  <div className="text-sm font-bold text-brand w-32 text-right">
                     {(item.price * item.quantity).toLocaleString('vi-VN')}đ
                   </div>
                 </div>
@@ -200,27 +200,27 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between items-center mb-6 pt-4 border-t">
                 <span className="text-base font-medium text-gray-800">Tổng thanh toán</span>
-                <span className="text-xl font-bold text-[#EE4D2D]">{grandTotal.toLocaleString('vi-VN')}đ</span>
+                <span className="text-xl font-bold text-brand">{grandTotal.toLocaleString('vi-VN')}đ</span>
               </div>
 
               <h4 className="text-sm font-medium text-gray-700 mb-3">Phương thức thanh toán</h4>
               <div className="space-y-3">
-                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-[#EE4D2D] bg-[#FFF5F1]' : 'hover:border-[#EE4D2D]'}`}>
-                  <input type="radio" name="payment_method" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="text-[#EE4D2D] focus:ring-[#EE4D2D] w-4 h-4" />
+                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'cod' ? 'border-brand bg-[#EFF6FF]' : 'hover:border-brand'}`}>
+                  <input type="radio" name="payment_method" value="cod" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} className="text-brand focus:ring-brand w-4 h-4" />
                   <div className="flex-1">
                     <span className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</span>
                   </div>
                   <Truck className="w-5 h-5 text-gray-600" />
                 </label>
-                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'wallet' ? 'border-[#EE4D2D] bg-[#FFF5F1]' : 'hover:border-[#EE4D2D]'}`}>
-                  <input type="radio" name="payment_method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} className="text-[#EE4D2D] focus:ring-[#EE4D2D] w-4 h-4" />
+                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'wallet' ? 'border-brand bg-[#EFF6FF]' : 'hover:border-brand'}`}>
+                  <input type="radio" name="payment_method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} className="text-brand focus:ring-brand w-4 h-4" />
                   <div className="flex-1">
                     <span className="text-sm font-medium">Ví Zoldify</span>
                   </div>
                   <QrCode className="w-5 h-5 text-gray-600" />
                 </label>
-                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'payos' ? 'border-[#EE4D2D] bg-[#FFF5F1]' : 'hover:border-[#EE4D2D]'}`}>
-                  <input type="radio" name="payment_method" value="payos" checked={paymentMethod === 'payos'} onChange={() => setPaymentMethod('payos')} className="text-[#EE4D2D] focus:ring-[#EE4D2D] w-4 h-4" />
+                <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'payos' ? 'border-brand bg-[#EFF6FF]' : 'hover:border-brand'}`}>
+                  <input type="radio" name="payment_method" value="payos" checked={paymentMethod === 'payos'} onChange={() => setPaymentMethod('payos')} className="text-brand focus:ring-brand w-4 h-4" />
                   <div className="flex-1">
                     <span className="text-sm font-medium">Thẻ ATM / Visa / Master / JCB</span>
                     <p className="text-xs text-gray-600 mt-0.5">Quét QR hoặc nhập thẻ qua PayOS</p>
@@ -232,13 +232,13 @@ export default function CheckoutPage() {
               <button
                 onClick={handleOrder}
                 disabled={submitting}
-                className="w-full mt-6 py-3 bg-[#EE4D2D] text-white font-bold rounded-sm hover:bg-[#d73211] transition-transform active:scale-[0.98] shadow-md disabled:opacity-70 flex items-center justify-center gap-2"
+                className="w-full mt-6 py-3 bg-brand text-white font-bold rounded-sm hover:bg-brand-dark transition-transform active:scale-[0.98] shadow-md disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 {submitting ? <><Loader className="w-4 h-4 animate-spin" /> ĐANG XỬ LÝ...</> : 'ĐẶT HÀNG'}
               </button>
 
               <div className="mt-4 text-center">
-                <Link href="/cart" className="text-sm text-gray-600 hover:text-[#EE4D2D]">Quay lại giỏ hàng</Link>
+                <Link href="/cart" className="text-sm text-gray-600 hover:text-brand">Quay lại giỏ hàng</Link>
               </div>
             </div>
           </div>

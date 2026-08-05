@@ -9,6 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Màu thương hiệu Zoldify. Dùng bg-brand / text-brand / border-brand
+        // thay cho bg-[#2C67C8] rải rác khắp nơi.
+        brand: {
+          DEFAULT: "#2C67C8",
+          dark: "#22539F",
+          accent: "#1990AA",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

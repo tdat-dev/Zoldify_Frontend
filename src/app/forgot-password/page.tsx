@@ -53,13 +53,13 @@ export default function ForgotPasswordPage() {
                   <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Nhập mã OTP 6 số" required maxLength={6} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-center text-2xl tracking-widest font-mono" />
                 </div>
 
-                <button type="submit" className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
+                <button type="submit" className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
                   XÁC NHẬN
                 </button>
 
                 <div className="text-center pt-2 flex justify-between items-center text-sm">
                   <button type="button" onClick={() => setStep(1)} className="text-gray-600 hover:text-gray-700">Quay lại email</button>
-                  <button type="button" className="text-[#5A88FF] hover:text-blue-700 font-medium">Gửi lại mã?</button>
+                  <button type="button" className="text-brand hover:text-blue-700 font-medium">Gửi lại mã?</button>
                 </div>
               </form>
             </>
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" required className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
                 </div>
 
-                <button type="submit" className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
+                <button type="submit" className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
                   GỬI MÃ XÁC THỰC
                 </button>
 

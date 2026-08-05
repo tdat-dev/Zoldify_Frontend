@@ -83,7 +83,7 @@ export default function CartPage() {
           <div className="bg-white rounded-sm shadow-sm p-10 text-center mt-6">
             <ShoppingCart className="w-16 h-16 text-gray-200 mx-auto mb-4" />
             <p className="text-gray-600 mb-6">Giỏ hàng của bạn còn trống</p>
-            <Link href="/" className="inline-block px-6 py-2 bg-[#EE4D2D] text-white rounded-sm hover:bg-[#d73211] transition-colors">
+            <Link href="/" className="inline-block px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark transition-colors">
               Mua ngay
             </Link>
           </div>
@@ -96,7 +96,7 @@ export default function CartPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Giỏ hàng</span>
         </div>
@@ -108,7 +108,7 @@ export default function CartPage() {
             <div className="bg-white rounded-sm shadow-sm overflow-hidden">
               <div className="grid grid-cols-12 gap-4 p-4 border-b bg-gray-50 text-sm text-gray-600 font-medium items-center">
                 <div className="col-span-1 flex justify-center">
-                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="w-4 h-4 text-[#EE4D2D] border-gray-300 rounded focus:ring-[#EE4D2D]" />
+                  <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand" />
                 </div>
                 <div className="col-span-5">Sản phẩm</div>
                 <div className="col-span-2 text-center">Đơn giá</div>
@@ -119,14 +119,14 @@ export default function CartPage() {
               {cartItems.map((item) => (
                 <div key={item.id} className="grid grid-cols-12 gap-4 p-4 border-b last:border-0 items-center hover:bg-gray-50/50 transition-colors">
                   <div className="col-span-1 flex justify-center">
-                    <input type="checkbox" checked={item.selected} onChange={() => toggleItem(item.id)} className="w-4 h-4 text-[#EE4D2D] border-gray-300 rounded focus:ring-[#EE4D2D]" />
+                    <input type="checkbox" checked={item.selected} onChange={() => toggleItem(item.id)} className="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand" />
                   </div>
                   <div className="col-span-5 flex gap-3">
                     <div className="w-20 h-20 border rounded-sm overflow-hidden flex-shrink-0 bg-gray-100">
                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex flex-col justify-center">
-                      <Link href={`/product/${item.product_id}`} className="text-sm font-medium text-gray-800 line-clamp-2 hover:text-[#2C67C8]">
+                      <Link href={`/product/${item.product_id}`} className="text-sm font-medium text-gray-800 line-clamp-2 hover:text-brand">
                         {item.name}
                       </Link>
                       <span className="text-xs text-gray-600 mt-1">Còn {item.stock} sản phẩm</span>
@@ -147,7 +147,7 @@ export default function CartPage() {
                     </div>
                   </div>
                   <div className="col-span-2 flex justify-center items-center gap-3">
-                    <span className="text-sm font-bold text-[#EE4D2D]">
+                    <span className="text-sm font-bold text-brand">
                       {(item.price * item.quantity).toLocaleString('vi-VN')}đ
                     </span>
                     <button onClick={() => removeItem(item.id)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
@@ -168,11 +168,11 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between items-center mb-6 pt-4 border-t">
                 <span className="text-base font-medium text-gray-800">Tổng cộng</span>
-                <span className="text-xl font-bold text-[#EE4D2D]">{grandTotal.toLocaleString('vi-VN')}đ</span>
+                <span className="text-xl font-bold text-brand">{grandTotal.toLocaleString('vi-VN')}đ</span>
               </div>
               <Link
                 href={selectedItems.length > 0 ? `/checkout?ids=${selectedItems.map(i => i.id).join(',')}` : "#"}
-                className={`block text-center w-full py-3 text-white font-bold rounded-sm transition-transform active:scale-[0.98] shadow-md ${selectedItems.length > 0 ? 'bg-[#EE4D2D] hover:bg-[#d73211]' : 'bg-gray-400 cursor-not-allowed'}`}
+                className={`block text-center w-full py-3 text-white font-bold rounded-sm transition-transform active:scale-[0.98] shadow-md ${selectedItems.length > 0 ? 'bg-brand hover:bg-brand-dark' : 'bg-gray-400 cursor-not-allowed'}`}
               >
                 MUA HÀNG ({selectedItems.length})
               </Link>

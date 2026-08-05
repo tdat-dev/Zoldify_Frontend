@@ -117,15 +117,15 @@ export default function AddressPicker({ onSelect }: Props) {
             <div
               key={addr.id}
               onClick={() => handleSelectSaved(addr)}
-              className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === addr.id ? 'border-[#EE4D2D] bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
+              className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === addr.id ? 'border-brand bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
             >
               <div className="flex items-center gap-2">
-                <input type="radio" checked={selectedId === addr.id} readOnly className="accent-[#EE4D2D]" />
+                <input type="radio" checked={selectedId === addr.id} readOnly className="accent-brand" />
                 <div>
                   <span className="font-medium text-gray-800">{addr.recipient_name}</span>
                   <span className="text-gray-600 mx-1">|</span>
                   <span className="text-gray-600">{addr.phone_number}</span>
-                  {addr.is_default && <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-[#EE4D2D] text-white rounded">Mặc định</span>}
+                  {addr.is_default && <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-brand text-white rounded">Mặc định</span>}
                   <p className="text-sm text-gray-600 mt-0.5">{addr.street}{addr.ward ? `, ${addr.ward}` : ''}, {addr.district}, {addr.province}</p>
                 </div>
               </div>
@@ -145,31 +145,31 @@ export default function AddressPicker({ onSelect }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium text-gray-700">Người nhận <span className="text-red-600">*</span></label>
-              <input type="text" value={form.recipient_name} onChange={(e) => handleNewFormChange('recipient_name', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none" placeholder="Họ tên" />
+              <input type="text" value={form.recipient_name} onChange={(e) => handleNewFormChange('recipient_name', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder="Họ tên" />
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Số điện thoại <span className="text-red-600">*</span></label>
-              <input type="tel" value={form.phone_number} onChange={(e) => handleNewFormChange('phone_number', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none" placeholder="090..." />
+              <input type="tel" value={form.phone_number} onChange={(e) => handleNewFormChange('phone_number', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder="090..." />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-sm font-medium text-gray-700">Tỉnh/TP <span className="text-red-600">*</span></label>
-              <select value={form.provinceCode} onChange={(e) => handleProvinceChange(Number(e.target.value))} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white">
+              <select value={form.provinceCode} onChange={(e) => handleProvinceChange(Number(e.target.value))} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white">
                 <option value={0}>-- Chọn --</option>
                 {provinces.map((p: any) => <option key={p.code} value={p.code}>{p.name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Quận/Huyện <span className="text-red-600">*</span></label>
-              <select value={form.districtCode} onChange={(e) => handleDistrictChange(Number(e.target.value))} disabled={!form.provinceCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white disabled:bg-gray-100">
+              <select value={form.districtCode} onChange={(e) => handleDistrictChange(Number(e.target.value))} disabled={!form.provinceCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100">
                 <option value={0}>-- Chọn --</option>
                 {districts.map((d: any) => <option key={d.code} value={d.code}>{d.name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Phường/Xã</label>
-              <select value={form.ward} onChange={(e) => handleWardChange(e.target.value)} disabled={!form.districtCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white disabled:bg-gray-100">
+              <select value={form.ward} onChange={(e) => handleWardChange(e.target.value)} disabled={!form.districtCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100">
                 <option value="">-- Chọn --</option>
                 {wards.map((w: any) => <option key={w.code} value={w.name}>{w.name}</option>)}
               </select>
@@ -177,7 +177,7 @@ export default function AddressPicker({ onSelect }: Props) {
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700">Địa chỉ cụ thể <span className="text-red-600">*</span></label>
-            <input type="text" value={form.street} onChange={(e) => handleNewFormChange('street', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none" placeholder="Số nhà, tên đường" />
+            <input type="text" value={form.street} onChange={(e) => handleNewFormChange('street', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder="Số nhà, tên đường" />
           </div>
         </div>
       )}

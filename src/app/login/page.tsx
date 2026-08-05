@@ -62,16 +62,18 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
+          <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
             <input
-              type="text"
-              placeholder="Email"
+              id="login-email"
+              type="email"
+              autoComplete="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -80,9 +82,11 @@ export default function LoginPage() {
           </div>
 
           <div className="relative">
+            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1.5">Mật khẩu</label>
             <input
+              id="login-password"
               type={showPassword ? "text" : "password"}
-              placeholder="Mật khẩu"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -90,23 +94,24 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 hover:text-gray-600"
+              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              className="absolute right-2 top-[38px] p-2 cursor-pointer text-gray-600 hover:text-gray-800"
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm disabled:opacity-70"
+            className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm disabled:opacity-70"
           >
             {loading ? 'ĐANG XỬ LÝ...' : 'ĐĂNG NHẬP'}
           </button>
 
           <div className="text-center pt-2">
-            <Link href="/forgot-password" className="text-[#5A88FF] hover:text-blue-700 text-sm font-medium">
+            <Link href="/forgot-password" className="text-brand hover:text-blue-700 text-sm font-medium">
               Quên mật khẩu?
             </Link>
           </div>
@@ -136,7 +141,7 @@ export default function LoginPage() {
 
           <div className="text-center mt-6">
             <p className="text-gray-600 text-sm">
-              Chưa có tài khoản? <Link href="/register" className="text-[#5A88FF] font-bold hover:underline">Đăng ký ngay</Link>
+              Chưa có tài khoản? <Link href="/register" className="text-brand font-bold hover:underline">Đăng ký ngay</Link>
             </p>
           </div>
         </form>

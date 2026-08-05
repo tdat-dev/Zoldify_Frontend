@@ -45,16 +45,16 @@ export default function AddressesPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[800px] mx-auto px-4 pt-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
-          <Link href="/profile" className="hover:text-[#2C67C8]">Tài khoản</Link>
+          <Link href="/profile" className="hover:text-brand">Tài khoản</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Địa chỉ giao hàng</span>
         </div>
 
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-medium text-gray-800">Địa chỉ giao hàng</h1>
-          <Link href="/addresses/create" className="inline-flex items-center gap-2 px-4 py-2 bg-[#EE4D2D] text-white rounded-lg hover:bg-[#d73211] transition-colors">
+          <Link href="/addresses/create" className="inline-flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors">
             <Plus className="w-4 h-4" />
             <span>Thêm địa chỉ</span>
           </Link>
@@ -69,7 +69,7 @@ export default function AddressesPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-800 mb-2">Chưa có địa chỉ nào</h3>
             <p className="text-gray-600 mb-4">Thêm địa chỉ giao hàng để đặt hàng nhanh hơn</p>
-            <Link href="/addresses/create" className="inline-flex items-center gap-2 px-6 py-3 bg-[#EE4D2D] text-white rounded-lg hover:bg-[#d73211] transition-colors">
+            <Link href="/addresses/create" className="inline-flex items-center gap-2 px-6 py-3 bg-brand text-white rounded-lg hover:bg-brand-dark transition-colors">
               <Plus className="w-4 h-4" />
               <span>Thêm địa chỉ đầu tiên</span>
             </Link>
@@ -77,7 +77,7 @@ export default function AddressesPage() {
         ) : (
           <div className="space-y-4">
             {addresses.map((address: any) => (
-              <div key={address.id} className={`bg-white rounded-lg shadow-sm p-5 border-l-4 ${address.is_default ? 'border-[#EE4D2D]' : 'border-transparent'}`}>
+              <div key={address.id} className={`bg-white rounded-lg shadow-sm p-5 border-l-4 ${address.is_default ? 'border-brand' : 'border-transparent'}`}>
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -85,7 +85,7 @@ export default function AddressesPage() {
                       <span className="text-gray-600">|</span>
                       <span className="text-gray-600">{address.phone_number}</span>
                       {address.is_default && (
-                        <span className="px-2 py-0.5 text-xs bg-[#EE4D2D] text-white rounded">Mặc định</span>
+                        <span className="px-2 py-0.5 text-xs bg-brand text-white rounded">Mặc định</span>
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1">
@@ -113,7 +113,7 @@ export default function AddressesPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Link href="/profile" className="text-gray-600 hover:text-[#EE4D2D] transition-colors inline-flex items-center">
+          <Link href="/profile" className="text-gray-600 hover:text-brand transition-colors inline-flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại trang cá nhân
           </Link>
         </div>

@@ -79,9 +79,9 @@ export default function CreateAddressPage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[600px] mx-auto px-4 pt-4">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>
-          <Link href="/addresses" className="hover:text-[#2C67C8]">Địa chỉ</Link>
+          <Link href="/addresses" className="hover:text-brand">Địa chỉ</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Thêm mới</span>
         </div>
@@ -99,7 +99,7 @@ export default function CreateAddressPage() {
                   key={l}
                   type="button"
                   onClick={() => setForm({ ...form, label: l })}
-                  className={`px-3 py-1.5 text-sm border rounded-full transition-colors ${form.label === l ? 'bg-[#EE4D2D] text-white border-[#EE4D2D]' : 'hover:border-[#EE4D2D] hover:text-[#EE4D2D]'}`}
+                  className={`px-3 py-1.5 text-sm border rounded-full transition-colors ${form.label === l ? 'bg-brand text-white border-brand' : 'hover:border-brand hover:text-brand'}`}
                 >
                   {l}
                 </button>
@@ -109,7 +109,7 @@ export default function CreateAddressPage() {
               type="text"
               value={form.label}
               onChange={(e) => setForm({ ...form, label: e.target.value })}
-              className="mt-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none"
+              className="mt-2 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               placeholder="Hoặc nhập tên khác..."
             />
           </div>
@@ -123,7 +123,7 @@ export default function CreateAddressPage() {
                 type="text"
                 value={form.recipient_name}
                 onChange={(e) => setForm({ ...form, recipient_name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 placeholder="Nhập họ tên"
               />
             </div>
@@ -135,7 +135,7 @@ export default function CreateAddressPage() {
                 type="tel"
                 value={form.phone_number}
                 onChange={(e) => setForm({ ...form, phone_number: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
                 placeholder="VD: 0901234567"
               />
             </div>
@@ -149,7 +149,7 @@ export default function CreateAddressPage() {
               <select
                 value={form.provinceCode}
                 onChange={(e) => handleProvinceChange(Number(e.target.value))}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white"
               >
                 <option value={0}>-- Chọn Tỉnh/TP --</option>
                 {provinces.map((p: any) => <option key={p.code} value={p.code}>{p.name}</option>)}
@@ -161,7 +161,7 @@ export default function CreateAddressPage() {
                 value={form.districtCode}
                 onChange={(e) => handleDistrictChange(Number(e.target.value))}
                 disabled={!form.provinceCode}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white disabled:bg-gray-100"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100"
               >
                 <option value={0}>-- Chọn Quận/Huyện --</option>
                 {districts.map((d: any) => <option key={d.code} value={d.code}>{d.name}</option>)}
@@ -173,7 +173,7 @@ export default function CreateAddressPage() {
                 value={form.ward}
                 onChange={(e) => setForm({ ...form, ward: e.target.value })}
                 disabled={!form.districtCode}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none bg-white disabled:bg-gray-100"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100"
               >
                 <option value="">-- Chọn Phường/Xã --</option>
                 {wards.map((w: any) => <option key={w.code} value={w.name}>{w.name}</option>)}
@@ -189,7 +189,7 @@ export default function CreateAddressPage() {
               type="text"
               value={form.street}
               onChange={(e) => setForm({ ...form, street: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#EE4D2D] focus:border-transparent outline-none"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none"
               placeholder="Số nhà, tên đường, tòa nhà..."
             />
           </div>
@@ -200,7 +200,7 @@ export default function CreateAddressPage() {
               id="is_default"
               checked={form.is_default}
               onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
-              className="w-4 h-4 text-[#EE4D2D] border-gray-300 rounded focus:ring-[#EE4D2D]"
+              className="w-4 h-4 text-brand border-gray-300 rounded focus:ring-brand"
             />
             <label htmlFor="is_default" className="text-sm text-gray-700">Đặt làm địa chỉ mặc định</label>
           </div>
@@ -212,7 +212,7 @@ export default function CreateAddressPage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-3 bg-[#EE4D2D] text-white font-medium rounded-lg hover:bg-[#d73211] transition-colors disabled:opacity-50"
+              className="flex-1 py-3 bg-brand text-white font-medium rounded-lg hover:bg-brand-dark transition-colors disabled:opacity-50"
             >
               {saving ? 'Đang lưu...' : 'Lưu địa chỉ'}
             </button>

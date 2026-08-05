@@ -24,7 +24,7 @@ export default function ResetPasswordPage() {
             <input type="password" placeholder="Nhập lại mật khẩu mới" required minLength={6} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
           </div>
 
-          <button type="submit" className="w-full bg-[#5A88FF] text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition shadow-md uppercase text-sm mt-4">
+          <button type="submit" className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition shadow-md uppercase text-sm mt-4">
             ĐẶT LẠI MẬT KHẨU
           </button>
         </form>

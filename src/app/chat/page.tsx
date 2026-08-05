@@ -266,7 +266,7 @@ export default function ChatPage() {
                   <div
                     key={conv.id}
                     onClick={() => { setActiveConv(conv); fetchMessages(conv.id); }}
-                    className={`p-3 border-b border-gray-100 flex gap-3 hover:bg-gray-50 cursor-pointer ${activeConv?.id === conv.id ? 'bg-blue-50/50 border-l-4 border-l-[#2C67C8]' : ''}`}
+                    className={`p-3 border-b border-gray-100 flex gap-3 hover:bg-gray-50 cursor-pointer ${activeConv?.id === conv.id ? 'bg-blue-50/50 border-l-4 border-l-brand' : ''}`}
                   >
                     <div className="relative">
                       <img src={conv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.partner_name || 'User')}&background=random`} className="w-10 h-10 rounded-full object-cover" alt="" />
@@ -334,7 +334,7 @@ export default function ChatPage() {
                             <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover shadow-sm mb-1 flex-shrink-0" alt="" />
                           )}
                           <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div className={`relative px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words font-normal ${isMe ? 'bg-[#2C67C8] text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-sm'}`}>
+                            <div className={`relative px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words font-normal ${isMe ? 'bg-brand text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-sm'}`}>
                               {msg.content || msg.text}
                             </div>
                             <span className="text-[10px] text-gray-600 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">

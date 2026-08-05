@@ -49,7 +49,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
       <div className="max-w-[1200px] mx-auto px-4 pt-6">
 
         <nav className="text-sm text-gray-600 mb-4">
-          <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-800 font-medium">{category?.name || params.slug}</span>
         </nav>
@@ -64,8 +64,8 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
               <div className="mb-6">
                 <h3 className="font-medium text-gray-800 mb-3">Theo Danh Mục</h3>
                 <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2 text-[#EE4D2D] font-medium">
-                    <div className="w-2 h-2 rounded-full bg-[#EE4D2D]"></div> {category?.name}
+                  <li className="flex items-center gap-2 text-brand font-medium">
+                    <div className="w-2 h-2 rounded-full bg-brand"></div> {category?.name}
                   </li>
                 </ul>
               </div>
@@ -73,11 +73,11 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
               <div className="mb-6">
                 <h3 className="font-medium text-gray-800 mb-3">Khoảng Giá</h3>
                 <div className="flex items-center gap-2 mb-3">
-                  <input type="number" placeholder="Từ" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-[#EE4D2D]" />
+                  <input type="number" placeholder="Từ" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-brand" />
                   <span className="text-gray-600">-</span>
-                  <input type="number" placeholder="Đến" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-[#EE4D2D]" />
+                  <input type="number" placeholder="Đến" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-brand" />
                 </div>
-                <button className="w-full py-1.5 bg-[#EE4D2D] text-white text-sm rounded hover:bg-[#d73211] transition">ÁP DỤNG</button>
+                <button className="w-full py-1.5 bg-brand text-white text-sm rounded hover:bg-brand-dark transition">ÁP DỤNG</button>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             <div className="bg-gray-200 rounded-sm px-4 py-3 mb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-gray-600 text-sm">Sắp xếp theo</span>
-                <button onClick={() => setSort('')} className={`px-4 py-1.5 text-sm rounded shadow-sm ${!sort ? 'bg-[#EE4D2D] text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>Mới nhất</button>
+                <button onClick={() => setSort('')} className={`px-4 py-1.5 text-sm rounded shadow-sm ${!sort ? 'bg-brand text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>Mới nhất</button>
                 <div className="relative">
                   <select onChange={handleSortChange} value={sort} className="px-4 py-1.5 bg-white text-gray-700 text-sm rounded shadow-sm outline-none appearance-none pr-8">
                     <option value="">Giá</option>
@@ -116,14 +116,14 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                         </div>
                       )}
                       {item.status === 'active' && (
-                        <div className="absolute top-0 right-0 bg-[#EE4D2D] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-sm">Mới</div>
+                        <div className="absolute top-0 right-0 bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-sm">Mới</div>
                       )}
                     </div>
                     <div className="p-2.5">
-                      <h3 className="text-sm text-gray-800 line-clamp-2 min-h-[40px] leading-tight mb-2 group-hover:text-[#EE4D2D] transition-colors">{item.name}</h3>
+                      <h3 className="text-sm text-gray-800 line-clamp-2 min-h-[40px] leading-tight mb-2 group-hover:text-brand transition-colors">{item.name}</h3>
                       <div className="flex items-baseline gap-1 mb-2">
-                        <span className="text-[#EE4D2D] text-sm font-semibold underline decoration-1 underline-offset-2">đ</span>
-                        <span className="text-[#EE4D2D] text-lg font-medium">{Number(item.price).toLocaleString('vi-VN')}</span>
+                        <span className="text-brand text-sm font-semibold underline decoration-1 underline-offset-2">đ</span>
+                        <span className="text-brand text-lg font-medium">{Number(item.price).toLocaleString('vi-VN')}</span>
                       </div>
                       <div className="text-xs text-gray-600">Còn: {item.stock}</div>
                     </div>
