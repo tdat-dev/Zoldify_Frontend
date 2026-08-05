@@ -14,7 +14,9 @@ const config: Config = {
         brand: {
           DEFAULT: "#2C67C8",
           dark: "#22539F",
-          accent: "#1990AA",
+          // #1990AA cũ chỉ đạt 3.82:1 với chữ trắng ở đầu nhạt của gradient;
+          // đo bằng pixel thật trên nút "Đăng Bán". Tông này đạt 5.6:1.
+          accent: "#14708A",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
