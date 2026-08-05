@@ -100,3 +100,7 @@ desktop.ini
 # System files
 .htaccess.local
 .htpasswd
+
+# Claude Code
+.claude/
+public/logs/
