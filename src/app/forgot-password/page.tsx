@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
             <>
               <div className="text-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800">Xác thực OTP</h2>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-gray-600 text-sm mt-1">
                   Nhập mã code 6 số đã được gửi tới email <br />
                   <span className="font-semibold text-blue-500">{email}</span>
                 </p>
@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
                 </button>
 
                 <div className="text-center pt-2 flex justify-between items-center text-sm">
-                  <button type="button" onClick={() => setStep(1)} className="text-gray-500 hover:text-gray-700">Quay lại email</button>
+                  <button type="button" onClick={() => setStep(1)} className="text-gray-600 hover:text-gray-700">Quay lại email</button>
                   <button type="button" className="text-[#5A88FF] hover:text-blue-700 font-medium">Gửi lại mã?</button>
                 </div>
               </form>
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
             <>
               <div className="text-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800">Quên mật khẩu?</h2>
-                <p className="text-gray-400 text-sm mt-1">Đừng lo! Nhập email của bạn để lấy lại mật khẩu.</p>
+                <p className="text-gray-600 text-sm mt-1">Đừng lo! Nhập email của bạn để lấy lại mật khẩu.</p>
               </div>
 
               <form onSubmit={handleSendCode} className="space-y-4">
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
                 </button>
 
                 <div className="text-center pt-2">
-                  <Link href="/login" className="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center justify-center">
+                  <Link href="/login" className="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center justify-center">
                     <ArrowLeft className="w-4 h-4 mr-1" /> Quay lại đăng nhập
                   </Link>
                 </div>

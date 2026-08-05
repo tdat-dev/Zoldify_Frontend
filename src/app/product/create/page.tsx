@@ -122,7 +122,7 @@ export default function CreateProductPage() {
             <div className="p-6 sm:p-8 border-b border-slate-100">
               <div className="mb-4">
                 <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-indigo-500" /> Hình ảnh sản phẩm <span className="text-red-500">*</span>
+                  <ImageIcon className="w-5 h-5 text-indigo-500" /> Hình ảnh sản phẩm <span className="text-red-600">*</span>
                 </h2>
                 <p className="text-sm text-slate-400 mt-1">Tối đa 9 ảnh. Ảnh đầu tiên sẽ là ảnh bìa.</p>
               </div>
@@ -137,7 +137,7 @@ export default function CreateProductPage() {
                 ))}
                 {images.length < 9 && (
                   <div onClick={() => fileInputRef.current?.click()} className="relative group w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 cursor-pointer">
-                    <div className="border-2 border-dashed border-red-300 rounded-lg w-full h-full flex flex-col items-center justify-center bg-red-50/10 hover:bg-red-50 hover:border-red-500 transition-all text-red-400 hover:text-red-500">
+                    <div className="border-2 border-dashed border-red-300 rounded-lg w-full h-full flex flex-col items-center justify-center bg-red-50/10 hover:bg-red-50 hover:border-red-500 transition-all text-red-400 hover:text-red-600">
                       {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Camera className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">Thêm ảnh</span></>}
                       <span className="text-[9px] opacity-70">({images.length}/9)</span>
                     </div>
@@ -148,12 +148,12 @@ export default function CreateProductPage() {
             </div>
 
             <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Tên sản phẩm <span className="text-red-500">*</span></label>
+              <label className="text-sm font-bold text-slate-700 mb-2">Tên sản phẩm <span className="text-red-600">*</span></label>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ví dụ: iPhone 14 Pro Max 256GB" className="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm font-medium placeholder-slate-400 transition-all" required />
             </div>
 
             <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Danh mục <span className="text-red-500">*</span></label>
+              <label className="text-sm font-bold text-slate-700 mb-2">Danh mục <span className="text-red-600">*</span></label>
               <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none text-sm" required>
                 <option value="">Chọn danh mục</option>
                 {categories.map((c: any) => (
@@ -188,11 +188,11 @@ export default function CreateProductPage() {
               <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><span className="text-indigo-500 text-xl font-bold">₫</span> Giá bán & Số lượng</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="relative z-10">
-                  <label className="text-sm font-bold text-slate-700 mb-2">Số lượng <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-bold text-slate-700 mb-2">Số lượng <span className="text-red-600">*</span></label>
                   <StockControl value={quantity} onChange={setQuantity} min={1} max={99999} />
                 </div>
                 <div className="relative z-10">
-                  <label className="text-sm font-bold text-slate-700 mb-2">Giá bán <span className="text-red-500">*</span></label>
+                  <label className="text-sm font-bold text-slate-700 mb-2">Giá bán <span className="text-red-600">*</span></label>
                   <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-indigo-500 transition-all bg-white">
                     <div className="w-12 h-11 flex items-center justify-center bg-slate-50 border-r border-slate-200 text-slate-500 font-bold">₫</div>
                     <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="flex-1 h-11 px-4 border-none outline-none text-lg font-bold text-slate-800 bg-transparent" required />

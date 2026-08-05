@@ -10,7 +10,7 @@ export default function ResetPasswordPage() {
         
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Đặt lại mật khẩu</h2>
-          <p className="text-gray-500 text-sm mt-2">Vui lòng nhập mật khẩu mới cho tài khoản của bạn.</p>
+          <p className="text-gray-600 text-sm mt-2">Vui lòng nhập mật khẩu mới cho tài khoản của bạn.</p>
         </div>
 
         <form className="space-y-4">

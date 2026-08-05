@@ -74,7 +74,7 @@ export default function NotificationsPage() {
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[800px] mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Thông báo</span>
@@ -88,12 +88,12 @@ export default function NotificationsPage() {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-gray-400" /></div>
+          <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-gray-600" /></div>
         ) : notifications.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
             <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-medium text-gray-800 mb-2">Chưa có thông báo</h3>
-            <p className="text-gray-500">Bạn sẽ nhận được thông báo khi có đơn hàng hoặc tin nhắn mới</p>
+            <p className="text-gray-600">Bạn sẽ nhận được thông báo khi có đơn hàng hoặc tin nhắn mới</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -105,14 +105,14 @@ export default function NotificationsPage() {
                   className={`bg-white rounded-lg shadow-sm p-4 flex gap-4 items-start transition-colors ${!noti.is_read ? 'border-l-4 border-[#2C67C8] bg-blue-50/30' : ''}`}
                 >
                   <div className={`p-2 rounded-full flex-shrink-0 ${!noti.is_read ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                    <Icon className={`w-5 h-5 ${!noti.is_read ? 'text-[#2C67C8]' : 'text-gray-400'}`} />
+                    <Icon className={`w-5 h-5 ${!noti.is_read ? 'text-[#2C67C8]' : 'text-gray-600'}`} />
                   </div>
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => !noti.is_read && handleMarkRead(noti.id)}>
                     <div className="flex justify-between items-start mb-1">
                       <h4 className={`text-sm ${!noti.is_read ? 'font-bold text-gray-800' : 'text-gray-700'}`}>{noti.title}</h4>
-                      <span className="text-[10px] text-gray-400 flex-shrink-0 ml-2">{formatTime(noti.created_at)}</span>
+                      <span className="text-[10px] text-gray-600 flex-shrink-0 ml-2">{formatTime(noti.created_at)}</span>
                     </div>
-                    <p className="text-sm text-gray-500 line-clamp-2">{noti.content}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{noti.content}</p>
                     {noti.data?.order_code && (
                       <Link href={`/profile/orders/${noti.data.order_id}`} className="text-xs text-blue-600 hover:underline mt-1 inline-block">
                         Xem đơn hàng
@@ -124,7 +124,7 @@ export default function NotificationsPage() {
                       </Link>
                     )}
                   </div>
-                  <button onClick={() => handleDelete(noti.id)} className="p-1 text-gray-300 hover:text-red-500 transition-colors flex-shrink-0">
+                  <button onClick={() => handleDelete(noti.id)} className="p-1 text-gray-300 hover:text-red-600 transition-colors flex-shrink-0">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
         )}
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-500 hover:text-[#EE4D2D] transition-colors inline-flex items-center">
+          <Link href="/" className="text-gray-600 hover:text-[#EE4D2D] transition-colors inline-flex items-center">
             <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại trang chủ
           </Link>
         </div>

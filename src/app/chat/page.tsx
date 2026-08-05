@@ -256,9 +256,9 @@ export default function ChatPage() {
             </div>
             <div className="flex-1 overflow-y-auto">
               {loading ? (
-                <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-gray-400" /></div>
+                <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-gray-600" /></div>
               ) : conversations.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 text-sm">Chưa có hội thoại nào</div>
+                <div className="p-8 text-center text-gray-600 text-sm">Chưa có hội thoại nào</div>
               ) : (
                 conversations.map((conv: any) => {
                   const status = getOnlineStatus(conv.partner_last_seen, conv.partner_online);
@@ -275,9 +275,9 @@ export default function ChatPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-baseline mb-1">
                         <h4 className="text-sm font-medium text-gray-800 truncate">{conv.partner_name || 'Người dùng'}</h4>
-                        <span className="text-[10px] text-gray-400">{conv.last_message?.created_at ? formatTime(conv.last_message.created_at) : ''}</span>
+                        <span className="text-[10px] text-gray-600">{conv.last_message?.created_at ? formatTime(conv.last_message.created_at) : ''}</span>
                       </div>
-                      <p className={`text-xs truncate ${conv.unread_count > 0 ? 'font-bold text-gray-800' : 'text-gray-500'}`}>
+                      <p className={`text-xs truncate ${conv.unread_count > 0 ? 'font-bold text-gray-800' : 'text-gray-600'}`}>
                         {conv.last_message?.content || status.text}
                       </p>
                     </div>
@@ -311,7 +311,7 @@ export default function ChatPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-800 text-base">{activeConv.partner_name || 'Người dùng'}</h3>
-                      <span className={`text-xs font-medium ${headerStatus.online ? 'text-green-500' : 'text-gray-400'}`}>{headerStatus.text}</span>
+                      <span className={`text-xs font-medium ${headerStatus.online ? 'text-green-500' : 'text-gray-600'}`}>{headerStatus.text}</span>
                     </div>
                   </div>
                 </div>
@@ -337,7 +337,7 @@ export default function ChatPage() {
                             <div className={`relative px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words font-normal ${isMe ? 'bg-[#2C67C8] text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-tl-sm'}`}>
                               {msg.content || msg.text}
                             </div>
-                            <span className="text-[10px] text-gray-400 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">
+                            <span className="text-[10px] text-gray-600 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">
                               {msg.created_at ? formatTime(msg.created_at) : ''}
                             </span>
                           </div>
@@ -373,7 +373,7 @@ export default function ChatPage() {
                 );
               })()
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-gray-400 bg-slate-50/50">
+              <div className="flex-1 flex flex-col items-center justify-center text-gray-600 bg-slate-50/50">
                 <div className="w-32 h-32 bg-blue-50 rounded-full flex items-center justify-center mb-6">
                   <MessageCircle className="w-16 h-16 text-blue-200" />
                 </div>

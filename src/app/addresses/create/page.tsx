@@ -78,7 +78,7 @@ export default function CreateAddressPage() {
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[600px] mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
           <span>&gt;</span>
           <Link href="/addresses" className="hover:text-[#2C67C8]">Địa chỉ</Link>
@@ -91,7 +91,7 @@ export default function CreateAddressPage() {
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tên gợi nhớ <span className="text-red-500">*</span>
+              Tên gợi nhớ <span className="text-red-600">*</span>
             </label>
             <div className="flex gap-2 flex-wrap">
               {labels.map((l) => (
@@ -117,7 +117,7 @@ export default function CreateAddressPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Họ và tên người nhận <span className="text-red-500">*</span>
+                Họ và tên người nhận <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
@@ -129,7 +129,7 @@ export default function CreateAddressPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Số điện thoại <span className="text-red-500">*</span>
+                Số điện thoại <span className="text-red-600">*</span>
               </label>
               <input
                 type="tel"
@@ -145,7 +145,7 @@ export default function CreateAddressPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tỉnh/Thành phố <span className="text-red-600">*</span></label>
               <select
                 value={form.provinceCode}
                 onChange={(e) => handleProvinceChange(Number(e.target.value))}
@@ -156,7 +156,7 @@ export default function CreateAddressPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Quận/Huyện <span className="text-red-600">*</span></label>
               <select
                 value={form.districtCode}
                 onChange={(e) => handleDistrictChange(Number(e.target.value))}
@@ -183,7 +183,7 @@ export default function CreateAddressPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Địa chỉ chi tiết <span className="text-red-500">*</span>
+              Địa chỉ chi tiết <span className="text-red-600">*</span>
             </label>
             <input
               type="text"

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, Youtube, MessageCircle, Home, Search, Plus, MessageSquare, User } from 'lucide-react';
+import { Mail, Bell, Home, Search, Plus, MessageSquare, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
@@ -10,23 +10,19 @@ export default function Footer() {
 
   return (
     <>
-      {/* Footer - Ẩn trên mobile, chỉ hiện bottom nav */}
-      <footer className="hidden md:block bg-white border-t border-gray-200 py-[30px]">
+      {/* Footer - hiện trên cả mobile; pb-20 để không bị bottom nav che */}
+      <footer className="bg-white border-t border-gray-200 py-[30px] pb-24 md:pb-[30px]">
         <div className="container mx-auto px-4 max-w-[1200px]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-16 py-4 md:py-[30px]">
             {/* Service */}
             <div>
-              <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wide">DỊCH VỤ KHÁCH HÀNG</h3>
+              <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wide">MUA VÀ BÁN</h3>
               <ul className="space-y-3 text-sm text-gray-700">
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Trung Tâm Trợ Giúp Zoldify</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Hướng Dẫn Mua Hàng/Đặt Hàng</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Hướng Dẫn Bán Hàng</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Đơn Hàng</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Trả Hàng/Hoàn Tiền</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Liên Hệ Zoldify</Link></li>
-                <li><Link href="#" className="hover:text-[#2C67C8] transition-colors">Chính Sách Bảo Hành</Link></li>
-                <li><Link href="/privacy" className="hover:text-[#2C67C8] transition-colors">Chính Sách Bảo Mật</Link></li>
-                <li><Link href="/terms" className="hover:text-[#2C67C8] transition-colors">Điều Khoản Sử Dụng</Link></li>
+                <li><Link href="/search" className="hover:text-[#2C67C8] transition-colors">Tìm sản phẩm</Link></li>
+                <li><Link href="/product/create" className="hover:text-[#2C67C8] transition-colors">Đăng bán đồ cũ</Link></li>
+                <li><Link href="/profile/orders" className="hover:text-[#2C67C8] transition-colors">Đơn mua của tôi</Link></li>
+                <li><Link href="/shop/orders" className="hover:text-[#2C67C8] transition-colors">Đơn bán của tôi</Link></li>
+                <li><Link href="/profile/wallet" className="hover:text-[#2C67C8] transition-colors">Ví Zoldify</Link></li>
               </ul>
             </div>
 
@@ -40,25 +36,21 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Monitor */}
+            {/* Contact */}
             <div>
-              <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wide">THEO DÕI ZOLDIFY</h3>
+              <h3 className="font-bold text-sm text-gray-900 mb-4 uppercase tracking-wide">LIÊN HỆ</h3>
               <ul className="space-y-3 text-sm text-gray-700">
                 <li className="flex items-center gap-3">
-                  <Facebook className="w-4 h-4 text-gray-800" />
-                  <Link href="#" target="_blank" className="hover:text-[#2C67C8] transition-colors">Facebook</Link>
+                  <Mail className="w-4 h-4 text-gray-700" aria-hidden="true" />
+                  <a href="mailto:admin@zoldify.com" className="hover:text-[#2C67C8] transition-colors">admin@zoldify.com</a>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Instagram className="w-4 h-4 text-gray-800" />
-                  <Link href="#" target="_blank" className="hover:text-[#2C67C8] transition-colors">Instagram</Link>
+                  <MessageSquare className="w-4 h-4 text-gray-700" aria-hidden="true" />
+                  <Link href="/chat" className="hover:text-[#2C67C8] transition-colors">Nhắn tin với người bán</Link>
                 </li>
                 <li className="flex items-center gap-3">
-                  <Youtube className="w-4 h-4 text-gray-800" />
-                  <Link href="#" target="_blank" className="hover:text-[#2C67C8] transition-colors">YouTube</Link>
-                </li>
-                <li className="flex items-center gap-3">
-                  <MessageCircle className="w-4 h-4 text-gray-800" />
-                  <Link href="#" target="_blank" className="hover:text-[#2C67C8] transition-colors">Zalo</Link>
+                  <Bell className="w-4 h-4 text-gray-700" aria-hidden="true" />
+                  <Link href="/notifications" className="hover:text-[#2C67C8] transition-colors">Thông báo của tôi</Link>
                 </li>
               </ul>
             </div>
@@ -75,38 +67,38 @@ export default function Footer() {
       </footer>
 
       {/* Mobile Bottom Navigation - Like Shopee/Lazada */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-[1000] pb-safe">
-        <div className="flex h-14">
+      <nav aria-label="Điều hướng chính" className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-sticky pb-safe">
+        <div className="flex h-16">
           {/* Trang chủ */}
-          <Link href="/" className={`w-1/5 flex flex-col items-center justify-center ${pathname === '/' || pathname === '/home' ? 'text-[#2C67C8]' : 'text-gray-500'}`}>
-            <Home className="w-[18px] h-[18px]" />
-            <span className="text-[9px] mt-0.5 font-medium">Trang chủ</span>
+          <Link href="/" aria-current={pathname === '/' ? 'page' : undefined} className={`w-1/5 flex flex-col items-center justify-center gap-0.5 ${pathname === '/' || pathname === '/home' ? 'text-[#2C67C8]' : 'text-gray-600'}`}>
+            <Home className="w-5 h-5" aria-hidden="true" />
+            <span className="text-xs font-medium">Trang chủ</span>
           </Link>
 
           {/* Tìm kiếm */}
-          <Link href="/search" className={`w-1/5 flex flex-col items-center justify-center ${pathname.startsWith('/search') ? 'text-[#2C67C8]' : 'text-gray-500'}`}>
-            <Search className="w-[18px] h-[18px]" />
-            <span className="text-[9px] mt-0.5 font-medium">Tìm kiếm</span>
+          <Link href="/search" aria-current={pathname.startsWith('/search') ? 'page' : undefined} className={`w-1/5 flex flex-col items-center justify-center gap-0.5 ${pathname.startsWith('/search') ? 'text-[#2C67C8]' : 'text-gray-600'}`}>
+            <Search className="w-5 h-5" aria-hidden="true" />
+            <span className="text-xs font-medium">Tìm kiếm</span>
           </Link>
 
           {/* Đăng bán - Nút nổi bật */}
-          <Link href="/product/create" className="w-1/5 flex flex-col items-center justify-center -mt-2">
+          <Link href="/product/create" className="w-1/5 flex flex-col items-center justify-center gap-0.5 -mt-2 text-[#2C67C8]">
             <div className="w-10 h-10 bg-gradient-to-r from-[#2C67C8] to-[#1990AA] rounded-full flex items-center justify-center shadow-md border-2 border-white">
-              <Plus className="w-4 h-4 text-white" />
+              <Plus className="w-5 h-5 text-white" aria-hidden="true" />
             </div>
-            <span className="text-[9px] mt-0.5 font-bold text-[#2C67C8]">Đăng bán</span>
+            <span className="text-xs font-bold">Đăng bán</span>
           </Link>
 
           {/* Chat */}
-          <Link href="/chat" className={`w-1/5 flex flex-col items-center justify-center ${pathname.startsWith('/chat') ? 'text-[#2C67C8]' : 'text-gray-500'}`}>
-            <MessageSquare className="w-[18px] h-[18px]" />
-            <span className="text-[9px] mt-0.5 font-medium">Chat</span>
+          <Link href="/chat" aria-current={pathname.startsWith('/chat') ? 'page' : undefined} className={`w-1/5 flex flex-col items-center justify-center gap-0.5 ${pathname.startsWith('/chat') ? 'text-[#2C67C8]' : 'text-gray-600'}`}>
+            <MessageSquare className="w-5 h-5" aria-hidden="true" />
+            <span className="text-xs font-medium">Chat</span>
           </Link>
 
           {/* Tài khoản */}
-          <Link href="/profile" className={`w-1/5 flex flex-col items-center justify-center ${pathname.startsWith('/profile') ? 'text-[#2C67C8]' : 'text-gray-500'}`}>
-            <User className="w-[18px] h-[18px]" />
-            <span className="text-[9px] mt-0.5 font-medium">Tài khoản</span>
+          <Link href="/profile" aria-current={pathname.startsWith('/profile') ? 'page' : undefined} className={`w-1/5 flex flex-col items-center justify-center gap-0.5 ${pathname.startsWith('/profile') ? 'text-[#2C67C8]' : 'text-gray-600'}`}>
+            <User className="w-5 h-5" aria-hidden="true" />
+            <span className="text-xs font-medium">Tài khoản</span>
           </Link>
         </div>
       </nav>

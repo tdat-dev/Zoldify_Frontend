@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="p-6 max-w-7xl mx-auto flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Tổng quan</h1>
-        <p className="text-gray-500 text-sm mt-1">Chào mừng trở lại, Admin.</p>
+        <p className="text-gray-600 text-sm mt-1">Chào mừng trở lại, Admin.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div>
-            <p className="text-gray-500 text-sm font-medium mb-1">Tổng Users</p>
+            <p className="text-gray-600 text-sm font-medium mb-1">Tổng Users</p>
             <h3 className="text-2xl font-bold text-gray-800">{stats.total_users.toLocaleString('vi-VN')}</h3>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div>
-            <p className="text-gray-500 text-sm font-medium mb-1">Tổng Sản phẩm</p>
+            <p className="text-gray-600 text-sm font-medium mb-1">Tổng Sản phẩm</p>
             <h3 className="text-2xl font-bold text-gray-800">{stats.total_products.toLocaleString('vi-VN')}</h3>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div>
-            <p className="text-gray-500 text-sm font-medium mb-1">Đơn hàng</p>
+            <p className="text-gray-600 text-sm font-medium mb-1">Đơn hàng</p>
             <h3 className="text-2xl font-bold text-gray-800">{stats.total_orders.toLocaleString('vi-VN')}</h3>
           </div>
         </div>
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           <div>
-            <p className="text-gray-500 text-sm font-medium mb-1">Doanh thu</p>
+            <p className="text-gray-600 text-sm font-medium mb-1">Doanh thu</p>
             <h3 className="text-2xl font-bold text-gray-800">{stats.total_revenue.toLocaleString('vi-VN')}đ</h3>
           </div>
         </div>
@@ -101,9 +101,9 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 text-sm">Thêm sản phẩm</h4>
-                <p className="text-xs text-gray-500">Tạo sản phẩm mới</p>
+                <p className="text-xs text-gray-600">Tạo sản phẩm mới</p>
               </div>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400 group-hover:text-gray-600" />
+              <ChevronRight className="w-4 h-4 ml-auto text-gray-600 group-hover:text-gray-600" />
             </Link>
 
             <Link href="/admin/users" className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all group">
@@ -112,9 +112,9 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 text-sm">Quản lý Users</h4>
-                <p className="text-xs text-gray-500">Danh sách người dùng</p>
+                <p className="text-xs text-gray-600">Danh sách người dùng</p>
               </div>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400 group-hover:text-gray-600" />
+              <ChevronRight className="w-4 h-4 ml-auto text-gray-600 group-hover:text-gray-600" />
             </Link>
             <Link href="/admin/categories" className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all group">
               <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
@@ -122,9 +122,9 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 text-sm">Quản lý Danh mục</h4>
-                <p className="text-xs text-gray-500">Thêm, sửa, xóa danh mục</p>
+                <p className="text-xs text-gray-600">Thêm, sửa, xóa danh mục</p>
               </div>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400 group-hover:text-gray-600" />
+              <ChevronRight className="w-4 h-4 ml-auto text-gray-600 group-hover:text-gray-600" />
             </Link>
             <Link href="/admin/orders" className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all group">
               <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
@@ -132,9 +132,9 @@ export default function AdminDashboardPage() {
               </div>
               <div>
                 <h4 className="font-medium text-gray-800 text-sm">Xem đơn hàng</h4>
-                <p className="text-xs text-gray-500">Kiểm tra đơn mới</p>
+                <p className="text-xs text-gray-600">Kiểm tra đơn mới</p>
               </div>
-              <ChevronRight className="w-4 h-4 ml-auto text-gray-400 group-hover:text-gray-600" />
+              <ChevronRight className="w-4 h-4 ml-auto text-gray-600 group-hover:text-gray-600" />
             </Link>
           </div>
         </div>
@@ -145,11 +145,11 @@ export default function AdminDashboardPage() {
             <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">Xem tất cả</button>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10 border border-dashed border-gray-200 rounded-lg bg-gray-50/50">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 text-gray-400">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3 text-gray-600">
               <History className="w-8 h-8" />
             </div>
             <h3 className="text-gray-800 font-medium mb-1">Chưa có hoạt động nào</h3>
-            <p className="text-gray-500 text-sm max-w-xs">
+            <p className="text-gray-600 text-sm max-w-xs">
               Các hoạt động mới sẽ xuất hiện tại đây khi hệ thống bắt đầu vận hành.
             </p>
           </div>

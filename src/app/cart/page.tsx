@@ -73,7 +73,7 @@ export default function CartPage() {
   const allSelected = cartItems.length > 0 && cartItems.every(i => i.selected);
 
   if (loading) {
-    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-500">Đang tải...</p></div>;
+    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-600">Đang tải...</p></div>;
   }
 
   if (cartItems.length === 0) {
@@ -82,7 +82,7 @@ export default function CartPage() {
         <div className="max-w-[1200px] mx-auto px-4 pt-4">
           <div className="bg-white rounded-sm shadow-sm p-10 text-center mt-6">
             <ShoppingCart className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-500 mb-6">Giỏ hàng của bạn còn trống</p>
+            <p className="text-gray-600 mb-6">Giỏ hàng của bạn còn trống</p>
             <Link href="/" className="inline-block px-6 py-2 bg-[#EE4D2D] text-white rounded-sm hover:bg-[#d73211] transition-colors">
               Mua ngay
             </Link>
@@ -95,7 +95,7 @@ export default function CartPage() {
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800">Giỏ hàng</span>
@@ -106,7 +106,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-4">
             <div className="bg-white rounded-sm shadow-sm overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 p-4 border-b bg-gray-50 text-sm text-gray-500 font-medium items-center">
+              <div className="grid grid-cols-12 gap-4 p-4 border-b bg-gray-50 text-sm text-gray-600 font-medium items-center">
                 <div className="col-span-1 flex justify-center">
                   <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} className="w-4 h-4 text-[#EE4D2D] border-gray-300 rounded focus:ring-[#EE4D2D]" />
                 </div>
@@ -129,7 +129,7 @@ export default function CartPage() {
                       <Link href={`/product/${item.product_id}`} className="text-sm font-medium text-gray-800 line-clamp-2 hover:text-[#2C67C8]">
                         {item.name}
                       </Link>
-                      <span className="text-xs text-gray-400 mt-1">Còn {item.stock} sản phẩm</span>
+                      <span className="text-xs text-gray-600 mt-1">Còn {item.stock} sản phẩm</span>
                     </div>
                   </div>
                   <div className="col-span-2 text-center text-sm font-medium text-gray-600">
@@ -150,7 +150,7 @@ export default function CartPage() {
                     <span className="text-sm font-bold text-[#EE4D2D]">
                       {(item.price * item.quantity).toLocaleString('vi-VN')}đ
                     </span>
-                    <button onClick={() => removeItem(item.id)} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors">
+                    <button onClick={() => removeItem(item.id)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

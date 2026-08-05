@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Truck, ShieldCheck, Globe, Flag, MessageSquare, Store, CheckCircle, Package, Loader, Star, Send } from 'lucide-react';
+import { Truck, Globe, Flag, MessageSquare, Store, CheckCircle, Package, Loader, Star, Send } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import { reviewService } from '@/services/review.service';
 import { cartService } from '@/services/cart.service';
@@ -124,6 +124,22 @@ export default function ProductDetailPage() {
     }
   };
 
+  // Backend chưa có endpoint báo cáo, nên gửi qua email kèm sẵn ngữ cảnh sản phẩm.
+  const handleReport = () => {
+    if (!product) return;
+    const subject = `Báo cáo sản phẩm #${product.id}`;
+    const body = [
+      `Sản phẩm: ${product.name}`,
+      `Mã sản phẩm: ${product.id}`,
+      `Link: ${typeof window !== 'undefined' ? window.location.href : ''}`,
+      '',
+      'Lý do báo cáo:',
+      '',
+    ].join('\n');
+    window.location.href = `mailto:admin@zoldify.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    toast('Đang mở email để gửi báo cáo', 'info');
+  };
+
   const handleSubmitReview = async () => {
     if (!eligibleOrderId) return;
     if (!newComment.trim()) { toast('Vui lòng nhập nhận xét', 'error'); return; }
@@ -150,17 +166,17 @@ export default function ProductDetailPage() {
   const avgRating = reviews.length > 0 ? (reviews.reduce((sum: number, r: any) => sum + Number(r.rating || 0), 0) / reviews.length).toFixed(1) : '0';
 
   if (loading) {
-    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-400" /></div>;
+    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-600" /></div>;
   }
 
   if (!product) {
-    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-500">Không tìm thấy sản phẩm</p></div>;
+    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-600">Không tìm thấy sản phẩm</p></div>;
   }
 
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4 space-y-6">
-        <div className="text-sm text-gray-500 flex items-center gap-2">
+        <div className="text-sm text-gray-600 flex items-center gap-2">
           <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
           <span>&gt;</span>
           <span className="text-gray-800 truncate">{product.name}</span>
@@ -173,7 +189,7 @@ export default function ProductDetailPage() {
                 {product.image ? (
                   <img src={product.image} className="w-full h-full object-contain" alt={product.name} />
                 ) : (
-                  <Package className="w-20 h-20 text-gray-400" />
+                  <Package className="w-20 h-20 text-gray-600" />
                 )}
               </div>
             </div>
@@ -196,58 +212,58 @@ export default function ProductDetailPage() {
 
               <div className="space-y-4 text-sm text-gray-600">
                 <div className="flex items-center">
-                  <span className="w-32 text-gray-500">Tình trạng:</span>
+                  <span className="w-32 text-gray-600">Tình trạng:</span>
                   <span className="text-blue-600 font-medium">
                     {product.condition === 'new' ? 'Mới' : product.condition === 'used' ? 'Đã qua sử dụng' : product.condition === 'refurbished' ? 'Đã tân trang' : product.condition || 'Mới'}
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-32 text-gray-500">Số lượng:</span>
+                  <span className="w-32 text-gray-600">Số lượng:</span>
                   <div className="flex items-center border border-gray-300 rounded-sm">
                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-1 border-r border-gray-300 hover:bg-gray-50 min-w-[32px]">-</button>
                     <input type="number" value={quantity} readOnly className="w-14 text-center outline-none bg-white font-medium" />
                     <button onClick={() => setQuantity(Math.min(product.stock || 99, quantity + 1))} className="px-3 py-1 border-l border-gray-300 hover:bg-gray-50 min-w-[32px]">+</button>
                   </div>
-                  <span className="ml-3 text-gray-400">{product.stock || 0} sản phẩm có sẵn</span>
+                  <span className="ml-3 text-gray-600">{product.stock || 0} sản phẩm có sẵn</span>
                 </div>
               </div>
 
               <div className="flex gap-4 pt-4">
                 {isOwnProduct ? (
-                  <div className="flex-1 px-6 py-3 bg-orange-50 border border-orange-300 text-orange-700 font-medium rounded-sm flex items-center justify-center gap-2">
-                    <Flag className="w-5 h-5" />
-                    Đây là sản phẩm của bạn — bạn không thể tự mua
+                  <div className="flex-1 px-6 py-3 bg-orange-50 border border-orange-300 text-orange-800 font-medium rounded-sm flex items-center justify-center gap-2">
+                    <Flag className="w-5 h-5" aria-hidden="true" />
+                    Đây là sản phẩm của bạn, bạn không thể tự mua
                   </div>
                 ) : (
                   <>
-                    <button onClick={handleAddToCart} disabled={addingCart} className="flex-1 px-6 py-3 bg-[#2C67C8] text-white font-medium rounded-sm hover:bg-[#F97316] transition-colors flex items-center justify-center gap-2 disabled:opacity-70">
-                      {addingCart ? 'Đang thêm...' : <><Package className="w-5 h-5" /> Thêm vào giỏ hàng</>}
+                    <button onClick={handleAddToCart} disabled={addingCart} className="flex-1 px-6 py-3 bg-white border border-[#2C67C8] text-[#2C67C8] font-medium rounded-sm hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-70">
+                      {addingCart ? 'Đang thêm...' : <><Package className="w-5 h-5" aria-hidden="true" /> Thêm vào giỏ hàng</>}
                     </button>
-                    <button onClick={handleBuyNow} className="flex-1 px-8 py-3 bg-[#2C67C8] text-white font-medium rounded-sm hover:bg-[#F97316] transition-colors shadow-sm text-center">
+                    <button onClick={handleBuyNow} className="flex-1 px-8 py-3 bg-[#2C67C8] text-white font-medium rounded-sm hover:bg-[#22539f] transition-colors shadow-sm text-center">
                       Mua ngay
                     </button>
                   </>
                 )}
               </div>
 
-              <div className="border-t pt-6 mt-6 grid grid-cols-2 gap-4 text-xs text-gray-500">
+              <div className="border-t pt-6 mt-6 grid grid-cols-2 gap-4 text-sm text-gray-700">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#2C67C8]" />
-                  <span>Cam kết nhận hàng hoặc hoàn tiền</span>
+                  <Globe className="w-5 h-5 text-[#2C67C8] flex-shrink-0" aria-hidden="true" />
+                  <span>Sàn mua bán đồ cũ dành cho sinh viên</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-[#2C67C8]" />
-                  <span>Nền tảng mua bán đồ cũ vì môi trường</span>
+                  <MessageSquare className="w-5 h-5 text-[#2C67C8] flex-shrink-0" aria-hidden="true" />
+                  <span>Trao đổi trực tiếp với người bán trước khi mua</span>
                 </div>
                 <div className="col-span-2 pt-2 flex items-center gap-4 flex-wrap">
                   {!isOwnProduct && (
-                    <button onClick={handleChatWithShop} className="flex items-center gap-2 hover:text-[#2C67C8] transition-colors">
-                      <MessageSquare className="w-4 h-4" />
+                    <button onClick={handleChatWithShop} className="flex items-center gap-2 py-1 hover:text-[#2C67C8] transition-colors">
+                      <MessageSquare className="w-4 h-4" aria-hidden="true" />
                       <span>Chat với shop</span>
                     </button>
                   )}
-                  <button className="flex items-center gap-2 hover:text-red-500 transition-colors">
-                    <Flag className="w-4 h-4" />
+                  <button onClick={handleReport} className="flex items-center gap-2 py-1 hover:text-red-600 transition-colors">
+                    <Flag className="w-4 h-4" aria-hidden="true" />
                     <span>Báo cáo sản phẩm</span>
                   </button>
                 </div>
@@ -273,7 +289,7 @@ export default function ProductDetailPage() {
                   {product.seller.full_name || 'Shop'}
                   <Store className="w-3.5 h-3.5 text-[#2C67C8]" />
                 </div>
-                <div className="text-xs text-gray-500">Xem tất cả sản phẩm của shop →</div>
+                <div className="text-xs text-gray-600">Xem tất cả sản phẩm của shop →</div>
               </div>
             </div>
             <button
@@ -304,7 +320,7 @@ export default function ProductDetailPage() {
                   <Star key={s} className={`w-4 h-4 ${s <= Math.round(Number(avgRating)) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
                 ))}
               </div>
-              <span className="text-xs text-gray-500 ml-2">/ 5 sao</span>
+              <span className="text-xs text-gray-600 ml-2">/ 5 sao</span>
             </div>
           )}
 
@@ -353,7 +369,7 @@ export default function ProductDetailPage() {
 
           {isAuthenticated && !isOwnProduct && !myReview && !eligibleOrderId && (
             <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-sm text-sm text-gray-600 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-gray-400" />
+              <MessageSquare className="w-4 h-4 text-gray-600" />
               Chỉ người đã mua và nhận hàng thành công mới có thể đánh giá sản phẩm này.
             </div>
           )}
@@ -366,7 +382,7 @@ export default function ProductDetailPage() {
 
           <div className="space-y-4">
             {reviews.length === 0 ? (
-              <p className="text-gray-500 text-sm">Chưa có đánh giá nào.</p>
+              <p className="text-gray-600 text-sm">Chưa có đánh giá nào.</p>
             ) : (
               reviews.map((rev: any, idx: number) => (
                 <div key={rev.id || idx} className="flex gap-3 pb-4 border-b last:border-0">
@@ -379,7 +395,7 @@ export default function ProductDetailPage() {
                       ))}
                     </div>
                     <p className="text-sm text-gray-600">{rev.comment || rev.content}</p>
-                    <p className="text-xs text-gray-400 mt-1">{rev.created_at ? new Date(rev.created_at).toLocaleDateString('vi-VN') : ''}</p>
+                    <p className="text-xs text-gray-600 mt-1">{rev.created_at ? new Date(rev.created_at).toLocaleDateString('vi-VN') : ''}</p>
                   </div>
                 </div>
               ))

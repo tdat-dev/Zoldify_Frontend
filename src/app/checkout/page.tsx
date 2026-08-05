@@ -119,13 +119,13 @@ export default function CheckoutPage() {
   };
 
   if (loading) {
-    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-500">Đang tải...</p></div>;
+    return <div className="bg-gray-100 min-h-screen flex items-center justify-center"><p className="text-gray-600">Đang tải...</p></div>;
   }
 
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-[#2C67C8]">Trang chủ</Link>
           <span>&gt;</span>
           <Link href="/cart" className="hover:text-[#2C67C8]">Giỏ hàng</Link>
@@ -159,7 +159,7 @@ export default function CheckoutPage() {
 
             {/* Products */}
             <div className="bg-white rounded-sm shadow-sm overflow-hidden">
-              <div className="p-4 border-b bg-gray-50 text-sm font-medium text-gray-500">
+              <div className="p-4 border-b bg-gray-50 text-sm font-medium text-gray-600">
                 Sản phẩm ({cartItems.length})
               </div>
               {cartItems.map((item) => (
@@ -210,22 +210,22 @@ export default function CheckoutPage() {
                   <div className="flex-1">
                     <span className="text-sm font-medium">Thanh toán khi nhận hàng (COD)</span>
                   </div>
-                  <Truck className="w-5 h-5 text-gray-400" />
+                  <Truck className="w-5 h-5 text-gray-600" />
                 </label>
                 <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'wallet' ? 'border-[#EE4D2D] bg-[#FFF5F1]' : 'hover:border-[#EE4D2D]'}`}>
                   <input type="radio" name="payment_method" value="wallet" checked={paymentMethod === 'wallet'} onChange={() => setPaymentMethod('wallet')} className="text-[#EE4D2D] focus:ring-[#EE4D2D] w-4 h-4" />
                   <div className="flex-1">
                     <span className="text-sm font-medium">Ví Zoldify</span>
                   </div>
-                  <QrCode className="w-5 h-5 text-gray-400" />
+                  <QrCode className="w-5 h-5 text-gray-600" />
                 </label>
                 <label className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${paymentMethod === 'payos' ? 'border-[#EE4D2D] bg-[#FFF5F1]' : 'hover:border-[#EE4D2D]'}`}>
                   <input type="radio" name="payment_method" value="payos" checked={paymentMethod === 'payos'} onChange={() => setPaymentMethod('payos')} className="text-[#EE4D2D] focus:ring-[#EE4D2D] w-4 h-4" />
                   <div className="flex-1">
                     <span className="text-sm font-medium">Thẻ ATM / Visa / Master / JCB</span>
-                    <p className="text-xs text-gray-500 mt-0.5">Quét QR hoặc nhập thẻ qua PayOS</p>
+                    <p className="text-xs text-gray-600 mt-0.5">Quét QR hoặc nhập thẻ qua PayOS</p>
                   </div>
-                  <CreditCard className="w-5 h-5 text-gray-400" />
+                  <CreditCard className="w-5 h-5 text-gray-600" />
                 </label>
               </div>
 
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
               </button>
 
               <div className="mt-4 text-center">
-                <Link href="/cart" className="text-sm text-gray-500 hover:text-[#EE4D2D]">Quay lại giỏ hàng</Link>
+                <Link href="/cart" className="text-sm text-gray-600 hover:text-[#EE4D2D]">Quay lại giỏ hàng</Link>
               </div>
             </div>
           </div>

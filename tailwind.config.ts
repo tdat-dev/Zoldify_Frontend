@@ -48,6 +48,15 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      // Semantic layering scale. Use these names instead of ad-hoc z-[9999].
+      zIndex: {
+        dropdown: "100",
+        sticky: "200",
+        backdrop: "300",
+        modal: "400",
+        toast: "500",
+        tooltip: "600",
+      },
     },
   },
   plugins: [],

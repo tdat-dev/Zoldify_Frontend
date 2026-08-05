@@ -24,7 +24,7 @@ export default function MaintenancePage() {
         <div className="w-24 h-1 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full mx-auto mb-8"></div>
 
         {/* Contact Info */}
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-600 text-sm">
           Nếu cần hỗ trợ, vui lòng liên hệ:{" "}
           <a href="mailto:admin@zoldify.com" className="text-yellow-500 hover:underline">
             admin@zoldify.com

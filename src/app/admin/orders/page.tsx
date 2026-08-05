@@ -155,7 +155,7 @@ export default function AdminOrdersPage() {
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Quản lý Đơn hàng</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} đơn hàng`}
           </p>
         </div>
@@ -199,7 +199,7 @@ export default function AdminOrdersPage() {
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-gray-500">
+          <div className="py-16 text-center text-gray-600">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
             <p>Đang tải đơn hàng...</p>
           </div>
@@ -207,20 +207,20 @@ export default function AdminOrdersPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Mã ĐH</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Người mua</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Người nhận</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Tổng tiền</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Thanh toán</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Mã ĐH</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Người mua</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Người nhận</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Tổng tiền</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thanh toán</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Trạng thái</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Ngày tạo</th>
+                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-600">
                     <ShoppingCart className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                     <p>Không có đơn hàng nào</p>
                   </td>
@@ -230,20 +230,20 @@ export default function AdminOrdersPage() {
                   <tr key={order.id} className="hover:bg-gray-50 transition">
                     <td className="py-4 px-6">
                       <span className="font-mono text-sm font-medium text-gray-800">{order.code}</span>
-                      <div className="text-xs text-gray-500 mt-0.5">{order.items?.length || 0} sản phẩm</div>
+                      <div className="text-xs text-gray-600 mt-0.5">{order.items?.length || 0} sản phẩm</div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm font-medium text-gray-800">{order.user?.full_name || '—'}</div>
-                      <div className="text-xs text-gray-500">{order.user?.email || '—'}</div>
+                      <div className="text-xs text-gray-600">{order.user?.email || '—'}</div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm text-gray-800">{order.receiver_name}</div>
-                      <div className="text-xs text-gray-500">{order.receiver_phone}</div>
+                      <div className="text-xs text-gray-600">{order.receiver_phone}</div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-sm font-semibold text-red-600">{formatCurrency(order.final_amount)}</div>
                       {Number(order.shipping_fee) > 0 && (
-                        <div className="text-xs text-gray-500">ship: {formatCurrency(order.shipping_fee)}</div>
+                        <div className="text-xs text-gray-600">ship: {formatCurrency(order.shipping_fee)}</div>
                       )}
                     </td>
                     <td className="py-4 px-6">
@@ -272,7 +272,7 @@ export default function AdminOrdersPage() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="py-4 px-6 text-sm text-gray-600 whitespace-nowrap">
                       {formatDate(order.created_at)}
                     </td>
                     <td className="py-4 px-6">
@@ -336,7 +336,7 @@ export default function AdminOrdersPage() {
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Chi tiết đơn hàng</h2>
-                <p className="text-sm text-gray-500 font-mono">{viewingOrder.code}</p>
+                <p className="text-sm text-gray-600 font-mono">{viewingOrder.code}</p>
               </div>
               <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-gray-100 rounded">
                 <X className="w-5 h-5" />
@@ -349,7 +349,7 @@ export default function AdminOrdersPage() {
                   {STATUS_LABELS[viewingOrder.status]}
                 </span>
                 <div className="text-right">
-                  <div className="text-xs text-gray-500">Ngày đặt</div>
+                  <div className="text-xs text-gray-600">Ngày đặt</div>
                   <div className="text-sm text-gray-800">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
@@ -361,9 +361,9 @@ export default function AdminOrdersPage() {
                 </h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <div className="text-gray-500 text-xs">Tài khoản</div>
+                    <div className="text-gray-600 text-xs">Tài khoản</div>
                     <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
-                    <div className="text-xs text-gray-500">{viewingOrder.user?.email || ''}</div>
+                    <div className="text-xs text-gray-600">{viewingOrder.user?.email || ''}</div>
                   </div>
                 </div>
               </div>
@@ -375,20 +375,20 @@ export default function AdminOrdersPage() {
                 </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-start gap-2">
-                    <UserIcon className="w-4 h-4 text-gray-400 mt-0.5" />
+                    <UserIcon className="w-4 h-4 text-gray-600 mt-0.5" />
                     <div>
                       <div className="font-medium">{viewingOrder.receiver_name}</div>
-                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                      <div className="text-xs text-gray-600 flex items-center gap-1">
                         <Phone className="w-3 h-3" /> {viewingOrder.receiver_phone}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                    <MapPin className="w-4 h-4 text-gray-600 mt-0.5" />
                     <div className="text-gray-700">
                       {viewingOrder.shipping_address}
                       {(viewingOrder.district || viewingOrder.province) && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-600">
                           {[viewingOrder.district, viewingOrder.province].filter(Boolean).join(', ')}
                         </div>
                       )}
@@ -418,14 +418,14 @@ export default function AdminOrdersPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <div className="w-full h-full flex items-center justify-center text-gray-600">
                             <Package className="w-6 h-6" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium text-gray-800 line-clamp-1">{item.product_name}</div>
-                        <div className="text-xs text-gray-500">SL: {item.quantity} × {formatCurrency(item.price)}</div>
+                        <div className="text-xs text-gray-600">SL: {item.quantity} × {formatCurrency(item.price)}</div>
                       </div>
                       <div className="text-sm font-semibold text-gray-800">
                         {formatCurrency(item.subtotal)}
@@ -455,7 +455,7 @@ export default function AdminOrdersPage() {
                   <span>Tổng cộng</span>
                   <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
-                <div className="text-xs text-gray-500 pt-1">
+                <div className="text-xs text-gray-600 pt-1">
                   Thanh toán: <span className="font-medium">{viewingOrder.payment_method?.toUpperCase()}</span>
                 </div>
               </div>

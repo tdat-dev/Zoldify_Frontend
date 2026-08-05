@@ -58,7 +58,7 @@ export default function WalletPage() {
   };
 
   if (loading) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-400" /></div>;
+    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-600" /></div>;
   }
 
   return (
@@ -87,7 +87,7 @@ export default function WalletPage() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
               <div className="relative z-10 flex flex-col justify-between h-full min-h-[180px]">
                 <div>
-                  <p className="text-gray-400 text-sm font-medium uppercase tracking-wider">Số dư khả dụng</p>
+                  <p className="text-gray-600 text-sm font-medium uppercase tracking-wider">Số dư khả dụng</p>
                   <h3 className="text-4xl font-extrabold mt-2 tracking-tight text-white">
                     {balance.toLocaleString('vi-VN')} <span className="text-lg font-normal text-white/70">VNĐ</span>
                   </h3>
@@ -110,7 +110,7 @@ export default function WalletPage() {
                   onChange={(e) => setTopupAmount(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
-                <div className="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                <div className="flex items-center gap-2 text-xs text-gray-600 mb-3">
                   <CreditCard className="w-3.5 h-3.5" />
                   <span>Thanh toán qua PayOS: ATM, Visa, Master, JCB hoặc QR</span>
                 </div>
@@ -134,9 +134,9 @@ export default function WalletPage() {
                 {transactions.length === 0 ? (
                   <div className="p-8 text-center">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
-                      <Clock className="w-6 h-6 text-gray-400" />
+                      <Clock className="w-6 h-6 text-gray-600" />
                     </div>
-                    <p className="text-gray-500 text-sm">Chưa có giao dịch nào.</p>
+                    <p className="text-gray-600 text-sm">Chưa có giao dịch nào.</p>
                   </div>
                 ) : (
                   <ul className="divide-y divide-gray-100">
@@ -150,7 +150,7 @@ export default function WalletPage() {
                             <p className="text-sm font-medium text-gray-900">
                               {t.type === 'deposit' ? 'Nạp tiền vào ví' : 'Thanh toán đơn hàng'}
                             </p>
-                            <p className="text-xs text-gray-500">{t.created_at ? new Date(t.created_at).toLocaleString('vi-VN') : ''}</p>
+                            <p className="text-xs text-gray-600">{t.created_at ? new Date(t.created_at).toLocaleString('vi-VN') : ''}</p>
                           </div>
                         </div>
                         <span className={`font-bold text-sm ${t.type === 'deposit' ? 'text-green-600' : 'text-gray-900'}`}>

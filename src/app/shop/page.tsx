@@ -178,7 +178,7 @@ export default function ShopPage() {
   if (loading) {
     return (
       <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-gray-500">Đang tải...</div>
+        <div className="text-gray-600">Đang tải...</div>
       </div>
     );
   }
@@ -188,7 +188,7 @@ export default function ShopPage() {
       <div className="bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Store className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{error}</p>
           <Link href="/product/create" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700">
             Đăng bán ngay
           </Link>
@@ -215,7 +215,7 @@ export default function ShopPage() {
             <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               {shopName}
             </h1>
-            <div className="flex gap-6 mt-2 text-sm text-gray-500">
+            <div className="flex gap-6 mt-2 text-sm text-gray-600">
               <span className="flex items-center gap-1"><Package className="w-4 h-4" /> {shop?.productCount || products.length} Sản phẩm</span>
               <span className="flex items-center gap-1"><UserPlus className="w-4 h-4" /> {followerCount} Người theo dõi</span>
               {shop?.rating != null && (
@@ -225,7 +225,7 @@ export default function ShopPage() {
               )}
             </div>
             {shop?.description && (
-              <p className="text-sm text-gray-400 mt-2">{shop.description}</p>
+              <p className="text-sm text-gray-600 mt-2">{shop.description}</p>
             )}
           </div>
 
@@ -267,7 +267,7 @@ export default function ShopPage() {
         {products.length === 0 ? (
           <div className="bg-white p-12 rounded-sm shadow-sm text-center">
             <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-4">Chưa có sản phẩm nào</p>
+            <p className="text-gray-600 mb-4">Chưa có sản phẩm nào</p>
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
               <Link href="/product/create" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700">
                 Đăng bán sản phẩm đầu tiên
@@ -334,7 +334,7 @@ export default function ShopPage() {
                           />
                         </div>
                       ) : (
-                        <div className="text-[10px] text-gray-400">
+                        <div className="text-[10px] text-gray-600">
                           Còn {item.stock}
                         </div>
                       )}

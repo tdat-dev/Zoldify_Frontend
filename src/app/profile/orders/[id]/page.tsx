@@ -47,11 +47,11 @@ export default function OrderDetailPage() {
   };
 
   if (loading) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-400" /></div>;
+    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-600" /></div>;
   }
 
   if (!order) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><p className="text-gray-500">Không tìm thấy đơn hàng</p></div>;
+    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><p className="text-gray-600">Không tìm thấy đơn hàng</p></div>;
   }
 
   const subTotal = (order.total_amount || 0) - (order.shipping_fee || 0);
@@ -59,7 +59,7 @@ export default function OrderDetailPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-20 md:py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex mb-6 text-sm text-gray-500">
+        <nav className="flex mb-6 text-sm text-gray-600">
           <Link href="/" className="hover:text-blue-600">Trang chủ</Link>
           <span className="mx-2">/</span>
           <Link href="/profile/orders" className="hover:text-blue-600">Đơn hàng của tôi</Link>
@@ -89,7 +89,7 @@ export default function OrderDetailPage() {
                           <span className="font-bold text-gray-900 ml-4">{(Number(item.price_at_purchase || 0) * item.quantity).toLocaleString('vi-VN')}đ</span>
                         </div>
                         <div className="flex justify-between items-center mt-2">
-                          <span className="text-sm text-gray-500">x{item.quantity}</span>
+                          <span className="text-sm text-gray-600">x{item.quantity}</span>
                         </div>
                       </div>
                     </div>
@@ -104,7 +104,7 @@ export default function OrderDetailPage() {
                 <div className="relative">
                   <div className={`absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 border-white ring-2 ${order.status !== 'cancelled' ? 'bg-blue-500 ring-blue-100' : 'bg-gray-300 ring-gray-100'}`}></div>
                   <div className="text-sm font-bold text-gray-900">Đơn hàng được tạo</div>
-                  <div className="text-xs text-gray-500">{order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : ''}</div>
+                  <div className="text-xs text-gray-600">{order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : ''}</div>
                 </div>
                 {order.status !== 'cancelled' && (
                   <div className="relative">
@@ -127,7 +127,7 @@ export default function OrderDetailPage() {
               <h3 className="font-bold text-gray-800 mb-3 pb-3 border-b border-gray-100">Địa chỉ nhận hàng</h3>
               <div className="flex flex-col gap-2 text-sm">
                 <span className="font-bold text-gray-900">{order.receiver_name || 'N/A'}</span>
-                <span className="text-gray-500">{order.receiver_phone || 'N/A'}</span>
+                <span className="text-gray-600">{order.receiver_phone || 'N/A'}</span>
                 <span className="text-gray-600 block mt-1">{order.shipping_address || 'N/A'}</span>
               </div>
             </div>

@@ -6,7 +6,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { signInWithPopup } from 'firebase/auth';
 import http from '@/lib/http';
-import { auth, googleProvider } from '@/lib/firebase';
+import { getFirebaseAuth, isFirebaseConfigured } from '@/lib/firebase';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,18 +31,24 @@ export default function LoginPage() {
     }
   };
   const handleGoogleLogin = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const idToken = await result.user.getIdToken();
-    const res = await http.post('/auth/firebase', { idToken });
-    const { access_token, user: userData } = res.data.data;
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    window.location.href = '/';
-  } catch (err) {
-    console.error('Google login failed', err);
-  }
-};
+    const fb = getFirebaseAuth();
+    if (!fb) {
+      setError('Đăng nhập Google chưa khả dụng. Bạn dùng email và mật khẩu nhé.');
+      return;
+    }
+    try {
+      const result = await signInWithPopup(fb.auth, fb.googleProvider);
+      const idToken = await result.user.getIdToken();
+      const res = await http.post('/auth/firebase', { idToken });
+      const { access_token, user: userData } = res.data.data;
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Google login failed', err);
+      setError('Đăng nhập Google không thành công. Bạn thử lại hoặc dùng email và mật khẩu.');
+    }
+  };
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-10 py-10">
@@ -52,7 +58,7 @@ export default function LoginPage() {
       <div className="w-full lg:w-[40%] max-w-[450px] bg-white rounded-3xl shadow-2xl p-8 md:p-10">
         <div className="text-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Chào mừng trở lại!</h2>
-          <p className="text-gray-400 text-sm mt-1">Đăng nhập để tiếp tục mua sắm</p>
+          <p className="text-gray-600 text-sm mt-1">Đăng nhập để tiếp tục mua sắm</p>
         </div>
 
         {error && (
@@ -84,7 +90,7 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 hover:text-gray-600"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -105,21 +111,31 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-gray-200"></div>
-            <span className="mx-4 text-gray-400 text-xs font-medium uppercase">HOẶC</span>
-            <div className="flex-grow border-t border-gray-200"></div>
-          </div>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="flex items-center justify-center w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition duration-300 group bg-white">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5 mr-3" />
-            <span className="text-gray-700 font-medium group-hover:text-gray-900">Đăng nhập bằng Google</span>
-          </button>
+          {isFirebaseConfigured && (
+            <>
+              <div className="flex items-center my-4">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="mx-4 text-gray-600 text-xs font-medium uppercase">HOẶC</span>
+                <div className="flex-grow border-t border-gray-200"></div>
+              </div>
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="flex items-center justify-center w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition duration-300 group bg-white">
+                {/* SVG nội tuyến: trước đây hotlink svgrepo.com, hỏng là mất nút. */}
+                <svg viewBox="0 0 48 48" className="w-5 h-5 mr-3" aria-hidden="true">
+                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.2-.1-2.4-.4-3.5z" />
+                  <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C39 36.2 44 31 44 24c0-1.2-.1-2.4-.4-3.5z" />
+                </svg>
+                <span className="text-gray-700 font-medium group-hover:text-gray-900">Đăng nhập bằng Google</span>
+              </button>
+            </>
+          )}
 
           <div className="text-center mt-6">
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-600 text-sm">
               Chưa có tài khoản? <Link href="/register" className="text-[#5A88FF] font-bold hover:underline">Đăng ký ngay</Link>
             </p>
           </div>

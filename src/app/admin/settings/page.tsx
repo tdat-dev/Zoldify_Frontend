@@ -48,7 +48,7 @@ export default function AdminSettingsPage() {
                     <button 
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${activeTab === tab ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                      className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${activeTab === tab ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-700'}`}
                     >
                       {tab === 'general' ? 'Thông tin chung' : 
                        tab === 'contact' ? 'Liên hệ' : 
@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <h3 className="text-lg font-semibold text-gray-800">Chế độ bảo trì</h3>
-                          <p className="text-sm text-gray-500 mt-1">Khi bật, người dùng sẽ không thể truy cập website</p>
+                          <p className="text-sm text-gray-600 mt-1">Khi bật, người dùng sẽ không thể truy cập website</p>
                         </div>
                         <button type="button" className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                           BẬT bảo trì
@@ -98,7 +98,7 @@ export default function AdminSettingsPage() {
                 
                 {/* Other Tabs Placeholder */}
                 {(activeTab === 'contact' || activeTab === 'email' || activeTab === 'payment') && (
-                  <div className="text-gray-500 text-sm">Nội dung cài đặt cho {activeTab} đang được xây dựng...</div>
+                  <div className="text-gray-600 text-sm">Nội dung cài đặt cho {activeTab} đang được xây dựng...</div>
                 )}
                 
               </div>

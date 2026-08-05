@@ -99,7 +99,7 @@ export default function UserOrdersPage() {
               <button
                 key={status}
                 onClick={() => setActiveTab(status)}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === status ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-gray-500 hover:text-blue-600'}`}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === status ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-gray-600 hover:text-blue-600'}`}
               >
                 {status === 'all' ? 'Tất cả' : STATUS_LABELS[status] || status}
               </button>
@@ -108,9 +108,9 @@ export default function UserOrdersPage() {
 
           <div className="divide-y divide-gray-100">
             {loading ? (
-              <div className="p-12 text-center text-gray-500"><Loader className="w-6 h-6 animate-spin mx-auto" /></div>
+              <div className="p-12 text-center text-gray-600"><Loader className="w-6 h-6 animate-spin mx-auto" /></div>
             ) : orders.length === 0 ? (
-              <div className="p-12 text-center text-gray-500">
+              <div className="p-12 text-center text-gray-600">
                 <ShoppingBasket className="w-12 h-12 mx-auto text-gray-300 mb-4" />
                 <p>Bạn chưa có đơn hàng nào.</p>
                 <Link href="/" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Mua sắm ngay</Link>
@@ -121,7 +121,7 @@ export default function UserOrdersPage() {
                   <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                     <div className="flex gap-3 items-center">
                       <span className="font-bold text-blue-600">#ORD-{order.id}</span>
-                      <span className="text-xs text-gray-500">{order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : ''}</span>
+                      <span className="text-xs text-gray-600">{order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : ''}</span>
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800'}`}>
                         {STATUS_LABELS[order.status] || order.status}
                       </span>
@@ -136,11 +136,11 @@ export default function UserOrdersPage() {
                       <img src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-800 truncate">{item.product_name}</p>
-                        <p className="text-xs text-gray-500">x{item.quantity}</p>
+                        <p className="text-xs text-gray-600">x{item.quantity}</p>
                       </div>
                     </div>
                   ))}
-                  {order.items?.length > 2 && <p className="text-xs text-gray-400 mb-3">+{order.items.length - 2} sản phẩm khác</p>}
+                  {order.items?.length > 2 && <p className="text-xs text-gray-600 mb-3">+{order.items.length - 2} sản phẩm khác</p>}
 
                   <div className="flex flex-wrap justify-end items-center gap-2">
                     {order.status === 'pending_payment' && (

@@ -71,7 +71,7 @@ export default function RegisterPage() {
             {step === 1 ? 'Tạo tài khoản mới' : 'Xác thực OTP'}
           </h2>
           {step === 2 && (
-            <p className="text-gray-500 mt-2 text-sm">
+            <p className="text-gray-600 mt-2 text-sm">
               Mã xác thực đã được gửi đến email <br/> 
               <span className="font-semibold text-blue-600">{formData.email}</span>
             </p>
@@ -133,7 +133,7 @@ export default function RegisterPage() {
               />
               <button
                 type="button"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600 hover:text-gray-600"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -149,7 +149,7 @@ export default function RegisterPage() {
             </button>
 
             <div className="text-center mt-6">
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-600 text-sm">
                 Đã có tài khoản? <Link href="/login" className="text-[#5A88FF] font-bold hover:underline">Đăng nhập</Link>
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function RegisterPage() {
               <button 
                 type="button" 
                 onClick={() => setStep(1)}
-                className="text-gray-500 text-sm hover:text-gray-700 underline"
+                className="text-gray-600 text-sm hover:text-gray-700 underline"
               >
                 Quay lại
               </button>

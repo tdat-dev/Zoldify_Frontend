@@ -108,7 +108,7 @@ function ReturnContent() {
                 >
                   Xem đơn hàng <ArrowRight className="w-4 h-4" />
                 </Link>
-                <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+                <Link href="/" className="text-sm text-gray-600 hover:text-gray-700">
                   Tiếp tục mua sắm
                 </Link>
               </div>
@@ -118,7 +118,7 @@ function ReturnContent() {
 
         {phase === 'failed' && (
           <>
-            <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <XCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
             <h1 className="text-xl font-semibold text-gray-800 mb-2">Không thành công</h1>
             <p className="text-gray-600 mb-6">{message}</p>
             <div className="flex flex-col gap-2">
@@ -131,11 +131,11 @@ function ReturnContent() {
                 </Link>
               )}
               {isTopup ? (
-                <Link href="/profile/wallet" className="text-sm text-gray-500 hover:text-gray-700">
+                <Link href="/profile/wallet" className="text-sm text-gray-600 hover:text-gray-700">
                   Về trang ví
                 </Link>
               ) : (
-                <Link href="/cart" className="text-sm text-gray-500 hover:text-gray-700">
+                <Link href="/cart" className="text-sm text-gray-600 hover:text-gray-700">
                   Quay lại giỏ hàng
                 </Link>
               )}

@@ -186,7 +186,7 @@ export default function EditProductPage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 flex flex-col items-center justify-center text-gray-500 hover:text-blue-600 disabled:opacity-50"
+                className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 disabled:opacity-50"
               >
                 {uploading ? (
                   <Loader2 className="w-6 h-6 animate-spin" />
@@ -206,7 +206,7 @@ export default function EditProductPage() {
               onChange={handleUpload}
               className="hidden"
             />
-            <p className="text-xs text-gray-500 mt-2">Ảnh đầu tiên sẽ là ảnh bìa. Tối đa 8 ảnh.</p>
+            <p className="text-xs text-gray-600 mt-2">Ảnh đầu tiên sẽ là ảnh bìa. Tối đa 8 ảnh.</p>
           </div>
 
           {/* Basic info */}
@@ -214,7 +214,7 @@ export default function EditProductPage() {
             <h2 className="text-base font-semibold text-gray-800">Thông tin cơ bản</h2>
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Tên sản phẩm <span className="text-red-500">*</span>
+                Tên sản phẩm <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
@@ -227,7 +227,7 @@ export default function EditProductPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-1 block">
-                  Danh mục <span className="text-red-500">*</span>
+                  Danh mục <span className="text-red-600">*</span>
                 </label>
                 <select
                   value={categoryId}
@@ -282,16 +282,16 @@ export default function EditProductPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Số lượng <span className="text-red-500">*</span>
+                  Số lượng <span className="text-red-600">*</span>
                 </label>
                 <StockControl value={stock} onChange={setStock} min={0} max={99999} />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Giá bán (VND) <span className="text-red-500">*</span>
+                  Giá bán (VND) <span className="text-red-600">*</span>
                 </label>
                 <div className="flex items-center rounded-xl border border-gray-300 overflow-hidden focus-within:border-blue-500 transition-all bg-white">
-                  <div className="w-12 h-11 flex items-center justify-center bg-gray-50 border-r border-gray-200 text-gray-500 font-bold">₫</div>
+                  <div className="w-12 h-11 flex items-center justify-center bg-gray-50 border-r border-gray-200 text-gray-600 font-bold">₫</div>
                   <input
                     type="number"
                     value={price}

@@ -111,7 +111,7 @@ export default function SearchPage() {
                 <input name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-[#2C67C8] text-sm" />
                 <button type="submit" className="px-6 py-2 bg-[#2C67C8] text-white rounded-sm hover:bg-blue-700 text-sm">Tìm</button>
               </form>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-500">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-600">
                 <span className="font-medium text-gray-600">Phổ biến:</span>
                 {trendingKeywords.map((kw) => (
                   <Link
@@ -129,7 +129,7 @@ export default function SearchPage() {
               <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
                 <h1 className="text-xl font-medium text-gray-800 border-l-4 border-[#2C67C8] pl-3">
                   Kết quả tìm kiếm: &ldquo;{q}&rdquo;
-                  <span className="text-sm font-normal text-gray-500 ml-2">({meta.total} sản phẩm)</span>
+                  <span className="text-sm font-normal text-gray-600 ml-2">({meta.total} sản phẩm)</span>
                 </h1>
               </div>
             )}
@@ -137,10 +137,10 @@ export default function SearchPage() {
             {products.length === 0 ? (
               <div className="bg-white rounded p-10 text-center">
                 <Search className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Không tìm thấy sản phẩm nào phù hợp.</p>
-                <p className="text-sm text-gray-400 mt-2">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
+                <p className="text-gray-600">Không tìm thấy sản phẩm nào phù hợp.</p>
+                <p className="text-sm text-gray-600 mt-2">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
                 <div className="mt-6">
-                  <p className="text-xs text-gray-500 mb-3">Từ khóa phổ biến:</p>
+                  <p className="text-xs text-gray-600 mb-3">Từ khóa phổ biến:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {trendingKeywords.map((kw) => (
                       <Link
@@ -162,7 +162,7 @@ export default function SearchPage() {
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                       ) : (
-                        <Package className="w-10 h-10 text-gray-400" />
+                        <Package className="w-10 h-10 text-gray-600" />
                       )}
                     </div>
                     <div className="p-2">
@@ -170,10 +170,10 @@ export default function SearchPage() {
                         {item.name}
                       </div>
                       <div className="flex justify-between items-end">
-                        <div className="text-red-500 text-base font-medium">
+                        <div className="text-red-600 text-base font-medium">
                           <span className="text-xs underline">đ</span>{Number(item.price).toLocaleString('vi-VN')}
                         </div>
-                        <div className="text-xs text-gray-500">Còn: {item.stock}</div>
+                        <div className="text-xs text-gray-600">Còn: {item.stock}</div>
                       </div>
                     </div>
                   </Link>

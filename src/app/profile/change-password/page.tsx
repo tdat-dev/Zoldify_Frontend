@@ -27,7 +27,7 @@ export default function ChangePasswordPage() {
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu mới</label>
                 <input type="password" required minLength={6} className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
-                <p className="mt-1 text-xs text-gray-500">Tối thiểu 6 ký tự</p>
+                <p className="mt-1 text-xs text-gray-600">Tối thiểu 6 ký tự</p>
               </div>
 
               <div className="mb-6">

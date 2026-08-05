@@ -67,7 +67,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
 
       {/* Toast list */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col gap-2 items-center pointer-events-none">
+      <div
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-toast flex flex-col gap-2 items-center pointer-events-none"
+        role="status"
+        aria-live="polite"
+      >
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -78,9 +82,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <span className="flex-1">{t.message}</span>
             <button
               onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+              aria-label="Đóng thông báo"
               className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         ))}
@@ -88,10 +93,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
       {/* Confirm dialog */}
       {confirmState && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-7 max-w-sm w-full mx-4 animate-slide-up">
+        <div className="fixed inset-0 z-modal flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div role="alertdialog" aria-modal="true" className="bg-white rounded-2xl shadow-2xl p-7 max-w-sm w-full mx-4 animate-slide-up">
             <div className="flex items-start gap-3 mb-5">
-              <AlertTriangle className="w-6 h-6 text-orange-500 flex-shrink-0 mt-0.5" />
+              <AlertTriangle className="w-6 h-6 text-orange-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
               <p className="text-gray-800 font-medium leading-relaxed">{confirmState.message}</p>
             </div>
             <div className="flex gap-3 justify-end">

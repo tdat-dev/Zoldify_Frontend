@@ -7,7 +7,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/components/Toast";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin", "vietnamese"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Zoldify - Nền tảng mua bán đồ cũ",
@@ -25,9 +25,10 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
+              <a href="#main" className="skip-link">Tới nội dung chính</a>
               <div className="min-h-screen bg-gray-50 flex flex-col">
                 <Header />
-                <main className="flex-1">
+                <main id="main" className="flex-1">
                   {children}
                 </main>
                 <Footer />

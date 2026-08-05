@@ -170,13 +170,13 @@ export default function AdminUsersPage() {
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Quản lý Users</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} người dùng`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-1 max-w-2xl justify-end flex-wrap">
           <form onSubmit={handleSearch} className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
             <input
               type="text"
               placeholder="Tìm theo tên..."
@@ -210,7 +210,7 @@ export default function AdminUsersPage() {
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-gray-500">
+          <div className="py-16 text-center text-gray-600">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
             <p>Đang tải người dùng...</p>
           </div>
@@ -218,20 +218,20 @@ export default function AdminUsersPage() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">ID</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Họ tên</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Email</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Vai trò</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Xác minh</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">ID</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Họ tên</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Email</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Vai trò</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Xác minh</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Trạng thái</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Ngày tạo</th>
+                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-600">
                     <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                     <p>Không tìm thấy người dùng</p>
                   </td>
@@ -247,7 +247,7 @@ export default function AdminUsersPage() {
                         </div>
                         <div className="min-w-0">
                           <div className="font-medium text-gray-800 line-clamp-1">{user.full_name}</div>
-                          <div className="text-xs text-gray-500">{user.phone_number || '—'}</div>
+                          <div className="text-xs text-gray-600">{user.phone_number || '—'}</div>
                         </div>
                       </div>
                     </td>
@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-500 whitespace-nowrap">
+                    <td className="py-4 px-6 text-sm text-gray-600 whitespace-nowrap">
                       {formatDate(user.created_at)}
                     </td>
                     <td className="py-4 px-6">
@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
                           className={`p-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed ${
                             user.is_locked
                               ? 'text-green-500 hover:bg-green-50'
-                              : 'text-red-500 hover:bg-red-50'
+                              : 'text-red-600 hover:bg-red-50'
                           }`}
                           title={user.role === 'admin' ? 'Không thể khóa admin' : user.is_locked ? 'Mở khóa' : 'Khóa tài khoản'}
                         >
@@ -318,7 +318,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => handleDelete(user)}
                           disabled={deletingId === user.id || user.role === 'admin'}
-                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title={user.role === 'admin' ? 'Không thể xóa admin' : 'Xóa người dùng'}
                         >
                           {deletingId === user.id ? (
@@ -373,9 +373,9 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Người dùng</p>
+              <p className="text-sm text-gray-600">Người dùng</p>
               <p className="font-medium text-gray-800">{editingUser.full_name}</p>
-              <p className="text-xs text-gray-500">{editingUser.email}</p>
+              <p className="text-xs text-gray-600">{editingUser.email}</p>
             </div>
 
             <div className="space-y-2 mb-6">
@@ -401,7 +401,7 @@ export default function AdminUsersPage() {
                     <p className="text-sm font-medium text-gray-800 capitalize">
                       {r === 'buyer' ? 'Người mua' : r === 'seller' ? 'Người bán' : r === 'moderator' ? 'Kiểm duyệt viên' : 'Quản trị viên'}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {r === 'buyer' && 'Chỉ mua hàng'}
                       {r === 'seller' && 'Đăng bán sản phẩm'}
                       {r === 'moderator' && 'Kiểm duyệt nội dung'}

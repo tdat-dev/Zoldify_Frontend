@@ -14,7 +14,7 @@ export default function CartSuccessPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h1>
-          <p className="text-gray-500 mb-8">Cảm ơn bạn đã mua hàng tại Zoldify. Đơn hàng của bạn đang được xử lý.</p>
+          <p className="text-gray-600 mb-8">Cảm ơn bạn đã mua hàng tại Zoldify. Đơn hàng của bạn đang được xử lý.</p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/" className="px-6 py-2.5 bg-[#EE4D2D] text-white font-medium rounded-sm hover:bg-[#d73211] transition-colors shadow-sm">

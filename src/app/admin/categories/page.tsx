@@ -97,7 +97,7 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function CategoriesPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Quản lý Danh mục</h1>
-          <p className="text-gray-500 text-sm mt-1">Tổng cộng {categories.length} danh mục</p>
+          <p className="text-gray-600 text-sm mt-1">Tổng cộng {categories.length} danh mục</p>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ export default function CategoriesPage() {
                 {editingCategory?.image && (
                   <div className="mb-2 flex items-center gap-2">
                     <img src={editingCategory.image} alt="icon" className="w-10 h-10 object-contain rounded border" />
-                    <span className="text-xs text-gray-500">Ảnh hiện tại</span>
+                    <span className="text-xs text-gray-600">Ảnh hiện tại</span>
                   </div>
                 )}
                 <input
@@ -148,7 +148,7 @@ export default function CategoriesPage() {
                   onChange={(e) => setIconFile(e.target.files?.[0] || null)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm outline-none"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-600 mt-1">
                   {editingCategory ? 'Để trống nếu không muốn thay đổi' : 'Hỗ trợ: JPG, PNG, GIF, SVG'}
                 </p>
               </div>
@@ -195,10 +195,10 @@ export default function CategoriesPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
                   <tr>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Icon</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Tên danh mục</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Số SP</th>
-                    <th className="text-center py-4 px-6 text-xs font-semibold text-gray-500 uppercase">Thao tác</th>
+                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Icon</th>
+                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Tên danh mục</th>
+                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Số SP</th>
+                    <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -208,14 +208,14 @@ export default function CategoriesPage() {
                         {cat.image ? (
                           <img src={cat.image} alt={cat.name} className="w-10 h-10 object-contain" />
                         ) : (
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600">
                             <Box className="w-6 h-6" />
                           </div>
                         )}
                       </td>
                       <td className="py-4 px-6">
                         <div className="font-medium text-gray-800">{cat.name}</div>
-                        <div className="text-xs text-gray-500">ID: #{cat.id}</div>
+                        <div className="text-xs text-gray-600">ID: #{cat.id}</div>
                       </td>
                       <td className="py-4 px-6">
                         <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
@@ -227,7 +227,7 @@ export default function CategoriesPage() {
                           <button onClick={() => handleEdit(cat)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Sửa">
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -237,7 +237,7 @@ export default function CategoriesPage() {
 
                   {categories.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-gray-500">
+                      <td colSpan={4} className="py-8 text-center text-gray-600">
                         <FolderOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
                         <p>Chưa có danh mục nào</p>
                       </td>
