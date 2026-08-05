@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
 
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center text-green-600">
+            <div className="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center text-green-700">
               <DollarSign className="w-6 h-6" />
             </div>
           </div>
@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
               <ChevronRight className="w-4 h-4 ml-auto text-gray-600 group-hover:text-gray-600" />
             </Link>
             <Link href="/admin/categories" className="flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all group">
-              <div className="w-10 h-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center">
                 <FolderOpen className="w-5 h-5" />
               </div>
               <div>

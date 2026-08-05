@@ -435,7 +435,7 @@ export default function ShopOrdersPage() {
                 </div>
                 {Number(viewingOrder.discount) > 0 && (
                   <div className="flex justify-between text-gray-600">
-                    <span>Giảm giá</span><span className="text-green-600">-{formatCurrency(viewingOrder.discount)}</span>
+                    <span>Giảm giá</span><span className="text-green-700">-{formatCurrency(viewingOrder.discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">

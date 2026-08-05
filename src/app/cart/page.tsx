@@ -80,11 +80,12 @@ export default function CartPage() {
     return (
       <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
         <div className="max-w-[1200px] mx-auto px-4 pt-4">
+          <h1 className="text-2xl font-medium text-gray-800 mt-2">Giỏ hàng của bạn</h1>
           <div className="bg-white rounded-sm shadow-sm p-10 text-center mt-6">
-            <ShoppingCart className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-600 mb-6">Giỏ hàng của bạn còn trống</p>
-            <Link href="/" className="inline-block px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark transition-colors">
-              Mua ngay
+            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" aria-hidden="true" />
+            <p className="text-gray-700 mb-6">Chưa có sản phẩm nào trong giỏ.</p>
+            <Link href="/search" className="inline-block px-6 py-2.5 bg-brand text-white rounded-sm hover:bg-brand-dark transition-colors">
+              Tìm sản phẩm
             </Link>
           </div>
         </div>

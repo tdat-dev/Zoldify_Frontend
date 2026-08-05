@@ -77,7 +77,7 @@ export default function CreateProductPage() {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${step === 2 ? 'bg-green-500 text-white' : 'bg-indigo-600 text-white shadow-indigo-500/30'}`}>
                 {step === 2 ? <Check className="w-5 h-5" /> : '1'}
               </div>
-              <span className={`ml-3 text-sm hidden sm:block ${step === 2 ? 'text-green-600 font-medium' : 'text-indigo-600 font-semibold'}`}>
+              <span className={`ml-3 text-sm hidden sm:block ${step === 2 ? 'text-green-700 font-medium' : 'text-indigo-600 font-semibold'}`}>
                 Thông tin sản phẩm
               </span>
             </div>

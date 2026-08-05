@@ -76,7 +76,8 @@ export default function UserOrdersPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-5">Đơn mua của tôi</h1>
+        <nav aria-label="Mục tài khoản" className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
            <div className="flex gap-4">
              <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
                <User className="w-4 h-4" /> Thông tin cá nhân
@@ -91,7 +92,7 @@ export default function UserOrdersPage() {
               <ShoppingBag className="w-4 h-4" /> Sản phẩm của tôi
             </Link>
            </div>
-        </div>
+        </nav>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="flex border-b border-gray-200 overflow-x-auto">

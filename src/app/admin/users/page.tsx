@@ -264,7 +264,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="py-4 px-6 text-sm">
                       {user.email_verified || user.is_verified ? (
-                        <span className="text-green-600 flex items-center gap-1">
+                        <span className="text-green-700 flex items-center gap-1">
                           <CheckCircle className="w-4 h-4" /> Đã xác minh
                         </span>
                       ) : (

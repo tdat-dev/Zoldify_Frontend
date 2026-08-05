@@ -193,7 +193,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center mb-3">
                 <span className="text-gray-600">Phí vận chuyển</span>
                 {SHIPPING_FEE === 0 ? (
-                  <span className="font-medium text-green-600">Miễn phí</span>
+                  <span className="font-medium text-green-700">Miễn phí</span>
                 ) : (
                   <span className="font-medium">{SHIPPING_FEE.toLocaleString('vi-VN')}đ</span>
                 )}

@@ -64,7 +64,8 @@ export default function WalletPage() {
   return (
     <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-5">Ví Zoldify</h1>
+        <nav aria-label="Mục tài khoản" className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
            <div className="flex gap-4">
              <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
                <User className="w-4 h-4" /> Thông tin cá nhân
@@ -79,7 +80,7 @@ export default function WalletPage() {
                 <ShoppingBag className="w-4 h-4" /> Sản phẩm của tôi
               </Link>
            </div>
-        </div>
+        </nav>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
@@ -87,10 +88,12 @@ export default function WalletPage() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
               <div className="relative z-10 flex flex-col justify-between h-full min-h-[180px]">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium uppercase tracking-wider">Số dư khả dụng</p>
-                  <h3 className="text-4xl font-extrabold mt-2 tracking-tight text-white">
-                    {balance.toLocaleString('vi-VN')} <span className="text-lg font-normal text-white/70">VNĐ</span>
-                  </h3>
+                  {/* Chữ xám trên nền tối là lỗi contrast (1.94:1). Dùng độ trong
+                      của chính màu mực trắng thay vì một sắc xám riêng. */}
+                  <p className="text-white/80 text-sm font-medium uppercase tracking-wider">Số dư khả dụng</p>
+                  <h2 className="text-4xl font-extrabold mt-2 tracking-tight text-white">
+                    {balance.toLocaleString('vi-VN')} <span className="text-lg font-normal text-white/80">VNĐ</span>
+                  </h2>
                 </div>
                 <div className="flex gap-3 mt-6">
                   <button onClick={() => setShowTopup(!showTopup)} className="w-full bg-transparent hover:bg-white/5 border border-white/20 py-2 rounded-lg text-sm font-medium transition cursor-pointer flex items-center justify-center gap-1">
@@ -143,7 +146,7 @@ export default function WalletPage() {
                     {transactions.map((t: any) => (
                       <li key={t.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
                             {t.type === 'deposit' ? <ArrowDown className="w-5 h-5" /> : <ArrowUp className="w-5 h-5" />}
                           </div>
                           <div>
@@ -153,7 +156,7 @@ export default function WalletPage() {
                             <p className="text-xs text-gray-600">{t.created_at ? new Date(t.created_at).toLocaleString('vi-VN') : ''}</p>
                           </div>
                         </div>
-                        <span className={`font-bold text-sm ${t.type === 'deposit' ? 'text-green-600' : 'text-gray-900'}`}>
+                        <span className={`font-bold text-sm ${t.type === 'deposit' ? 'text-green-700' : 'text-gray-900'}`}>
                           {t.type === 'deposit' ? '+' : '-'}{Number(t.amount).toLocaleString('vi-VN')}đ
                         </span>
                       </li>
