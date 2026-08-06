@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -7,7 +7,14 @@ import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/components/Toast";
 
-const inter = Inter({ subsets: ["latin", "vietnamese"], display: "swap" });
+// Be Vietnam Pro thay Inter: tiêu đề sản phẩm tiếng Việt xuống 2 dòng ở 13-14px
+// trong lưới dày, dấu chồng (ữ, ề, ộ) ở cỡ đó là chỗ font Latin-first vỡ.
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-bvp",
+});
 
 export const metadata: Metadata = {
   title: "Zoldify - Nền tảng mua bán đồ cũ",
@@ -21,7 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={inter.className}>
+      {/* className: áp font trực tiếp (cách dùng chuẩn của next/font, không phụ
+          thuộc Tailwind sinh utility). variable: để token --font-bvp dùng được
+          trong CSS. Thiếu className thì cả trang rơi về Times New Roman. */}
+      <body className={`${beVietnamPro.variable} ${beVietnamPro.className}`}>
         <AuthProvider>
           <CartProvider>
             <ToastProvider>

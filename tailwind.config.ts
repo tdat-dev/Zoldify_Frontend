@@ -8,6 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        // Be Vietnam Pro: chọn vì tiêu đề sản phẩm tiếng Việt xuống 2 dòng ở
+        // 13-14px trong lưới dày, và dấu chồng (ữ, ề, ộ) ở cỡ đó là chỗ font
+        // Latin-first vỡ. Một họ nhiều trọng lượng, không ghép hai họ.
+        sans: ["var(--font-bvp)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         // Màu thương hiệu Zoldify. Dùng bg-brand / text-brand / border-brand
         // thay cho bg-[#2C67C8] rải rác khắp nơi.
@@ -17,6 +23,26 @@ const config: Config = {
           // #1990AA cũ chỉ đạt 3.82:1 với chữ trắng ở đầu nhạt của gradient;
           // đo bằng pixel thật trên nút "Đăng Bán". Tông này đạt 5.6:1.
           accent: "#14708A",
+          // Nền nhạt cho khối hero/danh mục, lệch về đúng hue thương hiệu
+          // chứ không phải xám trung tính chung chung.
+          tint: "var(--brand-tint)",
+        },
+        // Vai trò riêng cho giá và giảm giá. Sàn TMĐT Việt (Shopee/Tiki/Lazada)
+        // đều dùng đỏ cho giá; đây là quy ước người mua đã đọc quen, không phải
+        // phản xạ chọn màu theo ngành.
+        price: {
+          DEFAULT: "var(--price)",
+          bg: "var(--price-bg)",
+        },
+        surface: {
+          page: "var(--surface-page)",
+          card: "var(--surface-card)",
+          sunken: "var(--surface-sunken)",
+        },
+        ink: {
+          DEFAULT: "var(--ink)",
+          muted: "var(--ink-muted)",
+          faint: "var(--ink-faint)",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

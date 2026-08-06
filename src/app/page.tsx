@@ -1,189 +1,124 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Package, ChevronRight, AlertCircle, Loader } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
-import { formatPrice } from '@/lib/format';
-
-type LoadState = 'loading' | 'ready' | 'error';
-
-function ProductCard({ item }: { item: any }) {
-  const stock = item.stock ?? item.quantity;
-  return (
-    <Link
-      href={`/product/${item.id}`}
-      className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow border border-transparent hover:border-brand/30 overflow-hidden"
-    >
-      <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
-        {item.image ? (
-          <img src={item.image} alt="" className="w-full h-full object-cover" loading="lazy" />
-        ) : (
-          <Package className="w-10 h-10 text-gray-600" aria-hidden="true" />
-        )}
-        {Number(item.sold) > 0 && (
-          <span className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs text-center py-1">
-            Đã bán {item.sold}
-          </span>
-        )}
-      </div>
-      <div className="p-2.5">
-        <h3 className="text-sm text-gray-800 line-clamp-2 mb-2 min-h-[40px] font-normal">{item.name}</h3>
-        <div className="flex justify-between items-end gap-2">
-          <span className="text-red-600 text-base font-semibold">{formatPrice(item.price)}</span>
-          {Number.isFinite(Number(stock)) && (
-            <span className="text-xs text-gray-600 whitespace-nowrap">Còn {stock}</span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function SectionState({ state, empty }: { state: LoadState; empty: boolean }) {
-  if (state === 'loading') {
-    return (
-      <div className="flex items-center justify-center gap-2 py-10 text-gray-600 text-sm">
-        <Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
-        Đang tải…
-      </div>
-    );
-  }
-  if (state === 'error') {
-    return (
-      <div className="flex items-center justify-center gap-2 py-10 text-gray-700 text-sm">
-        <AlertCircle className="w-4 h-4 text-red-600" aria-hidden="true" />
-        Không tải được dữ liệu. Kiểm tra kết nối rồi tải lại trang.
-      </div>
-    );
-  }
-  if (empty) {
-    return <p className="py-10 text-center text-sm text-gray-600">Chưa có sản phẩm nào ở đây.</p>;
-  }
-  return null;
-}
+import { HomeHero } from '@/components/home/HomeHero';
+import { TrustStrip } from '@/components/home/TrustStrip';
+import { CategoryRail } from '@/components/home/CategoryRail';
+import { ProductCard } from '@/components/home/ProductCard';
+import { SectionHeader } from '@/components/home/SectionHeader';
+import { SectionState, type LoadState } from '@/components/home/SectionState';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [catState, setCatState] = useState<LoadState>('loading');
-  const [topProducts, setTopProducts] = useState<any[]>([]);
-  const [topState, setTopState] = useState<LoadState>('loading');
-  const [latestProducts, setLatestProducts] = useState<any[]>([]);
-  const [latestState, setLatestState] = useState<LoadState>('loading');
+  const [newest, setNewest] = useState<any[]>([]);
+  const [newestState, setNewestState] = useState<LoadState>('loading');
+  const [popular, setPopular] = useState<any[]>([]);
+  const [popularState, setPopularState] = useState<LoadState>('loading');
 
-  useEffect(() => {
-    categoryService.getAll()
-      .then((res) => { setCategories(res.data?.data?.result || []); setCatState('ready'); })
+  const loadCategories = useCallback(() => {
+    setCatState('loading');
+    categoryService
+      .getAll()
+      .then((res) => {
+        setCategories(res.data?.data?.result || []);
+        setCatState('ready');
+      })
       .catch(() => setCatState('error'));
-
-    productService.getAll(1, 6, { sort: 'featured' })
-      .then((res) => { setTopProducts(res.data?.data?.result || []); setTopState('ready'); })
-      .catch(() => setTopState('error'));
-
-    productService.getAll(1, 12, { sort: 'newest' })
-      .then((res) => { setLatestProducts(res.data?.data?.result || []); setLatestState('ready'); })
-      .catch(() => setLatestState('error'));
   }, []);
 
+  const loadNewest = useCallback(() => {
+    setNewestState('loading');
+    productService
+      .getAll(1, 12, { sort: 'newest' })
+      .then((res) => {
+        setNewest(res.data?.data?.result || []);
+        setNewestState('ready');
+      })
+      .catch(() => setNewestState('error'));
+  }, []);
+
+  const loadPopular = useCallback(() => {
+    setPopularState('loading');
+    productService
+      .getAll(1, 6, { sort: 'most_viewed' })
+      .then((res) => {
+        setPopular(res.data?.data?.result || []);
+        setPopularState('ready');
+      })
+      .catch(() => setPopularState('error'));
+  }, []);
+
+  useEffect(() => {
+    loadCategories();
+    loadNewest();
+    loadPopular();
+  }, [loadCategories, loadNewest, loadPopular]);
+
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
-      <div className="max-w-[1200px] mx-auto px-4 pt-8 space-y-6">
+    <div className="min-h-screen bg-surface-page pb-24 md:pb-12">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-6 md:gap-10 md:py-8">
+        <HomeHero showcase={newestState === 'ready' ? newest : []} />
 
-        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-          Chợ đồ cũ của sinh viên: giáo trình, đồ dùng, thiết bị
-        </h1>
+        <TrustStrip />
 
-        {/* DANH MỤC */}
-        <section aria-labelledby="home-categories" className="bg-white rounded-sm shadow-sm">
-          <div className="hidden md:flex h-[60px] px-5 items-center border-b border-gray-100">
-            <h2 id="home-categories" className="text-gray-600 font-medium uppercase text-base">DANH MỤC</h2>
-          </div>
-          <h2 className="sr-only md:hidden">Danh mục</h2>
-
+        <section aria-labelledby="home-categories">
+          <SectionHeader id="home-categories" title="Tìm theo danh mục" href="/search" />
           {catState !== 'ready' || categories.length === 0 ? (
-            <SectionState state={catState} empty={categories.length === 0} />
+            <div className="rounded-2xl bg-surface-card">
+              <SectionState
+                state={catState}
+                empty={categories.length === 0}
+                emptyText="Chưa có danh mục nào."
+                onRetry={loadCategories}
+              />
+            </div>
           ) : (
-            <>
-              {/* Mobile: cuộn ngang */}
-              <div className="md:hidden overflow-x-auto scrollbar-none py-3 px-2">
-                <div className="flex gap-1" style={{ minWidth: 'max-content' }}>
-                  {categories.map((cat) => (
-                    <Link key={cat.id} href={`/category/${cat.slug || cat.id}`} className="flex flex-col items-center w-[76px] flex-shrink-0 py-2">
-                      <div className="w-12 h-12 rounded-full overflow-hidden mb-1.5 bg-indigo-50 flex items-center justify-center">
-                        {cat.image ? (
-                          <img src={cat.image} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <Package className="w-5 h-5 text-gray-600" aria-hidden="true" />
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-800 text-center leading-tight line-clamp-2 px-0.5">{cat.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Desktop: lưới */}
-              <div className="hidden md:block p-0">
-                <div className="grid grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-0">
-                  {categories.map((cat) => (
-                    <Link key={cat.id} href={`/category/${cat.slug || cat.id}`} className="flex flex-col items-center justify-center h-[150px] border-r border-b border-gray-50 hover:shadow-md transition-shadow group/item">
-                      <div className="w-[70%] aspect-square rounded-full overflow-hidden mb-2 transition-transform group-hover/item:-translate-y-1 bg-indigo-50 flex items-center justify-center">
-                        {cat.image ? (
-                          <img src={cat.image} alt="" className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <Package className="w-7 h-7 text-gray-600" aria-hidden="true" />
-                        )}
-                      </div>
-                      <span className="text-[13px] text-gray-800 text-center px-2 leading-4">{cat.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </>
+            <CategoryRail categories={categories} />
           )}
         </section>
 
-        {/* SẢN PHẨM NỔI BẬT */}
-        <section aria-labelledby="home-featured" className="bg-white rounded-sm shadow-sm p-5">
-          <div className="flex justify-between items-center mb-4">
-            <h2 id="home-featured" className="text-brand font-medium uppercase text-base">SẢN PHẨM NỔI BẬT</h2>
-            <Link href="/search" className="text-brand text-sm flex items-center gap-1 py-1">
-              Xem tất cả <ChevronRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-          </div>
-
-          {topState !== 'ready' || topProducts.length === 0 ? (
-            <SectionState state={topState} empty={topProducts.length === 0} />
+        <section aria-labelledby="home-newest">
+          <SectionHeader id="home-newest" title="Mới đăng gần đây" href="/search" />
+          {newestState !== 'ready' || newest.length === 0 ? (
+            <div className="rounded-2xl bg-surface-card">
+              <SectionState
+                state={newestState}
+                empty={newest.length === 0}
+                emptyText="Chưa ai đăng bán gì. Bạn đăng món đầu tiên nhé."
+                onRetry={loadNewest}
+              />
+            </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-              {topProducts.map((prod) => <ProductCard key={prod.id} item={prod} />)}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+              {newest.map((item) => (
+                <ProductCard key={item.id} item={item} />
+              ))}
             </div>
           )}
         </section>
 
-        {/* SẢN PHẨM MỚI NHẤT */}
-        <section aria-labelledby="home-latest" className="bg-white rounded-sm shadow-sm p-5">
-          <div className="border-b border-gray-100 pb-4 mb-4">
-            <h2 id="home-latest" className="text-brand font-medium uppercase text-base">SẢN PHẨM MỚI NHẤT</h2>
-          </div>
-
-          {latestState !== 'ready' || latestProducts.length === 0 ? (
-            <SectionState state={latestState} empty={latestProducts.length === 0} />
+        <section aria-labelledby="home-popular">
+          <SectionHeader id="home-popular" title="Nhiều người xem" href="/search" />
+          {popularState !== 'ready' || popular.length === 0 ? (
+            <div className="rounded-2xl bg-surface-card">
+              <SectionState
+                state={popularState}
+                empty={popular.length === 0}
+                emptyText="Chưa có món nào được xem nhiều."
+                onRetry={loadPopular}
+              />
+            </div>
           ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {latestProducts.map((item) => <ProductCard key={item.id} item={item} />)}
-              </div>
-              <div className="flex justify-center mt-8">
-                <Link href="/search" className="bg-white border border-gray-300 text-gray-700 px-10 py-2.5 hover:bg-gray-50 transition-colors rounded-sm text-sm">
-                  Xem thêm sản phẩm
-                </Link>
-              </div>
-            </>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+              {popular.map((item) => (
+                <ProductCard key={item.id} item={item} />
+              ))}
+            </div>
           )}
         </section>
-
       </div>
     </div>
   );

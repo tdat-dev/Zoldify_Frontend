@@ -1,0 +1,20 @@
+[
+  {
+    "session_id": "226ee8e4-7b7b-4ada-b3d4-de0c24c4d9a4",
+    "transcript_path": "C:\\Users\\tvmar\\.claude\\projects\\D--Zoldify\\226ee8e4-7b7b-4ada-b3d4-de0c24c4d9a4.jsonl",
+    "cwd": "D:\\Zoldify\\Zoldify_Frontend\\src",
+    "prompt_id": "d31b8e1a-cff8-496d-9d07-719157eeede9",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input",
+    "notification_type": "idle_prompt"
+  },
+  {
+    "session_id": "226ee8e4-7b7b-4ada-b3d4-de0c24c4d9a4",
+    "transcript_path": "C:\\Users\\tvmar\\.claude\\projects\\D--Zoldify\\226ee8e4-7b7b-4ada-b3d4-de0c24c4d9a4.jsonl",
+    "cwd": "D:\\Zoldify\\Zoldify_Frontend\\src",
+    "prompt_id": "a987d545-35f2-4c01-8b1f-95203839578f",
+    "hook_event_name": "Notification",
+    "message": "Claude is waiting for your input",
+    "notification_type": "idle_prompt"
+  }
+]
