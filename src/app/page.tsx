@@ -41,7 +41,7 @@ export default function HomePage() {
 
         {/* SCAFFOLDING TẠM — Task 3 mount ở đây chỉ để check-coin.mjs có thứ để tìm.
             Task 4 sẽ gỡ dòng này ra và đặt EscrowCoin vào đúng chỗ (điều khiển bởi scroll). */}
-        <EscrowCoin progress={0.5} />
+        <EscrowCoin progress={0} />
 
         {/* DANH MỤC */}
         <section aria-labelledby="home-categories" className="bg-white rounded-sm shadow-sm">

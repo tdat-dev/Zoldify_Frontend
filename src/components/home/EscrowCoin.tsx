@@ -15,8 +15,11 @@ export function EscrowCoin({
   className?: string;
   size?: number;
 }) {
-  // Xu lật nhẹ theo hành trình để thấy nó là vật thể, không phải chấm tròn.
-  const spin = progress * 540;
+  // Xu lật theo hành trình để thấy nó là vật thể, không phải chấm tròn.
+  // Hệ số PHẢI là bội số của 360: ở progress=1 xu phải hạ cánh đúng góc 0deg
+  // (chính diện, ₫ đọc xuôi). Một bội số lẻ của 180 (vd 540) khiến progress=1
+  // hạ cánh ở 180deg — cos(180)=-1 — xu lật gương, ký hiệu tiền hiện ngược.
+  const spin = progress * 720;
   return (
     <span
       data-escrow-coin
