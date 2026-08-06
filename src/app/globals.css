@@ -33,20 +33,6 @@
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
-
-    /* Bảng màu "Giữ tiền hộ" — spec 2026-08-06 mục 3.2.
-       Neutral ngả về hue thương hiệu (258), chroma trong khoảng 0.005-0.015
-       theo craft-rules. KHÔNG dùng kem/sand: nền warm-neutral bị cấm. */
-    --surface-page: oklch(0.983 0.006 258);
-    --surface-card: oklch(1 0 0);
-    --ink: oklch(0.24 0.021 258);
-    --ink-muted: oklch(0.52 0.018 258);
-
-    /* Hex thuần cho fill/stroke trong SVG inline — SVG không đọc được
-       class Tailwind (bg-brand...), nên cần bản sao giá trị hex ở đây.
-       Phải khớp tailwind.config.ts: colors.brand.DEFAULT / colors.brand.accent. */
-    --brand-solid: #2C67C8;
-    --brand-accent-solid: #14708A;
   }
 }
 
@@ -56,41 +42,6 @@
   }
   body {
     @apply bg-gray-50 text-foreground;
-  }
-}
-
-@layer components {
-  /* Display moment duy nhất của trang. Trần 6rem của craft-rules áp cho tiêu đề
-     mục, không áp cho một hero moment trên LANDING_BRAND (Gate C). */
-  .hero-display {
-    font-size: clamp(3.25rem, 9vw, 8.5rem);
-    font-weight: 900;
-    font-stretch: 125%;
-    font-variation-settings: 'wdth' 125;
-    /* 0.92 chứ không phải 0.84: ở 0.84 khoảng cách dòng đo được là ÂM 18-20px,
-       mũ của Ề/Ộ dòng dưới thụt lên chân dòng trên. */
-    line-height: 0.92;
-    letter-spacing: -0.035em;
-    /* chừa chỗ cho dấu tiếng Việt khỏi bị cắt ở mép trên. 0.08em đo được là
-       lằn ranh: có bề rộng thì dư ~8px, có bề rộng thì mực chạm đúng mép trên
-       (đo bằng pixel-scan thật, không phải getBoundingClientRect của text
-       node — cái đó báo sai vì bao gồm cả phần vượt của font metrics). */
-    padding-top: 0.16em;
-    text-wrap: balance;
-  }
-
-  .label-condensed {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    font-stretch: 62%;
-    font-variation-settings: 'wdth' 62;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .price-figure {
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
   }
 }
 

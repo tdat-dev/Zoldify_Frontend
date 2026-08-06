@@ -8,9 +8,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["var(--font-archivo)", "ui-sans-serif", "system-ui", "sans-serif"],
-      },
       colors: {
         // Màu thương hiệu Zoldify. Dùng bg-brand / text-brand / border-brand
         // thay cho bg-[#2C67C8] rải rác khắp nơi.
@@ -20,14 +17,6 @@ const config: Config = {
           // #1990AA cũ chỉ đạt 3.82:1 với chữ trắng ở đầu nhạt của gradient;
           // đo bằng pixel thật trên nút "Đăng Bán". Tông này đạt 5.6:1.
           accent: "#14708A",
-        },
-        surface: {
-          page: "var(--surface-page)",
-          card: "var(--surface-card)",
-        },
-        ink: {
-          DEFAULT: "var(--ink)",
-          muted: "var(--ink-muted)",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
