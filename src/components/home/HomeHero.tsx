@@ -1,8 +1,34 @@
-import Link from 'next/link';
+"use client";
 
-export function HomeHero() {
+import Link from 'next/link';
+import { EscrowCoin } from './EscrowCoin';
+
+export function HomeHero({
+  coinProgress,
+  reduced,
+  coinTravelX,
+  coinTravelY,
+}: {
+  coinProgress: number;
+  reduced: boolean;
+  coinTravelX: number;
+  coinTravelY: number;
+}) {
+  // Xu rơi thẳng theo Y trong suốt hành trình, nhưng chỉ bắt đầu tấp ngang
+  // sang cột của đích ở 35% CUỐI — nếu tấp ngang ngay từ đầu, nó cắt chéo qua
+  // toàn bộ đoạn văn/nút bấm của hero trông như một vệt bay lạc, không như một
+  // đồng tiền rơi rồi tấp vào đúng chỗ ở cuối.
+  const xEase = Math.min(Math.max((coinProgress - 0.65) / 0.35, 0), 1);
+  const coinX = xEase * coinTravelX;
+  const coinY = coinProgress * coinTravelY;
   return (
-    <section className="relative pt-10 pb-14 md:pt-16 md:pb-20">
+    // z-20: xu di chuyển RA NGOÀI khung hero (đi xuống các section sau bằng
+    // absolute + translate lớn). Không có z-index tường minh ở đây, nó vẫn
+    // nằm đúng thứ tự DOM (trước EscrowStages) nên bị bg-surface-card của các
+    // thẻ chặng vẽ ĐÈ LÊN — xu biến mất giữa chừng khi bay ngang qua chúng.
+    // Nâng cả section hero lên một ngữ cảnh xếp lớp riêng để xu (và mọi thứ
+    // bên trong hero) luôn vẽ trên các section liền sau nó.
+    <section className="relative z-20 pt-10 pb-14 md:pt-16 md:pb-20">
       <p className="label-condensed text-ink-muted mb-5">Đồ cũ, vẫn chất</p>
 
       {/* Điểm phá bố cục: khối chữ display thoát khỏi cột nội dung căn giữa và
@@ -18,7 +44,19 @@ export function HomeHero() {
           section, để không cắt hụt phần thoát khung. */}
       <div className="md:relative md:left-1/2 md:w-screen md:-translate-x-1/2">
         <h1 className="hero-display text-ink">
-          <span data-coin-anchor className="relative inline-flex items-baseline">GIỮ</span>
+          <span data-coin-anchor className="relative inline-flex items-baseline">
+            GIỮ
+            <EscrowCoin
+              progress={reduced ? 0 : coinProgress}
+              size={0}
+              className="!w-[0.62em] !h-[0.62em] absolute -right-[0.72em] top-[0.16em]"
+              style={
+                reduced
+                  ? undefined
+                  : { transform: `translate3d(${coinX}px, ${coinY}px, 0)` }
+              }
+            />
+          </span>
           <br />
           TIỀN HỘ
         </h1>
