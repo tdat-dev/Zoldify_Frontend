@@ -15,7 +15,10 @@ export function SectionHeader({
 }) {
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
-      <h2 id={id} className="text-lg font-bold tracking-[-0.01em] text-ink md:text-xl">
+      <h2
+        id={id}
+        className="text-xl font-extrabold tracking-[-0.015em] text-ink md:text-2xl [text-wrap:balance]"
+      >
         {title}
       </h2>
       {href && (

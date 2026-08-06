@@ -64,19 +64,21 @@ export function ProductCard({ item }: { item: any }) {
             </div>
           )}
 
+          {/* Nhãn nền đặc, không nền nhạt: nhãn nằm trên ảnh sản phẩm nên nền
+              nhạt bị chìm vào ảnh, đọc không ra. */}
           {soldOut ? (
-            <span className="absolute left-2 top-2 rounded-md bg-ink/85 px-2 py-0.5 text-[11px] font-semibold text-white">
+            <span className="absolute left-2 top-2 rounded-md bg-ink/85 px-2 py-1 text-[11px] font-bold text-white">
               Hết hàng
             </span>
           ) : Number.isFinite(sold) && sold > 0 ? (
-            <span className="absolute left-2 top-2 rounded-md bg-price-bg px-2 py-0.5 text-[11px] font-semibold text-price">
+            <span className="absolute left-2 top-2 rounded-md bg-price px-2 py-1 text-[11px] font-bold text-white">
               Đã bán {sold}
             </span>
           ) : null}
         </div>
 
         <div className="flex flex-1 flex-col p-3">
-          <h3 className="mb-2 line-clamp-2 min-h-[2.6rem] text-[13px] leading-[1.35] text-ink">
+          <h3 className="clamp-2 mb-2 text-[13px] leading-[1.35] text-ink">
             {item.name}
           </h3>
           <div className="mt-auto flex items-end justify-between gap-2">

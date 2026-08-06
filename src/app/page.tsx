@@ -9,6 +9,8 @@ import { CategoryRail } from '@/components/home/CategoryRail';
 import { ProductCard } from '@/components/home/ProductCard';
 import { SectionHeader } from '@/components/home/SectionHeader';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
+import { EscrowBand } from '@/components/home/EscrowBand';
+import { SellCta } from '@/components/home/SellCta';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -100,6 +102,8 @@ export default function HomePage() {
           )}
         </section>
 
+        <EscrowBand />
+
         <section aria-labelledby="home-popular">
           <SectionHeader id="home-popular" title="Nhiều người xem" href="/search" />
           {popularState !== 'ready' || popular.length === 0 ? (
@@ -119,6 +123,8 @@ export default function HomePage() {
             </div>
           )}
         </section>
+
+        <SellCta />
       </div>
     </div>
   );

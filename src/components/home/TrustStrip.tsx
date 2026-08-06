@@ -34,13 +34,15 @@ const ITEMS = [
 
 export function TrustStrip() {
   return (
-    <section aria-label="Zoldify hoạt động thế nào" className="rounded-2xl bg-surface-card px-2 py-1">
+    <section aria-label="Zoldify hoạt động thế nào" className="rounded-2xl bg-surface-card px-2">
       <ul className="grid divide-y divide-ink/8 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
         {ITEMS.map(({ icon: Icon, title, body }) => (
-          <li key={title} className="flex items-start gap-3 px-4 py-5">
-            <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand" aria-hidden="true" />
+          <li key={title} className="flex items-start gap-4 px-5 py-6">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-tint">
+              <Icon className="h-5 w-5 text-brand" aria-hidden="true" />
+            </span>
             <div>
-              <p className="text-[13px] font-semibold text-ink">{title}</p>
+              <p className="text-sm font-bold text-ink">{title}</p>
               <p className="mt-1 text-xs leading-relaxed text-ink-muted">{body}</p>
             </div>
           </li>

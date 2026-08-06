@@ -63,6 +63,21 @@
   }
 }
 
+/* Cắt đúng 2 dòng cho tên sản phẩm.
+   Không dùng utility `line-clamp-2`: đo trên trang đã render thì `display` ra
+   `flow-root` chứ không phải `-webkit-box`, nên nó KHÔNG cắt dòng — chỉ có
+   overflow:hidden xén ngang, để lộ một vệt dòng thứ ba cụt đầu. Đặt ngoài
+   @layer để thắng utility trong cascade.
+   min-height = 2 dòng đúng bằng 2 x line-height, giữ mọi thẻ cao bằng nhau. */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: 2.7em;
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;
