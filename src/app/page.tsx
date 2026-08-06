@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, ChevronRight } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
 import { ProductCard } from '@/components/home/ProductCard';
@@ -16,8 +16,6 @@ export default function HomePage() {
   const { progress: coinProgress, reduced: coinReduced, coinX, coinY } = useCoinJourney();
   const [categories, setCategories] = useState<any[]>([]);
   const [catState, setCatState] = useState<LoadState>('loading');
-  const [topProducts, setTopProducts] = useState<any[]>([]);
-  const [topState, setTopState] = useState<LoadState>('loading');
   const [latestProducts, setLatestProducts] = useState<any[]>([]);
   const [latestState, setLatestState] = useState<LoadState>('loading');
 
@@ -26,17 +24,13 @@ export default function HomePage() {
       .then((res) => { setCategories(res.data?.data?.result || []); setCatState('ready'); })
       .catch(() => setCatState('error'));
 
-    productService.getAll(1, 6, { sort: 'featured' })
-      .then((res) => { setTopProducts(res.data?.data?.result || []); setTopState('ready'); })
-      .catch(() => setTopState('error'));
-
     productService.getAll(1, 12, { sort: 'newest' })
       .then((res) => { setLatestProducts(res.data?.data?.result || []); setLatestState('ready'); })
       .catch(() => setLatestState('error'));
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10 overflow-x-clip">
+    <div className="bg-surface-page min-h-screen pb-20 md:pb-10 overflow-x-clip">
       <div className="max-w-[1200px] mx-auto px-4 pt-8 space-y-6">
 
         <HomeHero coinProgress={coinProgress} reduced={coinReduced} coinX={coinX} coinY={coinY} />
@@ -93,39 +87,28 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* SẢN PHẨM NỔI BẬT */}
-        <section aria-labelledby="home-featured" className="bg-white rounded-sm shadow-sm p-5">
-          <div className="flex justify-between items-center mb-4">
-            <h2 id="home-featured" className="text-brand font-medium uppercase text-base">SẢN PHẨM NỔI BẬT</h2>
-            <Link href="/search" className="text-brand text-sm flex items-center gap-1 py-1">
-              Xem tất cả <ChevronRight className="w-4 h-4" aria-hidden="true" />
-            </Link>
-          </div>
-
-          {topState !== 'ready' || topProducts.length === 0 ? (
-            <SectionState state={topState} empty={topProducts.length === 0} />
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-              {topProducts.map((prod) => <ProductCard key={prod.id} item={prod} />)}
-            </div>
-          )}
-        </section>
-
-        {/* SẢN PHẨM MỚI NHẤT */}
-        <section aria-labelledby="home-latest" className="bg-white rounded-sm shadow-sm p-5">
+        <section aria-labelledby="home-listings" className="bg-surface-card rounded-sm shadow-sm p-5">
           <div className="border-b border-gray-100 pb-4 mb-4">
-            <h2 id="home-latest" className="text-brand font-medium uppercase text-base">SẢN PHẨM MỚI NHẤT</h2>
+            <h2
+              id="home-listings"
+              className="text-[clamp(1.5rem,2.5vw,2.25rem)] font-extrabold text-ink"
+              style={{ fontVariationSettings: "'wdth' 112" }}
+            >
+              Đang bán ở Zoldify
+            </h2>
           </div>
 
           {latestState !== 'ready' || latestProducts.length === 0 ? (
             <SectionState state={latestState} empty={latestProducts.length === 0} />
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {latestProducts.map((item) => <ProductCard key={item.id} item={item} />)}
+              <div data-product-grid className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {latestProducts.map((item, i) => (
+                  <ProductCard key={item.id} item={item} isFirst={i === 0} />
+                ))}
               </div>
               <div className="flex justify-center mt-8">
-                <Link href="/search" className="bg-white border border-gray-300 text-gray-700 px-10 py-2.5 hover:bg-gray-50 transition-colors rounded-sm text-sm">
+                <Link href="/search" className="bg-surface-card border border-ink/20 text-ink px-10 py-2.5 hover:bg-ink/5 transition-colors rounded-sm text-sm">
                   Xem thêm sản phẩm
                 </Link>
               </div>
