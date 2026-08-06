@@ -422,8 +422,11 @@ export function EscrowCoin({
   className?: string;
   size?: number;
 }) {
-  // Xu lật nhẹ theo hành trình để thấy nó là vật thể, không phải chấm tròn.
-  const spin = progress * 540;
+  // Xu lật theo hành trình để thấy nó là vật thể, không phải chấm tròn.
+  // PHẢI là bội số của 360. rotateY không có perspective thì bề rộng bị nhân
+  // cos(góc); kết thúc ở 540deg (=180deg, cos=-1) làm xu hạ cánh LẬT GƯƠNG,
+  // ký hiệu ₫ hiện ngược đúng lúc nó đậu xuống một mức giá thật.
+  const spin = progress * 720;
   return (
     <span
       data-escrow-coin
@@ -470,7 +473,7 @@ import { EscrowCoin } from '@/components/home/EscrowCoin';
 ```
 
 ```tsx
-<EscrowCoin progress={0.5} />
+<EscrowCoin progress={0} />
 ```
 
 - [ ] **Step 6: Chạy lại bài kiểm tra**
@@ -598,7 +601,7 @@ export function HomeHero() {
 
 - [ ] **Step 4: Gắn vào page.tsx**
 
-Trong `src/app/page.tsx`, xoá thẻ `<h1>` hiện tại và khối `<EscrowCoin progress={0.5} />` gắn tạm ở Task 3 (giàn giáo của Task 3, tới đây là hết nhiệm vụ). Xoá luôn import `EscrowCoin` khỏi `page.tsx`. Thay bằng:
+Trong `src/app/page.tsx`, xoá thẻ `<h1>` hiện tại và khối `<EscrowCoin progress={0} />` gắn tạm ở Task 3 (giàn giáo của Task 3, tới đây là hết nhiệm vụ). Xoá luôn import `EscrowCoin` khỏi `page.tsx`. Thay bằng:
 
 ```tsx
 import { HomeHero } from '@/components/home/HomeHero';
