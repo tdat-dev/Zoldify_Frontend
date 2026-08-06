@@ -691,7 +691,7 @@ const STAGES = [
     body: 'Trong lúc hàng đang đi, tiền đứng lại ở đây. Người bán thấy đơn nhưng chưa rút được.',
   },
   {
-    key: 'release',
+    key: 'refund',
     title: 'Huỷ đơn, tiền quay lại',
     body: 'Khi đơn còn ở bước chờ xác nhận hoặc đã xác nhận, bạn bấm huỷ là tiền hoàn về tài khoản của bạn.',
   },
@@ -875,7 +875,7 @@ export function useCoinJourney() {
       raf = 0;
       const target =
         document.querySelector('[data-coin-target]') ||
-        document.querySelector('[data-escrow-stage="release"]');
+        document.querySelector('[data-escrow-stage="refund"]');
       if (!target) { setProgress(0); return; }
       const start = 0;
       const end = window.scrollY + target.getBoundingClientRect().top - window.innerHeight * 0.55;
