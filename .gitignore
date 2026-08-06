@@ -104,3 +104,4 @@ desktop.ini
 # Claude Code
 .claude/
 public/logs/
+.superpowers/

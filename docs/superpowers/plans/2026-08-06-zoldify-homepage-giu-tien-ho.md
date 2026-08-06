@@ -270,14 +270,15 @@ export function SectionState({ state, empty }: { state: LoadState; empty: boolea
 
 - [ ] **Step 3: Tạo ProductCard.tsx**
 
-`data-first-price` ở Task 6 sẽ là đích hạ cánh của đồng xu, nên đặt sẵn từ đây.
+Task này là refactor thuần: **không thêm prop mới, không thêm attribute mới**. Đích hạ cánh
+của đồng xu (`data-coin-target`) do Task 7 thêm, vì Task 6 đã có nhánh dự phòng khi chưa có đích.
 
 ```tsx
 import Link from 'next/link';
 import { Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 
-export function ProductCard({ item, isFirst = false }: { item: any; isFirst?: boolean }) {
+export function ProductCard({ item }: { item: any }) {
   const stock = item.stock ?? item.quantity;
   return (
     <Link
@@ -299,10 +300,7 @@ export function ProductCard({ item, isFirst = false }: { item: any; isFirst?: bo
       <div className="p-2.5">
         <h3 className="text-sm text-ink line-clamp-2 mb-2 min-h-[40px] font-normal">{item.name}</h3>
         <div className="flex justify-between items-end gap-2">
-          <span
-            className="text-red-600 text-base price-figure"
-            {...(isFirst ? { 'data-coin-target': 'true' } : {})}
-          >
+          <span className="text-red-600 text-base price-figure">
             {formatPrice(item.price)}
           </span>
           {Number.isFinite(Number(stock)) && (
@@ -544,27 +542,20 @@ Kỳ vọng: `FAIL` vì chưa có `.hero-display` và chưa có `[data-hero-cta]
 
 Chữ tràn mép trái là điểm phá bố cục (Gate B): container hero dùng lề âm ở bên trái từ `md` trở lên, và `overflow-x: clip` ở khối cha để không sinh thanh cuộn ngang.
 
+Task 4 **chưa** gắn đồng xu. Nó chỉ để sẵn một `<span>` neo có `position: relative` để Task 6
+đặt xu vào. Không tạo component ẩn hay prop chết chỉ để "chuẩn bị".
+
 ```tsx
-"use client";
-
 import Link from 'next/link';
-import { EscrowCoin } from './EscrowCoin';
 
-export function HomeHero({ coinProgress }: { coinProgress: number }) {
+export function HomeHero() {
   return (
     <section className="relative overflow-x-clip pt-10 pb-14 md:pt-16 md:pb-20">
       <p className="label-condensed text-ink-muted mb-5">Đồ cũ, vẫn chất</p>
 
       {/* Điểm phá bố cục: chữ tràn khỏi mép trái canvas từ md trở lên. */}
       <h1 className="hero-display text-ink md:-ml-[7vw] lg:-ml-[9vw]">
-        <span className="inline-flex items-baseline gap-[0.12em]">
-          GIỮ
-          <EscrowCoin
-            progress={coinProgress}
-            size={0}
-            className="hidden"
-          />
-        </span>
+        <span data-coin-anchor className="relative inline-flex items-baseline">GIỮ</span>
         <br />
         TIỀN HỘ
       </h1>
@@ -594,18 +585,16 @@ export function HomeHero({ coinProgress }: { coinProgress: number }) {
 }
 ```
 
-Ghi chú: `EscrowCoin` ở đây tạm `size={0}` và ẩn. Task 6 sẽ thay bằng đồng xu thật đặt chồng lên chữ. Làm vậy để Task 4 kiểm được riêng phần chữ mà không phụ thuộc Task 6.
-
 - [ ] **Step 4: Gắn vào page.tsx**
 
-Trong `src/app/page.tsx`, xoá thẻ `<h1>` hiện tại và khối `<EscrowCoin progress={0.5} />` gắn tạm ở Task 3. Thay bằng:
+Trong `src/app/page.tsx`, xoá thẻ `<h1>` hiện tại và khối `<EscrowCoin progress={0.5} />` gắn tạm ở Task 3 (giàn giáo của Task 3, tới đây là hết nhiệm vụ). Xoá luôn import `EscrowCoin` khỏi `page.tsx`. Thay bằng:
 
 ```tsx
 import { HomeHero } from '@/components/home/HomeHero';
 ```
 
 ```tsx
-<HomeHero coinProgress={0} />
+<HomeHero />
 ```
 
 - [ ] **Step 5: Chạy lại bài kiểm tra**
@@ -898,16 +887,22 @@ export function useCoinJourney() {
 
 - [ ] **Step 4: Cho đồng xu hiện thật trong hero**
 
-Trong `HomeHero.tsx`, đổi chữ ký và phần đồng xu:
+Trong `HomeHero.tsx`, thêm `"use client"` ở dòng đầu, thêm import, đổi chữ ký, và đặt xu vào
+span neo đã có sẵn từ Task 4:
 
 ```tsx
+"use client";
+
+import Link from 'next/link';
+import { EscrowCoin } from './EscrowCoin';
+
 export function HomeHero({ coinProgress, reduced }: { coinProgress: number; reduced: boolean }) {
 ```
 
-Thay khối `<span className="inline-flex ...">` bằng:
+Thay `<span data-coin-anchor className="relative inline-flex items-baseline">GIỮ</span>` bằng:
 
 ```tsx
-        <span className="relative inline-flex items-baseline">
+        <span data-coin-anchor className="relative inline-flex items-baseline">
           GIỮ
           <EscrowCoin
             progress={reduced ? 0 : coinProgress}
@@ -1026,7 +1021,28 @@ node check-home.mjs
 
 Kỳ vọng: `gridCount: 0` (chưa gắn `data-product-grid`), `FAIL`.
 
-- [ ] **Step 3: Gộp hai mục sản phẩm thành một**
+- [ ] **Step 3: Thêm đích hạ cánh cho đồng xu vào ProductCard**
+
+Đây là chỗ `data-coin-target` được thêm (cố ý hoãn từ Task 2 để giữ Task 2 là refactor thuần).
+
+Trong `src/components/home/ProductCard.tsx`, đổi chữ ký:
+
+```tsx
+export function ProductCard({ item, isFirst = false }: { item: any; isFirst?: boolean }) {
+```
+
+và thẻ giá:
+
+```tsx
+          <span
+            className="text-red-600 text-base price-figure"
+            {...(isFirst ? { 'data-coin-target': 'true' } : {})}
+          >
+            {formatPrice(item.price)}
+          </span>
+```
+
+- [ ] **Step 4: Gộp hai mục sản phẩm thành một**
 
 Trong `src/app/page.tsx`: xoá hẳn khối `<section aria-labelledby="home-featured">`, giữ khối `home-latest` và đổi tiêu đề. Bản audit 05-08 đã chứng minh hai mục này render trùng dữ liệu.
 
@@ -1065,7 +1081,7 @@ Khối còn lại:
         </section>
 ```
 
-- [ ] **Step 4: Đổi nền trang sang token**
+- [ ] **Step 5: Đổi nền trang sang token**
 
 Đổi `className="bg-gray-100 min-h-screen pb-20 md:pb-10"` ở khối ngoài cùng thành:
 
@@ -1073,7 +1089,7 @@ Khối còn lại:
     <div className="bg-surface-page min-h-screen pb-20 md:pb-10">
 ```
 
-- [ ] **Step 5: Chạy lại bài kiểm tra tổng**
+- [ ] **Step 6: Chạy lại bài kiểm tra tổng**
 
 ```bash
 node check-home.mjs
@@ -1081,7 +1097,7 @@ node check-home.mjs
 
 Kỳ vọng: `PASS`.
 
-- [ ] **Step 6: Chạy lại toàn bộ bài kiểm tra của các task trước**
+- [ ] **Step 7: Chạy lại toàn bộ bài kiểm tra của các task trước**
 
 ```bash
 node check-type.mjs && node check-coin.mjs && node check-hero.mjs && node check-stages.mjs && node check-journey.mjs && node check-home.mjs
@@ -1089,17 +1105,17 @@ node check-type.mjs && node check-coin.mjs && node check-hero.mjs && node check-
 
 Kỳ vọng: tất cả `PASS`. Nếu task nào trượt, sửa trước khi đi tiếp.
 
-- [ ] **Step 7: Kiểm khi API chết**
+- [ ] **Step 8: Kiểm khi API chết**
 
 Dùng `fail.mjs` đã có ở scratchpad phiên trước (chặn `localhost:8080` trả 500).
 
 Kỳ vọng: hero và ba chặng vẫn hiện đủ (chúng là nội dung tĩnh), mục sản phẩm hiện đúng dòng "Không tải được dữ liệu", không có khối trắng rỗng nào.
 
-- [ ] **Step 8: Kiểm bàn phím**
+- [ ] **Step 9: Kiểm bàn phím**
 
 Tab từ đầu trang. Kỳ vọng: chặng đầu là "Tới nội dung chính", mọi control có tên đọc được, focus nhìn thấy ở từng chặng, hai CTA hero nằm đúng thứ tự thị giác.
 
-- [ ] **Step 9: Chụp desktop và mobile để lưu hồ sơ**
+- [ ] **Step 10: Chụp desktop và mobile để lưu hồ sơ**
 
 ```bash
 node ../../d1002517-a6a6-4c39-8569-95fe541e1b71/scratchpad/audit.mjs '[["home","/"]]' 1440 900 final-desktop
@@ -1108,7 +1124,7 @@ node ../../d1002517-a6a6-4c39-8569-95fe541e1b71/scratchpad/audit.mjs '[["home","
 
 Kỳ vọng từ output: `tiny: 0`, `overflowX: false`, `h1 = 1`. Mọi cảnh báo contrast trên nền gradient hoặc nền inline-style **phải đo lại bằng lấy mẫu pixel** trước khi kết luận là dương tính giả.
 
-- [ ] **Step 10: Build sạch**
+- [ ] **Step 11: Build sạch**
 
 Dừng dev server trước, rồi:
 
@@ -1118,14 +1134,14 @@ npm run build
 
 Kỳ vọng: `✓ Compiled successfully`, không lỗi prerender. Khởi động lại dev server sau khi build xong.
 
-- [ ] **Step 11: Commit**
+- [ ] **Step 12: Commit**
 
 ```bash
 git add src/app/page.tsx
 git commit -m "feat(home): ghép trang chủ Giữ tiền hộ, gộp hai mục sản phẩm trùng nhau"
 ```
 
-- [ ] **Step 12: Ghi run-log**
+- [ ] **Step 13: Ghi run-log**
 
 Lần này CÓ khoá hướng sáng tạo (khác đợt polish 05-08), nên phải ghi. Thêm vào cuối mảng `runs` trong `C:/Users/tvmar/.premium-web/log.json`, giữ tối đa 20 mục:
 
