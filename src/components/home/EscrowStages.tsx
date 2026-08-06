@@ -10,9 +10,9 @@ const STAGES = [
     body: 'Trong lúc hàng đang đi, tiền đứng lại ở đây. Người bán thấy đơn nhưng chưa rút được.',
   },
   {
-    key: 'release',
-    title: 'Người bán nhận',
-    body: 'Bạn bấm đã nhận hàng thì tiền mới sang người bán. Đơn bị huỷ thì tiền quay lại bạn.',
+    key: 'refund',
+    title: 'Huỷ đơn, tiền quay lại',
+    body: 'Khi đơn còn ở bước chờ xác nhận hoặc đã xác nhận, bạn bấm huỷ là tiền hoàn về tài khoản của bạn.',
   },
 ];
 
