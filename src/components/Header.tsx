@@ -131,8 +131,9 @@ export default function Header() {
           className="ml-auto hidden min-w-0 flex-1 justify-end md:flex lg:max-w-[360px]"
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
-          <div className="flex h-10 w-full items-center gap-2.5 rounded-lg border border-ink/10 bg-surface-sunken px-3.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
-            <Search className="h-[17px] w-[17px] shrink-0 text-ink-faint" aria-hidden="true" />
+          {/* Pill bo tròn hoàn toàn, kính lúp bên PHẢI — theo đúng ảnh mẫu độ
+              phân giải cao. Bản trước là hộp bo 8px với icon bên trái. */}
+          <div className="flex h-10 w-full items-center gap-2.5 rounded-full border border-ink/10 bg-surface-sunken pl-4 pr-2 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
             <input
               id="site-search"
               type="search"
@@ -143,6 +144,13 @@ export default function Header() {
               placeholder="Tìm giáo trình, đồ cũ..."
               className="min-w-0 flex-1 bg-transparent text-[13px] text-ink placeholder-ink-faint focus:outline-none"
             />
+            <button
+              type="submit"
+              aria-label="Tìm kiếm"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-card hover:text-brand"
+            >
+              <Search className="h-[17px] w-[17px]" aria-hidden="true" />
+            </button>
           </div>
         </form>
 

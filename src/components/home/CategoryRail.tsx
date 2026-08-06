@@ -21,9 +21,11 @@ export function CategoryRail({ categories }: { categories: any[] }) {
             href={`/category/${cat.slug || cat.id}`}
             className="flex w-[112px] shrink-0 snap-start flex-col items-center gap-2.5 rounded-xl border border-ink/8 bg-surface-card px-2 py-4 text-center transition-colors hover:border-brand/40 sm:w-auto"
           >
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg bg-surface-sunken">
+            {/* Cùng lý do như thẻ hàng: ảnh mẫu để ảnh danh mục nổi trên nền
+                trắng, không cắt kín ô. */}
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg bg-white">
               {cat.image ? (
-                <img src={cat.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img src={cat.image} alt="" loading="lazy" className="h-full w-full object-contain" />
               ) : (
                 <Package className="h-6 w-6 text-ink-faint" aria-hidden="true" />
               )}

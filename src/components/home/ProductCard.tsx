@@ -90,13 +90,20 @@ export function ProductCard({ item }: { item: any }) {
 
       <Link href={`/product/${item.id}`} className="flex flex-1 flex-col">
         <div className="p-3 pb-0">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-surface-sunken">
+          {/* object-CONTAIN trên nền trắng, không phải object-cover.
+              Ảnh mẫu ở độ phân giải cao cho thấy rõ: sản phẩm là một vật thể
+              NỔI giữa nền trắng, có trắng bao quanh cả bốn phía — đó là thứ làm
+              lưới thẻ êm mắt. Zoldify không có ảnh cắt nền, nhưng contain cho ra
+              hiệu ứng gần nhất mà không cần cắt nền: thấy trọn món hàng, phần
+              thừa là trắng chứ không phải mép ảnh bị xén. Với ảnh chụp dọc trong
+              ký túc thì đây cũng là cách duy nhất không cắt mất nửa món. */}
+          <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-white">
             {item.image ? (
               <img
                 src={item.image}
                 alt=""
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
