@@ -13,7 +13,7 @@ import { useCoinJourney } from '@/components/home/useCoinJourney';
 import { formatPrice } from '@/lib/format';
 
 export default function HomePage() {
-  const { progress: coinProgress, reduced: coinReduced, travelX: coinTravelX, travelY: coinTravelY } = useCoinJourney();
+  const { progress: coinProgress, reduced: coinReduced, coinX, coinY } = useCoinJourney();
   const [categories, setCategories] = useState<any[]>([]);
   const [catState, setCatState] = useState<LoadState>('loading');
   const [topProducts, setTopProducts] = useState<any[]>([]);
@@ -39,7 +39,7 @@ export default function HomePage() {
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-10 overflow-x-clip">
       <div className="max-w-[1200px] mx-auto px-4 pt-8 space-y-6">
 
-        <HomeHero coinProgress={coinProgress} reduced={coinReduced} coinTravelX={coinTravelX} coinTravelY={coinTravelY} />
+        <HomeHero coinProgress={coinProgress} reduced={coinReduced} coinX={coinX} coinY={coinY} />
 
         <EscrowStages firstPrice={latestProducts[0] ? formatPrice(latestProducts[0].price) : undefined} />
 

@@ -6,29 +6,35 @@ import { EscrowCoin } from './EscrowCoin';
 export function HomeHero({
   coinProgress,
   reduced,
-  coinTravelX,
-  coinTravelY,
+  coinX,
+  coinY,
 }: {
   coinProgress: number;
   reduced: boolean;
-  coinTravelX: number;
-  coinTravelY: number;
+  coinX: number;
+  coinY: number;
 }) {
-  // Xu rơi thẳng theo Y trong suốt hành trình, nhưng chỉ bắt đầu tấp ngang
-  // sang cột của đích ở 35% CUỐI — nếu tấp ngang ngay từ đầu, nó cắt chéo qua
-  // toàn bộ đoạn văn/nút bấm của hero trông như một vệt bay lạc, không như một
-  // đồng tiền rơi rồi tấp vào đúng chỗ ở cuối.
-  const xEase = Math.min(Math.max((coinProgress - 0.65) / 0.35, 0), 1);
-  const coinX = xEase * coinTravelX;
-  const coinY = coinProgress * coinTravelY;
   return (
-    // z-20: xu di chuyển RA NGOÀI khung hero (đi xuống các section sau bằng
-    // absolute + translate lớn). Không có z-index tường minh ở đây, nó vẫn
-    // nằm đúng thứ tự DOM (trước EscrowStages) nên bị bg-surface-card của các
-    // thẻ chặng vẽ ĐÈ LÊN — xu biến mất giữa chừng khi bay ngang qua chúng.
-    // Nâng cả section hero lên một ngữ cảnh xếp lớp riêng để xu (và mọi thứ
-    // bên trong hero) luôn vẽ trên các section liền sau nó.
-    <section className="relative z-20 pt-10 pb-14 md:pt-16 md:pb-20">
+    // z-dropdown (token có tên, xem tailwind.config.ts — thang hợp lệ chỉ có
+    // dropdown/sticky/backdrop/modal/toast/tooltip, không được dùng số rời).
+    // Xu di chuyển RA NGOÀI khung hero (đi xuống các section sau bằng absolute
+    // + translate lớn). Không nâng z-index ở đây thì hero vẫn nằm đúng thứ tự
+    // DOM (trước EscrowStages) nên bị bg-surface-card của các thẻ chặng vẽ ĐÈ
+    // LÊN — xu biến mất giữa chừng khi bay ngang qua chúng.
+    //
+    // Vì sao nâng cả SECTION thay vì chỉ nâng riêng đồng xu: z-index chỉ so
+    // sánh được giữa các phần tử CÙNG một ngữ cảnh xếp lớp (stacking context).
+    // Xu và các thẻ EscrowStages không phải anh em trực tiếp — chúng chỉ gặp
+    // nhau ở cấp <section> (hero) so với <section> (EscrowStages), hai anh em
+    // trong page.tsx. z-index đặt sâu bên trong (trên chính xu, hay trên span
+    // neo) chỉ tranh thứ tự với các phần tử KHÁC trong cùng hero, không bao
+    // giờ "thoát" ra để so với EscrowStages — nhất là ở md+ nơi div breakout
+    // (`md:-translate-x-1/2`) tự tạo một stacking context riêng bọc quanh xu,
+    // cô lập nó khỏi mọi thứ ngoài div đó. Nâng đúng ở cấp section — nơi hero
+    // và EscrowStages thật sự là anh em — là phạm vi nhỏ nhất còn hoạt động.
+    // Header sticky dùng z-sticky (200, xem tailwind.config.ts) nên vẫn ở trên
+    // z-dropdown (100) — đã xác nhận lại bằng ảnh chụp cuộn qua header.
+    <section className="relative z-dropdown pt-10 pb-14 md:pt-16 md:pb-20">
       <p className="label-condensed text-ink-muted mb-5">Đồ cũ, vẫn chất</p>
 
       {/* Điểm phá bố cục: khối chữ display thoát khỏi cột nội dung căn giữa và

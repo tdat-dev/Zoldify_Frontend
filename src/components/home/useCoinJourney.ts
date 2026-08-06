@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const ANCHOR_SELECTOR = '[data-coin-anchor]';
 const COIN_SELECTOR = '[data-escrow-coin]';
 const TARGET_SELECTOR = '[data-coin-target]';
 // Task 7 chưa gắn [data-coin-target] vào thẻ sản phẩm đầu tiên (không có backend
@@ -11,40 +10,67 @@ const TARGET_SELECTOR = '[data-coin-target]';
 // có nghĩa của hành trình, không phải một chỗ trú tạm bợ.
 const FALLBACK_TARGET_SELECTOR = '[data-escrow-stage="refund"]';
 
+// Xu chỉ bắt đầu tấp ngang sang cột của đích ở 35% CUỐI hành trình — nếu tấp
+// ngang ngay từ đầu, nó cắt chéo qua toàn bộ đoạn văn/nút CTA của hero trông
+// như một vệt bay lạc, không như một đồng tiền rơi rồi tấp vào đúng chỗ ở cuối.
+const X_EASE_START = 0.65;
+
 /**
- * Tiến độ hành trình của đồng xu, 0 ở đỉnh trang và 1 khi tới đích, cộng khoảng
- * cách PIXEL thật (cả X lẫn Y) để đi từ VỊ TRÍ NGHỈ của xu tới đích đó.
+ * Toạ độ PIXEL cuối cùng (`coinX`, `coinY`) để dịch chuyển đồng xu bằng
+ * `transform: translate3d(coinX, coinY, 0)`, cộng `progress` (0→1, cho
+ * EscrowCoin tự tính góc xoay) và `reduced` (prefers-reduced-motion).
  *
- * Vì sao có travelX/travelY: nếu chỉ trả `progress` và để nơi gọi tự nhân với
- * một hằng số vh áng chừng, con số đó không có lý do gì để khớp với vị trí thật
- * của đích. Bản nháp đầu tiên chỉ tính travel theo trục Y (bịa rằng đích luôn
- * nằm thẳng dưới chữ "GIỮ") — chụp ảnh ở nhiều mốc cuộn mới lộ ra: đích thật
- * (chặng "refund", hoặc giá sản phẩm sau Task 7) thường nằm ở CỘT khác trong
- * lưới nhiều cột, nên xu rơi thẳng thì trôi qua đúng cột của chặng "pay" và bị
- * thẻ đó che mất, không bao giờ chạm đích thật (xem task-6-report.md).
+ * Đích là [data-coin-target] nếu có (Task 7 sẽ gắn vào giá sản phẩm đầu tiên),
+ * fallback [data-escrow-stage="refund"] hôm nay (chưa có backend).
  *
- * Vì sao mốc là VỊ TRÍ NGHỈ CỦA XU chứ không phải `[data-coin-anchor]`: xu
- * không nằm đúng góc trái-trên của neo — nó lệch sang phải bằng CSS
- * (`-right-[0.72em]`) để nằm cạnh chữ "GIỮ". Nếu lấy neo làm mốc, offset lệch
- * đó (~1 bề rộng chữ) bị cộng dồn vào travelX, khiến xu hạ cánh lố hẳn sang
- * phải so với đích thật (lỗi này bắt được khi so ảnh chụp, không phải đoán).
- * Nên đo đúng một lần vị trí nghỉ của `[data-escrow-coin]` so với neo — lúc
- * effect này chạy lần đầu, progress vẫn là giá trị khởi tạo 0 nên DOM chắc
- * chắn chưa có transform nào — rồi dùng độ lệch đó cho mọi lần tính sau,
- * cộng với vị trí neo hiện tại (neo luôn đo đúng vì bản thân nó không bị
- * transform).
+ * === Vì sao đo PIXEL thật thay vì hằng số vh ===
+ * Bản nháp đầu chỉ tính travel theo trục Y (bịa rằng đích luôn nằm thẳng dưới
+ * chữ "GIỮ") — chụp ảnh ở nhiều mốc cuộn mới lộ ra: đích thật thường nằm ở CỘT
+ * khác trong lưới nhiều cột, nên xu rơi thẳng thì trôi qua đúng cột của chặng
+ * "pay" và bị thẻ đó che mất, không bao giờ chạm đích thật. Sửa bằng cách đo
+ * lệch CẢ HAI trục giữa vị trí nghỉ của xu và đích (xem task-6-report.md).
  *
- * Đồng xu được đặt `position: absolute` bên trong neo (không phải `fixed`), nên
- * bản thân neo đã cuộn theo trang; khoảng lệch giữa neo và đích tính bằng
- * getBoundingClientRect() không đổi theo scrollY (cả hai cuộn cùng tốc độ), nên
- * chỉ cần đo lại khi bố cục thật sự đổi (resize, hoặc nội dung load xong).
+ * === Vì sao hạ cánh NGAY DƯỚI đích (chạm mép dưới), không phải một góc bên
+ * trong đích ===
+ * Bản sửa 2D đầu tiên hạ cánh ở góc TRÊN-TRÁI đích — với thẻ "refund" đó đúng
+ * là góc chứa nhãn "CHẶNG 3" và tiêu đề, xu đáp thẳng lên chữ. Bản sửa tiếp
+ * theo đổi sang góc DƯỚI-PHẢI, đoán rằng góc đó luôn trống — SAI: thẻ "refund"
+ * cao 161px, trừ padding p-6 (24px x2) chỉ còn ~113px cho nhãn+tiêu đề+mô tả
+ * hai dòng, gần như KÍN cả thẻ, dòng cuối của đoạn mô tả vẫn vươn tới đúng góc
+ * dưới-phải — đo lại bằng cách so giao (bounding-box intersection) giữa xu và
+ * MỌI phần tử có chữ trong DOM mới bắt được overlap ~2564px² với `<p>` mô tả,
+ * dù đã giảm so với bản trước. Bài học: không có góc nào BÊN TRONG một hộp gần
+ * kín chữ là "chắc chắn trống" chỉ bằng suy đoán hình học của hộp cha.
+ *
+ * Sửa triệt để: hạ cánh NGAY DƯỚI đích, xu KHÔNG BAO GIỜ đi vào bên trong hộp
+ * của đích — `landingTop = targetRect.bottom` (mép trên của xu chạm đúng mép
+ * dưới của đích) là một đảm bảo HÌNH HỌC, không phải suy đoán: hai hộp không
+ * giao nhau theo trục Y thì không thể có phần tử chữ nào bên trong đích bị xu
+ * che, bất kể đích ngắn hay dài, bất kể nội dung đổi sau này. Căn theo mép
+ * phải của đích (`landingLeft = targetRect.right - coinW`) để xu vẫn đọc là
+ * "cạnh đích", không trôi ra giữa hư không — đã xác nhận bằng ảnh chụp + quét
+ * giao nhau với toàn bộ text trong DOM ở khung hạ cánh (task-6-report.md).
+ *
+ * === Vì sao đo lại vị trí nghỉ của xu MỖI LẦN, không phải một lần duy nhất ===
+ * Bản trước đo vị trí nghỉ của [data-escrow-coin] MỘT LẦN lúc mount (lúc đó
+ * chắc chắn transform=identity) rồi giữ mãi. Nhưng độ lệch giữa xu và neo tính
+ * bằng CSS `em` (`-right-[0.72em]`), còn `.hero-display` dùng
+ * `clamp(3.25rem, 9vw, 8.5rem)` — cỡ chữ đổi theo bề rộng cửa sổ trong khoảng
+ * ~577–1511px, nên độ lệch đó cũng đổi theo mỗi lần resize mà không có gì báo
+ * lại cho hook (reviewer bắt lỗi này, không phải tự phát hiện).
+ *
+ * Sửa bằng cách TỰ SỬA SAI mỗi khung hình thay vì đo một lần: mỗi lần compute
+ * chạy, đọc vị trí ĐANG VẼ của xu (`coinRect`), trừ đi đúng độ dịch mà LẦN
+ * TRƯỚC hook vừa áp (`lastApplied`, tự nhớ trong ref) để suy ra vị trí nghỉ
+ * THẬT ở khung hình này — luôn đúng bất kể cỡ chữ vừa đổi hay chưa, không cần
+ * biết "lúc nào là lúc an toàn để đo".
  */
 export function useCoinJourney() {
   const [progress, setProgress] = useState(0);
   const [reduced, setReduced] = useState(false);
-  const [travelX, setTravelX] = useState(0);
-  const [travelY, setTravelY] = useState(0);
-  const restOffset = useRef<{ x: number; y: number } | null>(null);
+  const [coinX, setCoinX] = useState(0);
+  const [coinY, setCoinY] = useState(0);
+  const lastApplied = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -55,34 +81,44 @@ export function useCoinJourney() {
   }, []);
 
   useEffect(() => {
-    if (reduced) { setProgress(0); setTravelX(0); setTravelY(0); return; }
+    if (reduced) {
+      setProgress(0);
+      setCoinX(0);
+      setCoinY(0);
+      lastApplied.current = { x: 0, y: 0 };
+      return;
+    }
 
     let raf = 0;
 
     const compute = () => {
       raf = 0;
-      const anchor = document.querySelector(ANCHOR_SELECTOR);
+      const coin = document.querySelector(COIN_SELECTOR);
       const target = document.querySelector(TARGET_SELECTOR) || document.querySelector(FALLBACK_TARGET_SELECTOR);
-      if (!anchor || !target) { setProgress(0); setTravelX(0); setTravelY(0); return; }
-
-      const anchorRect = anchor.getBoundingClientRect();
-
-      // Lần gọi đầu tiên: xu chắc chắn chưa bị transform (progress khởi tạo là
-      // 0), nên đây là dịp DUY NHẤT đo an toàn vị trí nghỉ thật của nó.
-      if (!restOffset.current) {
-        const coin = document.querySelector(COIN_SELECTOR);
-        if (coin) {
-          const coinRect = coin.getBoundingClientRect();
-          restOffset.current = { x: coinRect.left - anchorRect.left, y: coinRect.top - anchorRect.top };
-        }
+      if (!coin || !target) {
+        setProgress(0);
+        setCoinX(0);
+        setCoinY(0);
+        lastApplied.current = { x: 0, y: 0 };
+        return;
       }
-      const offset = restOffset.current || { x: 0, y: 0 };
 
+      const coinRect = coin.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
-      // Hạ cánh ở MÉP TRÁI của đích (không phải tâm) — với chặng dự phòng đó
-      // là mép trái thẻ; với giá sản phẩm (Task 7) đó là ngay trước chữ số đầu.
-      setTravelX(targetRect.left - (anchorRect.left + offset.x));
-      setTravelY(targetRect.top - (anchorRect.top + offset.y));
+
+      // Gỡ đúng độ dịch đã áp lần trước để lấy vị trí nghỉ THẬT hiện tại (xem
+      // JSDoc phía trên) — luôn khớp cỡ chữ hiện hành, không phụ thuộc thời
+      // điểm đo.
+      const restLeft = coinRect.left - lastApplied.current.x;
+      const restTop = coinRect.top - lastApplied.current.y;
+
+      // Hạ cánh NGAY DƯỚI đích, chạm mép dưới — xem JSDoc phía trên. Đây là
+      // đảm bảo hình học: landingTop >= targetRect.bottom nên hộp của xu
+      // không bao giờ giao với hộp của đích theo trục Y.
+      const landingLeft = targetRect.right - coinRect.width;
+      const landingTop = targetRect.bottom;
+      const travelX = landingLeft - restLeft;
+      const travelY = landingTop - restTop;
 
       // Tiến độ cuộn: 0 ở đỉnh trang, 1 khi đích tới điểm "hạ cánh" — lấy mốc
       // 55% chiều cao viewport để đích chạm điểm đó đúng lúc người dùng đang
@@ -90,7 +126,18 @@ export function useCoinJourney() {
       const end = window.scrollY + targetRect.top - window.innerHeight * 0.55;
       const span = Math.max(end, 1);
       const p = Math.min(Math.max(window.scrollY / span, 0), 1);
+
+      const xEase = Math.min(Math.max((p - X_EASE_START) / (1 - X_EASE_START), 0), 1);
+      const nextX = xEase * travelX;
+      const nextY = p * travelY;
+
       setProgress(p);
+      setCoinX(nextX);
+      setCoinY(nextY);
+      // Đây là "vị trí đã cam kết" cho lần tự sửa TIẾP THEO — không phụ thuộc
+      // việc React đã re-render xong hay chưa, vì đây chỉ là bộ nhớ nội bộ
+      // của hook, không đọc lại từ DOM.
+      lastApplied.current = { x: nextX, y: nextY };
     };
 
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(compute); };
@@ -101,7 +148,7 @@ export function useCoinJourney() {
     // Lưới sản phẩm/danh mục load xong (async, không có backend thật trong môi
     // trường dev thì mãi ở trạng thái loading) làm chiều cao trang đổi sau khi
     // mount — không có sự kiện scroll/resize nào báo việc này, nên cần theo dõi
-    // riêng để travel*/progress không bị đứng lại với số đo lỗi thời.
+    // riêng để coinX/coinY/progress không bị đứng lại với số đo lỗi thời.
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onScroll) : null;
     ro?.observe(document.body);
 
@@ -113,5 +160,5 @@ export function useCoinJourney() {
     };
   }, [reduced]);
 
-  return { progress, reduced, travelX, travelY };
+  return { progress, reduced, coinX, coinY };
 }
