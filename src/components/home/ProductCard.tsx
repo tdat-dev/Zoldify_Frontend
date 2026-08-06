@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 
-export function ProductCard({ item, isFirst = false }: { item: any; isFirst?: boolean }) {
+export function ProductCard({ item }: { item: any }) {
   const stock = item.stock ?? item.quantity;
   return (
     <Link
@@ -24,10 +24,7 @@ export function ProductCard({ item, isFirst = false }: { item: any; isFirst?: bo
       <div className="p-2.5">
         <h3 className="text-sm text-ink line-clamp-2 mb-2 min-h-[40px] font-normal">{item.name}</h3>
         <div className="flex justify-between items-end gap-2">
-          <span
-            className="text-red-600 text-base price-figure"
-            {...(isFirst ? { 'data-coin-target': 'true' } : {})}
-          >
+          <span className="text-red-600 text-base price-figure">
             {formatPrice(item.price)}
           </span>
           {Number.isFinite(Number(stock)) && (

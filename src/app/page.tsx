@@ -103,8 +103,8 @@ export default function HomePage() {
           ) : (
             <>
               <div data-product-grid className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                {latestProducts.map((item, i) => (
-                  <ProductCard key={item.id} item={item} isFirst={i === 0} />
+                {latestProducts.map((item) => (
+                  <ProductCard key={item.id} item={item} />
                 ))}
               </div>
               <div className="flex justify-center mt-8">
