@@ -25,7 +25,10 @@ Mọi câu chữ trên trang phải truy được về một dòng trong bảng 
 |---|---------|----------------|
 | F1 | Escrow được tạo khi đơn chuyển sang `PAID`, ở trạng thái `HOLDING`. Tiền vào Zoldify, không vào thẳng người bán | `escrows.service.ts` (`createOrderEscrows`), `orders.service.ts:294-297` |
 | F2 | Người bán **không rút được** khoản đang `HOLDING` | `escrows.service.ts:143-148` (`getHeldBalance` tách riêng khoản giữ) |
-| F3 | Người mua huỷ được đơn **chỉ khi đơn đang ở `PENDING` hoặc `CONFIRMED`**, và khi đó escrow chuyển `REFUNDED` | `orders.service.ts:327-343` (guard trạng thái + `refund`); nút thật ở `src/app/profile/orders/page.tsx:149,154` gọi `PATCH /orders/:id/cancel` |
+| F3 | Người mua huỷ được đơn **chỉ khi nút thật hiện ra, tức trạng thái `pending_payment` hoặc `pending`** (`profile/orders/page.tsx:147-155`). Backend cho phép cả `CONFIRMED` (`orders.service.ts:330`) nhưng **không có nút nào cho trạng thái đó**, nên với người mua nó không tồn tại. Ở `pending_payment` chưa thanh toán nên chưa có escrow. Vậy trạng thái duy nhất mà "huỷ thì tiền quay lại" đúng là `pending` |
+| F4 | Sản phẩm, danh mục, giá, tồn kho là dữ liệu thật từ API | `product.service.ts`, `category.service.ts` |
+| F5 | Phương thức thanh toán: COD, ví Zoldify, thẻ/QR qua PayOS | `src/app/checkout/page.tsx`, `payos.service.ts` |
+| F6 | Khẩu hiệu sẵn có của dự án: "Đồ cũ, vẫn chất" | `README.md` |
 
 ### ⚠️ Đính chính ngày 2026-08-06 — bản đầu của spec này SAI
 
@@ -42,14 +45,18 @@ Hệ quả: **tiền vào `HOLDING` rồi không có đường ra**, trừ khi h
 sản phẩm thật, độc lập với chuyện chữ nghĩa, và được ghi thành việc riêng cho chủ dự án.
 
 **Sai lầm phương pháp cần nhớ:** tôi đọc thấy `release()` tồn tại rồi kết luận cơ chế hoàn chỉnh,
-mà không kiểm **ai gọi nó**. "Code có tồn tại" không đồng nghĩa "luồng có chạy". Lần sau, mọi claim
-về hành vi sản phẩm phải truy ngược tới **điểm khởi phát do người dùng bấm**, không dừng ở hàm.
+mà không kiểm **ai gọi nó**. "Code có tồn tại" không đồng nghĩa "luồng có chạy". Mọi claim về hành
+vi sản phẩm phải truy ngược tới **điểm khởi phát do người dùng bấm**, không dừng ở hàm.
+
+**Và tôi đã mắc lại đúng lỗi đó ngay ở câu viết ra để sửa nó.** Bản vá đầu ghi "chờ xác nhận hoặc
+đã xác nhận" vì `orders.service.ts:330` cho phép cả `PENDING` lẫn `CONFIRMED`. Nhưng nút "Hủy đơn
+hàng" phía người mua (`profile/orders/page.tsx:147-155`) chỉ hiện ở `pending_payment` và `pending`,
+**không có ở `confirmed`**. Lại dừng ở tầng service. Người re-review bắt được.
+Guard của backend cho biết cái gì *được phép*; chỉ nút trên màn hình mới cho biết người dùng
+*làm được gì*. Claim phải bám vế thứ hai.
 
 Giới hạn: đọc code, chưa chạy được backend (máy không có MySQL). Nhưng đã kiểm bằng hai cơ chế
 độc lập và cả hai cho cùng kết quả.
-| F4 | Sản phẩm, danh mục, giá, tồn kho là dữ liệu thật từ API | `product.service.ts`, `category.service.ts` |
-| F5 | Phương thức thanh toán: COD, ví Zoldify, thẻ/QR qua PayOS | `src/app/checkout/page.tsx`, `payos.service.ts` |
-| F6 | Khẩu hiệu sẵn có của dự án: "Đồ cũ, vẫn chất" | `README.md` |
 
 **Giả định đã ghi nhận:** F1–F3 đọc từ mã nguồn, chưa chạy được end-to-end vì môi trường
 thiếu MySQL. Nếu chạy thật mà cơ chế sai khác, **copy hero phải sửa trước khi phát hành** —
