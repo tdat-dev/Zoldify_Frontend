@@ -32,7 +32,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
+    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10 overflow-x-clip">
       <div className="max-w-[1200px] mx-auto px-4 pt-8 space-y-6">
 
         <HomeHero />

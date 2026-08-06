@@ -71,8 +71,11 @@
        mũ của Ề/Ộ dòng dưới thụt lên chân dòng trên. */
     line-height: 0.92;
     letter-spacing: -0.035em;
-    /* chừa chỗ cho dấu tiếng Việt khỏi bị cắt ở mép trên */
-    padding-top: 0.08em;
+    /* chừa chỗ cho dấu tiếng Việt khỏi bị cắt ở mép trên. 0.08em đo được là
+       lằn ranh: có bề rộng thì dư ~8px, có bề rộng thì mực chạm đúng mép trên
+       (đo bằng pixel-scan thật, không phải getBoundingClientRect của text
+       node — cái đó báo sai vì bao gồm cả phần vượt của font metrics). */
+    padding-top: 0.16em;
     text-wrap: balance;
   }
 
