@@ -25,7 +25,7 @@ export function HomeHero() {
       </div>
 
       <p className="mt-7 max-w-[46ch] text-[clamp(1rem,1.5vw,1.25rem)] leading-[1.55] text-ink-muted [text-wrap:pretty]">
-        Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Người bán chỉ lấy được khi bạn bấm đã nhận hàng.
+        Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Trong lúc hàng đang đi, người bán không rút được đồng nào.
       </p>
 
       <div className="mt-9 flex flex-wrap gap-3">
