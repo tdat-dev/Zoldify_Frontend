@@ -213,9 +213,17 @@ git commit -m "feat(home): nền tảng chữ Archivo và token màu OKLCH"
 
 ---
 
-## Task 2: Tách ProductCard và SectionState ra file riêng
+## Task 2: Tách ProductCard và SectionState ra file riêng, áp token của Task 1
 
-Thuần refactor. Trang phải render y hệt trước và sau.
+Tách component **và** áp bộ token chữ/màu mà Task 1 vừa dựng. Bố cục, cấu trúc DOM, và mọi
+nhánh điều kiện phải y hệt trước và sau; phần được phép đổi là **cách trình bày**: màu chữ
+sang `ink`/`ink-muted`, và giá tiền sang class `price-figure`.
+
+> Ghi chú sửa ngày 2026-08-06: bản đầu của task này ghi "thuần refactor, render y hệt" nhưng
+> đoạn code mẫu của chính nó lại đổi giá từ `font-semibold` (600) sang `price-figure`
+> (700 + `tabular-nums`). Reviewer bắt đúng mâu thuẫn đó. Chủ dự án phân xử: **giữ code, sửa
+> nhãn** — vì spec mục 3.3 ghi rõ "Số tiền: `tabular-nums`", và `price-figure` sinh ra đúng
+> cho việc này. Cái sai là ở nhãn, không phải ở code.
 
 **Files:**
 - Create: `src/components/home/SectionState.tsx`
@@ -338,7 +346,10 @@ Kỳ vọng: sạch. Nếu báo `formatPrice` khai báo mà không dùng, xoá i
 cd "C:/Users/tvmar/AppData/Local/Temp/claude/D--Zoldify/2935dfe8-473c-42f5-a095-c8ca3b853cc6/scratchpad" && node ../../d1002517-a6a6-4c39-8569-95fe541e1b71/scratchpad/audit.mjs '[["home","/"]]' 1440 900 after-refactor
 ```
 
-Mở hai ảnh `before-refactor-home.png` và `after-refactor-home.png`. Khác biệt duy nhất được phép là màu chữ nhích nhẹ do đổi sang token `ink`. Bố cục phải y hệt.
+Mở hai ảnh `before-refactor-home.png` và `after-refactor-home.png`. Khác biệt được phép: màu chữ
+nhích nhẹ do đổi sang token `ink`/`ink-muted`, và giá tiền đậm hơn một bậc kèm chữ số đều bề rộng
+(`price-figure`). **Bố cục, cấu trúc DOM và thứ tự phần tử phải y hệt** — đó mới là thứ ảnh này
+dùng để chứng minh.
 
 - [ ] **Step 7: Commit**
 
