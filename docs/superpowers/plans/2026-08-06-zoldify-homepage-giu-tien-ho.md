@@ -1037,6 +1037,14 @@ Kỳ vọng: `gridCount: 0` (chưa gắn `data-product-grid`), `FAIL`.
 
 - [ ] **Step 3: Thêm đích hạ cánh cho đồng xu vào ProductCard**
 
+> **⚠️ BƯỚC NÀY ĐÃ BỊ HUỶ, 2026-08-06 — quyết định của chủ dự án.**
+> Đã dựng đúng như mô tả bên dưới (commit `f61fde1`), chụp ảnh xem, rồi **gỡ bỏ**. Lý do và
+> đánh đổi ghi ở mục 4.1 của spec. Tóm tắt: gắn `data-coin-target` vào thẻ sản phẩm đầu tiên
+> khiến đồng xu đi hết dải danh mục và lưới hàng để đáp vào khoảng trống ngay trên footer,
+> rời khỏi mạch kể escrow. Đích chính thức giờ là marker trong **thẻ chặng 3** — vốn đã là
+> nhánh dự phòng sẵn có từ Task 6, nên không cần thêm gì cho nó hoạt động.
+> Giữ nguyên đoạn dưới đây làm hồ sơ về việc đã thử và vì sao bỏ, đừng dựng lại.
+
 Đây là chỗ `data-coin-target` được thêm (cố ý hoãn từ Task 2 để giữ Task 2 là refactor thuần).
 
 Trong `src/components/home/ProductCard.tsx`, đổi chữ ký:

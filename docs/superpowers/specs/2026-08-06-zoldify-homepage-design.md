@@ -198,12 +198,29 @@ là **âm 18–20px**; mũ của `Ề`, `Ộ` ở dòng dưới thụt lên vùn
 
 ```
 signature: Đồng xu nằm bên trong chữ "GIỮ" của hero. Khi cuộn, nó rời khỏi chữ, chạy hết
-ba chặng của cơ chế ký quỹ (bạn trả → Zoldify giữ → người bán nhận), rồi đậu lại thành ký
-hiệu ₫ ở giá của thẻ sản phẩm đầu tiên.
+ba chặng của cơ chế ký quỹ (bạn trả → Zoldify giữ → huỷ đơn thì tiền quay lại), rồi đậu lại
+thành ký hiệu ₫ ngay dưới mức giá thật in trong thẻ chặng 3 ("Ví dụ với món rẻ nhất đang
+bán: 45.000₫").
 ```
 
 Vì sao nó thuộc về chủ thể này: một vật thể duy nhất mang đúng lời hứa của sản phẩm, và
 đích đến của nó là một mức giá thật. Dán sang site khác là mất nghĩa.
+
+**⚠️ Sửa đích, 2026-08-06 — quyết định của chủ dự án sau khi xem ảnh dựng thật.**
+Bản duyệt đầu đặt đích ở giá của **thẻ sản phẩm đầu tiên trong lưới**. Đã dựng đúng như vậy
+(Task 7, commit f61fde1) rồi chụp ảnh xem: kỹ thuật sạch, không đè chữ nào, nhưng hành trình
+phải đi qua cả dải danh mục lẫn lưới hàng để kết thúc trong một khoảng trống ngay trên footer —
+xu **rời khỏi mạch kể escrow** rồi mới đáp, nên khung hình cao trào không còn nói tiếp câu
+chuyện nào. So với phương án đáp trong thẻ chặng 3 (ảnh đối chứng ở cùng vòng dựng) thì yếu
+hơn rõ. Chủ dự án chọn phương án chặng 3.
+
+Đánh đổi đã biết và chấp nhận: xu không còn chạm tới một món hàng **đang thật sự bán**, mà
+chỉ chạm mức giá của món rẻ nhất được trích ra làm ví dụ trong thẻ. Đổi lại, hành trình ngắn,
+liền mạch, và kết đúng chỗ câu chuyện đang kể.
+
+Bài học ghi lại cho lần sau: đích của một signature interaction **không thể chốt trên giấy** —
+cùng một luật hạ cánh cho kết quả khác hẳn tuỳ đích là phần tử inline nhỏ hay cả một hộp lớn,
+và chỉ ảnh dựng thật mới cho thấy điều đó.
 
 **Ràng buộc trung thực:** đồng xu chỉ minh hoạ **cơ chế chung**, không gắn với đơn hàng nào.
 Không được vẽ trạng thái tiền lên từng tin đăng — tin chưa bán thì chưa có escrow, vẽ vào là
