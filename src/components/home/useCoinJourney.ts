@@ -8,7 +8,20 @@ const TARGET_SELECTOR = '[data-coin-target]';
 // trong môi trường này nên lưới sản phẩm rỗng). Chặng 3 của EscrowStages luôn có
 // mặt, nên nó là đích dự phòng hợp lý: "tiền quay lại" cũng là một điểm kết thúc
 // có nghĩa của hành trình, không phải một chỗ trú tạm bợ.
-const FALLBACK_TARGET_SELECTOR = '[data-escrow-stage="refund"]';
+//
+// Đích trỏ vào PHẦN TỬ NỘI DUNG CUỐI CÙNG bên trong thẻ (data-coin-landing-marker,
+// gắn ở EscrowStages.tsx), KHÔNG PHẢI cả thẻ <li> ([data-escrow-stage="refund"]
+// cũ). Lý do: "hạ cánh ngay dưới đích" (landingTop = targetRect.bottom, xem dưới)
+// là một đích hình học phụ thuộc HOÀN TOÀN vào kích thước của target — với target
+// là cả thẻ (to), hạ cánh dưới nó đặt xu hẳn ra NGOÀI thẻ, trôi lơ lửng trong
+// khoảng trống xám bên dưới, không chạm gì cả (xác nhận bằng ảnh chụp thật:
+// coin.top === target.bottom chính xác tới 0.0004px nhưng vẫn ĐỌC như trôi vô
+// định, vì đường viền thẻ là một đường thẳng còn xu chỉ chạm đúng mép đó chứ
+// không đè lên gì). Với target là phần tử nội dung cuối (nhỏ, giống hệt cách đích
+// thật — giá sản phẩm — cũng là một <span> nhỏ nằm SÂU trong thẻ), hạ cánh ngay
+// dưới nó khiến xu tràn qua vùng đệm còn lại của thẻ rồi hơi lấn ra mép — một cú
+// straddle giống hệt đường có dữ liệu thật, đọc được là "tiền vừa tới nơi".
+const FALLBACK_TARGET_SELECTOR = '[data-coin-landing-marker]';
 
 // Xu chỉ bắt đầu tấp ngang sang cột của đích ở 35% CUỐI hành trình — nếu tấp
 // ngang ngay từ đầu, nó cắt chéo qua toàn bộ đoạn văn/nút CTA của hero trông
