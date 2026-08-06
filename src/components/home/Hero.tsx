@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { ArrowRight, Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
+import { Stars } from './Stars';
+import { DEMO_SOCIAL } from '@/lib/demo';
 
 /**
  * Hero theo đúng bố cục trang tham chiếu: panel bo góc nền xanh nhạt, chữ bên
@@ -69,22 +71,52 @@ export function Hero({
             </Link>
           </div>
 
-          {(totalProducts || totalCategories) && (
-            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px]">
-              {totalProducts !== null && (
-                <p className="text-ink">
-                  <span className="text-base font-extrabold">{totalProducts}</span>{' '}
-                  <span className="text-ink-muted">món đang bán</span>
-                </p>
-              )}
-              {totalCategories !== null && (
-                <p className="text-ink">
-                  <span className="text-base font-extrabold">{totalCategories}</span>{' '}
-                  <span className="text-ink-muted">danh mục</span>
-                </p>
-              )}
+          {/* Dải chứng thực như mẫu. Số lượt mua bán và điểm đánh giá là SỐ DEMO
+              (src/lib/demo.ts); số món đang bán và số danh mục là số THẬT lấy
+              từ meta.total của API. */}
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-3">
+              <span className="flex -space-x-2" aria-hidden="true">
+                {DEMO_SOCIAL.initials.map((ch, i) => (
+                  <span
+                    key={ch}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-brand-tint text-[11px] font-bold text-white ${
+                      ['bg-brand', 'bg-brand-accent', 'bg-amber-500', 'bg-emerald-600'][i % 4]
+                    }`}
+                  >
+                    {ch}
+                  </span>
+                ))}
+              </span>
+              <p className="text-[13px] leading-tight">
+                <span className="font-extrabold text-ink">{DEMO_SOCIAL.customers}</span>{' '}
+                <span className="text-ink-muted">{DEMO_SOCIAL.customersLabel}</span>
+                <br />
+                <span className="mt-0.5 inline-flex items-center gap-1.5">
+                  <Stars rating={DEMO_SOCIAL.rating} size={11} />
+                  <span className="text-ink-muted">
+                    {DEMO_SOCIAL.rating}/5 ({DEMO_SOCIAL.reviews} đánh giá)
+                  </span>
+                </span>
+              </p>
             </div>
-          )}
+
+            {(totalProducts !== null || totalCategories !== null) && (
+              <p className="text-[13px] text-ink-muted">
+                {totalProducts !== null && (
+                  <>
+                    <span className="font-extrabold text-ink">{totalProducts}</span> món đang bán
+                  </>
+                )}
+                {totalProducts !== null && totalCategories !== null && ' · '}
+                {totalCategories !== null && (
+                  <>
+                    <span className="font-extrabold text-ink">{totalCategories}</span> danh mục
+                  </>
+                )}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="relative">

@@ -122,7 +122,7 @@ export default function HomePage() {
           )}
         </section>
 
-        <PromoBand />
+        <PromoBand lead={popular[0] || newest[0]} />
 
         {catState === 'ready' && categories.length >= 2 && (
           <section aria-labelledby="home-collections">
