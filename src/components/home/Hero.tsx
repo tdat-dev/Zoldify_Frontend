@@ -121,36 +121,26 @@ export function Hero({
 
         <div className="relative">
           {lead ? (
-            // Collage ba món xếp lệch tầng, đổ bóng sâu, xoay nhẹ. Bản trước là
-            // MỘT tấm ảnh chữ nhật bo góc dán lên nền tint — hộp trong hộp, đọc
-            // ra như slide PowerPoint có ảnh paste vào. Ảnh mẫu không có khung
-            // ảnh nào: món hàng là cutout trôi thẳng trên nền. Zoldify không có
-            // cutout, nên dùng độ sâu và nhịp lệch để thay.
-            <div className="relative mx-auto flex h-[300px] w-full max-w-[440px] items-center justify-center md:h-[340px]">
-              {showcase.slice(0, 3).map((it, i) => (
-                <Link
-                  key={it.id}
-                  href={`/product/${it.id}`}
-                  aria-label={it.name}
-                  className={[
-                    'absolute overflow-hidden rounded-2xl bg-surface-card shadow-[0_28px_56px_-28px_rgba(20,30,60,0.45)] transition-transform duration-300 hover:z-10 hover:-translate-y-1',
-                    i === 0
-                      ? 'left-0 top-6 h-[190px] w-[46%] -rotate-2'
-                      : i === 1
-                        ? 'left-1/2 top-0 z-[1] h-[230px] w-[50%] -translate-x-1/2 rotate-0'
-                        : 'bottom-4 right-0 h-[170px] w-[42%] rotate-3',
-                  ].join(' ')}
-                >
-                  {it.image ? (
-                    <img src={it.image} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <Package className="h-8 w-8 text-ink-faint" aria-hidden="true" />
-                    </div>
-                  )}
-                </Link>
-              ))}
-            </div>
+            // Một mảng ảnh lớn KHÔNG khung, không nền thẻ — món hàng nổi thẳng
+            // trên nền tint, đúng cách ảnh mẫu đặt cụm sản phẩm. object-contain
+            // để không xén mép món.
+            <Link
+              href={`/product/${lead.id}`}
+              aria-label={lead.name}
+              className="block h-[280px] w-full md:h-[340px]"
+            >
+              {lead.image ? (
+                <img
+                  src={lead.image}
+                  alt=""
+                  className="h-full w-full object-contain drop-shadow-[0_24px_40px_rgba(20,30,60,0.22)]"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <Package className="h-14 w-14 text-ink-faint" aria-hidden="true" />
+                </div>
+              )}
+            </Link>
           ) : (
             <div className="flex aspect-[4/3] items-center justify-center rounded-xl border border-dashed border-ink/15 bg-surface-card/70 p-8 text-center">
               <p className="max-w-[26ch] text-sm text-ink-muted">

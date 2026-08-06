@@ -11,7 +11,6 @@ import { SectionHeader } from '@/components/home/SectionHeader';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
 import { PromoBand } from '@/components/home/PromoBand';
 import { CollectionPair } from '@/components/home/CollectionPair';
-import { SellerRail } from '@/components/home/SellerRail';
 
 /**
  * Thứ tự khối bám theo trang tham chiếu Accesora:
@@ -130,17 +129,9 @@ export default function HomePage() {
           )}
         </section>
 
-        {popularState === 'ready' && popular.length > 0 && (
-          <section aria-labelledby="home-sellers">
-            <SectionHeader
-              id="home-sellers"
-              title="Người bán trên Zoldify"
-              href="/search"
-              linkText="Xem tất cả"
-            />
-            <SellerRail products={[...popular, ...newest]} />
-          </section>
-        )}
+        {/* Dải "Người bán trên Zoldify" tạm gỡ khỏi trang: ảnh mẫu không có khối
+            này và chủ dự án yêu cầu bám sát mẫu. Component vẫn giữ trong
+            src/components/home/SellerRail.tsx, cắm lại một dòng là xong. */}
 
         <PromoBand lead={popular[0] || newest[0]} />
 
