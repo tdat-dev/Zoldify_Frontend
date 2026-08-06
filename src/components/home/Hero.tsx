@@ -127,16 +127,12 @@ export function Hero({
             <Link
               href={`/product/${lead.id}`}
               aria-label={lead.name}
-              className="block h-[280px] w-full md:h-[340px]"
+              className="block h-[280px] w-full overflow-hidden rounded-2xl shadow-[0_24px_48px_-20px_rgba(20,30,60,0.3)] md:h-[340px]"
             >
               {lead.image ? (
-                <img
-                  src={lead.image}
-                  alt=""
-                  className="h-full w-full object-contain drop-shadow-[0_24px_40px_rgba(20,30,60,0.22)]"
-                />
+                <img src={lead.image} alt="" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center">
+                <div className="flex h-full w-full items-center justify-center bg-surface-card">
                   <Package className="h-14 w-14 text-ink-faint" aria-hidden="true" />
                 </div>
               )}

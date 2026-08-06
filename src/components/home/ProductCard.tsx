@@ -91,13 +91,17 @@ export function ProductCard({ item }: { item: any }) {
     <div className="group flex flex-col rounded-xl border border-ink/12 bg-surface-card p-3 transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(20,30,60,0.18)]">
       <div className="relative">
         <Link href={`/product/${item.id}`} className="block">
-          <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
+          {/* object-cover: ảnh LẤP ĐẦY ô vuông, không còn dải trắng hai bên.
+              Cảm giác thoáng vẫn giữ được nhờ khung trắng 12px của thẻ (p-3 ở
+              thẻ ngoài) bao quanh ô ảnh — trắng nằm NGOÀI ảnh chứ không nằm
+              trong nó. */}
+          <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-sunken">
             {item.image ? (
               <img
                 src={item.image}
                 alt=""
                 loading="lazy"
-                className="h-full w-full object-contain p-3 transition-transform duration-300 group-hover:scale-[1.04]"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
