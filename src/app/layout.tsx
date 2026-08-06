@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import { AnnounceBar } from "@/components/AnnounceBar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -37,6 +38,7 @@ export default function RootLayout({
             <ToastProvider>
               <a href="#main" className="skip-link">Tới nội dung chính</a>
               <div className="min-h-screen bg-gray-50 flex flex-col">
+                <AnnounceBar />
                 <Header />
                 <main id="main" className="flex-1">
                   {children}
