@@ -23,9 +23,30 @@ Mọi câu chữ trên trang phải truy được về một dòng trong bảng 
 
 | # | Sự thật | Nguồn xác minh |
 |---|---------|----------------|
-| F1 | Tiền người mua trả được giữ ở trạng thái `HOLDING`, chỉ chuyển sang `RELEASED` cho người bán khi đơn được đánh dấu đã giao | `Zoldify_Backend/src/escrows/escrows.service.ts` (`createOrderEscrows`, `release`), `orders.service.ts:294-317` |
-| F2 | Đơn huỷ hoặc hoàn thì escrow chuyển `REFUNDED` | `escrows.service.ts:78-89`, `orders.service.ts:335-338, 403-406` |
-| F3 | Escrow được tạo tại thời điểm đơn chuyển sang `PAID`, không phải lúc đặt hàng | `orders.service.ts:294-297` |
+| F1 | Escrow được tạo khi đơn chuyển sang `PAID`, ở trạng thái `HOLDING`. Tiền vào Zoldify, không vào thẳng người bán | `escrows.service.ts` (`createOrderEscrows`), `orders.service.ts:294-297` |
+| F2 | Người bán **không rút được** khoản đang `HOLDING` | `escrows.service.ts:143-148` (`getHeldBalance` tách riêng khoản giữ) |
+| F3 | Người mua huỷ được đơn **chỉ khi đơn đang ở `PENDING` hoặc `CONFIRMED`**, và khi đó escrow chuyển `REFUNDED` | `orders.service.ts:327-343` (guard trạng thái + `refund`); nút thật ở `src/app/profile/orders/page.tsx:149,154` gọi `PATCH /orders/:id/cancel` |
+
+### ⚠️ Đính chính ngày 2026-08-06 — bản đầu của spec này SAI
+
+Bản đầu ghi: *"chỉ chuyển sang `RELEASED` cho người bán khi đơn được đánh dấu đã giao"*, và dựng
+copy hero trên đó. **Sai.** Đường code `release()` có tồn tại (`orders.service.ts:308`) nhưng
+**không luồng nào trong sản phẩm đặt đơn sang `DELIVERED`**:
+
+- `grep` toàn bộ frontend tìm nơi gửi `status: 'delivered'` → chỉ một kết quả, là **nhãn tab lọc**
+  ở `shop/orders/page.tsx:62`, không phải hành động.
+- Handler thật của người bán `handleConfirmShip` chỉ đi `pending → confirmed → shipping`.
+- Người mua không có nút "đã nhận hàng". Admin không có. Không webhook GHN nào set nó.
+
+Hệ quả: **tiền vào `HOLDING` rồi không có đường ra**, trừ khi huỷ đơn trước lúc giao. Đây là lỗi
+sản phẩm thật, độc lập với chuyện chữ nghĩa, và được ghi thành việc riêng cho chủ dự án.
+
+**Sai lầm phương pháp cần nhớ:** tôi đọc thấy `release()` tồn tại rồi kết luận cơ chế hoàn chỉnh,
+mà không kiểm **ai gọi nó**. "Code có tồn tại" không đồng nghĩa "luồng có chạy". Lần sau, mọi claim
+về hành vi sản phẩm phải truy ngược tới **điểm khởi phát do người dùng bấm**, không dừng ở hàm.
+
+Giới hạn: đọc code, chưa chạy được backend (máy không có MySQL). Nhưng đã kiểm bằng hai cơ chế
+độc lập và cả hai cho cùng kết quả.
 | F4 | Sản phẩm, danh mục, giá, tồn kho là dữ liệu thật từ API | `product.service.ts`, `category.service.ts` |
 | F5 | Phương thức thanh toán: COD, ví Zoldify, thẻ/QR qua PayOS | `src/app/checkout/page.tsx`, `payos.service.ts` |
 | F6 | Khẩu hiệu sẵn có của dự án: "Đồ cũ, vẫn chất" | `README.md` |
@@ -137,7 +158,7 @@ là **âm 18–20px**; mũ của `Ề`, `Ộ` ở dòng dưới thụt lên vùn
 | Vị trí | Nội dung | Truy nguồn |
 |--------|----------|-----------|
 | Hero display | GIỮ TIỀN HỘ | F1 |
-| Hero phụ | Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Người bán chỉ lấy được khi bạn bấm đã nhận hàng. | F1 |
+| Hero phụ | Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Trong lúc hàng đang đi, người bán không rút được đồng nào. | F1, F2 |
 | CTA chính | Tìm giáo trình, đồ dùng | F4 |
 | CTA phụ | Đăng bán đồ của bạn | — |
 | Mục chợ | Đang bán ở Zoldify | F4 |

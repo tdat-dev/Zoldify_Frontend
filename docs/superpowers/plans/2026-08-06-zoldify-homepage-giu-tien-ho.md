@@ -575,7 +575,7 @@ export function HomeHero() {
       </h1>
 
       <p className="mt-7 max-w-[46ch] text-[clamp(1rem,1.5vw,1.25rem)] leading-[1.55] text-ink-muted [text-wrap:pretty]">
-        Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Người bán chỉ lấy được khi bạn bấm đã nhận hàng.
+        Bạn chuyển tiền cho Zoldify, không chuyển cho người lạ. Trong lúc hàng đang đi, người bán không rút được đồng nào.
       </p>
 
       <div className="mt-9 flex flex-wrap gap-3">
@@ -692,8 +692,8 @@ const STAGES = [
   },
   {
     key: 'release',
-    title: 'Người bán nhận',
-    body: 'Bạn bấm đã nhận hàng thì tiền mới sang người bán. Đơn bị huỷ thì tiền quay lại bạn.',
+    title: 'Huỷ đơn, tiền quay lại',
+    body: 'Khi đơn còn ở bước chờ xác nhận hoặc đã xác nhận, bạn bấm huỷ là tiền hoàn về tài khoản của bạn.',
   },
 ];
 
