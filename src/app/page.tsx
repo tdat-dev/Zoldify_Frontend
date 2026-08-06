@@ -8,6 +8,8 @@ import { productService } from '@/services/product.service';
 import { ProductCard } from '@/components/home/ProductCard';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
 import { HomeHero } from '@/components/home/HomeHero';
+import { EscrowStages } from '@/components/home/EscrowStages';
+import { formatPrice } from '@/lib/format';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -36,6 +38,8 @@ export default function HomePage() {
       <div className="max-w-[1200px] mx-auto px-4 pt-8 space-y-6">
 
         <HomeHero />
+
+        <EscrowStages firstPrice={latestProducts[0] ? formatPrice(latestProducts[0].price) : undefined} />
 
         {/* DANH MỤC */}
         <section aria-labelledby="home-categories" className="bg-white rounded-sm shadow-sm">
