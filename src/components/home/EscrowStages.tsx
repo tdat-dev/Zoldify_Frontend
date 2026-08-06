@@ -12,7 +12,7 @@ const STAGES = [
   {
     key: 'refund',
     title: 'Huỷ đơn, tiền quay lại',
-    body: 'Khi đơn còn ở bước chờ xác nhận hoặc đã xác nhận, bạn bấm huỷ là tiền hoàn về tài khoản của bạn.',
+    body: 'Khi đơn còn chờ người bán xác nhận, bạn bấm huỷ là tiền hoàn về tài khoản của bạn.',
   },
 ];
 
