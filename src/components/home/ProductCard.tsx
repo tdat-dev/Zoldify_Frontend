@@ -2,33 +2,40 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Package, ShoppingCart, Loader, Heart } from 'lucide-react';
-import { formatPrice } from '@/lib/format';
-import { cartService } from '@/services/cart.service';
-import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
-import { useToast } from '@/components/Toast';
+import { Package, Heart } from 'lucide-react';
+import { formatPrice, timeAgo } from '@/lib/format';
 import { Stars } from './Stars';
 import { demoRating, demoDiscount } from '@/lib/demo';
 
 /**
- * Thẻ hàng theo đúng thứ tự của mẫu: nhãn giảm giá góc trái + tim góc phải →
- * ảnh → dòng thương hiệu → tên → sao và số lượt → giá kèm giá gạch → nút thêm
- * vào giỏ.
+ * Thẻ hàng cho chợ đồ cũ C2C.
  *
- * Trường THẬT: name, price, image, stock, sold, condition, brand, seller.
- * Trường DEMO: sao đánh giá, số lượt, phần trăm giảm, giá gạch — xem src/lib/demo.ts.
+ * Ba khác biệt cố ý so với khuôn thương mại điện tử, đến từ bản phản biện:
  *
- * Nút tim là thật, lưu vào localStorage của máy (backend chưa có wishlist), nên
- * bấm vào có xảy ra chuyện và giữ được sau khi tải lại trang.
+ * 1. ẢNH KHÔNG TRÀN MÉP. Ảnh mẫu đẹp vì ảnh sản phẩm của nó là ảnh studio cắt
+ *    nền trắng — lấy mẫu pixel ra #FDFFFE, món hàng chỉ chiếm ~35% ô, nên mỗi
+ *    thẻ về thị giác là ~85% trắng. Zoldify không bao giờ có ảnh đó: ảnh thật
+ *    là ảnh điện thoại chụp trong phòng ký túc. Nên ta TỰ tạo khoảng trắng đó
+ *    bằng p-3 quanh ảnh, và hạ aspect-square xuống 4/3 (giảm ~37% diện tích
+ *    mực). Bốn thẻ cạnh nhau đọc ra là bốn VẬT, không phải bốn tấm ảnh dán sát.
+ *
+ * 2. KHÔNG CÓ NÚT "THÊM VÀO GIỎ". Hàng độc bản "Còn 1", mỗi món một người bán
+ *    — hành động thật là xem món rồi nhắn người bán, không phải gom giỏ. Bỏ nút
+ *    cũng trả lại cho hero hai CTA duy nhất của trang.
+ *
+ * 3. NHÃN TÌNH TRẠNG RỜI KHỎI ẢNH. Đặt trên ảnh thì nền bán trong suốt chồng
+ *    lên ảnh bất kỳ; đo được 2.45:1 — lỗi tương phản nặng nhất trang. Giờ nó là
+ *    một chip đặc nằm dưới ảnh, tương phản không phụ thuộc vào bức ảnh nào.
+ *
+ * Trường THẬT: name, price, image, stock, sold, condition, brand, seller, createdAt.
+ * Trường DEMO: sao, số lượt, phần trăm rẻ hơn — xem src/lib/demo.ts.
  */
 const WISHLIST_KEY = 'zoldify_wishlist';
 
 const CONDITION: Record<string, { label: string; className: string }> = {
-  new: { label: 'Mới', className: 'bg-brand text-white' },
-  refurbished: { label: 'Tân trang', className: 'bg-emerald-600 text-white' },
-  used: { label: 'Đã dùng', className: 'bg-ink/80 text-white' },
+  new: { label: 'Như mới', className: 'bg-emerald-50 text-emerald-700' },
+  refurbished: { label: 'Đã tân trang', className: 'bg-amber-50 text-amber-700' },
+  used: { label: 'Đã dùng', className: 'bg-surface-sunken text-ink-muted' },
 };
 
 function readWishlist(): number[] {
@@ -41,20 +48,14 @@ function readWishlist(): number[] {
 
 export function ProductCard({ item }: { item: any }) {
   const stock = Number(item.stock ?? item.quantity);
-  const sold = Number(item.sold);
   const soldOut = Number.isFinite(stock) && stock <= 0;
   const cond = CONDITION[String(item.condition)] ?? null;
-  const byline = item.brand || item.seller?.name || null;
   const rating = demoRating(item);
   const discount = demoDiscount(item);
+  const posted = timeAgo(item.createdAt ?? item.created_at);
+  const seller = item.seller?.name;
 
-  const [adding, setAdding] = useState(false);
   const [saved, setSaved] = useState(false);
-  const { refreshCartCount } = useCart();
-  const { isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  const router = useRouter();
-
   useEffect(() => {
     setSaved(readWishlist().includes(Number(item.id)));
   }, [item.id]);
@@ -69,128 +70,89 @@ export function ProductCard({ item }: { item: any }) {
     setSaved(next.includes(id));
   };
 
-  const handleAdd = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    setAdding(true);
-    try {
-      await cartService.add(item.id, 1);
-      await refreshCartCount();
-      toast('Đã thêm vào giỏ', 'success');
-    } catch {
-      toast('Chưa thêm được vào giỏ. Thử lại giúp mình.', 'error');
-    } finally {
-      setAdding(false);
-    }
-  };
-
   return (
-    <div className="group flex flex-col overflow-hidden rounded-xl border border-ink/8 bg-surface-card transition-shadow hover:shadow-md">
-      <div className="relative">
-        <Link href={`/product/${item.id}`} className="block">
-          <div className="relative aspect-square overflow-hidden bg-surface-sunken">
+    <div className="group relative flex flex-col rounded-xl border border-ink/12 bg-surface-card transition-shadow hover:shadow-[0_8px_24px_-12px_rgba(20,30,60,0.18)]">
+      {/* Nút lưu nằm NGOÀI thẻ ảnh, trên nền trắng của khung p-3: không đè lên
+          ảnh nên không phụ thuộc độ sáng bức ảnh. 40px thay cho 32px trước đây. */}
+      <button
+        type="button"
+        onClick={toggleSaved}
+        aria-pressed={saved}
+        aria-label={saved ? 'Bỏ khỏi danh sách đã lưu' : 'Lưu món này'}
+        className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-sunken hover:text-price"
+      >
+        <Heart
+          className={`h-[18px] w-[18px] ${saved ? 'text-price' : ''}`}
+          fill={saved ? 'currentColor' : 'none'}
+          aria-hidden="true"
+        />
+      </button>
+
+      <Link href={`/product/${item.id}`} className="flex flex-1 flex-col">
+        <div className="p-3 pb-0">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-surface-sunken">
             {item.image ? (
               <img
                 src={item.image}
                 alt=""
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                <Package className="h-9 w-9 text-ink-faint" aria-hidden="true" />
+                <Package className="h-8 w-8 text-ink-faint" aria-hidden="true" />
               </div>
             )}
-          </div>
-        </Link>
 
-        <div className="pointer-events-none absolute inset-x-2.5 top-2.5 flex items-start justify-between gap-2">
-          <span className="flex flex-col items-start gap-1.5">
-            {soldOut ? (
-              <span className="rounded-md bg-ink/85 px-2 py-1 text-[11px] font-bold text-white">
-                Hết hàng
+            {soldOut && (
+              <span className="absolute inset-0 flex items-center justify-center bg-white/75 text-[13px] font-bold text-ink">
+                Đã bán hết
               </span>
-            ) : discount ? (
-              <span className="rounded-md bg-price px-2 py-1 text-[11px] font-bold text-white">
-                -{discount.percent}%
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col px-3.5 pb-3.5 pt-3">
+          <h3 className="clamp-2 text-[14px] font-medium leading-[1.35] text-ink">{item.name}</h3>
+
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-2">
+            <span className="text-[15px] font-bold text-price">{formatPrice(item.price)}</span>
+            {discount && (
+              // Ảnh mẫu ghi "-20%". Ở chợ đồ cũ phép so đúng là với giá mua mới,
+              // và đó cũng là con số sinh viên thật sự nhẩm trong đầu.
+              <span className="text-[12px] text-ink-faint">
+                rẻ hơn mua mới {discount.percent}%
               </span>
-            ) : null}
-            {!soldOut && cond && (
-              <span className={`rounded-md px-2 py-1 text-[11px] font-bold ${cond.className}`}>
+            )}
+          </div>
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+            {cond && (
+              <span className={`rounded-md px-1.5 py-0.5 text-[11.5px] font-semibold ${cond.className}`}>
                 {cond.label}
               </span>
             )}
-          </span>
+            {rating && (
+              <span className="flex items-center gap-1">
+                <Stars rating={rating.rating} size={11} />
+                <span className="text-[11.5px] text-ink-muted">{rating.rating}</span>
+              </span>
+            )}
+          </div>
 
-          <button
-            type="button"
-            onClick={toggleSaved}
-            aria-pressed={saved}
-            aria-label={saved ? 'Bỏ khỏi danh sách đã lưu' : 'Lưu món này'}
-            className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full bg-surface-card/90 text-ink-muted shadow-sm transition-colors hover:text-price"
-          >
-            <Heart
-              className={`h-4 w-4 ${saved ? 'text-price' : ''}`}
-              fill={saved ? 'currentColor' : 'none'}
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-      </div>
-
-      <Link href={`/product/${item.id}`} className="flex flex-1 flex-col px-3.5 pb-1 pt-3">
-        {byline && (
-          <p className="mb-1 truncate text-[11px] font-medium uppercase tracking-wide text-ink-faint">
-            {byline}
-          </p>
-        )}
-
-        <h3 className="clamp-2 text-[13.5px] font-semibold leading-[1.35] text-ink">{item.name}</h3>
-
-        {rating && (
-          <p className="mt-1.5 flex items-center gap-1.5">
-            <Stars rating={rating.rating} />
-            <span className="text-[11.5px] text-ink-muted">({rating.count})</span>
-          </p>
-        )}
-
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="text-base font-extrabold text-price">{formatPrice(item.price)}</span>
-          {discount && (
-            <span className="text-[12.5px] text-ink-faint line-through">
-              {formatPrice(discount.original)}
-            </span>
+          {/* Dòng cuối là tín hiệu C2C, thay chỗ nút "Thêm vào giỏ": ai bán, đăng
+              bao lâu rồi. Tên người bán KHÔNG viết hoa toàn bộ — ô đó ở ảnh mẫu
+              dành cho tên thương hiệu (APPLE, SONY); đổ tên người vào rồi viết
+              hoa hết thì dấu chồng vỡ ở 11px và sai cả ngữ nghĩa. */}
+          {(seller || posted) && (
+            <p className="mt-auto truncate pt-3 text-[12px] text-ink-muted">
+              {seller}
+              {seller && posted ? ' · ' : ''}
+              {posted}
+            </p>
           )}
         </div>
-
-        <p className="mt-1 flex items-center gap-2 text-[11.5px] text-ink-muted">
-          {Number.isFinite(sold) && sold > 0 && <span>Đã bán {sold}</span>}
-          {Number.isFinite(sold) && sold > 0 && Number.isFinite(stock) && stock > 0 && (
-            <span aria-hidden="true" className="text-ink-faint">·</span>
-          )}
-          {Number.isFinite(stock) && stock > 0 && <span>Còn {stock}</span>}
-        </p>
       </Link>
-
-      <div className="p-3.5 pt-2.5">
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={adding || soldOut}
-          className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink-faint"
-        >
-          {adding ? (
-            <Loader className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-          ) : (
-            <ShoppingCart className="h-3.5 w-3.5" aria-hidden="true" />
-          )}
-          {soldOut ? 'Hết hàng' : 'Thêm vào giỏ'}
-        </button>
-      </div>
     </div>
   );
 }

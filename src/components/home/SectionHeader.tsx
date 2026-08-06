@@ -15,9 +15,12 @@ export function SectionHeader({
 }) {
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
+      {/* 17/19px semibold thay cho 20/24px extrabold: tiêu đề mục trước đây gần
+          bằng h1 hero, nên trang có 21 chỗ chữ đậm và không còn điểm neo mắt.
+          Khi mọi thứ đều đậm thì không gì đậm cả. */}
       <h2
         id={id}
-        className="text-xl font-extrabold tracking-[-0.015em] text-ink md:text-2xl [text-wrap:balance]"
+        className="text-[17px] font-semibold tracking-[-0.01em] text-ink md:text-[19px] [text-wrap:balance]"
       >
         {title}
       </h2>

@@ -44,13 +44,17 @@
     --surface-page: oklch(0.995 0.002 258);
     --surface-card: oklch(1 0 0);
     --surface-sunken: oklch(0.945 0.009 258);
-    /* Đậm hơn bản đầu (0.949/0.024): nhạt quá thì panel hero gần như trắng,
-       hero không đọc ra là một khối màu như ảnh mẫu. */
-    --brand-tint: oklch(0.934 0.038 258);
+    /* Lấy mẫu pixel panel hero của ảnh mẫu ra #F3F6FF; bản 0.934/0.038 của tôi
+       ra #DAEBFF — đậm hơn hẳn, làm hero trông như một div bị tô màu chứ không
+       phải một không gian. Hạ về xấp xỉ mẫu. */
+    --brand-tint: oklch(0.965 0.016 258);
 
     --ink: oklch(0.24 0.021 258);
     --ink-muted: oklch(0.505 0.019 258);
-    --ink-faint: oklch(0.62 0.016 258);
+    /* 0.62 đo được 3.63:1 trên nền trắng — dưới vạch 4.5. Đây là lỗi tầng TOKEN,
+       rơi vào 5 chỗ cùng lúc: tên người bán, giá gạch, "Xem hết", dấu phân cách,
+       nhãn thương hiệu. Tối lại để mọi chỗ dùng nó đều đạt. */
+    --ink-faint: oklch(0.55 0.019 258);
 
     /* Đỏ cho giá và giảm giá — quy ước sàn TMĐT Việt. Đã chọn độ sáng đủ
        tối để đạt 4.5:1 trên nền trắng ở cỡ chữ thường.                      */

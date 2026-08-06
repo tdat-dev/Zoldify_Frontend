@@ -11,6 +11,7 @@ import { SectionHeader } from '@/components/home/SectionHeader';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
 import { PromoBand } from '@/components/home/PromoBand';
 import { CollectionPair } from '@/components/home/CollectionPair';
+import { SellerRail } from '@/components/home/SellerRail';
 
 /**
  * Thứ tự khối bám theo trang tham chiếu Accesora:
@@ -72,6 +73,13 @@ export default function HomePage() {
     loadNewest();
   }, [loadCategories, loadPopular, loadNewest]);
 
+  // Mỗi lưới đúng MỘT hàng 4 thẻ. Trước đây hai lưới 8 thẻ chồng lên nhau thành
+  // hai mảng cao gần 900px, và vì hai lời gọi API chỉ khác tham số sort nên các
+  // món dễ trùng nhau — người xem đọc ra là trang bị lặp. Lọc trùng để lưới thứ
+  // hai luôn nói một điều mới.
+  const popularTop = popular.slice(0, 4);
+  const newestTop = newest.filter((n) => !popularTop.some((p) => p.id === n.id)).slice(0, 4);
+
   return (
     <div className="min-h-screen bg-surface-page pb-24 md:pb-12">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-9 px-4 py-6 md:gap-11 md:py-8">
@@ -115,12 +123,24 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {popular.map((item) => (
+              {popularTop.map((item) => (
                 <ProductCard key={item.id} item={item} />
               ))}
             </div>
           )}
         </section>
+
+        {popularState === 'ready' && popular.length > 0 && (
+          <section aria-labelledby="home-sellers">
+            <SectionHeader
+              id="home-sellers"
+              title="Người bán trên Zoldify"
+              href="/search"
+              linkText="Xem tất cả"
+            />
+            <SellerRail products={[...popular, ...newest]} />
+          </section>
+        )}
 
         <PromoBand lead={popular[0] || newest[0]} />
 
@@ -144,7 +164,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-              {newest.map((item) => (
+              {newestTop.map((item) => (
                 <ProductCard key={item.id} item={item} />
               ))}
             </div>
