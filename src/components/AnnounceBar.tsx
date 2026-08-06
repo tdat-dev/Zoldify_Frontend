@@ -14,15 +14,18 @@ export function AnnounceBar() {
         {/* min-w-0: không có nó thì `truncate` ở span con vô tác dụng — flex item
             mặc định không co dưới kích thước nội dung, và cả thanh đẩy tràn trang. */}
         <p className="flex min-w-0 items-center gap-2">
-          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-white/70" aria-hidden="true" />
-          <span className="truncate">Zoldify giữ tiền tới khi đơn xong, không chuyển thẳng cho người lạ.</span>
-          <Link href="/search" className="hidden shrink-0 font-semibold text-brand-tint underline-offset-2 hover:underline sm:inline">
-            Xem hàng đang bán
+          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-300" aria-hidden="true" />
+          <span className="truncate font-medium">Zoldify giữ tiền tới khi bạn nhận hàng</span>
+          <Link
+            href="/search"
+            className="hidden shrink-0 font-semibold text-brand-tint underline-offset-2 hover:underline sm:inline"
+          >
+            Mua ngay →
           </Link>
         </p>
-        <p className="hidden shrink-0 items-center gap-2 text-white/70 md:flex">
+        <p className="hidden shrink-0 items-center gap-2 text-white/60 md:flex">
           <Wallet className="h-3.5 w-3.5" aria-hidden="true" />
-          Trả khi nhận hàng, ví Zoldify, hoặc thẻ qua PayOS
+          Trả khi nhận hàng hoặc trả qua ví
         </p>
       </div>
     </div>

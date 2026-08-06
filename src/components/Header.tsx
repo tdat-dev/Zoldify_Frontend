@@ -83,7 +83,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-sticky w-full border-b border-ink/8 bg-surface-card">
-      <div className="mx-auto flex h-[62px] max-w-[1240px] items-center gap-4 px-4 md:gap-7">
+      <div className="mx-auto flex h-[70px] max-w-[1240px] items-center gap-4 px-4 md:gap-8">
         <button
           type="button"
           onClick={() => setIsNavOpen((v) => !v)}
@@ -107,7 +107,7 @@ export default function Header() {
                   <Link
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
-                    className={`relative block py-[19px] text-[13.5px] font-semibold transition-colors ${
+                    className={`relative block py-[23px] text-[13.5px] font-semibold transition-colors ${
                       active ? 'text-brand' : 'text-ink hover:text-brand'
                     }`}
                   >
@@ -122,14 +122,17 @@ export default function Header() {
           </ul>
         </nav>
 
+        {/* Ô tìm kiếm phải là một HỘP có viền và nền, đủ rộng, neo sát cụm icon —
+            bản trước để nó không viền và hẹp nên trông trần trụi, treo lơ lửng
+            giữa khoảng trống lớn sau menu. */}
         <form
           onSubmit={handleSearchSubmit}
           role="search"
-          className="ml-auto hidden min-w-0 flex-1 justify-end md:flex lg:max-w-[300px]"
+          className="ml-auto hidden min-w-0 flex-1 justify-end md:flex lg:max-w-[360px]"
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
-          <div className="flex h-9 w-full items-center gap-2 rounded-full bg-surface-sunken px-3.5 focus-within:ring-2 focus-within:ring-brand/30">
-            <Search className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden="true" />
+          <div className="flex h-10 w-full items-center gap-2.5 rounded-lg border border-ink/10 bg-surface-sunken px-3.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+            <Search className="h-[17px] w-[17px] shrink-0 text-ink-faint" aria-hidden="true" />
             <input
               id="site-search"
               type="search"

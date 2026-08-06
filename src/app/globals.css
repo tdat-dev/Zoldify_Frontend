@@ -38,10 +38,15 @@
        Trung tính được nhuộm nhẹ về đúng hue thương hiệu (258) với chroma
        0.004-0.012, thay vì xám trung tính chung chung. Nền trang KHÔNG dùng
        tông kem/giấy: đây là sàn mua bán, không phải tạp chí.                */
-    --surface-page: oklch(0.968 0.006 258);
+    /* Gần như trắng: ảnh mẫu để nền trang trắng, hero và các dải màu mới là
+       khối nổi lên trên. Bản trước nền trang xanh-xám ngang ngửa nền hero nên
+       hero không đọc ra là một panel riêng. */
+    --surface-page: oklch(0.995 0.002 258);
     --surface-card: oklch(1 0 0);
     --surface-sunken: oklch(0.945 0.009 258);
-    --brand-tint: oklch(0.949 0.024 258);
+    /* Đậm hơn bản đầu (0.949/0.024): nhạt quá thì panel hero gần như trắng,
+       hero không đọc ra là một khối màu như ảnh mẫu. */
+    --brand-tint: oklch(0.934 0.038 258);
 
     --ink: oklch(0.24 0.021 258);
     --ink-muted: oklch(0.505 0.019 258);
