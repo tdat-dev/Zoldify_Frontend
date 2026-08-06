@@ -2,67 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, ChevronRight, AlertCircle, Loader } from 'lucide-react';
+import { Package, ChevronRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
-import { formatPrice } from '@/lib/format';
-
-type LoadState = 'loading' | 'ready' | 'error';
-
-function ProductCard({ item }: { item: any }) {
-  const stock = item.stock ?? item.quantity;
-  return (
-    <Link
-      href={`/product/${item.id}`}
-      className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow border border-transparent hover:border-brand/30 overflow-hidden"
-    >
-      <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
-        {item.image ? (
-          <img src={item.image} alt="" className="w-full h-full object-cover" loading="lazy" />
-        ) : (
-          <Package className="w-10 h-10 text-gray-600" aria-hidden="true" />
-        )}
-        {Number(item.sold) > 0 && (
-          <span className="absolute bottom-0 left-0 w-full bg-black/60 text-white text-xs text-center py-1">
-            Đã bán {item.sold}
-          </span>
-        )}
-      </div>
-      <div className="p-2.5">
-        <h3 className="text-sm text-gray-800 line-clamp-2 mb-2 min-h-[40px] font-normal">{item.name}</h3>
-        <div className="flex justify-between items-end gap-2">
-          <span className="text-red-600 text-base font-semibold">{formatPrice(item.price)}</span>
-          {Number.isFinite(Number(stock)) && (
-            <span className="text-xs text-gray-600 whitespace-nowrap">Còn {stock}</span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function SectionState({ state, empty }: { state: LoadState; empty: boolean }) {
-  if (state === 'loading') {
-    return (
-      <div className="flex items-center justify-center gap-2 py-10 text-gray-600 text-sm">
-        <Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
-        Đang tải…
-      </div>
-    );
-  }
-  if (state === 'error') {
-    return (
-      <div className="flex items-center justify-center gap-2 py-10 text-gray-700 text-sm">
-        <AlertCircle className="w-4 h-4 text-red-600" aria-hidden="true" />
-        Không tải được dữ liệu. Kiểm tra kết nối rồi tải lại trang.
-      </div>
-    );
-  }
-  if (empty) {
-    return <p className="py-10 text-center text-sm text-gray-600">Chưa có sản phẩm nào ở đây.</p>;
-  }
-  return null;
-}
+import { ProductCard } from '@/components/home/ProductCard';
+import { SectionState, type LoadState } from '@/components/home/SectionState';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
