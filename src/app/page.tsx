@@ -7,6 +7,7 @@ import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
 import { ProductCard } from '@/components/home/ProductCard';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
+import { EscrowCoin } from '@/components/home/EscrowCoin';
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -37,6 +38,10 @@ export default function HomePage() {
         <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
           Chợ đồ cũ của sinh viên: giáo trình, đồ dùng, thiết bị
         </h1>
+
+        {/* SCAFFOLDING TẠM — Task 3 mount ở đây chỉ để check-coin.mjs có thứ để tìm.
+            Task 4 sẽ gỡ dòng này ra và đặt EscrowCoin vào đúng chỗ (điều khiển bởi scroll). */}
+        <EscrowCoin progress={0.5} />
 
         {/* DANH MỤC */}
         <section aria-labelledby="home-categories" className="bg-white rounded-sm shadow-sm">

@@ -41,6 +41,12 @@
     --surface-card: oklch(1 0 0);
     --ink: oklch(0.24 0.021 258);
     --ink-muted: oklch(0.52 0.018 258);
+
+    /* Hex thuần cho fill/stroke trong SVG inline — SVG không đọc được
+       class Tailwind (bg-brand...), nên cần bản sao giá trị hex ở đây.
+       Phải khớp tailwind.config.ts: colors.brand.DEFAULT / colors.brand.accent. */
+    --brand-solid: #2C67C8;
+    --brand-accent-solid: #14708A;
   }
 }
 
