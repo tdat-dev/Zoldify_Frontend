@@ -33,6 +33,14 @@
     --ring: 221.2 83.2% 53.3%;
 
     --radius: 0.5rem;
+
+    /* Bảng màu "Giữ tiền hộ" — spec 2026-08-06 mục 3.2.
+       Neutral ngả về hue thương hiệu (258), chroma trong khoảng 0.005-0.015
+       theo craft-rules. KHÔNG dùng kem/sand: nền warm-neutral bị cấm. */
+    --surface-page: oklch(0.983 0.006 258);
+    --surface-card: oklch(1 0 0);
+    --ink: oklch(0.24 0.021 258);
+    --ink-muted: oklch(0.52 0.018 258);
   }
 }
 
@@ -42,6 +50,38 @@
   }
   body {
     @apply bg-gray-50 text-foreground;
+  }
+}
+
+@layer components {
+  /* Display moment duy nhất của trang. Trần 6rem của craft-rules áp cho tiêu đề
+     mục, không áp cho một hero moment trên LANDING_BRAND (Gate C). */
+  .hero-display {
+    font-size: clamp(3.25rem, 9vw, 8.5rem);
+    font-weight: 900;
+    font-stretch: 125%;
+    font-variation-settings: 'wdth' 125;
+    /* 0.92 chứ không phải 0.84: ở 0.84 khoảng cách dòng đo được là ÂM 18-20px,
+       mũ của Ề/Ộ dòng dưới thụt lên chân dòng trên. */
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    /* chừa chỗ cho dấu tiếng Việt khỏi bị cắt ở mép trên */
+    padding-top: 0.08em;
+    text-wrap: balance;
+  }
+
+  .label-condensed {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-stretch: 62%;
+    font-variation-settings: 'wdth' 62;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .price-figure {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
   }
 }
 
