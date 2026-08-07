@@ -107,4 +107,5 @@ public/logs/
 .superpowers/
 
 # Log cua Claude Code hook, khong thuoc ve source
+src/**/logs/
 src/logs/
