@@ -9,6 +9,7 @@ import { payosService } from '@/services/payos.service';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
+import type { CreateOrderDto } from '@/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AddressPicker from '@/components/AddressPicker';
 
@@ -18,7 +19,10 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const { refreshCartCount } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  // Lấy đúng danh sách phương thức mà backend chấp nhận, thay vì để string
+  // rồi gửi giá trị backend không hiểu.
+  const [paymentMethod, setPaymentMethod] =
+    useState<CreateOrderDto['payment_method']>('cod');
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

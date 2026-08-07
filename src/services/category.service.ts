@@ -1,22 +1,25 @@
 import http from '@/lib/http';
+import type { ApiResponse, Category, CategoryListItem, Paginated } from '@/api';
 
 export const categoryService = {
   getAll() {
-    return http.get('/categories', { params: { pageSize: 100 } });
+    return http.get<ApiResponse<Paginated<CategoryListItem>>>('/categories', {
+      params: { pageSize: 100 },
+    });
   },
   getOne(id: number) {
-    return http.get(`/categories/${id}`);
+    return http.get<ApiResponse<Category>>(`/categories/${id}`);
   },
   getBySlug(slug: string) {
-    return http.get(`/categories/slug/${slug}`);
+    return http.get<ApiResponse<Category>>(`/categories/slug/${slug}`);
   },
-  create(data: any) {
-    return http.post('/categories', data);
+  create(data: Partial<Category>) {
+    return http.post<ApiResponse<Category>>('/categories', data);
   },
-  update(id: number, data: any) {
-    return http.patch(`/categories/${id}`, data);
+  update(id: number, data: Partial<Category>) {
+    return http.patch<ApiResponse<Category>>(`/categories/${id}`, data);
   },
   remove(id: number) {
-    return http.delete(`/categories/${id}`);
+    return http.delete<ApiResponse<unknown>>(`/categories/${id}`);
   },
 };

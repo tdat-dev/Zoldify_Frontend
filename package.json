@@ -9,7 +9,8 @@
     "lint": "next lint",
     "check:tokens": "node scripts/check-tokens.mjs",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});console.log('Cache cleared')\"",
-    "clean:dev": "npm run clean && next dev"
+    "clean:dev": "npm run clean && next dev",
+    "gen:api": "node node_modules/openapi-typescript/bin/cli.js ../Zoldify_Backend/openapi.json -o src/api/schema.d.ts"
   },
   "dependencies": {
     "axios": "^1.6.8",
@@ -29,6 +30,7 @@
     "autoprefixer": "^10.5.0",
     "eslint": "^8",
     "eslint-config-next": "^14.2.35",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

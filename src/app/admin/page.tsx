@@ -12,7 +12,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchStats = () => {
       orderService.getStats()
-        .then((res) => setStats(res.data.data || res.data))
+        .then((res) => setStats(res.data.data))
         .catch(() => { })
         .finally(() => setLoading(false));
     };

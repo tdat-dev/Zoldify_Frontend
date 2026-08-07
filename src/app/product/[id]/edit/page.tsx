@@ -52,7 +52,7 @@ export default function EditProductPage() {
         setCategoryId(p.category?.id ? String(p.category.id) : '');
         setCondition(p.condition || 'used');
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
-        setCategories(catRes.data?.data?.result || catRes.data?.result || []);
+        setCategories(catRes.data.data.result);
 
         if (user && p.seller?.id && p.seller.id !== user.id && user.role !== 'admin') {
           toast('Bạn không có quyền sửa sản phẩm này', 'error');

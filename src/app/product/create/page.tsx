@@ -32,7 +32,7 @@ export default function CreateProductPage() {
 
   useEffect(() => {
     categoryService.getAll().then((res) => {
-      setCategories(res.data?.data?.result || res.data?.result || []);
+      setCategories(res.data.data.result);
     }).catch(() => {});
   }, []);
 
@@ -116,7 +116,7 @@ export default function CreateProductPage() {
           </div>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); setError(''); setSubmitting(true); productService.create({ name, price: Number(price), image: images[0] || '', images: images.length > 0 ? images : undefined, description, brand, condition, category_id: Number(categoryId), stock: quantity, slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }).then((res) => { router.push(`/product/${(res.data?.data?.id || res.data?.id)}`); }).catch((err) => { setError(err.response?.data?.message || 'Đăng sản phẩm thất bại'); }).finally(() => setSubmitting(false)); }}>
+        <form onSubmit={(e) => { e.preventDefault(); setError(''); setSubmitting(true); productService.create({ name, price: Number(price), image: images[0] || '', images: images.length > 0 ? images : undefined, description, brand, condition, category_id: Number(categoryId), stock: quantity, slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }).then((res) => { router.push(`/product/${res.data.data.id}`); }).catch((err) => { setError(err.response?.data?.message || 'Đăng sản phẩm thất bại'); }).finally(() => setSubmitting(false)); }}>
           {/* STEP 1 */}
           <div className={`${step === 1 ? 'block' : 'hidden'} bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100`}>
             <div className="p-6 sm:p-8 border-b border-slate-100">

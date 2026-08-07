@@ -35,7 +35,7 @@ export default function CategoriesPage() {
     setLoading(true);
     try {
       const res = await categoryService.getAll();
-      setCategories(res.data?.data?.result || res.data?.result || []);
+      setCategories(res.data.data.result);
     } catch {
       // ignore
     } finally {
