@@ -5,32 +5,30 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
-  Package, ClipboardList, LogOut, Search, ShoppingCart, Shield, Menu,
+  Package, ClipboardList, LogOut, Search, ShoppingCart, Shield,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { notificationService } from '@/services/notification.service';
+import { categoryService } from '@/services/category.service';
 
 /**
- * Header dựng theo trang tham chiếu: logo trái, menu ngang giữa, ô tìm kiếm bo
- * tròn bên phải, rồi ba icon có badge.
+ * Header một việc: TÌM. Logo trái, ô tìm kiếm chiếm phần giữa, ba icon phải,
+ * và một hàng từ khoá gợi ý ngay dưới.
  *
- * Mọi mục menu đều trỏ tới route CÓ THẬT — trang mẫu có "Deals / Brands /
- * About Us", Zoldify không có mấy trang đó nên không dựng link chết.
+ * Bản trước có thêm menu ngang năm mục (Trang chủ / Tất cả hàng / Mới đăng /
+ * Nhiều người xem / Đăng bán). Bốn trong năm mục đó đều dẫn về cùng trang
+ * /search chỉ khác tham số sort — tức là menu bày ra bốn cửa cho một căn
+ * phòng, đẩy ô tìm kiếm co lại còn 360px trong khi nó mới là việc người ta vào
+ * đây để làm. Đã gỡ; các lối đó nằm trong từ khoá gợi ý và menu tài khoản.
+ *
+ * Từ khoá gợi ý lấy từ danh mục THẬT của API, không phải danh sách tự nghĩ.
  */
-const NAV = [
-  { label: 'Trang chủ', href: '/' },
-  { label: 'Tất cả hàng', href: '/search' },
-  { label: 'Mới đăng', href: '/search?sort=newest' },
-  { label: 'Nhiều người xem', href: '/search?sort=most_viewed' },
-  { label: 'Đăng bán', href: '/product/create' },
-];
-
 export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isNavOpen, setIsNavOpen] = useState(false);
   const [unreadNotis, setUnreadNotis] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hotCategories, setHotCategories] = useState<any[]>([]);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -40,30 +38,15 @@ export default function Header() {
 
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
-    setIsNavOpen(false);
   }, [pathname, searchParams]);
 
-  /**
-   * Trang chủ đã có một ô tìm kiếm lớn ngay trong hero, nên ô ở header là hành
-   * động chính bị nhân đôi: hai ô cùng hiện một lúc trên cùng màn hình. Ở đây
-   * nó chỉ xuất hiện khi người xem đã cuộn qua khỏi hero. Mọi trang khác giữ
-   * nguyên ô tìm kiếm như cũ.
-   */
-  const isHome = pathname === '/';
-  const [pastHero, setPastHero] = useState(false);
-
+  // Hỏng thì không có hàng gợi ý, header vẫn dùng bình thường.
   useEffect(() => {
-    if (!isHome) {
-      setPastHero(true);
-      return;
-    }
-    const onScroll = () => setPastHero(window.scrollY > 300);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [isHome]);
-
-  const showHeaderSearch = pastHero;
+    categoryService
+      .getAll()
+      .then((res) => setHotCategories((res.data?.data?.result || []).slice(0, 6)))
+      .catch(() => setHotCategories([]));
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,59 +88,20 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-sticky w-full border-b border-ink/8 bg-surface-card">
-      <div className="mx-auto flex h-[70px] max-w-[1240px] items-center gap-4 px-4 md:gap-8">
-        <button
-          type="button"
-          onClick={() => setIsNavOpen((v) => !v)}
-          aria-expanded={isNavOpen}
-          aria-label="Mở menu"
-          className="-ml-1 flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-surface-sunken lg:hidden"
-        >
-          <Menu className="h-5 w-5" aria-hidden="true" />
-        </button>
-
+      <div className="mx-auto flex h-[70px] max-w-[1240px] items-center gap-3 px-4 md:gap-6">
         <Link href="/" aria-label="Zoldify — về trang chủ" className="flex shrink-0 items-center">
           <img src="/images/logouni.png" alt="Zoldify" className="h-8 w-auto" decoding="async" />
         </Link>
 
-        <nav aria-label="Điều hướng chính" className="hidden lg:block">
-          <ul className="flex items-center gap-6">
-            {NAV.map((item) => {
-              const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href.split('?')[0]);
-              return (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={`relative block py-[23px] text-[13.5px] font-semibold transition-colors ${
-                      active ? 'text-brand' : 'text-ink hover:text-brand'
-                    }`}
-                  >
-                    {item.label}
-                    {active && (
-                      <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-[2px] rounded-full bg-brand" />
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* Ô tìm kiếm phải là một HỘP có viền và nền, đủ rộng, neo sát cụm icon —
-            bản trước để nó không viền và hẹp nên trông trần trụi, treo lơ lửng
-            giữa khoảng trống lớn sau menu. */}
+        {/* Ô tìm kiếm chiếm hết phần giữa còn lại. Không giới hạn 360px nữa: đây
+            là việc chính của trang, nó được quyền rộng. */}
         <form
           onSubmit={handleSearchSubmit}
           role="search"
-          className={`ml-auto min-w-0 flex-1 justify-end lg:max-w-[360px] ${
-            showHeaderSearch ? 'hidden md:flex' : 'hidden'
-          }`}
+          className="hidden min-w-0 flex-1 md:flex"
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
-          {/* Pill bo tròn hoàn toàn, kính lúp bên PHẢI — theo đúng ảnh mẫu độ
-              phân giải cao. Bản trước là hộp bo 8px với icon bên trái. */}
-          <div className="flex h-10 w-full items-center gap-2.5 rounded-full border border-ink/10 bg-surface-sunken pl-4 pr-2 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+          <div className="flex h-11 w-full items-center gap-2.5 rounded-full border border-ink/12 bg-surface-sunken pl-5 pr-1.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
             <input
               id="site-search"
               type="search"
@@ -165,26 +109,19 @@ export default function Header() {
               enterKeyHint="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm giáo trình, đồ cũ..."
-              className="min-w-0 flex-1 bg-transparent text-[13px] text-ink placeholder-ink-faint focus:outline-none"
+              placeholder="Tìm giáo trình, máy tính, xe đạp…"
+              className="min-w-0 flex-1 bg-transparent text-body text-ink placeholder-ink-faint focus:outline-none"
             />
             <button
               type="submit"
-              aria-label="Tìm kiếm"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-surface-card hover:text-brand"
+              className="h-8 shrink-0 rounded-full bg-brand px-4 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
-              <Search className="h-[17px] w-[17px]" aria-hidden="true" />
+              Tìm
             </button>
           </div>
         </form>
 
-        {/* Khi ô tìm kiếm ẩn, cụm icon phải tự giữ ml-auto ở mọi bề ngang, nếu
-            không nó trôi vào giữa thanh header. */}
-        <div
-          className={`ml-auto flex shrink-0 items-center gap-1.5 md:gap-2.5 ${
-            showHeaderSearch ? 'md:ml-0' : ''
-          }`}
-        >
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-0 md:gap-2.5">
           <Link
             href="/notifications"
             aria-label={unreadNotis > 0 ? `Thông báo, ${unreadNotis} chưa đọc` : 'Thông báo'}
@@ -289,12 +226,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo.
-          Trên trang chủ cũng ẩn cho tới khi cuộn qua hero, vì hero đã có ô lớn. */}
-      {showHeaderSearch && (
-      <form onSubmit={handleSearchSubmit} role="search" className="border-t border-ink/8 px-4 py-2.5 md:hidden">
+      {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo. */}
+      <form onSubmit={handleSearchSubmit} role="search" className="px-4 pb-2.5 md:hidden">
         <label htmlFor="site-search-mobile" className="sr-only">Tìm sản phẩm</label>
-        <div className="flex h-10 items-center gap-2 rounded-full bg-surface-sunken px-3.5 focus-within:ring-2 focus-within:ring-brand/30">
+        <div className="flex h-11 items-center gap-2 rounded-full border border-ink/12 bg-surface-sunken pl-4 pr-1.5 focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
           <Search className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden="true" />
           <input
             id="site-search-mobile"
@@ -303,28 +238,42 @@ export default function Header() {
             enterKeyHint="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm giáo trình, đồ cũ..."
-            className="min-w-0 flex-1 bg-transparent text-[13px] text-ink placeholder-ink-faint focus:outline-none"
+            placeholder="Tìm giáo trình, máy tính, xe đạp…"
+            className="min-w-0 flex-1 bg-transparent text-body text-ink placeholder-ink-faint focus:outline-none"
           />
+          <button
+            type="submit"
+            className="h-8 shrink-0 rounded-full bg-brand px-3.5 text-small font-semibold text-white"
+          >
+            Tìm
+          </button>
         </div>
       </form>
-      )}
 
-      {isNavOpen && (
-        <nav aria-label="Điều hướng chính" className="border-t border-ink/8 px-4 py-2 lg:hidden">
-          <ul className="flex flex-col">
-            {NAV.map((item) => (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className="block py-2.5 text-[14px] font-semibold text-ink transition-colors hover:text-brand"
-                >
-                  {item.label}
-                </Link>
-              </li>
+      {/* Hàng từ khoá gợi ý. Cuộn ngang BÊN TRONG ở màn hẹp, không đẩy tràn trang.
+          Chỉ hiện khi API trả về danh mục thật — không dựng danh sách tự nghĩ. */}
+      {hotCategories.length > 0 && (
+        <div className="border-t border-ink/8">
+          <div className="mx-auto flex max-w-[1240px] items-center gap-2 overflow-x-auto px-4 py-2.5">
+            <span className="shrink-0 text-small text-ink-faint">Hay tìm:</span>
+            {hotCategories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/category/${cat.slug || cat.id}`}
+                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-small text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand"
+              >
+                {cat.name}
+              </Link>
             ))}
-          </ul>
-        </nav>
+            <Link
+              href="/product/create"
+              className="ml-auto hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-small font-semibold text-brand transition-colors hover:bg-brand-tint md:flex"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+              Đăng bán
+            </Link>
+          </div>
+        </div>
       )}
     </header>
   );

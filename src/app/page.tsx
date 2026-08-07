@@ -57,7 +57,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-surface-page pb-24 md:pb-12">
       <div className="mx-auto flex max-w-[1240px] flex-col gap-12 px-4 pb-8 md:gap-16">
-        <Hero categories={catState === 'ready' ? categories : []} />
+        <Hero />
 
         {/* min-w-0: section là flex item trong cột, mặc định min-width:auto nên
             nó nở theo nội dung và hàng danh mục cuộn ngang đẩy tràn cả trang ở
