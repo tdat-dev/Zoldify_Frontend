@@ -113,6 +113,7 @@ const PAIRS = [
 ];
 
 const lowContrast = [];
+const measured = [];
 for (const [fg, bg] of PAIRS) {
   let r;
   try {
@@ -121,6 +122,7 @@ for (const [fg, bg] of PAIRS) {
     lowContrast.push(`${fg}/${bg}: ${e.message}`);
     continue;
   }
+  measured.push([`${fg} tren ${bg}`, r]);
   if (r < 4.5) lowContrast.push(`${fg} tren ${bg}: ${r.toFixed(2)}:1 (can >= 4.5)`);
 }
 
@@ -137,6 +139,13 @@ if (lowContrast.length) {
   for (const c of lowContrast) console.error(`  ${c}`);
 }
 if (!failed) {
-  console.log(`OK — ${used.size} lop co bo ngu do mo deu sinh ra CSS; ${PAIRS.length} cap mau dat 4.5:1`);
+  console.log(`OK — ${used.size} lop co bo ngu do mo deu sinh ra CSS.\n`);
+  const pad = Math.max(...measured.map(([name]) => name.length));
+  for (const [name, r] of measured) {
+    console.log(`  ${name.padEnd(pad)}  ${r.toFixed(2)}:1`);
+  }
+  console.log(
+    '\nLuu y: chi do duoc mau PHANG. Gradient va anh nen phai lay mau pixel tren\ntrang da render — getComputedStyle tra ve mau nen trong suot va bo sot loi that.',
+  );
 }
 process.exit(failed ? 1 : 0);

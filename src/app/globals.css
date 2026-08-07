@@ -68,6 +68,29 @@
        tối để đạt 4.5:1 trên nền trắng ở cỡ chữ thường.                      */
     --price: 0.545 0.208 27;
     --price-bg: 0.955 0.038 27;
+
+    /* --- Token trạng thái ---------------------------------------------------
+       Năm vai trò, dùng chung cho MỌI loại trạng thái của site. Trước đây 5
+       trang đơn hàng mỗi trang tự bịa một bảng màu bằng yellow-100/green-100/
+       red-100, nên cùng một trạng thái "Chờ xác nhận" ra hai màu khác nhau ở
+       trang người mua và trang người bán.
+
+       Ánh xạ từ mã backend sang vai trò nằm ở src/lib/status.ts, không rải
+       khắp trang. Mã thật lấy từ Zoldify_Backend ngày 2026-08-06:
+       OrderStatus (7), PaymentStatus (3), EscrowStatus (4), ProductStatus (5),
+       WithdrawalStatus (4), ShopStatus (3).
+
+       Contrast fg-trên-bg canh bằng `npm run check:tokens`.                 */
+    --state-pending-fg: 0.50 0.12 75;
+    --state-pending-bg: 0.96 0.03 75;
+    --state-progress-fg: 0.48 0.13 258;
+    --state-progress-bg: 0.96 0.025 258;
+    --state-success-fg: 0.48 0.12 155;
+    --state-success-bg: 0.96 0.03 155;
+    --state-danger-fg: 0.50 0.18 27;
+    --state-danger-bg: 0.955 0.038 27;
+    --state-neutral-fg: 0.50 0.015 258;
+    --state-neutral-bg: 0.955 0.008 258;
   }
 }
 
@@ -75,8 +98,11 @@
   * {
     @apply border-border;
   }
+  /* Nền trang do --surface-page quyết định. Trước đây chỗ này là bg-gray-50 và
+     layout.tsx còn bọc thêm một div bg-gray-50 nữa, nên token --surface-page
+     không bao giờ có tác dụng — khai báo một đằng, hiển thị một nẻo. */
   body {
-    @apply bg-gray-50 text-foreground;
+    @apply bg-surface-page text-ink;
   }
 }
 

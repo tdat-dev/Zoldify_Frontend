@@ -37,7 +37,7 @@ export default function RootLayout({
           <CartProvider>
             <ToastProvider>
               <a href="#main" className="skip-link">Tới nội dung chính</a>
-              <div className="min-h-screen bg-gray-50 flex flex-col">
+              <div className="flex min-h-screen flex-col">
                 <AnnounceBar />
                 <Header />
                 <main id="main" className="flex-1">
