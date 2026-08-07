@@ -34,32 +34,40 @@
 
     --radius: 0.5rem;
 
-    /* --- Token màu Zoldify, viết bằng OKLCH ---------------------------------
+    /* --- Token màu Zoldify -------------------------------------------------
+       Viết dạng KÊNH RỜI "L C H", không bọc oklch(). Lý do đo được ngày
+       2026-08-06 bằng chính Tailwind CLI với config của project: khi biến chứa
+       một màu hoàn chỉnh (`var(--ink)` = `oklch(...)`), Tailwind v3 không chèn
+       được alpha nên BỎ IM LẶNG cả lớp — `border-ink/8` viết trong Header.tsx
+       ra 0 dòng CSS, không một cảnh báo nào, và viền rơi về xám #E2E8F0 của
+       rule `* { @apply border-border }`. Dạng kênh rời + <alpha-value> trong
+       tailwind.config sửa đúng chỗ đó. Chạy `npm run check:tokens` để canh.
+
        Trung tính được nhuộm nhẹ về đúng hue thương hiệu (258) với chroma
        0.004-0.012, thay vì xám trung tính chung chung. Nền trang KHÔNG dùng
        tông kem/giấy: đây là sàn mua bán, không phải tạp chí.                */
     /* Gần như trắng: ảnh mẫu để nền trang trắng, hero và các dải màu mới là
        khối nổi lên trên. Bản trước nền trang xanh-xám ngang ngửa nền hero nên
        hero không đọc ra là một panel riêng. */
-    --surface-page: oklch(0.995 0.002 258);
-    --surface-card: oklch(1 0 0);
-    --surface-sunken: oklch(0.945 0.009 258);
+    --surface-page: 0.995 0.002 258;
+    --surface-card: 1 0 0;
+    --surface-sunken: 0.945 0.009 258;
     /* Lấy mẫu pixel panel hero của ảnh mẫu ra #F3F6FF; bản 0.934/0.038 của tôi
        ra #DAEBFF — đậm hơn hẳn, làm hero trông như một div bị tô màu chứ không
        phải một không gian. Hạ về xấp xỉ mẫu. */
-    --brand-tint: oklch(0.965 0.016 258);
+    --brand-tint: 0.965 0.016 258;
 
-    --ink: oklch(0.24 0.021 258);
-    --ink-muted: oklch(0.505 0.019 258);
+    --ink: 0.24 0.021 258;
+    --ink-muted: 0.505 0.019 258;
     /* 0.62 đo được 3.63:1 trên nền trắng — dưới vạch 4.5. Đây là lỗi tầng TOKEN,
        rơi vào 5 chỗ cùng lúc: tên người bán, giá gạch, "Xem hết", dấu phân cách,
        nhãn thương hiệu. Tối lại để mọi chỗ dùng nó đều đạt. */
-    --ink-faint: oklch(0.55 0.019 258);
+    --ink-faint: 0.55 0.019 258;
 
     /* Đỏ cho giá và giảm giá — quy ước sàn TMĐT Việt. Đã chọn độ sáng đủ
        tối để đạt 4.5:1 trên nền trắng ở cỡ chữ thường.                      */
-    --price: oklch(0.545 0.208 27);
-    --price-bg: oklch(0.955 0.038 27);
+    --price: 0.545 0.208 27;
+    --price-bg: 0.955 0.038 27;
   }
 }
 

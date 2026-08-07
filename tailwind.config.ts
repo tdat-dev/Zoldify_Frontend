@@ -25,24 +25,24 @@ const config: Config = {
           accent: "#14708A",
           // Nền nhạt cho khối hero/danh mục, lệch về đúng hue thương hiệu
           // chứ không phải xám trung tính chung chung.
-          tint: "var(--brand-tint)",
+          tint: "oklch(var(--brand-tint) / <alpha-value>)",
         },
         // Vai trò riêng cho giá và giảm giá. Sàn TMĐT Việt (Shopee/Tiki/Lazada)
         // đều dùng đỏ cho giá; đây là quy ước người mua đã đọc quen, không phải
         // phản xạ chọn màu theo ngành.
         price: {
-          DEFAULT: "var(--price)",
-          bg: "var(--price-bg)",
+          DEFAULT: "oklch(var(--price) / <alpha-value>)",
+          bg: "oklch(var(--price-bg) / <alpha-value>)",
         },
         surface: {
-          page: "var(--surface-page)",
-          card: "var(--surface-card)",
-          sunken: "var(--surface-sunken)",
+          page: "oklch(var(--surface-page) / <alpha-value>)",
+          card: "oklch(var(--surface-card) / <alpha-value>)",
+          sunken: "oklch(var(--surface-sunken) / <alpha-value>)",
         },
         ink: {
-          DEFAULT: "var(--ink)",
-          muted: "var(--ink-muted)",
-          faint: "var(--ink-faint)",
+          DEFAULT: "oklch(var(--ink) / <alpha-value>)",
+          muted: "oklch(var(--ink-muted) / <alpha-value>)",
+          faint: "oklch(var(--ink-faint) / <alpha-value>)",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -77,6 +77,15 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+      },
+      // Thang opacity mặc định của Tailwind chỉ có bội số của 5 (0,5,10,15,...).
+      // Hệ viền của Zoldify dùng 8% và 12%, nên `border-ink/8` KHÔNG sinh ra CSS
+      // nào — im lặng, không cảnh báo. Đây là nguyên nhân thứ hai, độc lập với
+      // chuyện token viết bằng var(). Đo ngày 2026-08-06.
+      opacity: {
+        8: "0.08",
+        12: "0.12",
+        16: "0.16",
       },
       borderRadius: {
         lg: "var(--radius)",
