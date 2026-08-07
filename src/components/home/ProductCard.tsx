@@ -9,25 +9,18 @@ import { cartService } from '@/services/cart.service';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
-import { Stars } from './Stars';
-import { demoRating, demoDiscount } from '@/lib/demo';
 
 /**
- * Thẻ hàng dựng bám sát ảnh mẫu, đúng thứ tự từng tầng:
- *   nhãn giảm giá (góc trái) + tim (góc phải)
- *   → ảnh nổi trên nền trắng
- *   → dòng thương hiệu nhỏ, xám
- *   → tên món, đậm
- *   → sao + số lượt trong ngoặc
- *   → giá đậm + giá gạch ngang
- *   → nút "Thêm vào giỏ" xanh đặc, tràn hết bề ngang
+ * Thẻ hàng. Mọi thứ trên thẻ đều là dữ liệu THẬT từ backend: tên, giá, ảnh,
+ * tồn kho, đã bán, tình trạng, người bán.
  *
- * Ảnh dùng object-contain trên nền trắng: ảnh mẫu để sản phẩm nổi giữa nền
- * trắng (ảnh studio cắt nền). Zoldify không có ảnh cắt nền, contain là cách gần
- * nhất mà vẫn thấy trọn món thay vì bị xén mép.
+ * Đã gỡ khỏi bản trước (2026-08-07): sao đánh giá, số lượt đánh giá, phần trăm
+ * giảm và giá gạch ngang. Backend không có trường nào trong số đó — chúng do
+ * src/lib/demo.ts bịa ra từ một hàm băm theo id. Giá gạch ngang bịa không chỉ
+ * sai về thiết kế: hiển thị một mức giá gốc chưa từng tồn tại là khuyến mãi ảo.
  *
- * Trường THẬT: name, price, image, stock, sold, condition, brand, seller.
- * Trường DEMO: sao, số lượt, phần trăm giảm, giá gạch — xem src/lib/demo.ts.
+ * Muốn có sao thật thì backend phải trả điểm trung bình và số lượt trong danh
+ * sách sản phẩm (hiện chỉ trang chi tiết mới tính được, từ danh sách review).
  */
 const WISHLIST_KEY = 'zoldify_wishlist';
 
@@ -42,8 +35,6 @@ function readWishlist(): number[] {
 export function ProductCard({ item }: { item: any }) {
   const stock = Number(item.stock ?? item.quantity);
   const soldOut = Number.isFinite(stock) && stock <= 0;
-  const rating = demoRating(item);
-  const discount = demoDiscount(item);
   const byline = item.brand || item.seller?.name || null;
   const isNew = String(item.condition) === 'new';
 
@@ -116,17 +107,13 @@ export function ProductCard({ item }: { item: any }) {
           </div>
         </Link>
 
-        {/* Nhãn góc trái: đỏ cho giảm giá, xanh cho hàng như mới — đúng như mẫu
-            dùng đỏ "-20%" và xanh "New". */}
-        {!soldOut && discount ? (
-          <span className="absolute left-2 top-2 rounded-md bg-price px-2 py-1 text-[11px] font-bold text-white">
-            -{discount.percent}%
-          </span>
-        ) : !soldOut && isNew ? (
-          <span className="absolute left-2 top-2 rounded-md bg-brand px-2 py-1 text-[11px] font-bold text-white">
+        {/* Nhãn góc trái chỉ còn tình trạng món — trường THẬT của sản phẩm.
+            Nhãn "-20%" đỏ đã gỡ: nó tính từ một giá gốc bịa. */}
+        {!soldOut && isNew && (
+          <span className="absolute left-2 top-2 rounded-control bg-brand px-2 py-1 text-caption text-white">
             Như mới
           </span>
-        ) : null}
+        )}
 
         <button
           type="button"
@@ -148,21 +135,8 @@ export function ProductCard({ item }: { item: any }) {
 
         <h3 className="clamp-2 text-[14.5px] font-semibold leading-[1.3] text-ink">{item.name}</h3>
 
-        {rating && (
-          <p className="mt-1.5 flex items-center gap-1.5">
-            <Stars rating={rating.rating} size={12} />
-            <span className="text-[11.5px] text-ink-muted">({rating.count})</span>
-          </p>
-        )}
-
-        <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2">
-          <span className="text-[16px] font-bold text-ink">{formatPrice(item.price)}</span>
-          {discount && (
-            <span className="text-[12.5px] text-ink-faint line-through">
-              {formatPrice(discount.original)}
-            </span>
-          )}
-        </div>
+        {/* Giá dùng đỏ theo quy ước sàn TMĐT Việt. Không còn giá gạch ngang. */}
+        <p className="mt-2 text-[16px] font-bold text-price">{formatPrice(item.price)}</p>
       </Link>
 
       <button

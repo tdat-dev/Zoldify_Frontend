@@ -121,6 +121,22 @@
   min-height: 2.7em;
 }
 
+/* Nhịp vào của hero. CHỈ dịch chuyển, KHÔNG dùng opacity: nếu animation không
+   chạy vì bất cứ lý do gì thì nội dung vẫn hiện — khối bị ẩn vĩnh viễn là cách
+   hỏng tệ nhất của entrance animation. */
+@keyframes rise {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;
@@ -163,7 +179,8 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .animate-slide-up {
+  .animate-slide-up,
+  .animate-rise {
     animation: none;
   }
 }

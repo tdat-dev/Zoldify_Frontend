@@ -43,6 +43,28 @@ export default function Header() {
     setIsNavOpen(false);
   }, [pathname, searchParams]);
 
+  /**
+   * Trang chủ đã có một ô tìm kiếm lớn ngay trong hero, nên ô ở header là hành
+   * động chính bị nhân đôi: hai ô cùng hiện một lúc trên cùng màn hình. Ở đây
+   * nó chỉ xuất hiện khi người xem đã cuộn qua khỏi hero. Mọi trang khác giữ
+   * nguyên ô tìm kiếm như cũ.
+   */
+  const isHome = pathname === '/';
+  const [pastHero, setPastHero] = useState(false);
+
+  useEffect(() => {
+    if (!isHome) {
+      setPastHero(true);
+      return;
+    }
+    const onScroll = () => setPastHero(window.scrollY > 300);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [isHome]);
+
+  const showHeaderSearch = pastHero;
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
@@ -128,7 +150,9 @@ export default function Header() {
         <form
           onSubmit={handleSearchSubmit}
           role="search"
-          className="ml-auto hidden min-w-0 flex-1 justify-end md:flex lg:max-w-[360px]"
+          className={`ml-auto min-w-0 flex-1 justify-end lg:max-w-[360px] ${
+            showHeaderSearch ? 'hidden md:flex' : 'hidden'
+          }`}
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
           {/* Pill bo tròn hoàn toàn, kính lúp bên PHẢI — theo đúng ảnh mẫu độ
@@ -154,7 +178,13 @@ export default function Header() {
           </div>
         </form>
 
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 md:ml-0 md:gap-2.5">
+        {/* Khi ô tìm kiếm ẩn, cụm icon phải tự giữ ml-auto ở mọi bề ngang, nếu
+            không nó trôi vào giữa thanh header. */}
+        <div
+          className={`ml-auto flex shrink-0 items-center gap-1.5 md:gap-2.5 ${
+            showHeaderSearch ? 'md:ml-0' : ''
+          }`}
+        >
           <Link
             href="/notifications"
             aria-label={unreadNotis > 0 ? `Thông báo, ${unreadNotis} chưa đọc` : 'Thông báo'}
@@ -259,7 +289,9 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo. */}
+      {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo.
+          Trên trang chủ cũng ẩn cho tới khi cuộn qua hero, vì hero đã có ô lớn. */}
+      {showHeaderSearch && (
       <form onSubmit={handleSearchSubmit} role="search" className="border-t border-ink/8 px-4 py-2.5 md:hidden">
         <label htmlFor="site-search-mobile" className="sr-only">Tìm sản phẩm</label>
         <div className="flex h-10 items-center gap-2 rounded-full bg-surface-sunken px-3.5 focus-within:ring-2 focus-within:ring-brand/30">
@@ -276,6 +308,7 @@ export default function Header() {
           />
         </div>
       </form>
+      )}
 
       {isNavOpen && (
         <nav aria-label="Điều hướng chính" className="border-t border-ink/8 px-4 py-2 lg:hidden">
