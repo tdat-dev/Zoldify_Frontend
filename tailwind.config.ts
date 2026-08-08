@@ -127,9 +127,13 @@ const config: Config = {
         // Ba mức bo của Zoldify, đặt theo VAI TRÒ chứ không theo cỡ, để không
         // còn cảnh mỗi trang tự chọn rounded-lg hay rounded-xl cho cùng một loại
         // phần tử.
-        control: "10px",
-        card: "14px",
-        modal: "16px",
+        //
+        // Hạ từ 10/14/16 xuống 4/4/8 ngày 2026-08-08. Bo góc lớn cộng với
+        // rounded-full ở ô tìm kiếm và chip là ngôn ngữ "app thân thiện"; sàn
+        // này đọc đúng hơn ở dạng SỔ KÊ — hairline, góc gần vuông, cột thẳng.
+        control: "4px",
+        card: "4px",
+        modal: "8px",
       },
       // Semantic layering scale. Use these names instead of ad-hoc z-[9999].
       zIndex: {

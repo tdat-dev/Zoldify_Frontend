@@ -101,7 +101,7 @@ export default function Header() {
           className="hidden min-w-0 flex-1 md:flex"
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
-          <div className="flex h-11 w-full items-center gap-2.5 rounded-full border border-ink/12 bg-surface-sunken pl-5 pr-1.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+          <div className="flex h-11 w-full items-center gap-2.5 rounded-control border border-ink/12 bg-surface-sunken pl-5 pr-1.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
             <input
               id="site-search"
               type="search"
@@ -114,7 +114,7 @@ export default function Header() {
             />
             <button
               type="submit"
-              className="h-8 shrink-0 rounded-full bg-brand px-4 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="h-8 shrink-0 rounded-control bg-brand px-4 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               Tìm
             </button>
@@ -229,7 +229,7 @@ export default function Header() {
       {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo. */}
       <form onSubmit={handleSearchSubmit} role="search" className="px-4 pb-2.5 md:hidden">
         <label htmlFor="site-search-mobile" className="sr-only">Tìm sản phẩm</label>
-        <div className="flex h-11 items-center gap-2 rounded-full border border-ink/12 bg-surface-sunken pl-4 pr-1.5 focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+        <div className="flex h-11 items-center gap-2 rounded-control border border-ink/12 bg-surface-sunken pl-4 pr-1.5 focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
           <Search className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden="true" />
           <input
             id="site-search-mobile"
@@ -243,7 +243,7 @@ export default function Header() {
           />
           <button
             type="submit"
-            className="h-8 shrink-0 rounded-full bg-brand px-3.5 text-small font-semibold text-white"
+            className="h-8 shrink-0 rounded-control bg-brand px-3.5 text-small font-semibold text-white"
           >
             Tìm
           </button>
@@ -260,14 +260,14 @@ export default function Header() {
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug || cat.id}`}
-                className="shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-small text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand"
+                className="shrink-0 whitespace-nowrap rounded-control px-3 py-1 text-small text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand"
               >
                 {cat.name}
               </Link>
             ))}
             <Link
               href="/product/create"
-              className="ml-auto hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-small font-semibold text-brand transition-colors hover:bg-brand-tint md:flex"
+              className="ml-auto hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-control px-3 py-1 text-small font-semibold text-brand transition-colors hover:bg-brand-tint md:flex"
             >
               <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               Đăng bán
