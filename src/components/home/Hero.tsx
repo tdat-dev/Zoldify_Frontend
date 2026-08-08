@@ -14,15 +14,23 @@ import { ArrowRight } from 'lucide-react';
  */
 export function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="pt-7 md:pt-12">
+    <section aria-labelledby="hero-title" className="pt-6 md:pt-9">
+      {/* Cỡ chữ đã thử 136px cho lấp hết bề ngang: đo ra khối tiêu đề cao 277px,
+          đẩy mục "Danh mục" xuống mép dưới màn hình 776px. Trên một sàn mà việc
+          chính là TÌM MÓN, để khẩu hiệu to gấp mấy lần ô tìm kiếm là ngược thứ
+          bậc — trang hét lên một câu rồi mới cho người ta làm việc của họ.
+
+          56px: đủ để là tiêu đề trang, không giành chỗ của nội dung. Đổi lại,
+          hero không còn "khoảnh khắc chữ cỡ viewport" — đây là đánh đổi có chủ ý
+          nghiêng về công năng, không phải quên. */}
       <h1
         id="hero-title"
-        className="animate-rise max-w-[11ch] text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[1.06] tracking-[-0.03em] text-ink [text-wrap:balance]"
+        className="animate-rise max-w-[16ch] text-[clamp(1.875rem,4.5vw,3.5rem)] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink [text-wrap:balance]"
       >
         Đồ cũ còn tốt, giá sinh viên
       </h1>
 
-      <p className="animate-rise mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted [animation-delay:60ms] md:text-[17px]">
+      <p className="animate-rise mt-4 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted [animation-delay:60ms] md:text-[16px]">
         Giáo trình, laptop, đồ ký túc xá. Mua bán giữa sinh viên với nhau.
       </p>
 
