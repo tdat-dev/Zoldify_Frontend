@@ -1,136 +1,197 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Filter, ChevronDown, Package } from 'lucide-react';
+import { ChevronRight, Package } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
+import { ItemTile } from '@/components/home/ItemTile';
+
+/**
+ * Một danh mục.
+ *
+ * Ba thứ của bản trước đã gỡ:
+ *
+ * 1. BỘ LỌC KHOẢNG GIÁ LÀ ĐỒ GIẢ. Hai ô nhập "Từ / Đến" và nút "ÁP DỤNG" không
+ *    có onClick, không nối vào state nào. Bấm không xảy ra gì. Một điều khiển
+ *    nhìn như dùng được mà không dùng được thì tệ hơn là không có. Nay là bốn
+ *    tầm tiền, cùng thang với header và /search, và lọc thật qua API.
+ *
+ * 2. NHÃN "MỚI" GẮN SAI. Điều kiện là `status === 'active'` — `active` nghĩa là
+ *    ĐANG BÁN, không phải mới. Nên mọi món đang bán đều đeo nhãn "Mới", vô nghĩa
+ *    và còn sai với một sàn đồ cũ. Tình trạng thật đã có ConditionBadge ở trang
+ *    chi tiết; ở lưới thì để giá và tên nói chuyện.
+ *
+ * 3. API HỎNG LẠI BÁO "CHƯA CÓ SẢN PHẨM NÀO". `.catch(() => setProducts([]))`
+ *    nuốt lỗi rồi hiện trạng thái rỗng — nói sai sự thật với người dùng. Nay
+ *    tách rõ ba trạng thái: đang tải, lỗi, rỗng thật.
+ */
+const BANDS = [
+  { label: 'Mọi giá', min: undefined, max: undefined },
+  { label: 'Dưới 100k', min: undefined, max: 100000 },
+  { label: '100k – 300k', min: 100000, max: 300000 },
+  { label: '300k – 1 triệu', min: 300000, max: 1000000 },
+  { label: 'Trên 1 triệu', min: 1000000, max: undefined },
+];
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const [category, setCategory] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState('');
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [sort, setSort] = useState('newest');
+  const [band, setBand] = useState(0);
 
-  useEffect(() => {
-    setLoading(true);
-    categoryService.getBySlug(params.slug)
+  const load = useCallback(() => {
+    setState('loading');
+    categoryService
+      .getBySlug(params.slug)
       .then((res) => {
         const cat = res.data?.data || res.data;
         setCategory(cat);
-        return productService.getAll(1, 20, { category_id: cat.id, sort: sort || undefined });
+        const b = BANDS[band];
+        return productService.getAll(1, 24, {
+          category_id: cat.id,
+          sort: sort || undefined,
+          ...(b.min !== undefined ? { price_min: b.min } : {}),
+          ...(b.max !== undefined ? { price_max: b.max } : {}),
+        });
       })
       .then((res) => {
         setProducts(res.data?.data?.result || []);
+        setState('ready');
       })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
-  }, [params.slug, sort]);
+      .catch(() => setState('error'));
+  }, [params.slug, sort, band]);
 
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    if (val === 'price_asc' || val === 'price_desc') {
-      setSort(val);
-    } else {
-      setSort('');
-    }
-  };
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  if (loading) {
-    return (
-      <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Đang tải...</p>
-      </div>
-    );
-  }
+  const filterItem =
+    'block w-full rounded-control px-2.5 py-1.5 text-left text-small transition-colors hover:bg-surface-sunken';
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
-      <div className="max-w-[1200px] mx-auto px-4 pt-6">
-
-        <nav className="text-sm text-gray-600 mb-4">
-          <Link href="/" className="hover:text-brand">Trang chủ</Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-800 font-medium">{category?.name || params.slug}</span>
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto max-w-[1500px] px-3 py-3">
+        <nav aria-label="Đường dẫn" className="mb-3 flex items-center gap-1 text-small text-ink-muted">
+          <Link href="/" className="hover:text-brand">
+            Trang chủ
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
+          <span className="truncate text-ink" aria-current="page">
+            {category?.name || params.slug}
+          </span>
         </nav>
 
-        <div className="flex gap-4">
-
-          <div className="hidden md:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-sm shadow-sm p-4 mb-4">
-              <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <Filter className="w-4 h-4" /> BỘ LỌC TÌM KIẾM
-              </h2>
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-800 mb-3">Theo Danh Mục</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-center gap-2 text-brand font-medium">
-                    <div className="w-2 h-2 rounded-full bg-brand"></div> {category?.name}
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <aside className="lg:w-[220px] lg:shrink-0">
+            <div className="rounded-card bg-surface-card p-4">
+              <h2 className="mb-2 text-caption uppercase tracking-wide text-ink-faint">Tầm tiền</h2>
+              <ul className="flex flex-col gap-0.5">
+                {BANDS.map((b, i) => (
+                  <li key={b.label}>
+                    <button
+                      type="button"
+                      onClick={() => setBand(i)}
+                      aria-pressed={band === i}
+                      className={`${filterItem} tabular-nums ${
+                        band === i ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'
+                      }`}
+                    >
+                      {b.label}
+                    </button>
                   </li>
-                </ul>
-              </div>
-              <div className="border-t border-gray-200 my-4"></div>
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-800 mb-3">Khoảng Giá</h3>
-                <div className="flex items-center gap-2 mb-3">
-                  <input type="number" placeholder="Từ" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-brand" />
-                  <span className="text-gray-600">-</span>
-                  <input type="number" placeholder="Đến" className="w-full px-2 py-1 text-sm border border-gray-300 rounded outline-none focus:border-brand" />
-                </div>
-                <button className="w-full py-1.5 bg-brand text-white text-sm rounded hover:bg-brand-dark transition">ÁP DỤNG</button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="bg-gray-200 rounded-sm px-4 py-3 mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-gray-600 text-sm">Sắp xếp theo</span>
-                <button onClick={() => setSort('')} className={`px-4 py-1.5 text-sm rounded shadow-sm ${!sort ? 'bg-brand text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>Mới nhất</button>
-                <div className="relative">
-                  <select onChange={handleSortChange} value={sort} className="px-4 py-1.5 bg-white text-gray-700 text-sm rounded shadow-sm outline-none appearance-none pr-8">
-                    <option value="">Giá</option>
-                    <option value="price_asc">Giá: Thấp đến Cao</option>
-                    <option value="price_desc">Giá: Cao đến Thấp</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            {products.length === 0 ? (
-              <div className="bg-white rounded p-10 text-center">
-                <Package className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600">Chưa có sản phẩm nào trong danh mục này.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
-                {products.map((item) => (
-                  <Link key={item.id} href={`/product/${item.id}`} className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-                    <div className="relative pt-[100%]">
-                      {item.image ? (
-                        <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" />
-                      ) : (
-                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                          <Package className="w-10 h-10 text-gray-600" />
-                        </div>
-                      )}
-                      {item.status === 'active' && (
-                        <div className="absolute top-0 right-0 bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-bl-sm">Mới</div>
-                      )}
-                    </div>
-                    <div className="p-2.5">
-                      <h3 className="text-sm text-gray-800 line-clamp-2 min-h-[40px] leading-tight mb-2 group-hover:text-brand transition-colors">{item.name}</h3>
-                      <div className="flex items-baseline gap-1 mb-2">
-                        <span className="text-brand text-sm font-semibold underline decoration-1 underline-offset-2">đ</span>
-                        <span className="text-brand text-lg font-medium">{Number(item.price).toLocaleString('vi-VN')}</span>
-                      </div>
-                      <div className="text-xs text-gray-600">Còn: {item.stock}</div>
-                    </div>
-                  </Link>
                 ))}
+              </ul>
+
+              <div className="mt-5">
+                <label
+                  htmlFor="cat-sort"
+                  className="mb-2 block text-caption uppercase tracking-wide text-ink-faint"
+                >
+                  Sắp xếp
+                </label>
+                <select
+                  id="cat-sort"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="w-full rounded-control border border-ink/16 bg-surface-card px-2.5 py-2 text-small text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                >
+                  <option value="newest">Mới đăng trước</option>
+                  <option value="price_asc">Giá thấp trước</option>
+                  <option value="price_desc">Giá cao trước</option>
+                </select>
               </div>
-            )}
+            </div>
+          </aside>
+
+          <div className="min-w-0 flex-1">
+            <div className="rounded-card bg-surface-card p-5">
+              <h1 className="text-h2 text-ink">{category?.name || params.slug}</h1>
+              {state === 'ready' && (
+                <p className="mt-1 text-small text-ink-muted">
+                  <span className="tabular-nums">{products.length}</span> món
+                  {band > 0 && ` trong tầm ${BANDS[band].label.toLowerCase()}`}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-3">
+              {state === 'loading' ? (
+                <div className="rounded-card bg-surface-card p-10 text-center text-body text-ink-muted">
+                  Đang tải…
+                </div>
+              ) : state === 'error' ? (
+                <div className="rounded-card bg-surface-card p-10 text-center">
+                  <p className="text-body font-semibold text-ink">Không tải được danh mục này.</p>
+                  <p className="mt-2 text-small text-ink-muted">
+                    Kiểm tra kết nối rồi thử lại. Đây không phải là “danh mục rỗng”.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={load}
+                    className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              ) : products.length === 0 ? (
+                <div className="rounded-card bg-surface-card p-10 text-center">
+                  <Package className="mx-auto mb-3 h-10 w-10 text-ink-faint" aria-hidden="true" />
+                  <p className="text-body text-ink">
+                    {band > 0
+                      ? 'Không có món nào trong tầm tiền này.'
+                      : 'Chưa ai đăng bán gì trong danh mục này.'}
+                  </p>
+                  {band > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => setBand(0)}
+                      className="mt-4 text-small font-semibold text-brand hover:underline"
+                    >
+                      Xem mọi tầm giá
+                    </button>
+                  ) : (
+                    <Link
+                      href="/product/create"
+                      className="mt-4 inline-block text-small font-semibold text-brand hover:underline"
+                    >
+                      Đăng món đầu tiên
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-card bg-surface-card p-4">
+                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {products.map((item) => (
+                      <li key={item.id}>
+                        <ItemTile item={item} size="md" />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
