@@ -59,11 +59,15 @@
        phải một không gian. Hạ về xấp xỉ mẫu. */
     --brand-tint: 0.965 0.016 258;
 
-    /* Chrome hai tầng: nền gần đen cho thanh trên, nhạt hơn một bậc cho thanh
-       dưới — cấu trúc lấy từ amazon.com (xem 2026-08-08). Nhuộm về hue thương
-       hiệu 258 chứ không phải xám trung tính, để nó vẫn là màu của Zoldify. */
-    --chrome: 0.215 0.028 258;
-    --chrome-soft: 0.295 0.034 258;
+    /* Chrome hai tầng. CẤU TRÚC hai tầng lấy từ amazon.com, nhưng MÀU thì không:
+       bản đầu dùng 0.215/0.028 ra #111a26 — gần như đen-navy, tức là đúng màu
+       chrome của Amazon, và header đọc ra là của họ chứ không phải của Zoldify.
+
+       Đẩy chroma từ 0.028 lên 0.12 để nó ra một màu XANH đậm thật (#043574),
+       cùng hue 258 với brand #2C67C8. Chữ trắng trên nền này đo được 11.94:1,
+       tầng dưới 8.59:1. */
+    --chrome: 0.34 0.12 258;
+    --chrome-soft: 0.42 0.13 258;
 
     --ink: 0.24 0.021 258;
     --ink-muted: 0.505 0.019 258;

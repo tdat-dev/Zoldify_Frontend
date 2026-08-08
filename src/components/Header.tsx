@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
-  Package, ClipboardList, LogOut, Search, ShoppingCart, Shield, Menu,
+  Package, ClipboardList, LogOut, Search, ShoppingCart, Shield,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -13,13 +13,17 @@ import { notificationService } from '@/services/notification.service';
 import { categoryService } from '@/services/category.service';
 
 /**
- * Chrome hai tầng theo đúng bố cục Amazon (xem amazon.com ngày 2026-08-08):
- *   tầng 1 — nền gần đen: logo · ô tìm kiếm có dropdown danh mục · tài khoản · giỏ
- *   tầng 2 — nền nhạt hơn một bậc: nút "Tất cả" + các lối tắt dạng chữ
+ * Chrome hai tầng. CẤU TRÚC hai tầng lấy từ amazon.com (xem 2026-08-08):
+ *   tầng 1 — logo · ô tìm kiếm có dropdown danh mục · tài khoản · giỏ
+ *   tầng 2 — thanh điều hướng
  *
- * Giữ nhận diện Zoldify: logo của mình, nút tìm màu xanh thương hiệu chứ không
- * phải vàng cam của Amazon. Bố cục là thứ cả ngành dùng chung; logo và bảng màu
- * nhận diện thì không.
+ * Ba chỗ đã đổi đi cho khỏi là bản sao của Amazon:
+ *   · MÀU — bản đầu là #111a26, gần như đen-navy, tức đúng chrome của họ. Nay là
+ *     xanh Zoldify đậm #043574, cùng hue 258 với brand.
+ *   · KHỐI TÀI KHOẢN — bỏ hai dòng "Xin chào / Đăng nhập", đó là bản dịch thẳng
+ *     "Hello, sign in / Account & Lists".
+ *   · TẦNG 2 — bỏ "☰ Tất cả" + danh mục; nay là bốn TẦM TIỀN. Xem ghi chú ở
+ *     ngay trên thanh đó.
  *
  * Ô tìm kiếm có dropdown danh mục và nó lọc THẬT — trang /search đã được sửa
  * cùng ngày để đọc category_id, sort, price_min, price_max từ URL. Trước đó nó
@@ -94,7 +98,7 @@ export default function Header() {
   );
 
   /* Ô bấm ở chrome: viền trong suốt, hiện viền trắng mảnh khi trỏ hoặc focus —
-     đúng cách Amazon đánh dấu vùng bấm được trên nền tối, và nó cho bàn phím một
+     cách đánh dấu vùng bấm được trên nền tối, và nó cho bàn phím một
      dấu hiệu thấy rõ thay vì chỉ đổi màu chữ. */
   const chromeItem =
     'flex items-center rounded-control border border-transparent px-2 py-1.5 text-white transition-colors hover:border-white/70 focus:outline-none focus-visible:border-white';
@@ -109,7 +113,7 @@ export default function Header() {
             aria-label="Zoldify — về trang chủ"
             className={`${chromeItem} shrink-0`}
           >
-            {/* Logo gốc là chữ xanh đậm; trên nền gần đen sẽ chìm. Lật thành
+            {/* Logo gốc là chữ xanh đậm; trên nền xanh đậm sẽ chìm. Lật thành
                 trắng đặc thay vì xin thêm một file logo bản trắng. */}
             <img
               src="/images/logouni.png"
@@ -178,15 +182,13 @@ export default function Header() {
                   aria-expanded={isUserMenuOpen}
                   className={`${chromeItem} gap-1`}
                 >
-                  {/* Hai dòng chồng nhau, dòng trên nhỏ và mờ — đúng nhịp
-                      "Hello, sign in / Account & Lists" của Amazon. */}
-                  <span className="hidden text-left leading-tight lg:block">
-                    <span className="block text-[11px] text-white/75">
-                      Chào, {user?.full_name?.split(' ').slice(-1)[0] || 'bạn'}
-                    </span>
-                    <span className="block text-small font-bold">Tài khoản</span>
+                  {/* Một dòng. Bản trước là hai dòng chồng nhau kiểu
+                      "Hello, sign in / Account & Lists" — đó là bản dịch thẳng
+                      nhịp chữ của Amazon, không phải cách người Việt xưng hô. */}
+                  <User className="h-5 w-5" aria-hidden="true" />
+                  <span className="hidden text-small font-semibold lg:block">
+                    {user?.full_name?.split(' ').slice(-1)[0] || 'Tài khoản'}
                   </span>
-                  <User className="h-5 w-5 lg:hidden" aria-hidden="true" />
                   <ChevronDown className="hidden h-3.5 w-3.5 text-white/70 lg:block" aria-hidden="true" />
                 </button>
 
@@ -253,11 +255,8 @@ export default function Header() {
               </div>
             ) : (
               <Link href="/login" className={`${chromeItem} gap-1.5`}>
-                <User className="h-5 w-5 lg:hidden" aria-hidden="true" />
-                <span className="hidden text-left leading-tight lg:block">
-                  <span className="block text-[11px] text-white/75">Xin chào</span>
-                  <span className="block text-small font-bold">Đăng nhập</span>
-                </span>
+                <User className="h-5 w-5" aria-hidden="true" />
+                <span className="hidden text-small font-semibold lg:block">Đăng nhập</span>
               </Link>
             )}
 
@@ -294,29 +293,42 @@ export default function Header() {
         </form>
       </div>
 
-      {/* ---------- Tầng 2 ---------- */}
-      <nav aria-label="Lối tắt" className="bg-chrome-soft">
+      {/* ---------- Tầng 2: điều hướng theo TẦM TIỀN ----------------------------
+          Đây là chỗ riêng của Zoldify. Amazon, Shopee và Lazada đều để thanh này
+          là danh mục hàng (Today's Deals / Registry / Fashion...), vì họ bán hàng
+          mới sản xuất hàng loạt và người mua đi theo LOẠI HÀNG.
+
+          Ở sàn đồ cũ sinh viên thì câu hỏi đầu tiên là "có gì trong tầm tiền của
+          mình", loại hàng tính sau. Nên thanh này là bốn khoảng giá, và danh mục
+          lùi vào một lối duy nhất bên trái. Không sàn nào trong ba sàn kia làm
+          vậy — dán thanh này sang site khác là mất nghĩa.
+
+          Bản trước là "☰ Tất cả" + danh mục, tức bản dịch thẳng "☰ All" của
+          Amazon. Đã bỏ cả biểu tượng hamburger. */}
+      <nav aria-label="Duyệt theo tầm tiền" className="bg-chrome-soft">
         <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 py-1">
-          <Link href="/search" className={`${chromeItem} shrink-0 gap-1.5 whitespace-nowrap text-small font-bold`}>
-            <Menu className="h-4 w-4" aria-hidden="true" />
-            Tất cả
+          <Link href="/search" className={`${chromeItem} shrink-0 whitespace-nowrap text-small font-semibold`}>
+            Tất cả danh mục
           </Link>
+          <span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-white/25" />
           <Link href="/search?sort=newest" className={`${chromeItem} shrink-0 whitespace-nowrap text-small`}>
             Mới đăng
           </Link>
-          <Link href="/search?price_max=100000&sort=newest" className={`${chromeItem} shrink-0 whitespace-nowrap text-small`}>
-            Dưới 100k
-          </Link>
-          {categories.slice(0, 5).map((cat) => (
+          {[
+            { label: 'Dưới 100k', qs: 'price_max=100000' },
+            { label: '100k – 300k', qs: 'price_min=100000&price_max=300000' },
+            { label: '300k – 1tr', qs: 'price_min=300000&price_max=1000000' },
+            { label: 'Trên 1tr', qs: 'price_min=1000000' },
+          ].map((band) => (
             <Link
-              key={cat.id}
-              href={`/category/${cat.slug || cat.id}`}
-              className={`${chromeItem} shrink-0 whitespace-nowrap text-small`}
+              key={band.label}
+              href={`/search?${band.qs}&sort=newest`}
+              className={`${chromeItem} shrink-0 whitespace-nowrap text-small tabular-nums`}
             >
-              {cat.name}
+              {band.label}
             </Link>
           ))}
-          <Link href="/product/create" className={`${chromeItem} ml-auto shrink-0 whitespace-nowrap text-small font-bold`}>
+          <Link href="/product/create" className={`${chromeItem} ml-auto shrink-0 whitespace-nowrap text-small font-semibold`}>
             Đăng bán đồ cũ
           </Link>
         </div>
