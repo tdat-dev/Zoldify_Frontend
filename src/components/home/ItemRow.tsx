@@ -79,11 +79,10 @@ export function ItemRow({ item }: { item: any }) {
   const meta = [condition, seller, posted].filter(Boolean);
 
   return (
-    // Hairline chạy hết bề ngang màn hình, nội dung dòng vẫn neo trong khung
-    // 1240px — vạch kẻ dài hơn cột chữ là điểm mạo hiểm bố cục của trang, và
-    // cũng là cách một cuốn sổ kê thật kẻ dòng.
-    <li className="group border-b border-ink/10 transition-colors hover:bg-surface-sunken/50">
-      <div className="mx-auto flex max-w-[1240px] items-center gap-4 px-4 py-3 md:gap-5">
+    // Vạch kẻ chạy hết bề ngang KHỐI TRẮNG, không chỉ dưới phần chữ — đúng cách
+    // một cuốn sổ kê thật kẻ dòng.
+    <li className="group border-t border-ink/10 transition-colors hover:bg-surface-sunken/60">
+      <div className="flex items-center gap-4 px-4 py-3 md:gap-5 md:px-5">
         <Link
           href={`/product/${item.id}`}
           className="flex min-w-0 flex-1 items-center gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2"

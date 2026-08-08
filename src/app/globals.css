@@ -46,10 +46,12 @@
        Trung tính được nhuộm nhẹ về đúng hue thương hiệu (258) với chroma
        0.004-0.012, thay vì xám trung tính chung chung. Nền trang KHÔNG dùng
        tông kem/giấy: đây là sàn mua bán, không phải tạp chí.                */
-    /* Gần như trắng: ảnh mẫu để nền trang trắng, hero và các dải màu mới là
-       khối nổi lên trên. Bản trước nền trang xanh-xám ngang ngửa nền hero nên
-       hero không đọc ra là một panel riêng. */
-    --surface-page: 0.995 0.002 258;
+    /* Nền trang là XÁM NHẠT, khối nội dung màu trắng nổi lên trên — quy ước
+       chung của cả Shopee, Lazada và Amazon (xem ba trang ngày 2026-08-08).
+       Bản trước để nền trang gần trắng bằng đúng nền khối, nên trang không có
+       tầng: mọi thứ nằm phẳng trên một mặt duy nhất và ranh giới giữa các khối
+       phải nhờ hoàn toàn vào đường viền. */
+    --surface-page: 0.966 0.005 258;
     --surface-card: 1 0 0;
     --surface-sunken: 0.945 0.009 258;
     /* Lấy mẫu pixel panel hero của ảnh mẫu ra #F3F6FF; bản 0.934/0.038 của tôi
@@ -61,8 +63,10 @@
     --ink-muted: 0.505 0.019 258;
     /* 0.62 đo được 3.63:1 trên nền trắng — dưới vạch 4.5. Đây là lỗi tầng TOKEN,
        rơi vào 5 chỗ cùng lúc: tên người bán, giá gạch, "Xem hết", dấu phân cách,
-       nhãn thương hiệu. Tối lại để mọi chỗ dùng nó đều đạt. */
-    --ink-faint: 0.55 0.019 258;
+       nhãn thương hiệu. Tối lại để mọi chỗ dùng nó đều đạt.
+       Hạ tiếp 0.55 -> 0.532 ngày 2026-08-08: nền trang đổi sang xám thì 0.55 chỉ
+       còn 4.39:1 trên nền đó. Nền tối đi thì chữ mờ phải tối theo. */
+    --ink-faint: 0.532 0.019 258;
 
     /* Đỏ cho giá và giảm giá — quy ước sàn TMĐT Việt. Đã chọn độ sáng đủ
        tối để đạt 4.5:1 trên nền trắng ở cỡ chữ thường.                      */

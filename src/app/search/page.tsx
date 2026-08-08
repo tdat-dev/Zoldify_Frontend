@@ -12,11 +12,28 @@ export default function SearchPage() {
   const router = useRouter();
   const q = searchParams.get('q') || '';
 
+  /**
+   * Trang này TRƯỚC ĐÂY chỉ đọc `q` từ URL. Nghĩa là mọi link kiểu
+   * /search?sort=newest hay /search?price_max=100000 mở ra một trang KHÔNG lọc
+   * gì cả — link chết mà nhìn vẫn như link sống. Header và trang chủ đang trỏ
+   * tới đúng những link đó.
+   *
+   * Đọc cả sort và khoảng giá từ URL. Số nào không phải số dương thì bỏ qua chứ
+   * không gửi NaN xuống API.
+   */
+  const num = (raw: string | null) => {
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : undefined;
+  };
+  const priceMin = num(searchParams.get('price_min'));
+  const priceMax = num(searchParams.get('price_max'));
+  const sortFromUrl = searchParams.get('sort') || '';
+
   const [products, setProducts] = useState<any[]>([]);
   const [meta, setMeta] = useState<any>({ current: 1, pages: 1, total: 0 });
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCat, setSelectedCat] = useState('');
-  const [sort, setSort] = useState('');
+  const [sort, setSort] = useState(sortFromUrl);
   const [currentPage, setCurrentPage] = useState(1);
   const [trendingKeywords, setTrendingKeywords] = useState<string[]>(['Laptop', 'Sách', 'Điện thoại', 'Tai nghe', 'Áo thun', 'Giày']);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -26,6 +43,8 @@ export default function SearchPage() {
     if (q) params.q = q;
     if (selectedCat) params.category_id = parseInt(selectedCat);
     if (sort) params.sort = sort;
+    if (priceMin !== undefined) params.price_min = priceMin;
+    if (priceMax !== undefined) params.price_max = priceMax;
 
     setLoadState('loading');
     try {
@@ -39,7 +58,7 @@ export default function SearchPage() {
       setProducts([]);
       setLoadState('error');
     }
-  }, [q, selectedCat, sort]);
+  }, [q, selectedCat, sort, priceMin, priceMax]);
 
   useEffect(() => {
     fetchProducts(currentPage);
@@ -64,9 +83,16 @@ export default function SearchPage() {
       .catch(() => {});
   }, []);
 
+  // useState(sortFromUrl) chỉ chạy lúc gắn component. Điều hướng phía client từ
+  // /search?sort=newest sang /search?sort=price_asc KHÔNG gắn lại component, nên
+  // thiếu effect này thì bấm link thứ hai không đổi được cách sắp xếp.
+  useEffect(() => {
+    setSort(sortFromUrl);
+  }, [sortFromUrl]);
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [q, selectedCat, sort]);
+  }, [q, selectedCat, sort, priceMin, priceMax]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

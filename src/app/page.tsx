@@ -1,26 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
 import { Hero } from '@/components/home/Hero';
+import { SectionCard } from '@/components/home/SectionCard';
+import { PriceBands } from '@/components/home/PriceBands';
 import { CategoryIndex } from '@/components/home/CategoryIndex';
 import { ItemRow } from '@/components/home/ItemRow';
 import { SectionState, type LoadState } from '@/components/home/SectionState';
 
 /**
- * Trang chủ dựng theo macrostructure "Ledger Index" — sổ kê.
+ * Trang chủ tổng hợp từ ba sàn tham chiếu (xem trực tiếp ngày 2026-08-08:
+ * shopee.vn, lazada.vn, amazon.com) rồi đổi phần trục cho khớp Zoldify.
  *
- * Vì sao không phải lưới thẻ: đồ cũ mỗi món chỉ có một cái và mang metadata
- * riêng. Lưới thẻ đều tăm tắp là ngôn ngữ hàng sản xuất hàng loạt, và khi sàn
- * mới chỉ có dăm món thì lưới thẻ đọc ra là "hỏng" — còn một cuốn sổ vài dòng
- * vẫn ra cuốn sổ. Xem docs/superpowers/specs/2026-08-08-home-ledger-index.md.
+ * LẤY của họ — kết cấu, không phải hình thức:
+ *   · nền trang xám, khối nội dung trắng nổi lên (cả ba đều vậy)
+ *   · header là một dải màu đặc, tách bạch khỏi nội dung (Shopee, Amazon)
+ *   · ô tìm kiếm to giữa header, từ khoá gợi ý ngay dưới (Shopee)
+ *   · mật độ cao, mỗi khối có tiêu đề trái + "xem tất cả" phải (cả ba)
+ *   · bo góc gần vuông (cả ba)
  *
- * Khối sổ hàng nằm NGOÀI khung 1240px để vạch hairline chạy hết bề ngang màn
- * hình trong khi chữ vẫn neo trong khung; nội dung mỗi dòng tự căn lại bên
- * trong ItemRow.
+ * KHÔNG lấy: đếm ngược flash sale, phần trăm giảm, giá gạch ngang, "còn 5 cái",
+ * banner chiến dịch. Zoldify không có dữ liệu nào trong số đó — dựng lên là bịa,
+ * và đã xoá đúng đám đó khỏi trang này ngày 2026-08-07.
+ *
+ * ĐỔI trục: chỗ Shopee/Lazada để "Flash Sale", Zoldify để TẦM TIỀN. Ba sàn kia
+ * bán hàng mới hàng loạt nên trục của họ là khuyến mãi; ở đây mỗi món một cái,
+ * không có sale, và thứ người mua lọc trước tiên là túi tiền.
  */
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -57,26 +64,15 @@ export default function HomePage() {
   }, [loadCategories, loadNewest]);
 
   return (
-    <div className="min-h-screen bg-surface-page pb-20">
-      <div className="mx-auto max-w-[1240px] px-4">
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-4 py-4 md:gap-4">
         <Hero />
-      </div>
 
-      {/* --- Chỉ mục danh mục ------------------------------------------------ */}
-      <section aria-labelledby="home-categories" className="border-t border-ink/12">
-        <div className="mx-auto max-w-[1240px] px-4 py-9 md:py-12">
-          <div className="mb-4 flex items-baseline justify-between gap-4">
-            <h2 id="home-categories" className="text-h2 text-ink">
-              Danh mục
-            </h2>
-            <Link
-              href="/search"
-              className="text-small font-medium text-brand transition-colors hover:text-brand-dark"
-            >
-              Xem tất cả
-            </Link>
-          </div>
+        <SectionCard id="home-bands" title="Chọn theo tầm tiền">
+          <PriceBands />
+        </SectionCard>
 
+        <SectionCard id="home-categories" title="Danh mục" href="/search">
           {catState !== 'ready' || categories.length === 0 ? (
             <SectionState
               state={catState}
@@ -87,53 +83,30 @@ export default function HomePage() {
           ) : (
             <CategoryIndex categories={categories} />
           )}
-        </div>
-      </section>
+        </SectionCard>
 
-      {/* --- Sổ hàng --------------------------------------------------------- */}
-      <section aria-labelledby="home-newest" className="border-t border-ink/12">
-        <div className="mx-auto max-w-[1240px] px-4 pb-4 pt-9 md:pt-12">
-          <div className="mb-2 flex items-baseline justify-between gap-4">
-            <h2 id="home-newest" className="text-h2 text-ink">
-              Mới đăng gần đây
-            </h2>
-            <Link
-              href="/search?sort=newest"
-              className="text-small font-medium text-brand transition-colors hover:text-brand-dark"
-            >
-              Xem tất cả
-            </Link>
-          </div>
-        </div>
-
-        {newestState !== 'ready' || newest.length === 0 ? (
-          <div className="mx-auto max-w-[1240px] px-4 pb-10">
+        <SectionCard
+          id="home-newest"
+          title="Mới đăng gần đây"
+          href="/search?sort=newest"
+          bleed={newestState === 'ready' && newest.length > 0}
+        >
+          {newestState !== 'ready' || newest.length === 0 ? (
             <SectionState
               state={newestState}
               empty={newest.length === 0}
               emptyText="Chưa ai đăng bán gì. Bạn đăng món đầu tiên nhé."
               onRetry={loadNewest}
             />
-          </div>
-        ) : (
-          <>
-            <ul className="border-t border-ink/10">
+          ) : (
+            <ul>
               {newest.map((item) => (
                 <ItemRow key={item.id} item={item} />
               ))}
             </ul>
-            <div className="mx-auto max-w-[1240px] px-4 pt-6">
-              <Link
-                href="/search?sort=newest"
-                className="inline-flex items-center gap-2 text-small font-semibold text-brand transition-colors hover:text-brand-dark"
-              >
-                Xem hết hàng đang bán
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </div>
-          </>
-        )}
-      </section>
+          )}
+        </SectionCard>
+      </div>
     </div>
   );
 }

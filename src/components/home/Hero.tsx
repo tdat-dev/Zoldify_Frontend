@@ -1,47 +1,40 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
- * Masthead của sổ kê, không phải hero panel.
+ * Dải giới thiệu mỏng, không phải hero.
  *
- * Một câu, một dòng dẫn, một lối đi, rồi hết. Ô tìm kiếm nằm ở header (cùng
- * hàng từ khoá gợi ý), nên chỗ này không giữ ô nào.
+ * Cả Shopee, Lazada lẫn Amazon đều KHÔNG có khối khẩu hiệu ở đầu trang — vào là
+ * banner rồi hàng luôn, vì ai cũng biết họ bán gì. Zoldify thì chưa ai biết, và
+ * hợp đồng LANDING_BRAND đòi người lần đầu phải hiểu được đối tượng, thứ được
+ * mời và việc làm tiếp theo trong năm giây. Nên giữ một dòng, không giữ cả khối.
  *
- * Cỡ chữ: đã thử 136px ngày 2026-08-07, đo được khối tiêu đề cao 277px và đẩy
- * mục đầu tiên xuống mép dưới màn hình 776px. Trên một sàn mà việc chính là tìm
- * món, khẩu hiệu to gấp mấy lần ô tìm kiếm là ngược thứ bậc. Giữ ở 52px: đủ để
- * là tiêu đề trang, không giành chỗ của hàng.
- *
- * Không có ảnh: `cliproxy.zoldify.com` trả 502 (3 lần thử, 2 phiên), ba provider
- * còn lại chưa có key. Hướng media-free có chủ đích — cấu trúc và vạch hairline
- * gánh art direction. Không đặt hình khối giả vào chỗ của ảnh.
+ * Đã thử ngược lại hai lần: tiêu đề 136px thì đẩy nội dung xuống dưới màn hình,
+ * 56px thì vẫn chiếm nguyên một màn trước khi thấy món nào. Ở đây nó thành một
+ * dải cao chưa tới 80px và hàng bắt đầu ngay bên dưới.
  */
 export function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="pb-8 pt-8 md:pb-11 md:pt-14">
-      <div className="md:flex md:items-end md:justify-between md:gap-12">
-        <div className="min-w-0">
-          <h1
-            id="hero-title"
-            className="animate-rise max-w-[15ch] text-[clamp(1.875rem,4.2vw,3.25rem)] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink [text-wrap:balance]"
-          >
-            Đồ cũ còn tốt, giá sinh viên
-          </h1>
-          <p className="animate-rise mt-3.5 max-w-[48ch] text-[15px] leading-relaxed text-ink-muted [animation-delay:60ms] md:text-[16px]">
-            Giáo trình, laptop, đồ ký túc xá. Mua bán giữa sinh viên với nhau.
-          </p>
-        </div>
-
-        <div className="animate-rise mt-6 shrink-0 [animation-delay:120ms] md:mt-0">
-          <Link
-            href="/product/create"
-            className="inline-flex items-center gap-2 rounded-control border border-ink/16 px-5 py-2.5 text-small font-semibold text-ink transition-colors hover:border-brand hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
-          >
-            Đăng bán đồ cũ
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </div>
+    <section
+      aria-labelledby="hero-title"
+      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-card bg-brand-tint px-4 py-4 md:px-5"
+    >
+      <div className="min-w-0">
+        <h1 id="hero-title" className="text-h2 text-ink">
+          Chợ đồ cũ của sinh viên
+        </h1>
+        <p className="mt-1 text-small text-ink-muted">
+          Giáo trình, laptop, đồ ký túc xá. Mua bán giữa sinh viên với nhau.
+        </p>
       </div>
+
+      <Link
+        href="/product/create"
+        className="inline-flex shrink-0 items-center gap-2 rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2"
+      >
+        <Plus className="h-4 w-4" aria-hidden="true" />
+        Đăng bán đồ cũ
+      </Link>
     </section>
   );
 }

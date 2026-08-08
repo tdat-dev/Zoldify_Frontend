@@ -87,10 +87,25 @@ export default function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-sticky w-full border-b border-ink/8 bg-surface-card">
-      <div className="mx-auto flex h-[70px] max-w-[1240px] items-center gap-3 px-4 md:gap-6">
-        <Link href="/" aria-label="Zoldify — về trang chủ" className="flex shrink-0 items-center">
-          <img src="/images/logouni.png" alt="Zoldify" className="h-8 w-auto" decoding="async" />
+    /* Thanh header mang màu thương hiệu, không phải trắng.
+       Cả Shopee (cam đỏ) và Amazon (xanh đen) đều để header là một dải màu đặc
+       tách bạch khỏi nội dung; Lazada để trắng và trôi mất vào trang. Zoldify
+       trước đây trắng nên chìm y như Lazada. Lấy nguyên tắc đó, dùng màu mình. */
+    <header className="sticky top-0 z-sticky w-full bg-brand">
+      <div className="mx-auto flex h-[68px] max-w-[1240px] items-center gap-3 px-4 md:gap-6">
+        <Link
+          href="/"
+          aria-label="Zoldify — về trang chủ"
+          className="flex shrink-0 items-center rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        >
+          {/* brightness-0 invert: logo gốc là chữ xanh, trên nền xanh sẽ mất hút.
+              Lật thành trắng đặc thay vì xin thêm một file logo phiên bản trắng. */}
+          <img
+            src="/images/logouni.png"
+            alt="Zoldify"
+            className="h-8 w-auto brightness-0 invert"
+            decoding="async"
+          />
         </Link>
 
         {/* Ô tìm kiếm chiếm hết phần giữa còn lại. Không giới hạn 360px nữa: đây
@@ -101,7 +116,7 @@ export default function Header() {
           className="hidden min-w-0 flex-1 md:flex"
         >
           <label htmlFor="site-search" className="sr-only">Tìm sản phẩm</label>
-          <div className="flex h-11 w-full items-center gap-2.5 rounded-control border border-ink/12 bg-surface-sunken pl-5 pr-1.5 transition-colors focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+          <div className="flex h-11 w-full items-center gap-2.5 rounded-control bg-surface-card p-1 pl-4 ring-2 ring-transparent transition-shadow focus-within:ring-white/60">
             <input
               id="site-search"
               type="search"
@@ -114,7 +129,7 @@ export default function Header() {
             />
             <button
               type="submit"
-              className="h-8 shrink-0 rounded-control bg-brand px-4 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              className="h-9 shrink-0 rounded-control bg-brand px-5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
               Tìm
             </button>
@@ -125,7 +140,7 @@ export default function Header() {
           <Link
             href="/notifications"
             aria-label={unreadNotis > 0 ? `Thông báo, ${unreadNotis} chưa đọc` : 'Thông báo'}
-            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-ink transition-colors hover:bg-surface-sunken"
+            className="relative flex h-10 w-10 items-center justify-center rounded-control text-white transition-colors hover:bg-white/15"
           >
             <Bell className="h-[19px] w-[19px]" aria-hidden="true" />
             {unreadNotis > 0 && badge(unreadNotis)}
@@ -138,10 +153,10 @@ export default function Header() {
                 onClick={() => setIsUserMenuOpen((v) => !v)}
                 aria-expanded={isUserMenuOpen}
                 aria-label="Tài khoản của tôi"
-                className="flex h-10 items-center gap-1 rounded-lg px-2 text-ink transition-colors hover:bg-surface-sunken"
+                className="flex h-10 items-center gap-1 rounded-control px-2 text-white transition-colors hover:bg-white/15"
               >
                 <User className="h-[19px] w-[19px]" aria-hidden="true" />
-                <ChevronDown className="hidden h-3.5 w-3.5 text-ink-muted lg:block" aria-hidden="true" />
+                <ChevronDown className="hidden h-3.5 w-3.5 text-white/70 lg:block" aria-hidden="true" />
               </button>
 
               {isUserMenuOpen && (
@@ -161,7 +176,7 @@ export default function Header() {
                         key={href}
                         href={href}
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-ink transition-colors hover:bg-surface-sunken"
+                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-white transition-colors hover:bg-white/15"
                       >
                         <Icon className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> {label}
                       </Link>
@@ -178,7 +193,7 @@ export default function Header() {
                         key={href}
                         href={href}
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-ink transition-colors hover:bg-surface-sunken"
+                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-white transition-colors hover:bg-white/15"
                       >
                         <Icon className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> {label}
                       </Link>
@@ -189,7 +204,7 @@ export default function Header() {
                       <Link
                         href="/admin"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-ink transition-colors hover:bg-surface-sunken"
+                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-white transition-colors hover:bg-white/15"
                       >
                         <Shield className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> Quản trị
                       </Link>
@@ -229,7 +244,7 @@ export default function Header() {
       {/* Ô tìm kiếm riêng cho mobile: màn hẹp không đủ chỗ đặt cạnh logo. */}
       <form onSubmit={handleSearchSubmit} role="search" className="px-4 pb-2.5 md:hidden">
         <label htmlFor="site-search-mobile" className="sr-only">Tìm sản phẩm</label>
-        <div className="flex h-11 items-center gap-2 rounded-control border border-ink/12 bg-surface-sunken pl-4 pr-1.5 focus-within:border-brand/50 focus-within:bg-surface-card focus-within:ring-2 focus-within:ring-brand/15">
+        <div className="flex h-11 items-center gap-2 rounded-control bg-surface-card p-1 pl-3.5 ring-2 ring-transparent focus-within:ring-white/60">
           <Search className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden="true" />
           <input
             id="site-search-mobile"
@@ -253,26 +268,23 @@ export default function Header() {
       {/* Hàng từ khoá gợi ý. Cuộn ngang BÊN TRONG ở màn hẹp, không đẩy tràn trang.
           Chỉ hiện khi API trả về danh mục thật — không dựng danh sách tự nghĩ. */}
       {hotCategories.length > 0 && (
-        <div className="border-t border-ink/8">
-          <div className="mx-auto flex max-w-[1240px] items-center gap-2 overflow-x-auto px-4 py-2.5">
-            <span className="shrink-0 text-small text-ink-faint">Hay tìm:</span>
-            {hotCategories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/category/${cat.slug || cat.id}`}
-                className="shrink-0 whitespace-nowrap rounded-control px-3 py-1 text-small text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand"
-              >
-                {cat.name}
-              </Link>
-            ))}
+        <div className="mx-auto flex max-w-[1240px] items-center gap-1 overflow-x-auto px-4 pb-2.5">
+          {hotCategories.map((cat) => (
             <Link
-              href="/product/create"
-              className="ml-auto hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-control px-3 py-1 text-small font-semibold text-brand transition-colors hover:bg-brand-tint md:flex"
+              key={cat.id}
+              href={`/category/${cat.slug || cat.id}`}
+              className="shrink-0 whitespace-nowrap rounded-control px-2.5 py-1 text-small text-white/85 transition-colors hover:bg-white/15 hover:text-white"
             >
-              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-              Đăng bán
+              {cat.name}
             </Link>
-          </div>
+          ))}
+          <Link
+            href="/product/create"
+            className="ml-auto hidden shrink-0 items-center gap-1.5 whitespace-nowrap rounded-control px-2.5 py-1 text-small font-semibold text-white transition-colors hover:bg-white/15 md:flex"
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            Đăng bán đồ cũ
+          </Link>
         </div>
       )}
     </header>
