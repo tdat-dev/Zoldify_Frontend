@@ -1,227 +1,509 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, ChevronRight, Image as ImageIcon, XCircle, ChevronDown, Check, Lightbulb, MapPin, Plus, ArrowLeft, Send, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Camera, X, Loader2, Info } from 'lucide-react';
 import { uploadService } from '@/services/upload.service';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
-import StockControl from '@/components/StockControl';
+
+/**
+ * Đăng bán một món đồ cũ.
+ *
+ * Vì sao form này KHÔNG giống form đăng bán của Shopee/Lazada/Amazon: ở đó người
+ * bán niêm yết một MẶT HÀNG — có tồn kho, biến thể, mã hàng, thương hiệu, và
+ * "tình trạng" gần như luôn là mới. Ở đây mỗi tin là MỘT VẬT THỂ đã qua tay: chỉ
+ * có một cái, và thứ người mua cần biết nhất là nó cũ tới mức nào.
+ *
+ * Nên trang này khác ba chỗ:
+ *   · TÌNH TRẠNG là trường lớn nhất, bốn mức có mô tả rõ ràng, không phải một
+ *     dropdown nằm lẫn giữa các trường khác.
+ *   · KHÔNG có ô "số lượng" ở mặc định. Một tin là một món. Ai bán nhiều cái
+ *     giống nhau thì mở thêm, nhưng đó là ngoại lệ chứ không phải mặc định.
+ *   · Hướng dẫn chụp ảnh nói về chuyện CHỤP CẢ CHỖ XƯỚC, không phải chụp sao cho
+ *     đẹp — vì bán đồ cũ mà giấu vết dùng thì người mua nhận hàng sẽ trả lại.
+ *
+ * Bốn mức tình trạng lấy từ DTO backend (src/catalog/products/dto/
+ * create-product.dto.ts): `new | like_new | good | fair`. Bản trước gửi
+ * `used` và `refurbished` — hai giá trị backend không hề biết.
+ */
+const CONDITIONS = [
+  {
+    value: 'new',
+    label: 'Mới, chưa dùng',
+    hint: 'Còn nguyên seal hoặc mua về chưa dùng lần nào.',
+  },
+  {
+    value: 'like_new',
+    label: 'Như mới',
+    hint: 'Dùng vài lần, nhìn kỹ cũng khó thấy vết.',
+  },
+  {
+    value: 'good',
+    label: 'Còn tốt',
+    hint: 'Có vết xước nhẹ do dùng, mọi thứ chạy bình thường.',
+  },
+  {
+    value: 'fair',
+    label: 'Cũ, dùng được',
+    hint: 'Xước nhiều, sờn góc hoặc thiếu phụ kiện. Vẫn dùng được.',
+  },
+];
+
+/** Bỏ dấu tiếng Việt rồi mới lọc ký tự. Bản trước lọc thẳng [^a-z0-9-] nên
+ *  "Máy tính Casio" ra "my-tnh-casio" — mất hết chữ có dấu. */
+function toSlug(input: string): string {
+  return input
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
 
 export default function CreateProductPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
 
-  // Step 1 fields
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
   const [name, setName] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [condition, setCondition] = useState('good');
+  const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
-  const [condition, setCondition] = useState('new');
-  const [categoryId, setCategoryId] = useState('');
-  const [categories, setCategories] = useState<any[]>([]);
+  const [freeship, setFreeship] = useState(false);
 
-  // Step 2 fields
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [shippingPayer, setShippingPayer] = useState(0);
+  const [manyCopies, setManyCopies] = useState(false);
+  const [stock, setStock] = useState(1);
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    categoryService.getAll().then((res) => {
-      setCategories(res.data.data.result);
-    }).catch(() => {});
+    categoryService
+      .getAll()
+      .then((res) => setCategories(res.data?.data?.result || []))
+      .catch(() => setCategories([]));
   }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setUploadError('');
     setUploading(true);
     try {
       const res = await uploadService.upload(file, 'products');
-      setImages((prev) => [...prev, (res.data?.data?.url || res.data?.url)]);
-    } catch (err) {
-      console.error('Upload failed', err);
+      const url = res.data?.data?.url || res.data?.url;
+      if (!url) throw new Error('no url');
+      setImages((prev) => [...prev, url]);
+    } catch {
+      // Bản trước chỉ console.error, nên người dùng bấm thêm ảnh mà không có gì
+      // xảy ra và không biết vì sao.
+      setUploadError('Tải ảnh lên không được. Thử lại hoặc chọn ảnh nhẹ hơn.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (images.length === 0) next.images = 'Cần ít nhất một ảnh chụp món đồ.';
+    if (!name.trim()) next.name = 'Nhập tên món đồ.';
+    if (!categoryId) next.category = 'Chọn một danh mục.';
+    const p = Number(price);
+    if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = 'Nhập giá lớn hơn 0.';
+    setFieldErrors(next);
+    return next;
   };
 
-  const handleNextStep = () => {
-    setStep(2);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      // Đưa con trỏ tới trường hỏng đầu tiên thay vì để người dùng tự đi tìm.
+      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
+      return;
+    }
+
+    setSubmitting(true);
+    productService
+      .create({
+        name: name.trim(),
+        price: Number(price),
+        image: images[0],
+        images,
+        description: description.trim() || undefined,
+        brand: brand.trim() || undefined,
+        condition,
+        category_id: Number(categoryId),
+        stock: manyCopies ? stock : 1,
+        is_freeship: freeship,
+        slug: toSlug(name),
+      } as any)
+      .then((res) => router.push(`/product/${res.data.data.id}`))
+      .catch((err) =>
+        setError(err.response?.data?.message || 'Chưa đăng được tin. Thử lại giúp mình.'),
+      )
+      .finally(() => setSubmitting(false));
   };
 
-  const handlePrevStep = () => {
-    setStep(1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const label = 'mb-1.5 block text-small font-semibold text-ink';
+  const control =
+    'w-full rounded-control border border-ink/16 bg-surface-card px-3.5 py-2.5 text-body text-ink placeholder-ink-faint transition-colors focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const errText = 'mt-1.5 text-small text-state-danger-fg';
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen pb-32 font-sans">
-      <div className="max-w-4xl mx-auto pt-8 px-4 sm:px-6">
-
-        {/* Progress Indicator */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center">
-            {/* Step 1 */}
-            <div className="flex items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${step === 2 ? 'bg-green-500 text-white' : 'bg-indigo-600 text-white shadow-indigo-500/30'}`}>
-                {step === 2 ? <Check className="w-5 h-5" /> : '1'}
-              </div>
-              <span className={`ml-3 text-sm hidden sm:block ${step === 2 ? 'text-green-700 font-medium' : 'text-indigo-600 font-semibold'}`}>
-                Thông tin sản phẩm
-              </span>
-            </div>
-
-            {/* Arrow */}
-            <div className="mx-4 sm:mx-8 flex items-center text-slate-300">
-              <div className={`w-12 sm:w-24 h-0.5 ${step === 2 ? 'bg-green-500' : 'bg-slate-200'}`}></div>
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </div>
-
-            {/* Step 2 */}
-            <div className="flex items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${step === 2 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-200 text-slate-500'}`}>
-                2
-              </div>
-              <span className={`ml-3 text-sm hidden sm:block ${step === 2 ? 'text-indigo-600 font-semibold' : 'text-slate-400 font-medium'}`}>
-                Chi tiết bán hàng
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Page Header */}
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">
-            {step === 1 ? 'Thông tin sản phẩm' : 'Chi tiết bán hàng'}
-          </h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            {step === 1 ? 'Điền thông tin cơ bản về sản phẩm của bạn' : 'Đặt giá và thông tin vận chuyển'}
-          </p>
-        </div>
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto max-w-[820px] px-4 py-6 md:py-8">
+        <h1 className="text-h1 text-ink">Đăng bán một món</h1>
+        <p className="mt-1.5 text-body text-ink-muted">
+          Mỗi tin là một món. Chụp đúng món bạn đang có, ghi đúng tình trạng của nó.
+        </p>
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <p
+            role="alert"
+            className="mt-5 rounded-control border border-state-danger-fg/30 bg-state-danger-bg px-4 py-3 text-body text-state-danger-fg"
+          >
             {error}
-          </div>
+          </p>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); setError(''); setSubmitting(true); productService.create({ name, price: Number(price), image: images[0] || '', images: images.length > 0 ? images : undefined, description, brand, condition, category_id: Number(categoryId), stock: quantity, slug: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }).then((res) => { router.push(`/product/${res.data.data.id}`); }).catch((err) => { setError(err.response?.data?.message || 'Đăng sản phẩm thất bại'); }).finally(() => setSubmitting(false)); }}>
-          {/* STEP 1 */}
-          <div className={`${step === 1 ? 'block' : 'hidden'} bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100`}>
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <div className="mb-4">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-indigo-500" /> Hình ảnh sản phẩm <span className="text-red-600">*</span>
-                </h2>
-                <p className="text-sm text-slate-400 mt-1">Tối đa 9 ảnh. Ảnh đầu tiên sẽ là ảnh bìa.</p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {images.map((url, i) => (
-                  <div key={i} className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 group">
-                    <img loading="lazy" decoding="async" src={url} alt={`Ảnh ${i + 1}`} className="w-full h-full object-cover rounded-lg border border-slate-200" />
-                    <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <XCircle className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                {images.length < 9 && (
-                  <div onClick={() => fileInputRef.current?.click()} className="relative group w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 cursor-pointer">
-                    <div className="border-2 border-dashed border-red-300 rounded-lg w-full h-full flex flex-col items-center justify-center bg-red-50/10 hover:bg-red-50 hover:border-red-500 transition-all text-red-400 hover:text-red-600">
-                      {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Camera className="w-6 h-6 mb-1" /><span className="text-[10px] font-medium">Thêm ảnh</span></>}
-                      <span className="text-[9px] opacity-70">({images.length}/9)</span>
-                    </div>
-                  </div>
+        <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-3">
+          {/* ---------- Ảnh ---------- */}
+          <section aria-labelledby="sec-photo" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-photo" className="text-h3 text-ink">
+              Ảnh món đồ <span className="text-price">*</span>
+            </h2>
+            <p className="mt-1 text-small text-ink-muted">
+              Chụp chính món bạn bán, đủ sáng. Có vết xước hay sờn thì chụp luôn chỗ đó. Giấu
+              đi thì người mua nhận hàng sẽ trả lại.
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              {images.map((url, i) => (
+                <div key={url} className="relative h-24 w-24 shrink-0">
+                  <img
+                    src={url}
+                    alt={i === 0 ? 'Ảnh bìa' : `Ảnh ${i + 1}`}
+                    className="h-full w-full rounded-control border border-ink/12 object-cover"
+                  />
+                  {i === 0 && (
+                    <span className="absolute inset-x-0 bottom-0 rounded-b-control bg-ink/75 py-0.5 text-center text-caption text-white">
+                      Ảnh bìa
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setImages((prev) => prev.filter((_, x) => x !== i))}
+                    aria-label={`Bỏ ảnh ${i + 1}`}
+                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-price"
+                  >
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                </div>
+              ))}
+
+              {images.length < 9 && (
+                <button
+                  id="add-photo"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex h-24 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-control border border-dashed border-ink/25 text-ink-muted transition-colors hover:border-brand hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <>
+                      <Camera className="h-5 w-5" aria-hidden="true" />
+                      <span className="text-caption font-normal">Thêm ảnh</span>
+                      <span className="text-caption font-normal text-ink-faint">
+                        {images.length}/9
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+              tabIndex={-1}
+            />
+            {uploadError && <p className={errText}>{uploadError}</p>}
+            {fieldErrors.images && <p className={errText}>{fieldErrors.images}</p>}
+          </section>
+
+          {/* ---------- Món gì ---------- */}
+          <section aria-labelledby="sec-what" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-what" className="mb-4 text-h3 text-ink">
+              Món này là gì
+            </h2>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label htmlFor="field-name" className={label}>
+                  Tên món <span className="text-price">*</span>
+                </label>
+                <input
+                  id="field-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Máy tính Casio fx-580VN X"
+                  aria-invalid={!!fieldErrors.name}
+                  aria-describedby={fieldErrors.name ? 'err-name' : undefined}
+                  className={control}
+                />
+                {fieldErrors.name && (
+                  <p id="err-name" className={errText}>
+                    {fieldErrors.name}
+                  </p>
                 )}
               </div>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-            </div>
 
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Tên sản phẩm <span className="text-red-600">*</span></label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ví dụ: iPhone 14 Pro Max 256GB" className="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm font-medium placeholder-slate-400 transition-all" required />
-            </div>
-
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Danh mục <span className="text-red-600">*</span></label>
-              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none text-sm" required>
-                <option value="">Chọn danh mục</option>
-                {categories.map((c: any) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Thương hiệu</label>
-              <input type="text" value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="VD: Apple, Samsung..." className="w-full h-12 px-4 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm" />
-            </div>
-
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <label className="text-sm font-bold text-slate-700 mb-2">Tình trạng</label>
-              <select value={condition} onChange={(e) => setCondition(e.target.value)} className="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none text-sm">
-                <option value="new">Mới</option>
-                <option value="used">Đã qua sử dụng</option>
-                <option value="refurbished">Đã tân trang</option>
-              </select>
-            </div>
-
-            <div className="p-6 sm:p-8 border-t border-slate-100 flex items-center justify-between">
-              <button type="button" onClick={() => router.push('/')} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-all"><ArrowLeft className="w-4 h-4 inline mr-1" /> Hủy</button>
-              <button type="button" onClick={() => { if (!name || !categoryId) { setError('Vui lòng nhập tên và chọn danh mục'); return; } setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg transition-all flex items-center gap-2">Tiếp tục <ChevronRight className="w-4 h-4" /></button>
-            </div>
-          </div>
-
-          {/* STEP 2 */}
-          <div className={`${step === 2 ? 'block' : 'hidden'} bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100`}>
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><span className="text-indigo-500 text-xl font-bold">₫</span> Giá bán & Số lượng</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="relative z-10">
-                  <label className="text-sm font-bold text-slate-700 mb-2">Số lượng <span className="text-red-600">*</span></label>
-                  <StockControl value={quantity} onChange={setQuantity} min={1} max={99999} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="field-category" className={label}>
+                    Danh mục <span className="text-price">*</span>
+                  </label>
+                  <select
+                    id="field-category"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    aria-invalid={!!fieldErrors.category}
+                    aria-describedby={fieldErrors.category ? 'err-category' : undefined}
+                    className={control}
+                  >
+                    <option value="">Chọn danh mục</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.category && (
+                    <p id="err-category" className={errText}>
+                      {fieldErrors.category}
+                    </p>
+                  )}
                 </div>
-                <div className="relative z-10">
-                  <label className="text-sm font-bold text-slate-700 mb-2">Giá bán <span className="text-red-600">*</span></label>
-                  <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden focus-within:border-indigo-500 transition-all bg-white">
-                    <div className="w-12 h-11 flex items-center justify-center bg-slate-50 border-r border-slate-200 text-slate-500 font-bold">₫</div>
-                    <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="flex-1 h-11 px-4 border-none outline-none text-lg font-bold text-slate-800 bg-transparent" required />
-                  </div>
+
+                <div>
+                  <label htmlFor="field-brand" className={label}>
+                    Hãng <span className="font-normal text-ink-faint">(không bắt buộc)</span>
+                  </label>
+                  <input
+                    id="field-brand"
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    placeholder="Casio, Sony, Thống Nhất…"
+                    className={control}
+                  />
+                  <p className="mt-1.5 text-caption font-normal text-ink-muted">
+                    Điền vào thì người tìm theo tên hãng sẽ thấy tin của bạn.
+                  </p>
                 </div>
               </div>
             </div>
+          </section>
 
-            <div className="p-6 sm:p-8 border-b border-slate-100">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-bold text-slate-700">Mô tả sản phẩm</label>
+          {/* ---------- Tình trạng: trường lớn nhất của trang ---------- */}
+          <section aria-labelledby="sec-cond" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-cond" className="text-h3 text-ink">
+              Món này cũ tới mức nào <span className="text-price">*</span>
+            </h2>
+            <p className="mt-1 text-small text-ink-muted">
+              Đây là thứ người mua đọc kỹ nhất. Chọn đúng thì ít bị trả hàng.
+            </p>
+
+            <fieldset className="mt-4">
+              <legend className="sr-only">Tình trạng món đồ</legend>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {CONDITIONS.map((c) => {
+                  const active = condition === c.value;
+                  return (
+                    <label
+                      key={c.value}
+                      className={`flex cursor-pointer gap-3 rounded-control border p-3.5 transition-colors ${
+                        active
+                          ? 'border-brand bg-brand-tint'
+                          : 'border-ink/16 hover:border-ink/30'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="condition"
+                        value={c.value}
+                        checked={active}
+                        onChange={() => setCondition(c.value)}
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-small font-semibold text-ink">{c.label}</span>
+                        <span className="mt-0.5 block text-caption font-normal leading-snug text-ink-muted">
+                          {c.hint}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <textarea rows={6} value={description} onChange={(e) => setDescription(e.target.value)} className="w-full p-4 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none text-sm text-slate-700 placeholder-slate-400 resize-none" placeholder="Mô tả chi tiết về sản phẩm của bạn..."></textarea>
-                </div>
-                <div className="bg-indigo-50/50 rounded-xl p-4 text-xs text-indigo-700 leading-relaxed">
-                  <p className="font-bold mb-2 flex items-center gap-1"><Lightbulb className="w-4 h-4" /> Mô tả nên có:</p>
-                  <ul className="space-y-1 text-indigo-600"><li>• Loại sản phẩm, tên sản phẩm</li><li>• Thương hiệu, xuất xứ</li><li>• Tình trạng chi tiết</li></ul>
-                </div>
+            </fieldset>
+          </section>
+
+          {/* ---------- Giá & giao hàng ---------- */}
+          <section aria-labelledby="sec-price" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-price" className="mb-4 text-h3 text-ink">
+              Giá và giao hàng
+            </h2>
+
+            <div className="max-w-[280px]">
+              <label htmlFor="field-price" className={label}>
+                Giá bán <span className="text-price">*</span>
+              </label>
+              <div
+                className={`flex items-center overflow-hidden rounded-control border bg-surface-card transition-colors focus-within:ring-2 focus-within:ring-brand/20 ${
+                  fieldErrors.price ? 'border-state-danger-fg' : 'border-ink/16 focus-within:border-brand'
+                }`}
+              >
+                <input
+                  id="field-price"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="0"
+                  aria-invalid={!!fieldErrors.price}
+                  aria-describedby={fieldErrors.price ? 'err-price' : undefined}
+                  className="min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-[17px] font-bold tabular-nums text-ink focus:outline-none"
+                />
+                <span className="px-3.5 text-body text-ink-muted" aria-hidden="true">
+                  ₫
+                </span>
               </div>
+              {fieldErrors.price && (
+                <p id="err-price" className={errText}>
+                  {fieldErrors.price}
+                </p>
+              )}
             </div>
 
-            <div className="p-6 sm:p-8 flex items-center justify-between">
-              <button type="button" onClick={handlePrevStep} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-all flex items-center gap-2"><ArrowLeft className="w-4 h-4" /> Quay lại</button>
-              <button type="submit" disabled={submitting} className="px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg transition-all flex items-center gap-2 disabled:opacity-50">
-                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />} {submitting ? 'Đang đăng...' : 'Đăng bán ngay'}
-              </button>
-            </div>
+            <label className="mt-5 flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                checked={freeship}
+                onChange={(e) => setFreeship(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+              />
+              <span className="text-small text-ink">
+                Miễn phí giao trong trường
+                <span className="mt-0.5 block text-caption font-normal text-ink-muted">
+                  Bạn tự mang tới cho người mua, không tính phí ship.
+                </span>
+              </span>
+            </label>
+
+            {/* Số lượng nằm sau một công tắc, không phải trường mặc định: một tin
+                là một món. Đây là chỗ khác rõ nhất so với form của các sàn kia. */}
+            <label className="mt-4 flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                checked={manyCopies}
+                onChange={(e) => {
+                  setManyCopies(e.target.checked);
+                  if (!e.target.checked) setStock(1);
+                }}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+              />
+              <span className="text-small text-ink">
+                Tôi có nhiều cái giống hệt nhau
+                <span className="mt-0.5 block text-caption font-normal text-ink-muted">
+                  Ví dụ mua nhầm hai quyển cùng loại. Bình thường thì bỏ qua ô này.
+                </span>
+              </span>
+            </label>
+
+            {manyCopies && (
+              <div className="mt-3 max-w-[160px]">
+                <label htmlFor="field-stock" className={label}>
+                  Có mấy cái
+                </label>
+                <input
+                  id="field-stock"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={99}
+                  value={stock}
+                  onChange={(e) => setStock(Math.max(1, Number(e.target.value) || 1))}
+                  className={control}
+                />
+              </div>
+            )}
+          </section>
+
+          {/* ---------- Mô tả ---------- */}
+          <section aria-labelledby="sec-desc" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-desc" className="text-h3 text-ink">
+              Kể thêm về món này
+            </h2>
+            <p className="mt-1 text-small text-ink-muted">
+              Không bắt buộc, nhưng tin có mô tả thì người mua ít nhắn hỏi lại hơn.
+            </p>
+
+            <label htmlFor="field-desc" className="sr-only">
+              Mô tả món đồ
+            </label>
+            <textarea
+              id="field-desc"
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Mua năm ngoái, dùng một kỳ rồi thôi. Còn hộp, còn sạc. Góc dưới bên trái có vết xước nhỏ."
+              className={`${control} mt-4 resize-y`}
+            />
+
+            <p className="mt-3 flex items-start gap-2 text-caption font-normal text-ink-muted">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              Nên có: dùng bao lâu rồi, còn phụ kiện gì, hỏng hóc hay vết xước nào, vì sao bán.
+            </p>
+          </section>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 rounded-control bg-brand px-6 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark disabled:bg-ink-faint"
+            >
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+              {submitting ? 'Đang đăng…' : 'Đăng tin'}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="rounded-control px-4 py-3 text-body text-ink-muted transition-colors hover:text-ink"
+            >
+              Huỷ
+            </button>
           </div>
         </form>
       </div>
