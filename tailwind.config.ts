@@ -39,6 +39,10 @@ const config: Config = {
           card: "oklch(var(--surface-card) / <alpha-value>)",
           sunken: "oklch(var(--surface-sunken) / <alpha-value>)",
         },
+        chrome: {
+          DEFAULT: "oklch(var(--chrome) / <alpha-value>)",
+          soft: "oklch(var(--chrome-soft) / <alpha-value>)",
+        },
         ink: {
           DEFAULT: "oklch(var(--ink) / <alpha-value>)",
           muted: "oklch(var(--ink-muted) / <alpha-value>)",

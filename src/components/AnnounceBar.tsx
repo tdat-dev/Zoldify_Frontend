@@ -1,32 +1,36 @@
 import Link from 'next/link';
-import { ShieldCheck, Wallet } from 'lucide-react';
 
 /**
- * Thanh thông báo mảnh trên cùng, đúng vị trí và tỉ lệ của trang tham chiếu.
- * Trang mẫu để khuyến mãi ("Summer Sale 60% OFF", "Free shipping over $99");
- * Zoldify không có chương trình giảm giá nào nên đặt vào đó hai việc sàn làm
- * thật, chứ không bịa một đợt sale không tồn tại.
+ * Thanh tiện ích mảnh trên cùng — khuôn lấy từ lazada.vn (xem 2026-08-08): một
+ * dải chữ rất nhỏ, nền nhạt, chứa các lối đi phụ trợ mà người mua ít dùng nhưng
+ * cần có (bán hàng, chăm sóc khách, theo dõi đơn). Nó nằm TRÊN chrome chính để
+ * không giành chỗ với ô tìm kiếm.
+ *
+ * Mọi mục đều trỏ tới route CÓ THẬT trong src/app. Lazada có "SELL ON LAZADA /
+ * CUSTOMER CARE / TRACK MY ORDER"; những trang Zoldify không có thì không dựng
+ * link chết cho giống.
  */
+const LINKS = [
+  { href: '/product/create', label: 'Bán hàng cùng Zoldify' },
+  { href: '/profile/orders', label: 'Đơn mua của tôi' },
+  { href: '/shop/orders', label: 'Đơn bán của tôi' },
+  { href: '/chat', label: 'Tin nhắn' },
+  { href: '/notifications', label: 'Thông báo' },
+];
+
 export function AnnounceBar() {
   return (
-    <div className="bg-ink text-white">
-      <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-2 text-[12px]">
-        {/* min-w-0: không có nó thì `truncate` ở span con vô tác dụng — flex item
-            mặc định không co dưới kích thước nội dung, và cả thanh đẩy tràn trang. */}
-        <p className="flex min-w-0 items-center gap-2">
-          <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-amber-300" aria-hidden="true" />
-          <span className="truncate font-medium">Zoldify giữ tiền tới khi bạn nhận hàng</span>
+    <div className="hidden border-b border-ink/10 bg-surface-card md:block">
+      <div className="mx-auto flex max-w-[1500px] items-center justify-end gap-1 px-3">
+        {LINKS.map((item) => (
           <Link
-            href="/search"
-            className="hidden shrink-0 font-semibold text-brand-tint underline-offset-2 hover:underline sm:inline"
+            key={item.href}
+            href={item.href}
+            className="px-2 py-1.5 text-caption font-normal text-ink-muted transition-colors hover:text-brand hover:underline"
           >
-            Mua ngay →
+            {item.label}
           </Link>
-        </p>
-        <p className="hidden shrink-0 items-center gap-2 text-white/60 md:flex">
-          <Wallet className="h-3.5 w-3.5" aria-hidden="true" />
-          Trả khi nhận hàng hoặc trả qua ví
-        </p>
+        ))}
       </div>
     </div>
   );

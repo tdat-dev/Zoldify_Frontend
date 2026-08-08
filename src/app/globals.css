@@ -59,6 +59,12 @@
        phải một không gian. Hạ về xấp xỉ mẫu. */
     --brand-tint: 0.965 0.016 258;
 
+    /* Chrome hai tầng: nền gần đen cho thanh trên, nhạt hơn một bậc cho thanh
+       dưới — cấu trúc lấy từ amazon.com (xem 2026-08-08). Nhuộm về hue thương
+       hiệu 258 chứ không phải xám trung tính, để nó vẫn là màu của Zoldify. */
+    --chrome: 0.215 0.028 258;
+    --chrome-soft: 0.295 0.034 258;
+
     --ink: 0.24 0.021 258;
     --ink-muted: 0.505 0.019 258;
     /* 0.62 đo được 3.63:1 trên nền trắng — dưới vạch 4.5. Đây là lỗi tầng TOKEN,

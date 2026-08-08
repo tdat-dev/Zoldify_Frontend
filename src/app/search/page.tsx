@@ -28,11 +28,12 @@ export default function SearchPage() {
   const priceMin = num(searchParams.get('price_min'));
   const priceMax = num(searchParams.get('price_max'));
   const sortFromUrl = searchParams.get('sort') || '';
+  const catFromUrl = searchParams.get('category_id') || '';
 
   const [products, setProducts] = useState<any[]>([]);
   const [meta, setMeta] = useState<any>({ current: 1, pages: 1, total: 0 });
   const [categories, setCategories] = useState<any[]>([]);
-  const [selectedCat, setSelectedCat] = useState('');
+  const [selectedCat, setSelectedCat] = useState(catFromUrl);
   const [sort, setSort] = useState(sortFromUrl);
   const [currentPage, setCurrentPage] = useState(1);
   const [trendingKeywords, setTrendingKeywords] = useState<string[]>(['Laptop', 'Sách', 'Điện thoại', 'Tai nghe', 'Áo thun', 'Giày']);
@@ -89,6 +90,10 @@ export default function SearchPage() {
   useEffect(() => {
     setSort(sortFromUrl);
   }, [sortFromUrl]);
+
+  useEffect(() => {
+    setSelectedCat(catFromUrl);
+  }, [catFromUrl]);
 
   useEffect(() => {
     setCurrentPage(1);
