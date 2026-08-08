@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import Header from "@/components/Header";
 import { AnnounceBar } from "@/components/AnnounceBar";
@@ -22,32 +24,39 @@ export const metadata: Metadata = {
   description: "Zoldify - Nền tảng mua bán đồ cũ",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // lang phải theo ngôn ngữ đang hiển thị, không gán cứng "vi": trình đọc màn
+  // hình chọn giọng đọc theo thuộc tính này, và trình duyệt dùng nó để gợi ý dịch.
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="vi">
+    <html lang={locale}>
       {/* className: áp font trực tiếp (cách dùng chuẩn của next/font, không phụ
           thuộc Tailwind sinh utility). variable: để token --font-bvp dùng được
           trong CSS. Thiếu className thì cả trang rơi về Times New Roman. */}
       <body className={`${beVietnamPro.variable} ${beVietnamPro.className}`}>
-        <AuthProvider>
-          <CartProvider>
-            <ToastProvider>
-              <a href="#main" className="skip-link">Tới nội dung chính</a>
-              <div className="flex min-h-screen flex-col">
-                <AnnounceBar />
-                <Header />
-                <main id="main" className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-            </ToastProvider>
-          </CartProvider>
-        </AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <AuthProvider>
+            <CartProvider>
+              <ToastProvider>
+                <a href="#main" className="skip-link">Tới nội dung chính</a>
+                <div className="flex min-h-screen flex-col">
+                  <AnnounceBar />
+                  <Header />
+                  <main id="main" className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </div>
+              </ToastProvider>
+            </CartProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
