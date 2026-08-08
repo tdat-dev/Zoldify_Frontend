@@ -6,6 +6,10 @@ import { Camera, X, Loader2, Info } from 'lucide-react';
 import { uploadService } from '@/services/upload.service';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import { useTranslations } from 'next-intl';
+import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
+import { ConditionPicker } from '@/components/ConditionPicker';
+import { toSlug } from '@/lib/slug';
 
 /**
  * Đăng bán một món đồ cũ.
@@ -27,44 +31,6 @@ import { categoryService } from '@/services/category.service';
  * create-product.dto.ts): `new | like_new | good | fair`. Bản trước gửi
  * `used` và `refurbished` — hai giá trị backend không hề biết.
  */
-const CONDITIONS = [
-  {
-    value: 'new',
-    label: 'Mới, chưa dùng',
-    hint: 'Còn nguyên seal hoặc mua về chưa dùng lần nào.',
-  },
-  {
-    value: 'like_new',
-    label: 'Như mới',
-    hint: 'Dùng vài lần, nhìn kỹ cũng khó thấy vết.',
-  },
-  {
-    value: 'good',
-    label: 'Còn tốt',
-    hint: 'Có vết xước nhẹ do dùng, mọi thứ chạy bình thường.',
-  },
-  {
-    value: 'fair',
-    label: 'Cũ, dùng được',
-    hint: 'Xước nhiều, sờn góc hoặc thiếu phụ kiện. Vẫn dùng được.',
-  },
-];
-
-/** Bỏ dấu tiếng Việt rồi mới lọc ký tự. Bản trước lọc thẳng [^a-z0-9-] nên
- *  "Máy tính Casio" ra "my-tnh-casio" — mất hết chữ có dấu. */
-function toSlug(input: string): string {
-  return input
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-}
-
 export default function CreateProductPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +41,7 @@ export default function CreateProductPage() {
 
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [condition, setCondition] = useState('good');
+  const [condition, setCondition] = useState<ConditionValue>(DEFAULT_CONDITION);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
@@ -334,39 +300,9 @@ export default function CreateProductPage() {
               Đây là thứ người mua đọc kỹ nhất. Chọn đúng thì ít bị trả hàng.
             </p>
 
-            <fieldset className="mt-4">
-              <legend className="sr-only">Tình trạng món đồ</legend>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {CONDITIONS.map((c) => {
-                  const active = condition === c.value;
-                  return (
-                    <label
-                      key={c.value}
-                      className={`flex cursor-pointer gap-3 rounded-control border p-3.5 transition-colors ${
-                        active
-                          ? 'border-brand bg-brand-tint'
-                          : 'border-ink/16 hover:border-ink/30'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="condition"
-                        value={c.value}
-                        checked={active}
-                        onChange={() => setCondition(c.value)}
-                        className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
-                      />
-                      <span className="min-w-0">
-                        <span className="block text-small font-semibold text-ink">{c.label}</span>
-                        <span className="mt-0.5 block text-caption font-normal leading-snug text-ink-muted">
-                          {c.hint}
-                        </span>
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </fieldset>
+            <div className="mt-4">
+              <ConditionPicker value={condition} onChange={setCondition} />
+            </div>
           </section>
 
           {/* ---------- Giá & giao hàng ---------- */}

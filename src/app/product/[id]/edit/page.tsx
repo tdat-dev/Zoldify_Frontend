@@ -2,15 +2,33 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Camera, Loader2, Save, Trash2, X, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Camera, Loader2, Trash2, X } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
 import { uploadService } from '@/services/upload.service';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
-import StockControl from '@/components/StockControl';
+import { ConditionPicker } from '@/components/ConditionPicker';
+import { normalizeCondition, type ConditionValue } from '@/lib/product-condition';
 
+/**
+ * Sửa một tin đã đăng. Cùng khuôn với trang đăng bán, dùng chung
+ * `ConditionPicker` và `normalizeCondition` để hai trang không lệch nhau nữa.
+ *
+ * Ba lỗi của bản trước:
+ *   · `setCondition(p.condition || 'used')` — `used` không nằm trong thang của
+ *     backend (`new | like_new | good | fair`). Tin có tình trạng `like_new` mở
+ *     ra thì select không có mục đó, lưu lại là GHI ĐÈ MẤT tình trạng thật.
+ *     Nay đi qua `normalizeCondition`.
+ *   · mọi `<label>` thiếu `htmlFor` nên không input nào có tên truy cập được.
+ *   · xoá tin dùng `window.confirm` — hộp thoại của trình duyệt chặn mọi thứ và
+ *     không đọc được tên món trong ngữ cảnh. Nay là một bước xác nhận ngay trên
+ *     trang, nêu rõ xoá cái gì.
+ *
+ * KHÔNG gửi `slug` khi sửa: đổi slug là đổi đường dẫn của tin, làm hỏng mọi liên
+ * kết người bán đã chia sẻ.
+ */
 export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
@@ -18,11 +36,14 @@ export default function EditProductPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('sell');
+  const tc = useTranslations('common');
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [product, setProduct] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
 
   const [name, setName] = useState('');
@@ -31,8 +52,9 @@ export default function EditProductPage() {
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState(1);
   const [categoryId, setCategoryId] = useState('');
-  const [condition, setCondition] = useState('used');
+  const [condition, setCondition] = useState<ConditionValue>('good');
   const [images, setImages] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!productId) return;
@@ -40,80 +62,87 @@ export default function EditProductPage() {
       productService.getOne(productId),
       categoryService.getAll().catch(() => ({ data: { data: { result: [] } } })),
     ])
-      .then(([prodRes, catRes]) => {
+      .then(([prodRes, catRes]: any[]) => {
         const p = prodRes.data?.data || prodRes.data;
-        if (!p) throw new Error('Product not found');
-        setProduct(p);
+        if (!p) throw new Error('not found');
         setName(p.name || '');
         setDescription(p.description || '');
         setBrand(p.brand || '');
         setPrice(String(p.price ?? ''));
         setStock(p.stock ?? 1);
         setCategoryId(p.category?.id ? String(p.category.id) : '');
-        setCondition(p.condition || 'used');
+        setCondition(normalizeCondition(p.condition));
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
-        setCategories(catRes.data.data.result);
+        setCategories(catRes.data?.data?.result || []);
 
         if (user && p.seller?.id && p.seller.id !== user.id && user.role !== 'admin') {
-          toast('Bạn không có quyền sửa sản phẩm này', 'error');
+          toast('Bạn không sửa được tin của người khác.', 'error');
           router.push(`/product/${productId}`);
         }
       })
-      .catch((err) => {
-        console.error(err);
-        toast('Không tải được sản phẩm', 'error');
+      .catch(() => {
+        toast(t('errLoad'), 'error');
         router.push('/');
       })
       .finally(() => setLoading(false));
+    // user cố tình không nằm trong mảng phụ thuộc: nạp lại toàn bộ form khi
+    // context auth vừa tỉnh sẽ xoá mất những gì người dùng đang gõ dở.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    if (!files?.length) return;
     setUploading(true);
     try {
-      const newUrls: string[] = [];
+      const urls: string[] = [];
       for (const file of Array.from(files)) {
-        const res = await uploadService.upload(file);
-        const url = res.data?.url || res.data?.data?.url || res.data;
-        if (url) newUrls.push(url);
+        const res: any = await uploadService.upload(file, 'products');
+        const url = res.data?.data?.url || res.data?.url;
+        if (url) urls.push(url);
       }
-      setImages((prev) => [...prev, ...newUrls]);
-    } catch (err) {
-      toast('Upload ảnh thất bại', 'error');
+      if (urls.length === 0) throw new Error('no url');
+      setImages((prev) => [...prev, ...urls]);
+    } catch {
+      toast(t('uploadFailed'), 'error');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const removeImage = (idx: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price || !categoryId) {
-      toast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error');
+    const errs: Record<string, string> = {};
+    if (images.length === 0) errs.images = t('errNoPhoto');
+    if (!name.trim()) errs.name = t('errNoName');
+    if (!categoryId) errs.category = t('errNoCategory');
+    const p = Number(price);
+    if (!price.trim() || !Number.isFinite(p) || p <= 0) errs.price = t('errBadPrice');
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
+
     setSubmitting(true);
     try {
       await productService.update(productId, {
-        name,
-        description,
-        brand,
+        name: name.trim(),
+        description: description.trim() || undefined,
+        brand: brand.trim() || undefined,
         price: Number(price),
         stock,
         category_id: Number(categoryId),
         condition,
         image: images[0],
         images,
-      });
-      toast('Cập nhật sản phẩm thành công', 'success');
+      } as any);
+      toast('Đã lưu thay đổi.', 'success');
       router.push(`/product/${productId}`);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi cập nhật sản phẩm';
+      const msg = err.response?.data?.message || t('errUpdate');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setSubmitting(false);
@@ -121,83 +150,93 @@ export default function EditProductPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Xóa sản phẩm "${name}"?\nHành động này không thể hoàn tác.`)) return;
+    setDeleting(true);
     try {
       await productService.remove(productId);
-      toast('Đã xóa sản phẩm', 'success');
+      toast('Đã xoá tin.', 'success');
       router.push('/profile/products');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi xóa sản phẩm';
+      const msg = err.response?.data?.message || 'Chưa xoá được tin. Thử lại giúp mình.';
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
+      setDeleting(false);
     }
   };
 
+  const label = 'mb-1.5 block text-small font-semibold text-ink';
+  const control =
+    'w-full rounded-control border border-ink/16 bg-surface-card px-3.5 py-2.5 text-body text-ink placeholder-ink-faint transition-colors focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20';
+  const errText = 'mt-1.5 text-small text-state-danger-fg';
+
   if (loading) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+      <div className="flex min-h-[50vh] items-center justify-center bg-surface-page">
+        <Loader2 className="h-7 w-7 animate-spin text-ink-muted" aria-hidden="true" />
+        <span className="sr-only">{tc('loading')}</span>
       </div>
     );
   }
 
-  if (!product) return null;
-
   return (
-    <div className="bg-gray-50 min-h-screen pb-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div className="flex items-center justify-between mb-4">
-          <Link href={`/product/${productId}`} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800">
-            <ArrowLeft className="w-4 h-4" /> Quay lại sản phẩm
-          </Link>
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-          >
-            <Trash2 className="w-4 h-4" /> Xóa sản phẩm
-          </button>
-        </div>
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto max-w-[820px] px-4 py-6 md:py-8">
+        <h1 className="text-h1 text-ink">{t('titleEdit')}</h1>
+        <p className="mt-1.5 text-body text-ink-muted">{t('leadEdit')}</p>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Chỉnh sửa sản phẩm</h1>
+        <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-3">
+          {/* ---------- Ảnh ---------- */}
+          <section aria-labelledby="sec-photo" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-photo" className="text-h3 text-ink">
+              {t('photos')} <span className="text-price">*</span>
+            </h2>
+            <p className="mt-1 text-small text-ink-muted">{t('photosHint')}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Images */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Hình ảnh sản phẩm</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {images.map((url, idx) => (
-                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border bg-gray-100">
-                  <img loading="lazy" decoding="async" src={url} alt="" className="w-full h-full object-cover" />
-                  {idx === 0 && (
-                    <span className="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded">
-                      Ảnh bìa
+            <div className="mt-4 flex flex-wrap gap-3">
+              {images.map((url, i) => (
+                <div key={`${url}-${i}`} className="relative h-24 w-24 shrink-0">
+                  <img
+                    src={url}
+                    alt={i === 0 ? t('cover') : `${t('photos')} ${i + 1}`}
+                    className="h-full w-full rounded-control border border-ink/12 object-cover"
+                  />
+                  {i === 0 && (
+                    <span className="absolute inset-x-0 bottom-0 rounded-b-control bg-ink/75 py-0.5 text-center text-caption text-white">
+                      {t('cover')}
                     </span>
                   )}
                   <button
                     type="button"
-                    onClick={() => removeImage(idx)}
-                    className="absolute top-1 right-1 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center"
+                    onClick={() => setImages((prev) => prev.filter((_, x) => x !== i))}
+                    aria-label={t('removePhoto', { index: i + 1 })}
+                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-price"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="h-3.5 w-3.5" aria-hidden="true" />
                   </button>
                 </div>
               ))}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-blue-500 flex flex-col items-center justify-center text-gray-600 hover:text-blue-600 disabled:opacity-50"
-              >
-                {uploading ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-                  <>
-                    <Camera className="w-6 h-6 mb-1" />
-                    <span className="text-xs">Thêm ảnh</span>
-                  </>
-                )}
-              </button>
+
+              {images.length < 9 && (
+                <button
+                  id="add-photo"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex h-24 w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-control border border-dashed border-ink/25 text-ink-muted transition-colors hover:border-brand hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <>
+                      <Camera className="h-5 w-5" aria-hidden="true" />
+                      <span className="text-caption font-normal">{t('addPhoto')}</span>
+                      <span className="text-caption font-normal text-ink-faint">
+                        {images.length}/9
+                      </span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -205,129 +244,242 @@ export default function EditProductPage() {
               multiple
               onChange={handleUpload}
               className="hidden"
+              tabIndex={-1}
             />
-            <p className="text-xs text-gray-600 mt-2">Ảnh đầu tiên sẽ là ảnh bìa. Tối đa 8 ảnh.</p>
-          </div>
+            {fieldErrors.images && <p className={errText}>{fieldErrors.images}</p>}
+          </section>
 
-          {/* Basic info */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-            <h2 className="text-base font-semibold text-gray-800">Thông tin cơ bản</h2>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Tên sản phẩm <span className="text-red-600">*</span>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* ---------- Món gì ---------- */}
+          <section aria-labelledby="sec-what" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-what" className="mb-4 text-h3 text-ink">
+              {t('whatIsIt')}
+            </h2>
+
+            <div className="flex flex-col gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">
-                  Danh mục <span className="text-red-600">*</span>
+                <label htmlFor="field-name" className={label}>
+                  {t('name')} <span className="text-price">*</span>
                 </label>
-                <select
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  required
-                >
-                  <option value="">-- Chọn danh mục --</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Thương hiệu</label>
                 <input
-                  type="text"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  id="field-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  aria-invalid={!!fieldErrors.name}
+                  aria-describedby={fieldErrors.name ? 'err-name' : undefined}
+                  className={control}
                 />
+                {fieldErrors.name && (
+                  <p id="err-name" className={errText}>
+                    {fieldErrors.name}
+                  </p>
+                )}
               </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Tình trạng</label>
-              <select
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              >
-                <option value="new">Mới</option>
-                <option value="used">Đã qua sử dụng</option>
-                <option value="refurbished">Đã tân trang</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Mô tả chi tiết</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={5}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
 
-          {/* Price + Stock */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-base font-semibold text-gray-800 mb-4">Giá bán & Số lượng</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Số lượng <span className="text-red-600">*</span>
-                </label>
-                <StockControl value={stock} onChange={setStock} min={0} max={99999} />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Giá bán (VND) <span className="text-red-600">*</span>
-                </label>
-                <div className="flex items-center rounded-xl border border-gray-300 overflow-hidden focus-within:border-blue-500 transition-all bg-white">
-                  <div className="w-12 h-11 flex items-center justify-center bg-gray-50 border-r border-gray-200 text-gray-600 font-bold">₫</div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="field-category" className={label}>
+                    {t('category')} <span className="text-price">*</span>
+                  </label>
+                  <select
+                    id="field-category"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    aria-invalid={!!fieldErrors.category}
+                    aria-describedby={fieldErrors.category ? 'err-category' : undefined}
+                    className={control}
+                  >
+                    <option value="">{t('categoryPlaceholder')}</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  {fieldErrors.category && (
+                    <p id="err-category" className={errText}>
+                      {fieldErrors.category}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="field-brand" className={label}>
+                    {t('brand')}{' '}
+                    <span className="font-normal text-ink-faint">({tc('optional')})</span>
+                  </label>
                   <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="flex-1 h-11 px-4 border-none outline-none text-lg font-bold text-gray-800 bg-transparent"
-                    required
+                    id="field-brand"
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    placeholder={t('brandPlaceholder')}
+                    className={control}
                   />
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="flex gap-3 sticky bottom-0 bg-gray-50 py-3 -mx-4 px-4 sm:-mx-6 sm:px-6">
+          {/* ---------- Tình trạng ---------- */}
+          <section aria-labelledby="sec-cond" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-cond" className="text-h3 text-ink">
+              {t('conditionTitle')} <span className="text-price">*</span>
+            </h2>
+            <p className="mt-1 text-small text-ink-muted">{t('conditionHint')}</p>
+            <div className="mt-4">
+              <ConditionPicker value={condition} onChange={setCondition} />
+            </div>
+          </section>
+
+          {/* ---------- Giá & còn mấy cái ---------- */}
+          <section aria-labelledby="sec-price" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-price" className="mb-4 text-h3 text-ink">
+              {t('priceAndShipping')}
+            </h2>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="field-price" className={label}>
+                  {t('price')} <span className="text-price">*</span>
+                </label>
+                <div
+                  className={`flex items-center overflow-hidden rounded-control border bg-surface-card transition-colors focus-within:ring-2 focus-within:ring-brand/20 ${
+                    fieldErrors.price
+                      ? 'border-state-danger-fg'
+                      : 'border-ink/16 focus-within:border-brand'
+                  }`}
+                >
+                  <input
+                    id="field-price"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    aria-invalid={!!fieldErrors.price}
+                    aria-describedby={fieldErrors.price ? 'err-price' : undefined}
+                    className="min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-[17px] font-bold tabular-nums text-ink focus:outline-none"
+                  />
+                  <span className="px-3.5 text-body text-ink-muted" aria-hidden="true">
+                    ₫
+                  </span>
+                </div>
+                {fieldErrors.price && (
+                  <p id="err-price" className={errText}>
+                    {fieldErrors.price}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="field-stock" className={label}>
+                  {t('stock')}
+                </label>
+                <input
+                  id="field-stock"
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={99}
+                  value={stock}
+                  onChange={(e) => setStock(Math.max(0, Number(e.target.value) || 0))}
+                  className={control}
+                />
+                <p className="mt-1.5 text-caption font-normal text-ink-muted">
+                  Đặt về 0 khi đã bán xong. Tin vẫn còn nhưng hiện là đã bán.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ---------- Mô tả ---------- */}
+          <section aria-labelledby="sec-desc" className="rounded-card bg-surface-card p-5">
+            <h2 id="sec-desc" className="text-h3 text-ink">
+              {t('describe')}
+            </h2>
+            <label htmlFor="field-desc" className="sr-only">
+              {t('describeLabel')}
+            </label>
+            <textarea
+              id="field-desc"
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={t('describePlaceholder')}
+              className={`${control} mt-4 resize-y`}
+            />
+          </section>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 sm:flex-initial px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-70 flex items-center justify-center gap-2"
+              className="inline-flex items-center gap-2 rounded-control bg-brand px-6 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark disabled:bg-ink-faint"
             >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Đang lưu...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" /> Lưu thay đổi
-                </>
-              )}
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+              {submitting ? t('submitEditing') : t('submitEdit')}
             </button>
-            <Link
-              href={`/product/${productId}`}
-              className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50"
+            <button
+              type="button"
+              onClick={() => router.push(`/product/${productId}`)}
+              className="rounded-control px-4 py-3 text-body text-ink-muted transition-colors hover:text-ink"
             >
-              Hủy
-            </Link>
+              {tc('cancel')}
+            </button>
           </div>
         </form>
+
+        {/* ---------- Xoá tin ----------------------------------------------------
+            Xác nhận NGAY TRÊN TRANG thay vì window.confirm: hộp thoại của trình
+            duyệt chặn mọi tương tác khác, không đọc được tên món trong ngữ cảnh,
+            và không tạo kiểu được. Ở đây nói rõ xoá cái gì trước khi bấm. */}
+        <section
+          aria-labelledby="sec-danger"
+          className="mt-8 rounded-card border border-state-danger-fg/25 bg-surface-card p-5"
+        >
+          <h2 id="sec-danger" className="text-h3 text-ink">
+            Xoá tin này
+          </h2>
+          <p className="mt-1 text-small text-ink-muted">
+            Tin bị gỡ khỏi sàn và không lấy lại được. Nếu chỉ vì đã bán xong thì đặt số lượng
+            về 0, đừng xoá.
+          </p>
+
+          {confirmDelete ? (
+            <div className="mt-4">
+              <p className="text-small text-ink">
+                Xoá hẳn <span className="font-semibold">{name || 'tin này'}</span>?
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-2 rounded-control bg-state-danger-fg px-4 py-2.5 text-small font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {deleting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                  {deleting ? 'Đang xoá…' : 'Xoá hẳn'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  disabled={deleting}
+                  className="rounded-control border border-ink/16 px-4 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
+                >
+                  Thôi, giữ lại
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="mt-4 inline-flex items-center gap-2 rounded-control border border-state-danger-fg/40 px-4 py-2.5 text-small font-semibold text-state-danger-fg transition-colors hover:bg-state-danger-bg"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Xoá tin
+            </button>
+          )}
+        </section>
       </div>
     </div>
   );
