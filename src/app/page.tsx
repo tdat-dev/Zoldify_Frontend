@@ -127,8 +127,8 @@ export default function HomePage() {
                   Bán đồ bạn không dùng nữa
                 </h2>
                 <p className="mt-1.5 text-small leading-relaxed text-ink-muted">
-                  Giáo trình học xong, đồ ký túc xá lúc chuyển phòng. Người mua là sinh viên
-                  trong trường.
+                  Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người
+                  cần sẽ tìm thấy.
                 </p>
               </div>
               <Link

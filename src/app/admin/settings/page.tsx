@@ -72,7 +72,7 @@ export default function AdminSettingsPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả Website</label>
-                        <input type="text" defaultValue="Chợ đồ cũ sinh viên" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+                        <input type="text" defaultValue="Chợ đồ cũ Zoldify" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
                       </div>
                     </div>
                     <button type="button" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Lưu thay đổi</button>

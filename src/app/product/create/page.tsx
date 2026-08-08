@@ -415,9 +415,9 @@ export default function CreateProductPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
               />
               <span className="text-small text-ink">
-                Miễn phí giao trong trường
+                Miễn phí giao trong khu vực
                 <span className="mt-0.5 block text-caption font-normal text-ink-muted">
-                  Bạn tự mang tới cho người mua, không tính phí ship.
+                  Bạn tự mang tới cho người mua quanh khu vực, không tính phí ship.
                 </span>
               </span>
             </label>

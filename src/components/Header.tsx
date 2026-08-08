@@ -151,7 +151,7 @@ export default function Header() {
                 enterKeyHint="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm giáo trình, máy tính, xe đạp…"
+                placeholder="Tìm đồ cũ: máy tính, xe đạp, đồ gia dụng…"
                 className="min-w-0 flex-1 bg-surface-card px-3 text-body text-ink placeholder-ink-faint focus:outline-none"
               />
               <button
@@ -279,7 +279,7 @@ export default function Header() {
               enterKeyHint="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm giáo trình, máy tính, xe đạp…"
+              placeholder="Tìm đồ cũ: máy tính, xe đạp, đồ gia dụng…"
               className="min-w-0 flex-1 bg-surface-card px-3 text-body text-ink placeholder-ink-faint focus:outline-none"
             />
             <button
@@ -298,7 +298,7 @@ export default function Header() {
           là danh mục hàng (Today's Deals / Registry / Fashion...), vì họ bán hàng
           mới sản xuất hàng loạt và người mua đi theo LOẠI HÀNG.
 
-          Ở sàn đồ cũ sinh viên thì câu hỏi đầu tiên là "có gì trong tầm tiền của
+          Ở sàn đồ cũ thì câu hỏi đầu tiên là "có gì trong tầm tiền của
           mình", loại hàng tính sau. Nên thanh này là bốn khoảng giá, và danh mục
           lùi vào một lối duy nhất bên trái. Không sàn nào trong ba sàn kia làm
           vậy — dán thanh này sang site khác là mất nghĩa.

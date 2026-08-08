@@ -19,7 +19,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 export const metadata: Metadata = {
   title: "Zoldify - Nền tảng mua bán đồ cũ",
-  description: "Zoldify - Nền tảng mua bán đồ cũ cho sinh viên",
+  description: "Zoldify - Nền tảng mua bán đồ cũ",
 };
 
 export default function RootLayout({

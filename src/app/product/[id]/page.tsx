@@ -281,7 +281,7 @@ export default function ProductDetailPage() {
               <div className="border-t pt-6 mt-6 grid grid-cols-2 gap-4 text-sm text-gray-700">
                 <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />
-                  <span>Sàn mua bán đồ cũ dành cho sinh viên</span>
+                  <span>Sàn mua bán đồ cũ</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />

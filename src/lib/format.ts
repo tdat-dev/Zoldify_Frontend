@@ -20,8 +20,47 @@ export function timeAgo(value: any): string | null {
   return `${Math.floor(s / 31536000)} năm trước`;
 }
 
-export function formatPrice(value: number | string | null | undefined): string {
+/**
+ * Định dạng tiền, một chỗ duy nhất cho toàn site.
+ *
+ * ĐỊNH HƯỚNG ĐA QUỐC GIA — đọc trước khi sửa:
+ * Backend hiện KHÔNG có cột `currency` ở bất kỳ bảng nào (giá là
+ * `decimal(15,2)` trần trong `catalog/products/entities/product.entity.ts`).
+ * Nghĩa là mọi con số trong hệ thống đều ngầm hiểu là đồng Việt Nam, và giao
+ * diện không có cách nào biết một số tiền thuộc tiền tệ gì.
+ *
+ * Nên hàm này NHẬN vào tiền tệ thay vì gán chết `vi-VN`/`₫`, và tạm mặc định
+ * VND cho tới khi backend thêm cột. Khi có cột rồi thì chỗ phải sửa là lời gọi
+ * (`formatPrice(item.price, item.currency)`), không phải bới lại toàn site.
+ *
+ * Không tự quy đổi tỉ giá ở đây: quy đổi cần nguồn tỉ giá và thời điểm chốt giá,
+ * đó là việc của backend chứ không phải của một hàm định dạng.
+ */
+const LOCALE_BY_CURRENCY: Record<string, string> = {
+  VND: 'vi-VN',
+  USD: 'en-US',
+  EUR: 'de-DE',
+  JPY: 'ja-JP',
+};
+
+export const DEFAULT_CURRENCY = 'VND';
+
+export function formatPrice(
+  value: number | string | null | undefined,
+  currency: string = DEFAULT_CURRENCY,
+): string {
   const n = Number(value);
   if (!Number.isFinite(n)) return '—';
-  return `${n.toLocaleString('vi-VN')}₫`;
+  const locale = LOCALE_BY_CURRENCY[currency] ?? 'en-US';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      // Đồng không có phần lẻ; các tiền tệ khác giữ mặc định của Intl.
+      maximumFractionDigits: currency === 'VND' ? 0 : undefined,
+    }).format(n);
+  } catch {
+    // Mã tiền tệ lạ thì vẫn in ra số chứ không để trang vỡ.
+    return `${n.toLocaleString(locale)} ${currency}`;
+  }
 }
