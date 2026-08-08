@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Minus, Plus, Trash2, Package, AlertTriangle } from 'lucide-react';
+import { Minus, Plus, Trash2, Package, AlertTriangle } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 import { cartService } from '@/services/cart.service';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -142,15 +143,19 @@ export default function CartPage() {
       <div className="min-h-screen bg-surface-page">
         <div className="mx-auto max-w-[1240px] px-4 py-10">
           <h1 className="text-h1 text-ink">Giỏ hàng</h1>
-          <div className="mt-5 rounded-card bg-surface-card p-12 text-center">
-            <ShoppingCart className="mx-auto mb-4 h-14 w-14 text-ink-faint" aria-hidden="true" />
-            <p className="text-body text-ink">Giỏ đang trống.</p>
-            <Link
-              href="/search"
-              className="mt-5 inline-block rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
-            >
-              Xem hàng đang bán
-            </Link>
+          <div className="mt-5 rounded-card bg-surface-card">
+            <EmptyState
+              title="Giỏ đang trống."
+              hint="Đồ cũ mỗi món thường chỉ có một cái. Thấy món ưng thì thêm vào giỏ sớm."
+              action={
+                <Link
+                  href="/search"
+                  className="inline-block rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                >
+                  Xem hàng đang bán
+                </Link>
+              }
+            />
           </div>
         </div>
       </div>

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Package } from 'lucide-react';
 
 /**
  * Lưới danh mục dạng ô — khuôn lấy từ khối "CATEGORIES" của shopee.vn (xem
@@ -12,7 +11,13 @@ import { Package } from 'lucide-react';
  */
 export function CategoryTiles({ categories }: { categories: any[] }) {
   return (
-    <section aria-labelledby="cat-tiles" className="overflow-hidden rounded-card bg-surface-card">
+    // h-full: cột bên phải cao theo ảnh flat-lay, không phải theo số danh mục.
+    // Thiếu h-full thì thẻ trắng dừng ở chiều cao tự nhiên và để lộ một mảng nền
+    // xám bên dưới — trông như thẻ bị cắt cụt.
+    <section
+      aria-labelledby="cat-tiles"
+      className="flex h-full flex-col overflow-hidden rounded-card bg-surface-card"
+    >
       <h2
         id="cat-tiles"
         className="border-b border-ink/10 px-5 py-3.5 text-small font-semibold uppercase tracking-wide text-ink-muted"

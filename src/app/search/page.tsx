@@ -3,10 +3,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
 import { ItemTile } from '@/components/home/ItemTile';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -286,14 +286,14 @@ export default function SearchPage() {
                   </button>
                 </div>
               ) : products.length === 0 ? (
-                <div className="rounded-card bg-surface-card p-10 text-center">
-                  <Search className="mx-auto mb-3 h-10 w-10 text-ink-faint" aria-hidden="true" />
-                  <p className="text-body text-ink">Không có món nào khớp.</p>
-                  <p className="mt-2 text-small text-ink-muted">
-                    Thử bỏ bớt bộ lọc, hoặc gõ từ khoá ngắn hơn.
-                  </p>
+                <div className="rounded-card bg-surface-card pb-10">
+                  <EmptyState
+                    title="Không có món nào khớp."
+                    hint="Thử bỏ bớt bộ lọc, hoặc gõ từ khoá ngắn hơn."
+                    className="pb-0"
+                  />
                   {trendingKeywords.length > 0 && (
-                    <div className="mt-6">
+                    <div className="mt-8 text-center">
                       <p className="mb-3 text-caption font-normal text-ink-muted">Hay được tìm</p>
                       <div className="flex flex-wrap justify-center gap-2">
                         {trendingKeywords.map((kw) => (

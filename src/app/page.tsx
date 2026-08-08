@@ -104,7 +104,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <div className="lg:col-span-2">
             {catState !== 'ready' || categories.length === 0 ? (
-              <div className="rounded-card bg-surface-card">
+              <div className="h-full rounded-card bg-surface-card">
                 <SectionState
                   state={catState}
                   empty={categories.length === 0}
@@ -117,11 +117,23 @@ export default function HomePage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-3">
-            <section
-              aria-labelledby="panel-sell"
-              className="flex flex-1 flex-col justify-between gap-3 rounded-card bg-brand-tint p-5"
-            >
+          {/* Cột này trước đây chia đôi cho "đăng bán" và một danh sách ba cách
+              thanh toán. Danh sách đó lặp lại NGUYÊN VĂN Footer.tsx:35-37 — nói
+              hai lần trên cùng một trang không làm nó đúng hơn, chỉ lấy mất chỗ.
+              Cả cột nay dành cho việc đăng bán, thứ phân biệt một sàn đồ cũ với
+              một sàn hàng mới. */}
+          <section
+            aria-labelledby="panel-sell"
+            className="flex flex-col overflow-hidden rounded-card bg-brand-tint"
+          >
+            <img
+              src="/media/sell-flatlay.webp"
+              alt="Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp."
+              width={1000}
+              height={667}
+              className="aspect-[3/2] w-full object-cover"
+            />
+            <div className="flex flex-1 flex-col justify-between gap-4 p-5">
               <div>
                 <h2 id="panel-sell" className="text-[17px] font-bold text-ink">
                   Bán đồ bạn không dùng nữa
@@ -137,22 +149,8 @@ export default function HomePage() {
               >
                 Đăng bán đồ cũ
               </Link>
-            </section>
-
-            <section
-              aria-labelledby="panel-pay"
-              className="flex-1 rounded-card bg-surface-card p-5"
-            >
-              <h2 id="panel-pay" className="text-[17px] font-bold text-ink">
-                Trả kiểu nào cũng được
-              </h2>
-              <ul className="mt-2 flex flex-col gap-1 text-small text-ink-muted">
-                <li>Thanh toán khi nhận hàng</li>
-                <li>Ví Zoldify</li>
-                <li>Thẻ ATM nội địa, thẻ quốc tế và QR qua PayOS</li>
-              </ul>
-            </section>
-          </div>
+            </div>
+          </section>
         </div>
 
         {/* --- Amazon: lưới bốn thẻ trắng, mỗi thẻ một tầm tiền --- */}

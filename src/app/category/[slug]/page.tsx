@@ -2,10 +2,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Package } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
 import { ItemTile } from '@/components/home/ItemTile';
+import { EmptyState } from '@/components/EmptyState';
 
 /**
  * Một danh mục.
@@ -156,28 +157,34 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                   </button>
                 </div>
               ) : products.length === 0 ? (
-                <div className="rounded-card bg-surface-card p-10 text-center">
-                  <Package className="mx-auto mb-3 h-10 w-10 text-ink-faint" aria-hidden="true" />
-                  <p className="text-body text-ink">
-                    {band > 0
-                      ? 'Không có món nào trong tầm tiền này.'
-                      : 'Chưa ai đăng bán gì trong danh mục này.'}
-                  </p>
+                <div className="rounded-card bg-surface-card">
                   {band > 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => setBand(0)}
-                      className="mt-4 text-small font-semibold text-brand hover:underline"
-                    >
-                      Xem mọi tầm giá
-                    </button>
+                    <EmptyState
+                      title="Không có món nào trong tầm tiền này."
+                      hint="Danh mục vẫn có hàng, chỉ là không món nào rơi vào khoảng giá bạn chọn."
+                      action={
+                        <button
+                          type="button"
+                          onClick={() => setBand(0)}
+                          className="rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                        >
+                          Xem mọi tầm giá
+                        </button>
+                      }
+                    />
                   ) : (
-                    <Link
-                      href="/product/create"
-                      className="mt-4 inline-block text-small font-semibold text-brand hover:underline"
-                    >
-                      Đăng món đầu tiên
-                    </Link>
+                    <EmptyState
+                      title="Chưa ai đăng bán gì trong danh mục này."
+                      hint="Đồ cũ trong nhà bạn có thể là món ai đó đang tìm."
+                      action={
+                        <Link
+                          href="/product/create"
+                          className="inline-block rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                        >
+                          Đăng món đầu tiên
+                        </Link>
+                      }
+                    />
                   )}
                 </div>
               ) : (
