@@ -3,9 +3,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Package, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import { ItemTile } from '@/components/home/ItemTile';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -33,7 +34,7 @@ export default function SearchPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [meta, setMeta] = useState<any>({ current: 1, pages: 1, total: 0 });
   const [categories, setCategories] = useState<any[]>([]);
-  const [selectedCat, setSelectedCat] = useState(catFromUrl);
+  const selectedCat = catFromUrl;
   const [sort, setSort] = useState(sortFromUrl);
   const [currentPage, setCurrentPage] = useState(1);
   const [trendingKeywords, setTrendingKeywords] = useState<string[]>(['Laptop', 'Sách', 'Điện thoại', 'Tai nghe', 'Áo thun', 'Giày']);
@@ -92,10 +93,6 @@ export default function SearchPage() {
   }, [sortFromUrl]);
 
   useEffect(() => {
-    setSelectedCat(catFromUrl);
-  }, [catFromUrl]);
-
-  useEffect(() => {
     setCurrentPage(1);
   }, [q, selectedCat, sort, priceMin, priceMax]);
 
@@ -111,141 +108,244 @@ export default function SearchPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  /** Dựng URL mới từ URL hiện tại, chỉ đổi những khoá được truyền vào. Giữ
+   *  nguyên các bộ lọc khác thay vì xoá sạch mỗi lần đổi một thứ. */
+  const urlWith = (changes: Record<string, string | null>) => {
+    const p = new URLSearchParams(searchParams.toString());
+    for (const [k, v] of Object.entries(changes)) {
+      if (v === null || v === '') p.delete(k);
+      else p.set(k, v);
+    }
+    const s = p.toString();
+    return s ? `/search?${s}` : '/search';
+  };
+
+  /* Bốn tầm tiền — cùng thang với header và trang chủ. Đây là bộ lọc đầu tiên
+     trong cột bên trái, trên cả danh mục: ở sàn đồ cũ, túi tiền là thứ người ta
+     lọc trước loại hàng. */
+  const BANDS = [
+    { label: 'Dưới 100k', min: '', max: '100000' },
+    { label: '100k – 300k', min: '100000', max: '300000' },
+    { label: '300k – 1 triệu', min: '300000', max: '1000000' },
+    { label: 'Trên 1 triệu', min: '1000000', max: '' },
+  ];
+  const activeBand = BANDS.findIndex(
+    (b) => String(priceMin ?? '') === b.min && String(priceMax ?? '') === b.max,
+  );
+
+  const hasFilter = !!q || !!selectedCat || activeBand >= 0 || !!sort;
+
+  /* Phân trang rút gọn. Bản trước render MỌI trang: 50 trang là 50 nút. */
+  const pageList = (): (number | 'gap')[] => {
+    const total = meta.pages || 1;
+    const cur = meta.current || 1;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const out: (number | 'gap')[] = [1];
+    const from = Math.max(2, cur - 1);
+    const to = Math.min(total - 1, cur + 1);
+    if (from > 2) out.push('gap');
+    for (let i = from; i <= to; i++) out.push(i);
+    if (to < total - 1) out.push('gap');
+    out.push(total);
+    return out;
+  };
+
+  const filterHead = 'mb-2 text-caption uppercase tracking-wide text-ink-faint';
+  const filterItem =
+    'block rounded-control px-2.5 py-1.5 text-small transition-colors hover:bg-surface-sunken';
+
+  const filters = (
+    <>
+      <div className="mb-5">
+        <h3 className={filterHead}>Tầm tiền</h3>
+        <ul className="flex flex-col gap-0.5">
+          <li>
+            <Link
+              href={urlWith({ price_min: null, price_max: null })}
+              className={`${filterItem} ${activeBand < 0 ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'}`}
+            >
+              Mọi giá
+            </Link>
+          </li>
+          {BANDS.map((b, i) => (
+            <li key={b.label}>
+              <Link
+                href={urlWith({ price_min: b.min || null, price_max: b.max || null })}
+                className={`${filterItem} tabular-nums ${
+                  activeBand === i ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'
+                }`}
+              >
+                {b.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mb-5">
+        <h3 className={filterHead}>Danh mục</h3>
+        <ul className="flex flex-col gap-0.5">
+          <li>
+            <Link
+              href={urlWith({ category_id: null })}
+              className={`${filterItem} ${!selectedCat ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'}`}
+            >
+              Tất cả
+            </Link>
+          </li>
+          {categories.map((cat: any) => (
+            <li key={cat.id}>
+              <Link
+                href={urlWith({ category_id: String(cat.id) })}
+                className={`${filterItem} truncate ${
+                  selectedCat === String(cat.id)
+                    ? 'bg-brand-tint font-semibold text-brand'
+                    : 'text-ink'
+                }`}
+              >
+                {cat.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <label htmlFor="sort-by" className={filterHead}>
+          Sắp xếp
+        </label>
+        <select
+          id="sort-by"
+          value={sort}
+          onChange={(e) => router.push(urlWith({ sort: e.target.value || null }))}
+          className="w-full rounded-control border border-ink/16 bg-surface-card px-2.5 py-2 text-small text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+        >
+          <option value="">Mặc định</option>
+          <option value="newest">Mới đăng trước</option>
+          <option value="price_asc">Giá thấp trước</option>
+          <option value="price_desc">Giá cao trước</option>
+        </select>
+      </div>
+    </>
+  );
+
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
-      <div className="max-w-[1200px] mx-auto px-4 pt-6">
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto max-w-[1500px] px-3 py-3">
+        <div className="flex flex-col gap-3 lg:flex-row">
+          {/* Cột lọc. Dưới lg thu thành một khối mở ra được thay vì biến mất —
+              bản trước ẩn hẳn ở mobile, nên trên điện thoại không lọc được gì. */}
+          <aside className="lg:w-[220px] lg:shrink-0">
+            <div className="hidden rounded-card bg-surface-card p-4 lg:block">{filters}</div>
+            <details className="rounded-card bg-surface-card p-4 lg:hidden">
+              <summary className="cursor-pointer text-small font-semibold text-ink">
+                Bộ lọc
+              </summary>
+              <div className="mt-4">{filters}</div>
+            </details>
+          </aside>
 
-        <div className="flex gap-4">
-          <div className="hidden md:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-sm p-4 shadow-sm">
-              <h2 className="font-medium text-gray-800 mb-4 pb-2 border-b">BỘ LỌC TÌM KIẾM</h2>
-              <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Danh mục</h4>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="cat" checked={selectedCat === ''} onChange={() => setSelectedCat('')} className="text-brand" />
-                    <span>Tất cả</span>
-                  </label>
-                  {categories.map((cat: any) => (
-                    <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="cat" checked={selectedCat === String(cat.id)} onChange={() => setSelectedCat(String(cat.id))} className="text-brand" />
-                      <span>{cat.name}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="border-t pt-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Sắp xếp</h4>
-                <select value={sort} onChange={(e) => setSort(e.target.value)} className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded outline-none">
-                  <option value="">Mặc định</option>
-                  <option value="price_asc">Giá: Thấp đến Cao</option>
-                  <option value="price_desc">Giá: Cao đến Thấp</option>
-                  <option value="newest">Mới nhất</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="bg-white rounded-sm shadow-sm p-5 mb-4">
-              <h1 className="text-lg font-medium text-gray-900 mb-3">
-                {q ? <>Kết quả tìm kiếm: &ldquo;{q}&rdquo; <span className="text-sm font-normal text-gray-600">({meta.total} sản phẩm)</span></> : 'Tìm sản phẩm trên Zoldify'}
+          <div className="min-w-0 flex-1">
+            <div className="rounded-card bg-surface-card p-5">
+              <h1 className="text-h2 text-ink">
+                {q ? <>Kết quả cho “{q}”</> : 'Tất cả hàng đang bán'}
               </h1>
-              <form onSubmit={handleSearch} className="flex gap-2" role="search">
-                <label htmlFor="search-q" className="sr-only">Từ khoá tìm kiếm</label>
-                <input id="search-q" type="search" name="q" defaultValue={q} placeholder="Tìm kiếm sản phẩm..." className="flex-1 px-4 py-2 border border-gray-300 rounded-sm outline-none focus:border-brand text-sm" />
-                <button type="submit" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark text-sm">Tìm</button>
-              </form>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-gray-600">
-                <span className="font-medium text-gray-600">Phổ biến:</span>
-                {trendingKeywords.map((kw) => (
-                  <Link
-                    key={kw}
-                    href={`/search?q=${encodeURIComponent(kw)}`}
-                    className="inline-block py-1 hover:text-brand cursor-pointer"
-                  >
-                    {kw}
-                  </Link>
-                ))}
-              </div>
+              {loadState === 'ready' && (
+                <p className="mt-1 text-small text-ink-muted">
+                  <span className="tabular-nums">{meta.total ?? 0}</span> món
+                </p>
+              )}
+
+              {hasFilter && (
+                <Link
+                  href="/search"
+                  className="mt-3 inline-block text-small text-brand hover:underline"
+                >
+                  Xoá bộ lọc
+                </Link>
+              )}
             </div>
 
-            {loadState === 'loading' ? (
-              <div className="bg-white rounded p-10 text-center text-sm text-gray-600">Đang tải kết quả…</div>
-            ) : loadState === 'error' ? (
-              <div className="bg-white rounded p-10 text-center">
-                <p className="text-gray-800 font-medium">Không tải được kết quả tìm kiếm.</p>
-                <p className="text-sm text-gray-600 mt-2">Kiểm tra kết nối rồi thử lại. Đây không phải là &ldquo;không có sản phẩm&rdquo;.</p>
-                <button
-                  onClick={() => fetchProducts(currentPage)}
-                  className="mt-5 px-5 py-2 bg-brand text-white rounded-sm text-sm hover:bg-brand-dark transition-colors"
-                >
-                  Thử lại
-                </button>
-              </div>
-            ) : products.length === 0 ? (
-              <div className="bg-white rounded p-10 text-center">
-                <Search className="w-10 h-10 text-gray-400 mx-auto mb-3" aria-hidden="true" />
-                <p className="text-gray-600">Không tìm thấy sản phẩm nào phù hợp.</p>
-                <p className="text-sm text-gray-600 mt-2">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc.</p>
-                <div className="mt-6">
-                  <p className="text-xs text-gray-600 mb-3">Từ khóa phổ biến:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {trendingKeywords.map((kw) => (
-                      <Link
-                        key={kw}
-                        href={`/search?q=${encodeURIComponent(kw)}`}
-                        className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-brand hover:text-white text-gray-700 rounded-sm transition-colors"
-                      >
-                        {kw}
-                      </Link>
-                    ))}
-                  </div>
+            <div className="mt-3">
+              {loadState === 'loading' ? (
+                <div className="rounded-card bg-surface-card p-10 text-center text-body text-ink-muted">
+                  Đang tải kết quả…
                 </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-                {products.map((item) => (
-                  <Link key={item.id} href={`/product/${item.id}`} className="block bg-white rounded-sm shadow-sm hover:shadow-md transition-all group border border-transparent hover:border-brand/30 overflow-hidden">
-                    <div className="aspect-square relative overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {item.image ? (
-                        <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-10 h-10 text-gray-600" />
-                      )}
-                    </div>
-                    <div className="p-2">
-                      <div className="text-xs text-gray-800 line-clamp-2 mb-2 min-h-[32px]">
-                        {item.name}
+              ) : loadState === 'error' ? (
+                <div className="rounded-card bg-surface-card p-10 text-center">
+                  <p className="text-body font-semibold text-ink">Không tải được kết quả.</p>
+                  <p className="mt-2 text-small text-ink-muted">
+                    Kiểm tra kết nối rồi thử lại. Đây không phải là “không có món nào”.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => fetchProducts(currentPage)}
+                    className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              ) : products.length === 0 ? (
+                <div className="rounded-card bg-surface-card p-10 text-center">
+                  <Search className="mx-auto mb-3 h-10 w-10 text-ink-faint" aria-hidden="true" />
+                  <p className="text-body text-ink">Không có món nào khớp.</p>
+                  <p className="mt-2 text-small text-ink-muted">
+                    Thử bỏ bớt bộ lọc, hoặc gõ từ khoá ngắn hơn.
+                  </p>
+                  {trendingKeywords.length > 0 && (
+                    <div className="mt-6">
+                      <p className="mb-3 text-caption font-normal text-ink-muted">Hay được tìm</p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {trendingKeywords.map((kw) => (
+                          <Link
+                            key={kw}
+                            href={`/search?q=${encodeURIComponent(kw)}`}
+                            className="rounded-control bg-surface-sunken px-3 py-1.5 text-small text-ink transition-colors hover:bg-brand hover:text-white"
+                          >
+                            {kw}
+                          </Link>
+                        ))}
                       </div>
-                      <div className="flex justify-between items-end">
-                        <div className="text-red-600 text-base font-medium">
-                          <span className="text-xs underline">đ</span>{Number(item.price).toLocaleString('vi-VN')}
-                        </div>
-                        <div className="text-xs text-gray-600">Còn: {item.stock}</div>
-                      </div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-card bg-surface-card p-4">
+                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {products.map((item) => (
+                      <li key={item.id}>
+                        <ItemTile item={item} size="md" />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
 
             {meta.pages > 1 && (
-              <div className="flex justify-center mt-10 gap-2">
-                {Array.from({ length: meta.pages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => paginate(page)}
-                    className={`px-3 py-1 border rounded-sm text-sm ${
-                      page === meta.current
-                        ? 'bg-brand border-brand text-white'
-                        : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+              <nav aria-label="Phân trang" className="mt-4 flex justify-center gap-1">
+                {pageList().map((p, i) =>
+                  p === 'gap' ? (
+                    <span key={`gap-${i}`} className="px-2 py-1.5 text-small text-ink-faint">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => paginate(p)}
+                      aria-current={p === meta.current ? 'page' : undefined}
+                      className={`min-w-9 rounded-control px-3 py-1.5 text-small tabular-nums transition-colors ${
+                        p === meta.current
+                          ? 'bg-brand font-semibold text-white'
+                          : 'bg-surface-card text-ink hover:bg-surface-sunken'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+              </nav>
             )}
           </div>
         </div>
