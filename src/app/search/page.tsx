@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
@@ -10,6 +11,9 @@ import { EmptyState } from '@/components/EmptyState';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
+  const t = useTranslations('search');
+  const tc = useTranslations('common');
+  const tBands = useTranslations('priceBands');
   const router = useRouter();
   const q = searchParams.get('q') || '';
 
@@ -124,11 +128,11 @@ export default function SearchPage() {
      trong cột bên trái, trên cả danh mục: ở sàn đồ cũ, túi tiền là thứ người ta
      lọc trước loại hàng. */
   const BANDS = [
-    { label: 'Dưới 100k', min: '', max: '100000' },
-    { label: '100k – 300k', min: '100000', max: '300000' },
-    { label: '300k – 1 triệu', min: '300000', max: '1000000' },
-    { label: 'Trên 1 triệu', min: '1000000', max: '' },
-  ];
+    { key: 'under100k', min: '', max: '100000' },
+    { key: '100to300k', min: '100000', max: '300000' },
+    { key: '300kTo1m', min: '300000', max: '1000000' },
+    { key: 'over1m', min: '1000000', max: '' },
+  ] as const;
   const activeBand = BANDS.findIndex(
     (b) => String(priceMin ?? '') === b.min && String(priceMax ?? '') === b.max,
   );
@@ -157,25 +161,25 @@ export default function SearchPage() {
   const filters = (
     <>
       <div className="mb-5">
-        <h3 className={filterHead}>Tầm tiền</h3>
+        <h3 className={filterHead}>{t('priceBand')}</h3>
         <ul className="flex flex-col gap-0.5">
           <li>
             <Link
               href={urlWith({ price_min: null, price_max: null })}
               className={`${filterItem} ${activeBand < 0 ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'}`}
             >
-              Mọi giá
+              {tBands('any')}
             </Link>
           </li>
           {BANDS.map((b, i) => (
-            <li key={b.label}>
+            <li key={b.key}>
               <Link
                 href={urlWith({ price_min: b.min || null, price_max: b.max || null })}
                 className={`${filterItem} tabular-nums ${
                   activeBand === i ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'
                 }`}
               >
-                {b.label}
+                {tBands(b.key)}
               </Link>
             </li>
           ))}
@@ -183,14 +187,14 @@ export default function SearchPage() {
       </div>
 
       <div className="mb-5">
-        <h3 className={filterHead}>Danh mục</h3>
+        <h3 className={filterHead}>{t('category')}</h3>
         <ul className="flex flex-col gap-0.5">
           <li>
             <Link
               href={urlWith({ category_id: null })}
               className={`${filterItem} ${!selectedCat ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'}`}
             >
-              Tất cả
+              {t('all')}
             </Link>
           </li>
           {categories.map((cat: any) => (
@@ -212,7 +216,7 @@ export default function SearchPage() {
 
       <div>
         <label htmlFor="sort-by" className={filterHead}>
-          Sắp xếp
+          {t('sort')}
         </label>
         <select
           id="sort-by"
@@ -220,10 +224,10 @@ export default function SearchPage() {
           onChange={(e) => router.push(urlWith({ sort: e.target.value || null }))}
           className="w-full rounded-control border border-ink/16 bg-surface-card px-2.5 py-2 text-small text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
         >
-          <option value="">Mặc định</option>
-          <option value="newest">Mới đăng trước</option>
-          <option value="price_asc">Giá thấp trước</option>
-          <option value="price_desc">Giá cao trước</option>
+          <option value="">{t('sortDefault')}</option>
+          <option value="newest">{t('sortNewest')}</option>
+          <option value="price_asc">{t('sortPriceAsc')}</option>
+          <option value="price_desc">{t('sortPriceDesc')}</option>
         </select>
       </div>
     </>
@@ -239,7 +243,7 @@ export default function SearchPage() {
             <div className="hidden rounded-card bg-surface-card p-4 lg:block">{filters}</div>
             <details className="rounded-card bg-surface-card p-4 lg:hidden">
               <summary className="cursor-pointer text-small font-semibold text-ink">
-                Bộ lọc
+                {t('filters')}
               </summary>
               <div className="mt-4">{filters}</div>
             </details>
@@ -248,11 +252,11 @@ export default function SearchPage() {
           <div className="min-w-0 flex-1">
             <div className="rounded-card bg-surface-card p-5">
               <h1 className="text-h2 text-ink">
-                {q ? <>Kết quả cho “{q}”</> : 'Tất cả hàng đang bán'}
+                {q ? t('resultsFor', { q }) : t('allOnSale')}
               </h1>
               {loadState === 'ready' && (
                 <p className="mt-1 text-small text-ink-muted">
-                  <span className="tabular-nums">{meta.total ?? 0}</span> món
+                  {t('count', { count: meta.total ?? 0 })}
                 </p>
               )}
 
@@ -261,7 +265,7 @@ export default function SearchPage() {
                   href="/search"
                   className="mt-3 inline-block text-small text-brand hover:underline"
                 >
-                  Xoá bộ lọc
+                  {t('clearFilters')}
                 </Link>
               )}
             </div>
@@ -269,32 +273,32 @@ export default function SearchPage() {
             <div className="mt-3">
               {loadState === 'loading' ? (
                 <div className="rounded-card bg-surface-card p-10 text-center text-body text-ink-muted">
-                  Đang tải kết quả…
+                  {t('loading')}
                 </div>
               ) : loadState === 'error' ? (
                 <div className="rounded-card bg-surface-card p-10 text-center">
-                  <p className="text-body font-semibold text-ink">Không tải được kết quả.</p>
+                  <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
                   <p className="mt-2 text-small text-ink-muted">
-                    Kiểm tra kết nối rồi thử lại. Đây không phải là “không có món nào”.
+                    {t('loadFailedHint')}
                   </p>
                   <button
                     type="button"
                     onClick={() => fetchProducts(currentPage)}
                     className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                   >
-                    Thử lại
+                    {tc('retry')}
                   </button>
                 </div>
               ) : products.length === 0 ? (
                 <div className="rounded-card bg-surface-card pb-10">
                   <EmptyState
-                    title="Không có món nào khớp."
-                    hint="Thử bỏ bớt bộ lọc, hoặc gõ từ khoá ngắn hơn."
+                    title={t('empty')}
+                    hint={t('emptyHint')}
                     className="pb-0"
                   />
                   {trendingKeywords.length > 0 && (
                     <div className="mt-8 text-center">
-                      <p className="mb-3 text-caption font-normal text-ink-muted">Hay được tìm</p>
+                      <p className="mb-3 text-caption font-normal text-ink-muted">{t('trending')}</p>
                       <div className="flex flex-wrap justify-center gap-2">
                         {trendingKeywords.map((kw) => (
                           <Link
@@ -323,7 +327,7 @@ export default function SearchPage() {
             </div>
 
             {meta.pages > 1 && (
-              <nav aria-label="Phân trang" className="mt-4 flex justify-center gap-1">
+              <nav aria-label={t('pagination')} className="mt-4 flex justify-center gap-1">
                 {pageList().map((p, i) =>
                   p === 'gap' ? (
                     <span key={`gap-${i}`} className="px-2 py-1.5 text-small text-ink-faint">

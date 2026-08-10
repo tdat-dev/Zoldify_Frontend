@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { MapPin, Truck, QrCode, Loader, CreditCard, Package } from 'lucide-react';
 import { cartService } from '@/services/cart.service';
 import { orderService } from '@/services/order.service';
@@ -15,6 +16,9 @@ import AddressPicker from '@/components/AddressPicker';
 import { formatPrice } from '@/lib/format';
 
 export default function CheckoutPage() {
+  const t = useTranslations('checkout');
+  const tCat = useTranslations('category');
+  const tc = useTranslations('common');
   const { allowed } = useRequireAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,7 +55,7 @@ export default function CheckoutPage() {
       const items = res.data?.data?.result || [];
       let mapped = items.map((item: any) => ({
         id: item.id,
-        name: item.product?.name || 'Món đã bị gỡ',
+        name: item.product?.name || t('removedItem'),
         price: Number(item.product?.price || 0),
         quantity: item.quantity,
         stock: Number(item.product?.stock ?? 0),
@@ -76,11 +80,11 @@ export default function CheckoutPage() {
 
   const handleOrder = async () => {
     if (!addressInfo.receiver_name || !addressInfo.receiver_phone || !addressInfo.shipping_address) {
-      toast('Vui lòng nhập đầy đủ thông tin giao hàng', 'error');
+      toast(t('errAddress'), 'error');
       return;
     }
     if (cartItems.length === 0) {
-      toast('Chưa có sản phẩm nào được chọn', 'error');
+      toast(t('errNoItems'), 'error');
       return;
     }
     setSubmitting(true);
@@ -102,14 +106,14 @@ export default function CheckoutPage() {
       // Bước 2: Nếu là PayOS → tạo link thanh toán và redirect
       if (paymentMethod === 'payos') {
         if (!orderId) {
-          toast('Không lấy được mã đơn hàng', 'error');
+          toast(t('errNoCode'), 'error');
           setSubmitting(false);
           return;
         }
         const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
         const checkoutUrl = payosRes.data?.data?.checkoutUrl;
         if (!checkoutUrl) {
-          toast('Không lấy được link thanh toán PayOS', 'error');
+          toast(t('errNoPayLink'), 'error');
           setSubmitting(false);
           return;
         }
@@ -123,7 +127,7 @@ export default function CheckoutPage() {
       refreshCartCount();
       router.push('/cart/success');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Đặt hàng thất bại';
+      const msg = err.response?.data?.message || t('errSubmit');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setSubmitting(false);
@@ -133,7 +137,7 @@ export default function CheckoutPage() {
   if (loading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center bg-surface-page">
-        <p className="text-body text-ink-muted">Đang tải…</p>
+        <p className="text-body text-ink-muted">{t('loading')}</p>
       </div>
     );
   }
@@ -143,9 +147,9 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-surface-page">
         <div className="mx-auto max-w-[1240px] px-4 py-10">
           <div className="rounded-card bg-surface-card p-10 text-center">
-            <p className="text-body font-semibold text-ink">Không tải được đơn hàng.</p>
+            <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
             <p className="mt-2 text-small text-ink-muted">
-              Chưa có gì bị trừ tiền. Kiểm tra kết nối rồi thử lại.
+              {t('loadFailedHint')}
             </p>
             <button
               type="button"
@@ -155,7 +159,7 @@ export default function CheckoutPage() {
               }}
               className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
-              Thử lại
+              {tc('retry')}
             </button>
           </div>
         </div>
@@ -198,24 +202,24 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-surface-page pb-16">
       <div className="mx-auto max-w-[1240px] px-4 py-5">
-        <nav aria-label="Đường dẫn" className="mb-3 flex items-center gap-1.5 text-small text-ink-muted">
+        <nav aria-label={tCat('breadcrumbLabel')} className="mb-3 flex items-center gap-1.5 text-small text-ink-muted">
           <Link href="/cart" className="hover:text-brand">
-            Giỏ hàng
+            {t('breadcrumbCart')}
           </Link>
           <span aria-hidden="true">›</span>
           <span className="text-ink" aria-current="page">
-            Đặt hàng
+            {t('title')}
           </span>
         </nav>
 
-        <h1 className="text-h1 text-ink">Đặt hàng</h1>
+        <h1 className="text-h1 text-ink">{t('title')}</h1>
 
         {soldOutItems.length > 0 && (
           <p
             role="alert"
             className="mt-4 rounded-control border border-state-danger-fg/30 bg-state-danger-bg px-4 py-3 text-body text-state-danger-fg"
           >
-            {soldOutItems.length} món trong đơn đã được người khác mua mất. Quay lại giỏ để bỏ ra
+            {t('soldOutWarning', { count: soldOutItems.length })}
             trước khi đặt.
           </p>
         )}
@@ -224,24 +228,24 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-3 lg:col-span-8">
             <section aria-labelledby="sec-ship" className="rounded-card bg-surface-card p-5">
               <h2 id="sec-ship" className="mb-4 flex items-center gap-2 text-h3 text-ink">
-                <MapPin className="h-5 w-5 text-brand" aria-hidden="true" /> Giao tới đâu
+                <MapPin className="h-5 w-5 text-brand" aria-hidden="true" /> {t('shipTo')}
               </h2>
               <AddressPicker onSelect={setAddressInfo} />
             </section>
 
             <section aria-labelledby="sec-note" className="rounded-card bg-surface-card p-5">
               <h2 id="sec-note" className="text-h3 text-ink">
-                Nhắn người bán
+                {t('messageSeller')}
               </h2>
               <label htmlFor="order-note" className="sr-only">
-                Ghi chú cho người bán
+                {t('note')}
               </label>
               <textarea
                 id="order-note"
                 rows={2}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Ví dụ: chiều tối mình mới nhận được, bạn gọi trước nhé."
+                placeholder={t('notePlaceholder')}
                 className="mt-3 w-full resize-y rounded-control border border-ink/16 bg-surface-card px-3.5 py-2.5 text-body text-ink placeholder-ink-faint focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
               />
             </section>
@@ -251,7 +255,7 @@ export default function CheckoutPage() {
                 id="sec-items"
                 className="border-b border-ink/10 px-5 py-3.5 text-small font-semibold text-ink"
               >
-                {cartItems.length} món
+                {t('itemCount', { count: cartItems.length })}
               </h2>
               <ul>
                 {cartItems.map((item) => (
@@ -286,35 +290,35 @@ export default function CheckoutPage() {
 
           <div className="lg:col-span-4">
             <div className="rounded-card bg-surface-card p-5 lg:sticky lg:top-24">
-              <h2 className="border-b border-ink/10 pb-4 text-h3 text-ink">Thanh toán</h2>
+              <h2 className="border-b border-ink/10 pb-4 text-h3 text-ink">{t('payment')}</h2>
 
               <dl className="mt-4 flex flex-col gap-2.5">
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-body text-ink-muted">Tiền hàng</dt>
+                  <dt className="text-body text-ink-muted">{t('goods')}</dt>
                   <dd className="text-body tabular-nums text-ink">{formatPrice(subtotal)}</dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-body text-ink-muted">Phí giao hàng</dt>
+                  <dt className="text-body text-ink-muted">{t('shippingFee')}</dt>
                   <dd className="text-body text-ink">
-                    {SHIPPING_FEE === 0 ? 'Miễn phí' : formatPrice(SHIPPING_FEE)}
+                    {SHIPPING_FEE === 0 ? t('free') : formatPrice(SHIPPING_FEE)}
                   </dd>
                 </div>
               </dl>
 
               <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-ink/10 pt-4">
-                <span className="text-body font-semibold text-ink">Tổng</span>
+                <span className="text-body font-semibold text-ink">{t('total')}</span>
                 <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal)}</span>
               </div>
 
               <fieldset className="mt-5">
-                <legend className="mb-3 text-small font-semibold text-ink">Trả bằng gì</legend>
+                <legend className="mb-3 text-small font-semibold text-ink">{t('payWith')}</legend>
                 <div className="flex flex-col gap-2">
-                  {payOption('cod', 'Trả khi nhận hàng', 'Đưa tiền mặt lúc nhận', Truck)}
-                  {payOption('wallet', 'Ví Zoldify', 'Trừ từ số dư trong ví', QrCode)}
+                  {payOption('cod', t('cod'), t('codHint'), Truck)}
+                  {payOption('wallet', t('wallet'), t('walletHint'), QrCode)}
                   {payOption(
                     'payos',
-                    'Thẻ hoặc QR',
-                    'Thẻ ATM nội địa, thẻ quốc tế, QR qua PayOS',
+                    t('card'),
+                    t('cardHint'),
                     CreditCard,
                   )}
                 </div>
@@ -327,12 +331,12 @@ export default function CheckoutPage() {
                 className="mt-5 flex w-full items-center justify-center gap-2 rounded-control bg-brand py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink/15 disabled:text-ink-muted"
               >
                 {submitting && <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />}
-                {submitting ? 'Đang đặt…' : 'Đặt hàng'}
+                {submitting ? t('submitting') : t('submit')}
               </button>
 
               <p className="mt-3 text-center text-small">
                 <Link href="/cart" className="text-ink-muted hover:text-brand">
-                  Quay lại giỏ hàng
+                  {t('backToCart')}
                 </Link>
               </p>
             </div>
