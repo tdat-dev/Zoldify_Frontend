@@ -2,95 +2,223 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { authService } from '@/services/auth.service';
 import { useToast } from '@/components/Toast';
+import { AuthShell, authField, authLabel, authSubmit } from '@/components/auth/AuthShell';
 
+/**
+ * Quên mật khẩu.
+ *
+ * BẢN TRƯỚC LÀ MỘT LUỒNG GIẢ TỪ ĐẦU ĐẾN CUỐI:
+ *
+ *   handleSendCode  -> chỉ `setStep(2)`. KHÔNG gọi API nào. Không có mã OTP
+ *                      nào được gửi đi, nhưng màn hình vẫn bảo người dùng
+ *                      "Nhập mã code 6 số đã được gửi tới email".
+ *   handleVerifyOtp -> chỉ hiện toast "Xác thực thành công. Chuyển đến trang
+ *                      đặt lại mật khẩu…" rồi KHÔNG chuyển đi đâu cả.
+ *   "Gửi lại mã?"   -> không có onClick.
+ *   /reset-password -> biểu mẫu chết hoàn toàn, không state không onSubmit.
+ *
+ * Nghĩa là người quên mật khẩu đi hết luồng, được báo thành công hai lần, và
+ * kết thúc ở đúng chỗ cũ — khoá ngoài tài khoản của chính mình.
+ *
+ * HAI bước, không phải ba: backend gộp xác thực OTP và đặt mật khẩu mới vào
+ * một lần gọi (ResetPasswordDto = email + otp + newPassword), nên không có
+ * bước "kiểm OTP" riêng để dựng — và cũng vì thế /reset-password không thể
+ * đứng riêng được.
+ */
 export default function ForgotPasswordPage() {
-  const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
+  const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations('auth');
 
-  const handleSendCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
+  const [step, setStep] = useState<1 | 2>(1);
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [reveal, setReveal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const sendCode = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!email.trim()) {
+      setError(t('errEmail'));
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      await authService.sendForgotPasswordOtp(email.trim());
       setStep(2);
+    } catch (err: any) {
+      setError(err.response?.data?.message || t('sendFailed'));
+    } finally {
+      setBusy(false);
     }
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp) {
-      toast("Xác thực thành công. Chuyển đến trang đặt lại mật khẩu...", 'success');
+  const resend = async () => {
+    setBusy(true);
+    try {
+      await authService.sendForgotPasswordOtp(email.trim());
+      toast(t('resent'), 'success');
+    } catch (err: any) {
+      setError(err.response?.data?.message || t('sendFailed'));
+    } finally {
+      setBusy(false);
     }
   };
+
+  const reset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.trim().length !== 6) {
+      setError(t('errOtp'));
+      return;
+    }
+    if (newPassword.length < 6) {
+      setError(t('errPasswordShort'));
+      return;
+    }
+    setError(null);
+    setBusy(true);
+    try {
+      await authService.resetPassword(email.trim(), otp.trim(), newPassword);
+      toast(t('resetDone'), 'success');
+      router.push('/login');
+    } catch (err: any) {
+      setError(err.response?.data?.message || t('resetFailed'));
+      setBusy(false);
+    }
+  };
+
+  const alert = error && (
+    <p
+      role="alert"
+      className="mb-5 rounded-control bg-state-danger-bg px-3.5 py-2.5 text-small text-state-danger-fg"
+    >
+      {error}
+    </p>
+  );
+
+  if (step === 1) {
+    return (
+      <AuthShell
+        title={t('forgotTitle')}
+        lead={t('forgotLead')}
+        footer={
+          <Link href="/login" className="inline-flex items-center gap-1.5 font-semibold text-brand hover:underline">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            {t('backToLogin')}
+          </Link>
+        }
+      >
+        {alert}
+        <form onSubmit={sendCode} noValidate className="flex flex-col gap-5">
+          <div>
+            <label htmlFor="fp-email" className={authLabel}>
+              {t('forgotEmail')}
+            </label>
+            <input
+              id="fp-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className={authField}
+            />
+          </div>
+          <button type="submit" disabled={busy} className={authSubmit}>
+            {busy ? t('sending') : t('sendCode')}
+          </button>
+        </form>
+      </AuthShell>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-[1400px] mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-10">
-
-        {/* Image Column */}
-        <div className="hidden lg:flex items-center justify-center w-[55%]">
-          <img src="/images/auth-art.webp" alt="Zoldify" className="w-full h-auto object-contain drop-shadow-2xl opacity-50" draggable="false" />
+    <AuthShell
+      title={t('resetTitle')}
+      lead={t('resetLead', { email })}
+      footer={
+        <button
+          type="button"
+          onClick={() => {
+            setStep(1);
+            setError(null);
+          }}
+          className="font-semibold text-brand hover:underline"
+        >
+          {t('wrongEmail')}
+        </button>
+      }
+    >
+      {alert}
+      <form onSubmit={reset} noValidate className="flex flex-col gap-5">
+        <div>
+          <label htmlFor="fp-otp" className={authLabel}>
+            {t('otp')}
+          </label>
+          <input
+            id="fp-otp"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+            className={`${authField} text-center text-h2 tabular-nums tracking-[0.4em]`}
+          />
         </div>
 
-        {/* Form Column */}
-        <div className="w-full lg:w-[40%] max-w-[450px] bg-white rounded-3xl shadow-2xl p-8 md:p-10">
-          
-          {step === 2 ? (
-            /* STEP 2: VERIFY OTP */
-            <>
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-800">Xác thực OTP</h2>
-                <p className="text-gray-600 text-sm mt-1">
-                  Nhập mã code 6 số đã được gửi tới email <br />
-                  <span className="font-semibold text-blue-500">{email}</span>
-                </p>
-              </div>
-
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div>
-                  <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Nhập mã OTP 6 số" required maxLength={6} className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-center text-2xl tracking-widest font-mono" />
-                </div>
-
-                <button type="submit" className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
-                  XÁC NHẬN
-                </button>
-
-                <div className="text-center pt-2 flex justify-between items-center text-sm">
-                  <button type="button" onClick={() => setStep(1)} className="text-gray-600 hover:text-gray-700">Quay lại email</button>
-                  <button type="button" className="text-brand hover:text-blue-700 font-medium">Gửi lại mã?</button>
-                </div>
-              </form>
-            </>
-          ) : (
-            /* STEP 1: ENTER EMAIL */
-            <>
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-800">Quên mật khẩu?</h2>
-                <p className="text-gray-600 text-sm mt-1">Đừng lo! Nhập email của bạn để lấy lại mật khẩu.</p>
-              </div>
-
-              <form onSubmit={handleSendCode} className="space-y-4">
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Email đăng ký</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" required className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
-                </div>
-
-                <button type="submit" className="w-full bg-brand text-white font-bold py-3 rounded-lg hover:bg-blue-600 transition duration-300 shadow-md uppercase tracking-wide text-sm">
-                  GỬI MÃ XÁC THỰC
-                </button>
-
-                <div className="text-center pt-2">
-                  <Link href="/login" className="text-gray-600 hover:text-gray-700 text-sm font-medium flex items-center justify-center">
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Quay lại đăng nhập
-                  </Link>
-                </div>
-              </form>
-            </>
-          )}
+        <div>
+          <div className="mb-1.5 flex items-baseline justify-between gap-3">
+            <label htmlFor="fp-new" className="text-small font-semibold text-ink">
+              {t('newPassword')}
+            </label>
+            <button
+              type="button"
+              onClick={() => setReveal((v) => !v)}
+              className="flex items-center gap-1.5 text-small text-ink-muted transition-colors hover:text-brand"
+            >
+              {reveal ? (
+                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {reveal ? t('hidePassword') : t('showPassword')}
+            </button>
+          </div>
+          <input
+            id="fp-new"
+            type={reveal ? 'text' : 'password'}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+            aria-describedby="fp-new-hint"
+            className={authField}
+          />
+          <p id="fp-new-hint" className="mt-1.5 text-small text-ink-muted">
+            {t('newPasswordHint')}
+          </p>
         </div>
-      </div>
-    </div>
+
+        <button type="submit" disabled={busy} className={authSubmit}>
+          {busy ? t('resetting') : t('resetSubmit')}
+        </button>
+
+        <button
+          type="button"
+          onClick={resend}
+          disabled={busy}
+          className="text-small font-semibold text-brand hover:underline disabled:text-ink-faint"
+        >
+          {t('resend')}
+        </button>
+      </form>
+    </AuthShell>
   );
 }
