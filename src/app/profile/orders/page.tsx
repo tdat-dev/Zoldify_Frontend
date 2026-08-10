@@ -8,7 +8,7 @@ import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
-import { ORDER_STATUSES } from '@/lib/order-status';
+import { ORDER_STATUSES, nextStatusFor } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 import { EmptyState } from '@/components/EmptyState';
 
@@ -56,6 +56,35 @@ export default function UserOrdersPage() {
   useEffect(() => {
     if (allowed) fetchOrders();
   }, [allowed, fetchOrders]);
+
+  /**
+   * Xác nhận đã nhận hàng — thao tác NÀY TRƯỚC ĐÂY KHÔNG CÓ Ở ĐÂU CẢ.
+   *
+   * Backend quy định chỉ NGƯỜI MUA mới đặt được `delivered` (delivered là lệnh
+   * nhả tiền ký quỹ, người bán tự bấm là tự trả tiền cho mình). Nhưng giao diện
+   * người mua không có nút nào làm việc đó, còn giao diện người bán thì mời họ
+   * bấm rồi ăn 403. Kết quả: đơn kẹt ở "đang giao" VĨNH VIỄN, không đường nào
+   * hoàn tất. Chỉ lộ ra khi chạy trọn vòng mua–bán.
+   */
+  const handleConfirmReceived = async (id: number) => {
+    if (!(await confirm(t('confirmReceivedAsk')))) return;
+    try {
+      await orderService.updateStatus(id, { status: 'delivered' });
+      toast(t('confirmReceivedDone'), 'success');
+    } catch (err: any) {
+      // KHÔNG coi mọi lỗi là "chưa xác nhận được". Backend cố ý trả 400 kèm
+      // thông báo giải thích khi trạng thái ĐÃ LƯU nhưng bước giải ngân ký quỹ
+      // hỏng (ví dụ đơn COD chưa thanh toán nên không có ký quỹ nào để nhả).
+      // Đo được khi chạy trọn vòng: người mua bấm nút, trạng thái đổi thật,
+      // mà giao diện lại báo thất bại — người dùng bấm lại vài lần rồi bỏ.
+      // Câu của backend đã tự giải thích, hiện nguyên văn nó.
+      const msg = err.response?.data?.message;
+      toast(Array.isArray(msg) ? msg[0] : msg || t('confirmReceivedFailed'), msg ? 'info' : 'error');
+    } finally {
+      // Nạp lại trong mọi trường hợp: trạng thái có thể đã đổi kể cả khi lỗi.
+      fetchOrders();
+    }
+  };
 
   const handleCancel = async (id: number) => {
     if (!(await confirm(t('cancelAsk')))) return;
@@ -225,6 +254,15 @@ export default function UserOrdersPage() {
                       className="rounded-control border border-price/40 px-4 py-2 text-small font-semibold text-price transition-colors hover:bg-price-bg"
                     >
                       {t('cancel')}
+                    </button>
+                  )}
+                  {nextStatusFor(order.status, 'buyer') === 'delivered' && (
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmReceived(order.id)}
+                      className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                    >
+                      {t('confirmReceived')}
                     </button>
                   )}
                   <Link

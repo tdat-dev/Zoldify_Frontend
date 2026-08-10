@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
 import { formatPrice, imageUrl } from '@/lib/format';
-import { ORDER_FLOW, ORDER_STATUSES, flowIndex, orderStatusTone, type OrderStatus } from '@/lib/order-status';
+import { ORDER_STATUSES, nextStatusFor, orderStatusTone, type OrderStatus } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
 
 interface OrderItem {
@@ -66,22 +66,19 @@ const TABS: { key: string; status?: OrderStatus }[] = [
 ];
 
 /**
- * Bước tiếp theo trên chuỗi trạng thái, null nếu đã hết chuỗi.
+ * Bước kế mà NGƯỜI BÁN được phép đặt — soi bảng phân quyền của backend qua
+ * nextStatusFor(), không đi mù theo chuỗi trạng thái.
  *
- * Bản trước tính bước kế bằng `order.status === 'pending' ? 'confirmed' :
- * 'shipping'`. Hai hậu quả:
+ * Bản trước tính bằng `order.status === 'pending' ? 'confirmed' : 'shipping'`:
+ * bỏ qua `processing`, và đơn đang `shipping` thì trả về đúng `shipping` — một
+ * lệnh PATCH không đổi gì, xong hiện toast "Đã chuyển sang: Đang giao".
  *
- *  - `processing` bị bỏ qua hoàn toàn, người bán không đánh dấu "đang chuẩn bị
- *    hàng" được.
- *  - Đơn đang ở `shipping` thì biểu thức trả về đúng `shipping` — bấm nút là
- *    một lệnh PATCH không đổi gì, xong hiện toast "Đã chuyển sang: Đang giao".
- *    Một thông báo thành công cho việc không xảy ra. Nghĩa là NGƯỜI BÁN KHÔNG
- *    BAO GIỜ ĐÁNH DẤU ĐƯỢC ĐƠN ĐÃ GIAO — đơn kẹt ở "đang giao" vĩnh viễn.
+ * Bản sau đó đi theo ORDER_FLOW nên lại mời người bán bấm "Đã giao" trên đơn
+ * đang giao. Backend từ chối 403: delivered là lệnh nhả tiền ký quỹ cho chính
+ * người bán, chỉ NGƯỜI MUA mới xác nhận được. Đo được bằng phép chạy trọn vòng.
  */
 function nextInFlow(status: unknown): OrderStatus | null {
-  const i = flowIndex(status);
-  if (i === -1 || i >= ORDER_FLOW.length - 1) return null;
-  return ORDER_FLOW[i + 1];
+  return nextStatusFor(status, 'seller');
 }
 
 

@@ -146,7 +146,11 @@
     "emptyFiltered": "Không có đơn nào ở trạng thái này.",
     "emptyFilteredHint": "Bỏ bộ lọc để xem toàn bộ đơn của bạn.",
     "showAll": "Xem tất cả đơn",
-    "browse": "Xem hàng đang bán"
+    "browse": "Xem hàng đang bán",
+    "confirmReceived": "Đã nhận hàng",
+    "confirmReceivedAsk": "Xác nhận bạn đã nhận được hàng? Tiền sẽ được chuyển cho người bán.",
+    "confirmReceivedDone": "Cảm ơn bạn. Đơn đã hoàn tất.",
+    "confirmReceivedFailed": "Chưa xác nhận được."
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",

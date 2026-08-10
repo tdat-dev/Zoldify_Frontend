@@ -146,7 +146,11 @@
     "emptyFiltered": "No orders with this status.",
     "emptyFilteredHint": "Clear the filter to see all your orders.",
     "showAll": "Show all orders",
-    "browse": "Browse what's for sale"
+    "browse": "Browse what's for sale",
+    "confirmReceived": "I got it",
+    "confirmReceivedAsk": "Confirm you received the item? The seller will be paid.",
+    "confirmReceivedDone": "Thanks. The order is complete.",
+    "confirmReceivedFailed": "Could not confirm."
   },
   "auth": {
     "loginTitle": "Welcome back",

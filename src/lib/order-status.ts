@@ -62,6 +62,44 @@ export function flowIndex(raw: unknown): number {
   return (ORDER_FLOW as readonly string[]).indexOf(String(raw));
 }
 
+/**
+ * AI được đẩy đơn sang bước nào — soi đúng bảng phân quyền của backend
+ * (ordering/orders/order-status.policy.ts).
+ *
+ * Nguyên tắc của backend: **ai được lợi thì không được tự bấm.**
+ *  - Người bán KHÔNG đặt được `delivered`, vì delivered là lệnh nhả tiền ký quỹ
+ *    cho chính họ.
+ *  - Người mua KHÔNG đặt được `refunded`, vì refunded là lệnh trả tiền về ví
+ *    chính họ trong khi hàng vẫn đang giữ.
+ *
+ * Frontend PHẢI soi lại luật này. Bản trước đi mù theo ORDER_FLOW nên trang đơn
+ * của người bán mời họ bấm "Đã giao" trên đơn đang giao — backend trả 403, và
+ * người dùng chỉ thấy một nút bấm vào thì báo lỗi. Đo được bằng phép chạy trọn
+ * vòng mua–bán: ba bước đầu qua, `delivered` ăn 403.
+ *
+ * Huỷ đơn KHÔNG đi qua đây: nó có endpoint riêng (/cancel, /cancel-sale) vì còn
+ * phải hoàn lại tồn kho.
+ */
+export type OrderRole = 'buyer' | 'seller';
+
+const CAN_SET: Record<OrderRole, readonly OrderStatus[]> = {
+  seller: ['confirmed', 'processing', 'shipping'],
+  buyer: ['delivered'],
+};
+
+/**
+ * Bước kế tiếp mà `role` được phép đặt, hoặc null nếu tới lượt người khác.
+ *
+ * Trả null KHÔNG có nghĩa là đơn đã xong — chỉ nghĩa là vai này hết việc. Nơi
+ * gọi phải hiểu đúng chỗ đó, đừng hiểu thành "ẩn hết mọi thứ".
+ */
+export function nextStatusFor(status: unknown, role: OrderRole): OrderStatus | null {
+  const i = flowIndex(status);
+  if (i === -1 || i >= ORDER_FLOW.length - 1) return null;
+  const next = ORDER_FLOW[i + 1];
+  return CAN_SET[role].includes(next) ? next : null;
+}
+
 export function isOrderStatus(raw: unknown): raw is OrderStatus {
   return (ORDER_STATUSES as readonly string[]).includes(String(raw));
 }
