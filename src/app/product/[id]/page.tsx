@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useParams, useRouter } from 'next/navigation';
 import { Truck, Globe, Flag, MessageSquare, Store, CheckCircle, Package, Loader, Star, Send } from 'lucide-react';
 import { productService } from '@/services/product.service';
@@ -17,6 +18,8 @@ import { formatPrice } from '@/lib/format';
 
 export default function ProductDetailPage() {
   const { isAuthenticated, user } = useAuth();
+  const t = useTranslations('product');
+  const tc = useTranslations('common');
   const { refreshCartCount } = useCart();
   const { toast } = useToast();
   const router = useRouter();
@@ -91,9 +94,9 @@ export default function ProductDetailPage() {
     try {
       await cartService.add(Number(params.id), quantity);
       refreshCartCount();
-      toast('Đã thêm vào giỏ hàng', 'success');
+      toast(t('addedToCart'), 'success');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Thêm giỏ hàng thất bại', 'error');
+      toast(err.response?.data?.message || t('addToCartFailed'), 'error');
     } finally {
       setAddingCart(false);
     }
@@ -113,7 +116,7 @@ export default function ProductDetailPage() {
         router.push('/cart');
       }
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Mua ngay thất bại', 'error');
+      toast(err.response?.data?.message || t('buyNowFailed'), 'error');
     } finally {
       setAddingCart(false);
     }
@@ -122,7 +125,7 @@ export default function ProductDetailPage() {
   const handleChatWithShop = async () => {
     if (!isAuthenticated) { router.push('/login'); return; }
     if (!product?.seller?.id) {
-      toast('Không tìm thấy thông tin shop', 'error');
+      toast(t('shopNotFound'), 'error');
       return;
     }
     try {
@@ -134,29 +137,29 @@ export default function ProductDetailPage() {
         router.push('/chat');
       }
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Không thể mở chat', 'error');
+      toast(err.response?.data?.message || t('chatFailed'), 'error');
     }
   };
 
   // Backend chưa có endpoint báo cáo, nên gửi qua email kèm sẵn ngữ cảnh sản phẩm.
   const handleReport = () => {
     if (!product) return;
-    const subject = `Báo cáo sản phẩm #${product.id}`;
+    const subject = t('reportSubject', { id: product.id });
     const body = [
-      `Sản phẩm: ${product.name}`,
-      `Mã sản phẩm: ${product.id}`,
+      t('reportItem', { name: product.name }),
+      t('reportId', { id: product.id }),
       `Link: ${typeof window !== 'undefined' ? window.location.href : ''}`,
       '',
-      'Lý do báo cáo:',
+      t('reportReason'),
       '',
     ].join('\n');
     window.location.href = `mailto:admin@zoldify.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    toast('Đang mở email để gửi báo cáo', 'info');
+    toast(t('reportOpening'), 'info');
   };
 
   const handleSubmitReview = async () => {
     if (!eligibleOrderId) return;
-    if (!newComment.trim()) { toast('Vui lòng nhập nhận xét', 'error'); return; }
+    if (!newComment.trim()) { toast(t('reviewNeedComment'), 'error'); return; }
     setSubmittingReview(true);
     try {
       await reviewService.create({
@@ -165,13 +168,13 @@ export default function ProductDetailPage() {
         rating: newRating,
         comment: newComment,
       });
-      toast('Đánh giá thành công!', 'success');
+      toast(t('reviewDone'), 'success');
       setNewComment('');
       setNewRating(5);
       setEligibleOrderId(null);
       fetchData();
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Đánh giá thất bại', 'error');
+      toast(err.response?.data?.message || t('reviewFailed'), 'error');
     } finally {
       setSubmittingReview(false);
     }
@@ -189,21 +192,21 @@ export default function ProductDetailPage() {
         <div className="text-center max-w-md">
           {loadFailed ? (
             <>
-              <p className="text-ink font-medium mb-2">Không tải được sản phẩm</p>
-              <p className="text-sm text-ink-muted mb-5">Kết nối tới máy chủ đang có vấn đề. Sản phẩm có thể vẫn còn, bạn thử lại giúp nhé.</p>
+              <p className="text-ink font-medium mb-2">{t('loadFailed')}</p>
+              <p className="text-sm text-ink-muted mb-5">{t('loadFailedHint')}</p>
               <button
                 onClick={() => { setLoading(true); setLoadFailed(false); fetchData(); }}
                 className="px-5 py-2.5 bg-brand text-white rounded-control text-sm font-medium hover:bg-brand-dark transition-colors"
               >
-                Thử lại
+                {tc('retry')}
               </button>
             </>
           ) : (
             <>
-              <p className="text-ink font-medium mb-2">Không tìm thấy sản phẩm</p>
-              <p className="text-sm text-ink-muted mb-5">Sản phẩm này có thể đã bị gỡ hoặc đã bán xong.</p>
+              <p className="text-ink font-medium mb-2">{t('notFound')}</p>
+              <p className="text-sm text-ink-muted mb-5">{t('notFoundHint')}</p>
               <Link href="/search" className="px-5 py-2.5 bg-brand text-white rounded-control text-sm font-medium hover:bg-brand-dark transition-colors">
-                Xem sản phẩm khác
+                {t('browseOthers')}
               </Link>
             </>
           )}
@@ -216,7 +219,7 @@ export default function ProductDetailPage() {
     <div className="bg-surface-page min-h-screen pb-20 md:pb-10">
       <div className="max-w-[1200px] mx-auto px-4 pt-4 space-y-6">
         <div className="text-sm text-ink-muted flex items-center gap-2">
-          <Link href="/" className="hover:text-brand">Trang chủ</Link>
+          <Link href="/" className="hover:text-brand">{t('home')}</Link>
           <span>&gt;</span>
           <span className="text-ink truncate">{product.name}</span>
         </div>
@@ -243,7 +246,7 @@ export default function ProductDetailPage() {
                   </span>
                   {!!product.is_freeship && (
                     <span className="inline-flex items-center gap-1 rounded-control bg-state-success-bg px-2 py-1 text-caption text-state-success-fg">
-                      <Truck className="h-3.5 w-3.5" aria-hidden="true" /> Miễn phí giao trong khu vực
+                      <Truck className="h-3.5 w-3.5" aria-hidden="true" /> {t('freeLocal')}
                     </span>
                   )}
                 </div>
@@ -254,7 +257,7 @@ export default function ProductDetailPage() {
                     new/used/refurbished, nên món lưu 'like_new' hiện nguyên chuỗi
                     'like_new' ra mặt trang cho người mua đọc. */}
                 <div className="flex items-center gap-3">
-                  <span className="w-32 shrink-0 text-ink-muted">Tình trạng</span>
+                  <span className="w-32 shrink-0 text-ink-muted">{t('condition')}</span>
                   <ConditionBadge value={product.condition} />
                 </div>
 
@@ -262,16 +265,16 @@ export default function ProductDetailPage() {
                     cái. Đồ cũ gần như luôn stock = 1; bày ra một cái +/- cho món
                     độc nhất là ngôn ngữ của sàn hàng mới, không phải của sàn này. */}
                 <div className="flex items-center gap-3">
-                  <span className="w-32 shrink-0 text-ink-muted">Còn hàng</span>
+                  <span className="w-32 shrink-0 text-ink-muted">{t('stock')}</span>
                   {soldOut ? (
-                    <span className="text-body font-semibold text-ink">Đã bán hết</span>
+                    <span className="text-body font-semibold text-ink">{t('soldOut')}</span>
                   ) : stockLeft > 1 ? (
                     <>
                       <div className="flex items-center rounded-control border border-ink/16">
                         <button
                           type="button"
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          aria-label="Bớt một"
+                          aria-label={t('decrease')}
                           className="min-w-[36px] border-r border-ink/16 px-3 py-1.5 text-ink transition-colors hover:bg-surface-sunken"
                         >
                           −
@@ -282,16 +285,16 @@ export default function ProductDetailPage() {
                         <button
                           type="button"
                           onClick={() => setQuantity(Math.min(stockLeft, quantity + 1))}
-                          aria-label="Thêm một"
+                          aria-label={t('increase')}
                           className="min-w-[36px] border-l border-ink/16 px-3 py-1.5 text-ink transition-colors hover:bg-surface-sunken"
                         >
                           +
                         </button>
                       </div>
-                      <span className="text-small text-ink-muted">còn {stockLeft} cái</span>
+                      <span className="text-small text-ink-muted">{t('stockLeft', { count: stockLeft })}</span>
                     </>
                   ) : (
-                    <span className="text-body text-ink">Chỉ có một cái</span>
+                    <span className="text-body text-ink">{t('onlyOne')}</span>
                   )}
                 </div>
               </div>
@@ -301,14 +304,14 @@ export default function ProductDetailPage() {
               <div className="flex flex-wrap gap-3 pt-4">
                 {isOwnProduct ? (
                   <p className="flex flex-1 items-center justify-center gap-2 rounded-control bg-state-pending-bg px-6 py-3 text-body font-medium text-state-pending-fg">
-                    Đây là tin của bạn.{' '}
+                    {t('yourListing')}{' '}
                     <Link href={`/product/${product.id}/edit`} className="underline">
-                      Sửa tin
+                      {t('editListing')}
                     </Link>
                   </p>
                 ) : soldOut ? (
                   <p className="flex flex-1 items-center justify-center rounded-control bg-surface-sunken px-6 py-3 text-body font-medium text-ink-muted">
-                    Món này đã bán xong
+                    {t('soldOutLong')}
                   </p>
                 ) : (
                   <>
@@ -319,10 +322,10 @@ export default function ProductDetailPage() {
                       className="flex flex-1 items-center justify-center gap-2 rounded-control border border-brand px-6 py-3 text-body font-semibold text-brand transition-colors hover:bg-brand-tint disabled:opacity-70"
                     >
                       {addingCart ? (
-                        'Đang thêm…'
+                        t('adding')
                       ) : (
                         <>
-                          <Package className="h-5 w-5" aria-hidden="true" /> Thêm vào giỏ
+                          <Package className="h-5 w-5" aria-hidden="true" /> {t('addToCart')}
                         </>
                       )}
                     </button>
@@ -340,22 +343,22 @@ export default function ProductDetailPage() {
               <div className="border-t pt-6 mt-6 grid grid-cols-2 gap-4 text-sm text-ink-muted">
                 <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />
-                  <span>Sàn mua bán đồ cũ</span>
+                  <span>{t('marketplace')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MessageSquare className="w-5 h-5 text-brand flex-shrink-0" aria-hidden="true" />
-                  <span>Trao đổi trực tiếp với người bán trước khi mua</span>
+                  <span>{t('talkFirst')}</span>
                 </div>
                 <div className="col-span-2 pt-2 flex items-center gap-4 flex-wrap">
                   {!isOwnProduct && (
                     <button onClick={handleChatWithShop} className="flex items-center gap-2 py-1 hover:text-brand transition-colors">
                       <MessageSquare className="w-4 h-4" aria-hidden="true" />
-                      <span>Chat với shop</span>
+                      <span>{t('chatShop')}</span>
                     </button>
                   )}
                   <button onClick={handleReport} className="flex items-center gap-2 py-1 hover:text-price transition-colors">
                     <Flag className="w-4 h-4" aria-hidden="true" />
-                    <span>Báo cáo sản phẩm</span>
+                    <span>{t('report')}</span>
                   </button>
                 </div>
               </div>
@@ -384,11 +387,11 @@ export default function ProductDetailPage() {
               />
               <span className="min-w-0">
                 <span className="flex items-center gap-1.5 text-body font-semibold text-ink">
-                  <span className="truncate">{product.seller.full_name || 'Người bán'}</span>
+                  <span className="truncate">{product.seller.full_name || t('seller')}</span>
                   <Store className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden="true" />
                 </span>
                 <span className="block text-small text-ink-muted">
-                  Xem tất cả tin của người này
+                  {t('seeAllFromSeller')}
                 </span>
               </span>
             </Link>
@@ -399,21 +402,21 @@ export default function ProductDetailPage() {
               className="inline-flex shrink-0 items-center gap-1.5 rounded-control border border-brand px-4 py-2 text-small font-semibold text-brand transition-colors hover:bg-brand hover:text-white"
             >
               <MessageSquare className="h-4 w-4" aria-hidden="true" />
-              Nhắn cho người bán
+              {t('messageSeller')}
             </button>
           </div>
         )}
 
         <div className="bg-surface-card rounded-card p-6">
-          <h2 className="text-lg font-medium text-ink bg-surface-sunken p-3 mb-4 rounded-control">Mô tả sản phẩm</h2>
+          <h2 className="text-lg font-medium text-ink bg-surface-sunken p-3 mb-4 rounded-control">{t('description')}</h2>
           <div className="text-sm text-ink-muted leading-relaxed whitespace-pre-line">
-            {product.description || 'Chưa có mô tả'}
+            {product.description || t('noDescription')}
           </div>
         </div>
 
         {/* Reviews Section */}
         <div className="bg-surface-card rounded-card p-6">
-          <h2 className="text-lg font-medium text-ink mb-4">Đánh giá ({reviews.length})</h2>
+          <h2 className="text-lg font-medium text-ink mb-4">{t('reviews', { count: reviews.length })}</h2>
           {reviews.length > 0 && (
             <div className="flex items-center gap-2 mb-4 pb-4 border-b">
               <span className="text-h1 tabular-nums text-ink">{avgRating}</span>
@@ -429,7 +432,7 @@ export default function ProductDetailPage() {
           {/* Form viết đánh giá - chỉ hiện khi user đã mua & nhận hàng & chưa review */}
           {isAuthenticated && !isOwnProduct && !myReview && eligibleOrderId && (
             <div className="mb-6 p-4 bg-brand-tint border border-brand/25 rounded-control">
-              <h3 className="text-sm font-medium text-ink mb-3">Viết đánh giá của bạn</h3>
+              <h3 className="text-sm font-medium text-ink mb-3">{t('writeReview')}</h3>
               <div className="flex items-center gap-1 mb-3">
                 {[1,2,3,4,5].map((s) => (
                   <button
@@ -446,7 +449,7 @@ export default function ProductDetailPage() {
               <textarea
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."
+                placeholder={t('reviewPlaceholder')}
                 className="w-full px-3 py-2 border border-ink/16 rounded-control text-sm focus:outline-none focus:border-brand"
                 rows={3}
               />
@@ -457,7 +460,7 @@ export default function ProductDetailPage() {
                   className="px-4 py-2 bg-brand text-white text-sm rounded-control hover:bg-brand-dark transition-colors flex items-center gap-2 disabled:opacity-70"
                 >
                   {submittingReview ? <Loader className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                  Gửi đánh giá
+                  {t('submitReview')}
                 </button>
               </div>
             </div>
@@ -465,32 +468,32 @@ export default function ProductDetailPage() {
 
           {isAuthenticated && myReview && (
             <div className="mb-4 p-3 bg-state-success-bg border border-state-success-fg/25 rounded-control text-small text-state-success-fg">
-              Bạn đã đánh giá sản phẩm này {myReview.rating}★ — {myReview.comment}
+              {t('yourReview', { rating: myReview.rating, comment: myReview.comment })}
             </div>
           )}
 
           {isAuthenticated && !isOwnProduct && !myReview && !eligibleOrderId && (
             <div className="mb-4 p-3 bg-surface-sunken border border-ink/10 rounded-control text-sm text-ink-muted flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-ink-muted" />
-              Chỉ người đã mua và nhận hàng thành công mới có thể đánh giá sản phẩm này.
+              {t('reviewOnlyBuyers')}
             </div>
           )}
 
           {!isAuthenticated && (
             <div className="mb-4 p-3 bg-state-pending-bg border border-state-pending-fg/25 rounded-control text-sm text-ink-muted">
-              <Link href="/login" className="text-brand font-medium hover:underline">Đăng nhập</Link> để đánh giá và xem lịch sử mua hàng.
+              <Link href="/login" className="text-brand font-medium hover:underline">{t('loginToReview')}</Link> {t('loginToReviewRest')}
             </div>
           )}
 
           <div className="space-y-4">
             {reviews.length === 0 ? (
-              <p className="text-ink-muted text-sm">Chưa có đánh giá nào.</p>
+              <p className="text-ink-muted text-sm">{t('noReviews')}</p>
             ) : (
               reviews.map((rev: any, idx: number) => (
                 <div key={rev.id || idx} className="flex gap-3 pb-4 border-b last:border-0">
                   <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(rev.user?.full_name || 'U')}&background=random`} className="w-10 h-10 rounded-full" alt="" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-ink">{rev.user?.full_name || 'Người dùng'}</p>
+                    <p className="text-sm font-medium text-ink">{rev.user?.full_name || t('anonUser')}</p>
                     <div className="flex items-center gap-1 my-1">
                       {[1,2,3,4,5].map((s) => (
                         <Star key={s} className={`w-3 h-3 ${s <= (rev.rating || 0) ? 'text-amber-500 fill-amber-500' : 'text-ink/25'}`} />
