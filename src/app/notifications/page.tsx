@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { notificationService } from '@/services/notification.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { Bell, Loader, CheckCheck, Trash2, ArrowLeft, MessageSquare, ShoppingBag, CreditCard } from 'lucide-react';
 
@@ -16,16 +16,16 @@ const typeIcons: Record<string, any> = {
 };
 
 export default function NotificationsPage() {
-  const { isAuthenticated } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const { confirm, toast } = useToast();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!allowed) return;
     fetchNotis();
-  }, [isAuthenticated]);
+  }, [allowed]);
 
   const fetchNotis = async () => {
     try {

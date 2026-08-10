@@ -2,11 +2,10 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Plus, Trash2 } from 'lucide-react';
 import { addressService } from '@/services/address.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { EmptyState } from '@/components/EmptyState';
 
@@ -30,8 +29,7 @@ import { EmptyState } from '@/components/EmptyState';
  *    đứng im ở dữ liệu cũ cho tới lúc response về.
  */
 export default function AddressesPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { allowed } = useRequireAuth();
   const { toast, confirm } = useToast();
   const t = useTranslations('addresses');
   const tc = useTranslations('common');
@@ -51,12 +49,8 @@ export default function AddressesPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    fetchAddresses();
-  }, [isAuthenticated, router, fetchAddresses]);
+    if (allowed) fetchAddresses();
+  }, [allowed, fetchAddresses]);
 
   const handleSetDefault = async (id: number) => {
     try {

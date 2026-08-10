@@ -5,13 +5,11 @@ import Link from 'next/link';
 import { User, Package, Wallet, Clock, ArrowDown, ArrowUp, Loader, Plus, CreditCard, ShoppingBag } from 'lucide-react';
 import { paymentService } from '@/services/payment.service';
 import { payosService } from '@/services/payos.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
-import { useRouter } from 'next/navigation';
 
 export default function WalletPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { allowed } = useRequireAuth();
   const { toast } = useToast();
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -21,9 +19,8 @@ export default function WalletPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    fetchData();
-  }, [isAuthenticated]);
+    if (allowed) fetchData();
+  }, [allowed]);
 
   const fetchData = async () => {
     try {

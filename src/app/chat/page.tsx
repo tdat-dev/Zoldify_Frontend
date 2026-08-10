@@ -5,11 +5,13 @@ import { Search, Send, ArrowLeft, MessageCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
 import { chatService } from '@/services/chat.service';
 import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSocket, disconnectSocket } from '@/lib/socket';
 
 export default function ChatPage() {
-  const { isAuthenticated, token, user: currentUser } = useAuth();
+  const { token, user: currentUser } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetConvId = searchParams.get('conversation');
@@ -29,17 +31,17 @@ export default function ChatPage() {
   const [unseenCount, setUnseenCount] = useState(0);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!allowed) return;
     fetchConversations();
     return () => disconnectSocket();
-  }, [isAuthenticated]);
+  }, [allowed]);
 
   // Safety net: re-fetch mỗi 5 phút phòng khi socket miss event (tab background)
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!allowed) return;
     const interval = setInterval(() => { fetchConversations(); }, 5 * 60 * 1000);
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [allowed]);
 
   useEffect(() => {
     if (!token) return;

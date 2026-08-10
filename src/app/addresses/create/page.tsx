@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { addressService } from '@/services/address.service';
 import { provinceService } from '@/services/province.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 
 export default function CreateAddressPage() {
-  const { isAuthenticated } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -32,9 +32,9 @@ export default function CreateAddressPage() {
   const labels = ['Nhà riêng', 'Công ty', 'Trường học', 'Nhà bạn'];
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!allowed) return;
     provinceService.getProvinces().then(setProvinces);
-  }, [isAuthenticated]);
+  }, [allowed]);
 
   const handleProvinceChange = async (code: number) => {
     const name = provinces.find(p => p.code === code)?.name || '';

@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Minus, Plus, Trash2, Package, AlertTriangle } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { cartService } from '@/services/cart.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
@@ -34,8 +33,7 @@ import { formatPrice } from '@/lib/format';
  * có thể đã được người khác mua mất kể từ lúc bỏ vào giỏ.
  */
 export default function CartPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { allowed } = useRequireAuth();
   const { refreshCartCount } = useCart();
   const { confirm, toast } = useToast();
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -64,12 +62,8 @@ export default function CartPage() {
   }, []);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    fetchCart();
-  }, [isAuthenticated, fetchCart, router]);
+    if (allowed) fetchCart();
+  }, [allowed, fetchCart]);
 
   const toggleSelectAll = (checked: boolean) =>
     setCartItems((prev) => prev.map((i) => (i.stock > 0 ? { ...i, selected: checked } : i)));

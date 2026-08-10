@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import { User, Package, Wallet, Loader, Edit, Eye, Trash2, Box, Plus, ShoppingBag, Loader2 } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import StockControl from '@/components/StockControl';
 
 export default function MyProductsPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
@@ -34,12 +36,8 @@ export default function MyProductsPage() {
   }, [user, toast]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    if (user) fetchProducts(1);
-  }, [isAuthenticated, user, fetchProducts]);
+    if (allowed && user) fetchProducts(1);
+  }, [allowed, user, fetchProducts]);
 
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Xóa sản phẩm "${name}"?\nHành động này không thể hoàn tác.`)) return;

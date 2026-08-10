@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Loader } from 'lucide-react';
 import { orderService } from '@/services/order.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter } from 'next/navigation';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -27,16 +27,16 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function OrderDetailPage() {
-  const { isAuthenticated } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const params = useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!allowed) return;
     if (params.id) fetchOrder();
-  }, [isAuthenticated, params.id]);
+  }, [allowed, params.id]);
 
   const fetchOrder = async () => {
     try {

@@ -2,11 +2,10 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
 import { ORDER_STATUSES } from '@/lib/order-status';
@@ -34,8 +33,7 @@ import { EmptyState } from '@/components/EmptyState';
  * 4. THANH TAB TÀI KHOẢN CHÉP TAY, nay ở AccountShell.
  */
 export default function UserOrdersPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { allowed } = useRequireAuth();
   const { toast, confirm } = useToast();
   const t = useTranslations('orders');
   const tc = useTranslations('common');
@@ -56,12 +54,8 @@ export default function UserOrdersPage() {
   }, [status]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    fetchOrders();
-  }, [isAuthenticated, router, fetchOrders]);
+    if (allowed) fetchOrders();
+  }, [allowed, fetchOrders]);
 
   const handleCancel = async (id: number) => {
     if (!(await confirm(t('cancelAsk')))) return;

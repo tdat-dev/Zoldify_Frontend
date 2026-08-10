@@ -6,7 +6,7 @@ import { MapPin, Truck, QrCode, Loader, CreditCard, Package } from 'lucide-react
 import { cartService } from '@/services/cart.service';
 import { orderService } from '@/services/order.service';
 import { payosService } from '@/services/payos.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
 import type { CreateOrderDto } from '@/api';
@@ -15,7 +15,7 @@ import AddressPicker from '@/components/AddressPicker';
 import { formatPrice } from '@/lib/format';
 
 export default function CheckoutPage() {
-  const { isAuthenticated } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -41,9 +41,8 @@ export default function CheckoutPage() {
   const selectedIds = (searchParams.get('ids') || '').split(',').filter(Boolean).map(Number);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    fetchCart();
-  }, [isAuthenticated]);
+    if (allowed) fetchCart();
+  }, [allowed]);
 
   const fetchCart = async () => {
     setLoadFailed(false);

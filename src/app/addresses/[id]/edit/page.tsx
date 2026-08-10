@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { addressService } from '@/services/address.service';
 import { provinceService } from '@/services/province.service';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 
 export default function EditAddressPage() {
-  const { isAuthenticated } = useAuth();
+  const { allowed } = useRequireAuth();
   const router = useRouter();
   const { toast } = useToast();
   const params = useParams();
@@ -35,7 +35,7 @@ export default function EditAddressPage() {
   const labels = ['Nhà riêng', 'Công ty', 'Trường học', 'Nhà bạn'];
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!allowed) return;
     Promise.all([
       provinceService.getProvinces(),
       addressService.getById(id),
@@ -64,7 +64,7 @@ export default function EditAddressPage() {
       }
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, [isAuthenticated, id]);
+  }, [allowed, id]);
 
   const handleProvinceChange = async (code: number) => {
     const name = provinces.find(p => p.code === code)?.name || '';
