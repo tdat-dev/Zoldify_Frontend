@@ -134,22 +134,22 @@ export default function MyProductsPage() {
               <caption className="sr-only">{t('title')}</caption>
               <thead>
                 <tr className="border-b border-ink/10">
-                  <th scope="col" className="px-6 py-3 text-left text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-6 py-3 text-left text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colItem')}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colCategory')}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-right text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-4 py-3 text-right text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colPrice')}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colStock')}
                   </th>
-                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-4 py-3 text-left text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colStatus')}
                   </th>
-                  <th scope="col" className="px-6 py-3 text-right text-caption uppercase tracking-wide text-ink-faint">
+                  <th scope="col" className="px-6 py-3 text-right text-caption uppercase tracking-wide text-ink-faint whitespace-nowrap">
                     {t('colActions')}
                   </th>
                 </tr>
