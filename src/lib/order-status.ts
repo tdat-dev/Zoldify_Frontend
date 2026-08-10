@@ -27,8 +27,10 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-/** Sắc thái dùng để chọn cặp token state-*-fg / state-*-bg trong globals.css. */
-export type StatusTone = 'pending' | 'progress' | 'success' | 'danger' | 'neutral';
+import type { StatusTone } from './status-tone';
+
+export { TONE_CLASS } from './status-tone';
+export type { StatusTone } from './status-tone';
 
 const TONE: Record<OrderStatus, StatusTone> = {
   pending: 'pending',
@@ -68,16 +70,3 @@ export function orderStatusTone(raw: unknown): StatusTone {
   return isOrderStatus(raw) ? TONE[raw] : 'neutral';
 }
 
-/**
- * Lớp CSS cho một sắc thái. Viết thẳng chuỗi đầy đủ chứ KHÔNG ghép
- * `bg-state-${tone}-bg`: Tailwind quét mã nguồn bằng văn bản, tên lớp ghép động
- * không nằm trong bản quét nên không sinh ra CSS nào — đúng loại lỗi im lặng đã
- * làm chết 21 lớp bo màu trước đó.
- */
-export const TONE_CLASS: Record<StatusTone, string> = {
-  pending: 'bg-state-pending-bg text-state-pending-fg',
-  progress: 'bg-state-progress-bg text-state-progress-fg',
-  success: 'bg-state-success-bg text-state-success-fg',
-  danger: 'bg-state-danger-bg text-state-danger-fg',
-  neutral: 'bg-state-neutral-bg text-state-neutral-fg',
-};

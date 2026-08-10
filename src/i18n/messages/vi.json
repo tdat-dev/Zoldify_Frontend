@@ -144,6 +144,37 @@
     "showAll": "Xem tất cả đơn",
     "browse": "Xem hàng đang bán"
   },
+  "productStatus": {
+    "draft": "Nháp",
+    "pending": "Chờ duyệt",
+    "active": "Đang bán",
+    "sold": "Đã bán",
+    "rejected": "Bị từ chối"
+  },
+  "myProducts": {
+    "title": "Tin đã đăng",
+    "count": "{count} tin",
+    "new": "Đăng tin mới",
+    "empty": "Bạn chưa đăng tin nào.",
+    "emptyHint": "Món đồ cũ trong nhà có thể là thứ ai đó đang tìm.",
+    "loadFailed": "Không tải được tin đã đăng.",
+    "colItem": "Món",
+    "colCategory": "Danh mục",
+    "colPrice": "Giá",
+    "colStock": "Còn lại",
+    "colStatus": "Trạng thái",
+    "colActions": "Thao tác",
+    "view": "Xem tin",
+    "edit": "Sửa tin",
+    "delete": "Xoá tin",
+    "deleteAsk": "Xoá tin “{name}”? Không lấy lại được.",
+    "deleted": "Đã xoá tin.",
+    "deleteFailed": "Chưa xoá được tin.",
+    "stockFailed": "Chưa đổi được số lượng.",
+    "pagePrev": "Trang trước",
+    "pageNext": "Trang sau",
+    "pageOf": "Trang {current}/{total}"
+  },
   "wallet": {
     "title": "Ví Zoldify",
     "balance": "Số dư khả dụng",

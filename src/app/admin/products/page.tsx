@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Box, Loader2, Eye, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Box, Loader2, Eye, Search, Package } from 'lucide-react';
 import { productService } from '@/services/product.service';
 import StockControl from '@/components/StockControl';
 import { useToast } from '@/components/Toast';
@@ -120,11 +120,21 @@ export default function AdminProductsPage() {
                   <tr key={product.id} className="hover:bg-gray-50 transition">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={product.image || '/images/default-product.png'}
-                          alt={product.name}
-                          className="w-12 h-12 object-cover rounded-lg border bg-gray-100"
-                        />
+                        {/* /images/default-product.png KHÔNG tồn tại trong
+                            public/images — trỏ vào nó thì mọi tin không ảnh
+                            hiện icon ảnh vỡ. Vẽ ô xám có icon thay vì vậy. */}
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt=""
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <Package className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                          )}
+                        </span>
                         <div>
                           <div className="font-medium text-gray-800 line-clamp-1 max-w-xs">
                             {product.name}

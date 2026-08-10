@@ -144,6 +144,37 @@
     "showAll": "Show all orders",
     "browse": "Browse what's for sale"
   },
+  "productStatus": {
+    "draft": "Draft",
+    "pending": "Awaiting review",
+    "active": "For sale",
+    "sold": "Sold",
+    "rejected": "Rejected"
+  },
+  "myProducts": {
+    "title": "My listings",
+    "count": "{count} listings",
+    "new": "New listing",
+    "empty": "You haven't listed anything yet.",
+    "emptyHint": "Something you no longer use may be exactly what someone is looking for.",
+    "loadFailed": "Could not load your listings.",
+    "colItem": "Item",
+    "colCategory": "Category",
+    "colPrice": "Price",
+    "colStock": "Left",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "view": "View listing",
+    "edit": "Edit listing",
+    "delete": "Delete listing",
+    "deleteAsk": "Delete \"{name}\"? This can't be undone.",
+    "deleted": "Listing deleted.",
+    "deleteFailed": "Could not delete the listing.",
+    "stockFailed": "Could not change the quantity.",
+    "pagePrev": "Previous",
+    "pageNext": "Next",
+    "pageOf": "Page {current} of {total}"
+  },
   "wallet": {
     "title": "Zoldify wallet",
     "balance": "Available balance",
