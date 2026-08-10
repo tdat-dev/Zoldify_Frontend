@@ -1,158 +1,243 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { User, Package, Wallet, Clock, ArrowDown, ArrowUp, Loader, Plus, CreditCard, ShoppingBag } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { ArrowDownLeft, ArrowUpRight, Plus, CreditCard } from 'lucide-react';
 import { paymentService } from '@/services/payment.service';
 import { payosService } from '@/services/payos.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
+import { formatPrice } from '@/lib/format';
+import { moneyFlow, moneyLabelKey } from '@/lib/money-flow';
+import { EmptyState } from '@/components/EmptyState';
 
+const MIN_TOPUP = 10000;
+
+/**
+ * Ví Zoldify.
+ *
+ * Năm thứ của bản trước đã gỡ:
+ *
+ * 1. MỌI LẦN NẠP TIỀN HIỆN DẤU TRỪ. Điều kiện là `t.type === 'deposit'`, mà
+ *    'deposit' không có trong enum nào của backend (xem lib/money-flow.ts).
+ *    Nạp 500.000 ₫ hiện ra "−500.000 ₫ · Thanh toán đơn hàng".
+ *
+ * 2. try/catch BỌC Promise.allSettled — allSettled không bao giờ reject nên
+ *    khối catch là mã chết. Gọi hỏng thì số dư lặng lẽ hiện 0 ₫. Với màn hình
+ *    tiền, "0 ₫" sai còn nguy hơn một dòng báo lỗi.
+ *
+ * 3. GIÁ NHÂN TAY `toLocaleString('vi-VN')` + chữ "VNĐ" viết cứng.
+ *
+ * 4. "Số tiền nạp tối thiểu 10,000đ" — dấu phẩy phân cách nghìn trong một câu
+ *    tiếng Việt, và số viết cứng ở hai chỗ khác nhau trong cùng một file.
+ *
+ * 5. Ô nhập không có <label>, chỉ có placeholder — placeholder biến mất ngay
+ *    khi người dùng gõ, nên không còn gì nói cho họ biết ô đó là gì.
+ */
 export default function WalletPage() {
   const { allowed } = useRequireAuth();
   const { toast } = useToast();
-  const [balance, setBalance] = useState(0);
+  const t = useTranslations('wallet');
+  const tc = useTranslations('common');
+
+  const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [topupAmount, setTopupAmount] = useState('');
   const [showTopup, setShowTopup] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const fetchData = useCallback(async () => {
+    setState('loading');
+    const [balanceRes, txRes] = await Promise.allSettled([
+      paymentService.getBalance(),
+      paymentService.getAll(1, 20),
+    ]);
+    // Số dư hỏng là hỏng thật sự: không có nó thì cả trang vô nghĩa. Lịch sử
+    // hỏng thì vẫn hiện được số dư, chỉ để danh sách rỗng.
+    if (balanceRes.status !== 'fulfilled') {
+      setState('error');
+      return;
+    }
+    setBalance(Number(balanceRes.value.data?.balance || 0));
+    setTransactions(txRes.status === 'fulfilled' ? txRes.value.data?.data?.result || [] : []);
+    setState('ready');
+  }, []);
+
   useEffect(() => {
     if (allowed) fetchData();
-  }, [allowed]);
-
-  const fetchData = async () => {
-    try {
-      const [balanceRes, txRes] = await Promise.allSettled([
-        paymentService.getBalance(),
-        paymentService.getAll(1, 20),
-      ]);
-      if (balanceRes.status === 'fulfilled') setBalance(balanceRes.value.data?.balance || 0);
-      if (txRes.status === 'fulfilled') setTransactions(txRes.value.data?.data?.result || []);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+  }, [allowed, fetchData]);
 
   const handleTopup = async () => {
-    const amount = parseInt(topupAmount);
-    if (!amount || amount < 10000) { toast('Số tiền nạp tối thiểu 10,000đ', 'error'); return; }
+    const amount = Number(topupAmount);
+    if (!Number.isFinite(amount) || amount < MIN_TOPUP) {
+      toast(t('topupTooSmall', { min: formatPrice(MIN_TOPUP) }), 'error');
+      return;
+    }
     setSubmitting(true);
     try {
-      // Tạo payment link PayOS → redirect
       const res = await payosService.createLink({ type: 'topup', amount });
       const checkoutUrl = res.data?.data?.checkoutUrl;
       if (!checkoutUrl) {
-        toast('Không lấy được link thanh toán', 'error');
+        toast(t('topupNoLink'), 'error');
         setSubmitting(false);
         return;
       }
       window.location.href = checkoutUrl;
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Tạo link nạp ví thất bại', 'error');
+      toast(err.response?.data?.message || t('topupFailed'), 'error');
       setSubmitting(false);
     }
   };
 
-  if (loading) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-600" /></div>;
+  const card = 'rounded-card bg-surface-card';
+
+  if (state === 'loading') {
+    return <div className={`${card} px-6 py-20 text-center text-body text-ink-muted`}>{tc('loading')}</div>;
+  }
+
+  if (state === 'error') {
+    return (
+      <div className={`${card} px-6 py-20 text-center`}>
+        <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
+        <button
+          type="button"
+          onClick={fetchData}
+          className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+        >
+          {tc('retry')}
+        </button>
+      </div>
+    );
   }
 
   return (
-    // Khung trang (nền, chiều rộng, thanh điều hướng tài khoản) nay do
-    // AccountShell lo. Trang chỉ dựng nội dung của chính nó.
-    // TODO: phần thân dưới đây vẫn dùng lớp Tailwind cũ, chưa đưa về token.
-    <div>
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900 mb-5">Ví Zoldify</h1>
-        {/* Thanh tab chép tay đã gỡ — điều hướng tài khoản ở AccountShell. */}
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="flex flex-col gap-3 lg:col-span-1">
+        <section aria-labelledby="wallet-balance" className={`${card} p-6`}>
+          <h1 id="wallet-balance" className="text-caption uppercase tracking-wide text-ink-faint">
+            {t('balance')}
+          </h1>
+          <p className="mt-2 text-display font-bold tabular-nums text-ink">
+            {formatPrice(balance ?? 0)}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowTopup((v) => !v)}
+            aria-expanded={showTopup}
+            className="mt-5 inline-flex w-full items-center justify-center gap-1.5 rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t('topup')}
+          </button>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-1">
-            <div className="rounded-xl shadow-lg p-6 text-white h-full relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' }}>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
-              <div className="relative z-10 flex flex-col justify-between h-full min-h-[180px]">
-                <div>
-                  {/* Chữ xám trên nền tối là lỗi contrast (1.94:1). Dùng độ trong
-                      của chính màu mực trắng thay vì một sắc xám riêng. */}
-                  <p className="text-white/80 text-sm font-medium uppercase tracking-wider">Số dư khả dụng</p>
-                  <h2 className="text-4xl font-extrabold mt-2 tracking-tight text-white">
-                    {balance.toLocaleString('vi-VN')} <span className="text-lg font-normal text-white/80">VNĐ</span>
-                  </h2>
-                </div>
-                <div className="flex gap-3 mt-6">
-                  <button onClick={() => setShowTopup(!showTopup)} className="w-full bg-transparent hover:bg-white/5 border border-white/20 py-2 rounded-lg text-sm font-medium transition cursor-pointer flex items-center justify-center gap-1">
-                    <Plus className="w-4 h-4" /> Nạp tiền
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {showTopup && (
-              <div className="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Nạp tiền vào ví</h4>
-                <input
-                  type="number"
-                  placeholder="Số tiền (tối thiểu 10,000đ)"
-                  value={topupAmount}
-                  onChange={(e) => setTopupAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <div className="flex items-center gap-2 text-xs text-gray-600 mb-3">
-                  <CreditCard className="w-3.5 h-3.5" />
-                  <span>Thanh toán qua PayOS: ATM, Visa, Master, JCB hoặc QR</span>
-                </div>
-                <button
-                  onClick={handleTopup}
-                  disabled={submitting}
-                  className="w-full py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-70 flex items-center justify-center gap-2"
-                >
-                  {submitting ? <><Loader className="w-4 h-4 animate-spin" /> Đang tạo link...</> : 'Nạp tiền ngay'}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="font-bold text-gray-800">Lịch sử giao dịch</h3>
-              </div>
-              <div className="p-0">
-                {transactions.length === 0 ? (
-                  <div className="p-8 text-center">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-3">
-                      <Clock className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <p className="text-gray-600 text-sm">Chưa có giao dịch nào.</p>
-                  </div>
-                ) : (
-                  <ul className="divide-y divide-gray-100">
-                    {transactions.map((t: any) => (
-                      <li key={t.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'deposit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
-                            {t.type === 'deposit' ? <ArrowDown className="w-5 h-5" /> : <ArrowUp className="w-5 h-5" />}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {t.type === 'deposit' ? 'Nạp tiền vào ví' : 'Thanh toán đơn hàng'}
-                            </p>
-                            <p className="text-xs text-gray-600">{t.created_at ? new Date(t.created_at).toLocaleString('vi-VN') : ''}</p>
-                          </div>
-                        </div>
-                        <span className={`font-bold text-sm ${t.type === 'deposit' ? 'text-green-700' : 'text-gray-900'}`}>
-                          {t.type === 'deposit' ? '+' : '-'}{Number(t.amount).toLocaleString('vi-VN')}đ
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {showTopup && (
+          <section aria-labelledby="topup-title" className={`${card} p-6`}>
+            <h2 id="topup-title" className="text-small font-semibold text-ink">
+              {t('topupTitle')}
+            </h2>
+            <label htmlFor="topup-amount" className="mb-1.5 mt-4 block text-small text-ink">
+              {t('topupAmount')}
+            </label>
+            <input
+              id="topup-amount"
+              type="number"
+              inputMode="numeric"
+              min={MIN_TOPUP}
+              step={1000}
+              value={topupAmount}
+              onChange={(e) => setTopupAmount(e.target.value)}
+              aria-describedby="topup-min"
+              className="w-full rounded-control border border-ink/16 bg-surface-card px-3 py-2.5 text-body tabular-nums text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+            />
+            <p id="topup-min" className="mt-1.5 text-small text-ink-muted">
+              {t('topupMin', { min: formatPrice(MIN_TOPUP) })}
+            </p>
+            <p className="mt-4 flex items-start gap-2 text-small leading-relaxed text-ink-muted">
+              <CreditCard className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              {t('topupVia')}
+            </p>
+            <button
+              type="button"
+              onClick={handleTopup}
+              disabled={submitting}
+              className="mt-5 w-full rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink/16 disabled:text-ink-faint"
+            >
+              {submitting ? t('topupCreating') : t('topupSubmit')}
+            </button>
+          </section>
+        )}
       </div>
+
+      <section aria-labelledby="wallet-history" className={`${card} lg:col-span-2`}>
+        <h2
+          id="wallet-history"
+          className="border-b border-ink/10 px-6 py-4 text-small font-semibold text-ink"
+        >
+          {t('history')}
+        </h2>
+
+        {transactions.length === 0 ? (
+          <EmptyState title={t('empty')} hint={t('emptyHint')} />
+        ) : (
+          <ul className="divide-y divide-ink/10">
+            {transactions.map((tx: any) => {
+              const flow = moneyFlow(tx.type);
+              const key = moneyLabelKey(tx.type);
+              const amount = Number(tx.amount || 0);
+              return (
+                <li key={tx.id} className="flex items-center justify-between gap-4 px-6 py-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                        flow === 'in'
+                          ? 'bg-state-success-bg text-state-success-fg'
+                          : flow === 'out'
+                            ? 'bg-state-neutral-bg text-state-neutral-fg'
+                            : 'bg-surface-sunken text-ink-faint'
+                      }`}
+                    >
+                      {flow === 'in' ? (
+                        <ArrowDownLeft className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      {/* Kiểu lạ thì hiện nguyên văn giá trị backend trả về,
+                          không gán bừa một nhãn gần đúng — đó chính là cách
+                          "mọi thứ không phải deposit đều là thanh toán đơn
+                          hàng" đã nói dối người dùng. */}
+                      <span className="block truncate text-small text-ink">
+                        {key
+                          ? t(`tx${key.charAt(0).toUpperCase()}${key.slice(1)}` as any)
+                          : String(tx.type ?? '—')}
+                      </span>
+                      {tx.created_at && (
+                        <time
+                          dateTime={tx.created_at}
+                          className="block text-caption tabular-nums text-ink-faint"
+                        >
+                          {new Date(tx.created_at).toLocaleString()}
+                        </time>
+                      )}
+                    </span>
+                  </div>
+                  <span
+                    className={`shrink-0 text-small font-bold tabular-nums ${
+                      flow === 'in' ? 'text-state-success-fg' : 'text-ink'
+                    }`}
+                  >
+                    {flow === 'in' ? '+' : flow === 'out' ? '−' : ''}
+                    {formatPrice(amount)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

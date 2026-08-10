@@ -40,6 +40,26 @@ const TONE: Record<OrderStatus, StatusTone> = {
   refunded: 'neutral',
 };
 
+/**
+ * Chuỗi trạng thái bình thường của một đơn, đúng thứ tự. Dùng để vẽ tiến trình.
+ *
+ * `cancelled` và `refunded` KHÔNG nằm trên chuỗi này: chúng là điểm kết thúc rẽ
+ * ngang, có thể xảy ra từ nhiều bước khác nhau. Nhét chúng vào cuối chuỗi sẽ
+ * ngụ ý mọi đơn đều đi qua chúng.
+ */
+export const ORDER_FLOW = [
+  'pending',
+  'confirmed',
+  'processing',
+  'shipping',
+  'delivered',
+] as const satisfies readonly OrderStatus[];
+
+/** Vị trí trên chuỗi, -1 nếu trạng thái nằm ngoài luồng (huỷ / hoàn tiền). */
+export function flowIndex(raw: unknown): number {
+  return (ORDER_FLOW as readonly string[]).indexOf(String(raw));
+}
+
 export function isOrderStatus(raw: unknown): raw is OrderStatus {
   return (ORDER_STATUSES as readonly string[]).includes(String(raw));
 }
