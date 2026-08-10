@@ -99,7 +99,7 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-ink-muted" />
       </div>
     );
   }
@@ -109,38 +109,38 @@ export default function CategoriesPage() {
       <BackButton />
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý Danh mục</h1>
-          <p className="text-gray-600 text-sm mt-1">Tổng cộng {categories.length} danh mục</p>
+          <h1 className="text-2xl font-bold text-ink">Quản lý Danh mục</h1>
+          <p className="text-ink-muted text-small mt-1">Tổng cộng {categories.length} danh mục</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Form Add/Edit */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="bg-surface-card rounded-card border p-6">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               {editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
             </h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tên danh mục</label>
+                <label className="block text-small font-medium text-ink mb-2">Tên danh mục</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-ink/16 rounded-control focus:ring-2 focus:ring-brand/40 focus:border-transparent outline-none"
                   placeholder="VD: Điện tử"
                   required
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Icon danh mục</label>
+                <label className="block text-small font-medium text-ink mb-2">Icon danh mục</label>
                 {editingCategory?.image && (
                   <div className="mb-2 flex items-center gap-2">
                     <img loading="lazy" decoding="async" src={editingCategory.image} alt="icon" className="w-10 h-10 object-contain rounded border" />
-                    <span className="text-xs text-gray-600">Ảnh hiện tại</span>
+                    <span className="text-caption text-ink-muted">Ảnh hiện tại</span>
                   </div>
                 )}
                 <input
@@ -148,20 +148,20 @@ export default function CategoriesPage() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => setIconFile(e.target.files?.[0] || null)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm outline-none"
+                  className="w-full px-4 py-2 border border-ink/16 rounded-control text-small outline-none"
                 />
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-caption text-ink-muted mt-1">
                   {editingCategory ? 'Để trống nếu không muốn thay đổi' : 'Hỗ trợ: JPG, PNG, GIF, SVG'}
                 </p>
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                <label className="block text-small font-medium text-ink mb-2">Mô tả</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none"
+                  className="w-full px-4 py-2 border border-ink/16 rounded-control outline-none"
                   placeholder="Mô tả ngắn về danh mục..."
                 />
               </div>
@@ -170,7 +170,7 @@ export default function CategoriesPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center px-4 py-2 bg-brand text-white rounded-control hover:bg-brand-dark transition disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
                   {editingCategory ? 'Cập nhật' : 'Thêm mới'}
@@ -180,7 +180,7 @@ export default function CategoriesPage() {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                    className="px-4 py-2 bg-surface-sunken text-ink rounded-control hover:bg-gray-200 transition"
                   >
                     Hủy
                   </button>
@@ -192,44 +192,44 @@ export default function CategoriesPage() {
 
         {/* Categories List */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div className="bg-surface-card rounded-card border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b">
+                <thead className="bg-surface-page border-b">
                   <tr>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Icon</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Tên danh mục</th>
-                    <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Số SP</th>
-                    <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Icon</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Tên danh mục</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Số SP</th>
+                    <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-ink/10">
                   {categories.map((cat) => (
-                    <tr key={cat.id} className={`hover:bg-gray-50 transition ${editingCategory?.id === cat.id ? 'bg-blue-50' : ''}`}>
+                    <tr key={cat.id} className={`hover:bg-surface-page transition ${editingCategory?.id === cat.id ? 'bg-brand-tint' : ''}`}>
                       <td className="py-4 px-6">
                         {cat.image ? (
                           <img loading="lazy" decoding="async" src={cat.image} alt={cat.name} className="w-10 h-10 object-contain" />
                         ) : (
-                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600">
+                          <div className="w-10 h-10 bg-surface-sunken rounded-control flex items-center justify-center text-ink-muted">
                             <Box className="w-6 h-6" />
                           </div>
                         )}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="font-medium text-gray-800">{cat.name}</div>
-                        <div className="text-xs text-gray-600">ID: #{cat.id}</div>
+                        <div className="font-medium text-ink">{cat.name}</div>
+                        <div className="text-caption text-ink-muted">ID: #{cat.id}</div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-surface-sunken text-ink">
                           {cat.product_count || 0} sản phẩm
                         </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => handleEdit(cat)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Sửa">
+                          <button onClick={() => handleEdit(cat)} className="p-2 text-brand hover:bg-blue-100 rounded-control transition" title="Sửa">
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Xóa">
+                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-control transition" title="Xóa">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -239,8 +239,8 @@ export default function CategoriesPage() {
 
                   {categories.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-gray-600">
-                        <FolderOpen className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                      <td colSpan={4} className="py-8 text-center text-ink-muted">
+                        <FolderOpen className="w-10 h-10 text-ink-faint mx-auto mb-3" />
                         <p>Chưa có danh mục nào</p>
                       </td>
                     </tr>

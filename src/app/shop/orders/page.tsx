@@ -20,12 +20,25 @@ interface OrderItem {
   product?: { id: number; name: string; image?: string; seller_id?: number };
 }
 
+/**
+ * Ten truong PHAI khop backend: API tra ve `order_code` va `discount_amount`,
+ * khong phai `code` va `discount`. Frontend khai sai ten nen ca hai luon
+ * undefined:
+ *
+ *  - Cot "Ma DH" o bang quan tri hien rong vinh vien.
+ *  - O tim kiem cua trang don nguoi ban goi `orderCode(o).toLowerCase()` tren
+ *    undefined -> nem TypeError ngay ky tu dau tien.
+ *
+ * Giu ca hai ten va doc theo thu tu uu tien, de neu backend doi lai thi khong vo.
+ */
 interface Order {
   id: number;
-  code: string;
+  order_code?: string;
+  code?: string;
   total_amount: number | string;
   shipping_fee: number | string;
-  discount: number | string;
+  discount_amount?: number | string;
+  discount?: number | string;
   final_amount: number | string;
   status: OrderStatus;
   payment_method: string;
@@ -69,6 +82,16 @@ function nextInFlow(status: unknown): OrderStatus | null {
   const i = flowIndex(status);
   if (i === -1 || i >= ORDER_FLOW.length - 1) return null;
   return ORDER_FLOW[i + 1];
+}
+
+
+/** Ma don hien cho nguoi doc. Khong co ma thi dung so thu tu, khong de trong. */
+function orderCode(o: Order): string {
+  return o.order_code || o.code || `#${o.id}`;
+}
+
+function orderDiscount(o: Order): number {
+  return Number(o.discount_amount ?? o.discount ?? 0);
 }
 
 export default function ShopOrdersPage() {
@@ -154,7 +177,7 @@ export default function ShopOrdersPage() {
 
   const filteredOrders = search
     ? orders.filter((o) =>
-        o.code.toLowerCase().includes(search.toLowerCase()) ||
+        orderCode(o).toLowerCase().includes(search.toLowerCase()) ||
         o.receiver_name.toLowerCase().includes(search.toLowerCase()) ||
         o.items?.some((i) => i.product_name.toLowerCase().includes(search.toLowerCase()))
       )
@@ -226,7 +249,7 @@ export default function ShopOrdersPage() {
                   <div key={order.id} className="p-6 hover:bg-surface-page transition">
                     <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                       <div className="flex flex-wrap gap-3 items-center">
-                        <span className="font-bold text-brand">{order.code}</span>
+                        <span className="font-bold text-brand">{orderCode(order)}</span>
                         <span className="text-caption text-ink-muted">{formatDate(order.created_at)}</span>
                         <span className={`px-2.5 py-0.5 rounded-full text-caption font-medium ${TONE_CLASS[orderStatusTone(order.status)]}`}>
                           {tStatus(order.status)}
@@ -351,7 +374,7 @@ export default function ShopOrdersPage() {
             <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-ink">Chi tiết đơn hàng</h2>
-                <p className="text-small text-ink-muted font-mono">{viewingOrder.code}</p>
+                <p className="text-small text-ink-muted font-mono">{orderCode(viewingOrder)}</p>
               </div>
               <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
                 <X className="w-5 h-5" />
@@ -445,9 +468,9 @@ export default function ShopOrdersPage() {
                 <div className="flex justify-between text-ink-muted">
                   <span>Tạm tính</span><span>{formatCurrency(viewingOrder.total_amount)}</span>
                 </div>
-                {Number(viewingOrder.discount) > 0 && (
+                {Number(orderDiscount(viewingOrder)) > 0 && (
                   <div className="flex justify-between text-ink-muted">
-                    <span>Giảm giá</span><span className="text-green-700">-{formatCurrency(viewingOrder.discount)}</span>
+                    <span>Giảm giá</span><span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-ink-muted">
@@ -475,7 +498,7 @@ export default function ShopOrdersPage() {
               <div className="flex-1 pt-1">
                 <h2 className="text-lg font-bold text-ink">Hủy đơn hàng</h2>
                 <p className="text-small text-ink-muted mt-2">
-                  Bạn có chắc muốn hủy đơn <span className="font-mono font-semibold">{confirmCancel.code}</span>?
+                  Bạn có chắc muốn hủy đơn <span className="font-mono font-semibold">{orderCode(confirmCancel)}</span>?
                   {confirmCancel.user && (
                     <> Khách hàng <span className="font-medium">{confirmCancel.user.full_name}</span> sẽ được hoàn tiền (nếu đã thanh toán).</>
                   )}

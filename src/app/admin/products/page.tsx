@@ -63,29 +63,29 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+    <div className="p-6 max-w-7xl mx-auto bg-surface-page min-h-screen">
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý Sản phẩm</h1>
-          <p className="text-gray-600 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-ink">Quản lý Sản phẩm</h1>
+          <p className="text-ink-muted text-small mt-1">
             Tổng cộng {meta.total} sản phẩm
           </p>
         </div>
         <div className="flex items-center gap-2 flex-1 max-w-md justify-end">
           <form onSubmit={handleSearch} className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
             <input
               type="text"
               placeholder="Tìm sản phẩm..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40"
             />
           </form>
           <Link
             href="/product/create"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2 whitespace-nowrap"
+            className="px-4 py-2 bg-brand text-white rounded-control hover:bg-brand-dark transition flex items-center gap-2 whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>Thêm</span>
@@ -93,41 +93,41 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface-card rounded-card overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-gray-600">
+          <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
             <p>Đang tải...</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Sản phẩm</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Danh mục</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Giá</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Số lượng</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Người bán</th>
-                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Sản phẩm</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Danh mục</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Giá</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Số lượng</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người bán</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-ink/10">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-gray-600">
-                    <Box className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <td colSpan={6} className="py-12 text-center text-ink-muted">
+                    <Box className="w-12 h-12 mx-auto text-ink-faint mb-3" />
                     <p>Chưa có sản phẩm nào</p>
                   </td>
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50 transition">
+                  <tr key={product.id} className="hover:bg-surface-page transition">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         {/* /images/default-product.png KHÔNG tồn tại trong
                             public/images — trỏ vào nó thì mọi tin không ảnh
                             hiện icon ảnh vỡ. Vẽ ô xám có icon thay vì vậy. */}
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
                           {product.image ? (
                             <img
                               src={product.image}
@@ -136,21 +136,21 @@ export default function AdminProductsPage() {
                               className="h-full w-full object-cover"
                             />
                           ) : (
-                            <Package className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
                           )}
                         </span>
                         <div>
-                          <div className="font-medium text-gray-800 line-clamp-1 max-w-xs">
+                          <div className="font-medium text-ink line-clamp-1 max-w-xs">
                             {product.name}
                           </div>
-                          <div className="text-xs text-gray-600">ID: #{product.id}</div>
+                          <div className="text-caption text-ink-muted">ID: #{product.id}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-600">
+                    <td className="py-4 px-6 text-small text-ink-muted">
                       {product.category?.name || '—'}
                     </td>
-                    <td className="py-4 px-6 text-sm font-medium text-red-600 whitespace-nowrap">
+                    <td className="py-4 px-6 text-small font-medium text-red-600 whitespace-nowrap">
                       {formatPrice(product.price)}
                     </td>
                     <td className="py-4 px-6">
@@ -160,28 +160,28 @@ export default function AdminProductsPage() {
                         onLocalChange={(s) => updateLocalStock(product.id, s)}
                       />
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-600">
+                    <td className="py-4 px-6 text-small text-ink-muted">
                       {product.seller?.full_name || `User #${product.seller?.id}` || '—'}
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-1">
                         <Link
                           href={`/product/${product.id}`}
-                          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                          className="p-2 text-ink-muted hover:bg-surface-sunken rounded-control transition"
                           title="Xem"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
                         <button
                           onClick={() => router.push(`/product/${product.id}/edit`)}
-                          className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
                           title="Sửa"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id, product.name)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-control transition"
                           title="Xóa"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -202,10 +202,10 @@ export default function AdminProductsPage() {
             <button
               key={p}
               onClick={() => fetchProducts(p, search)}
-              className={`w-9 h-9 rounded-lg text-sm font-medium ${
+              className={`w-9 h-9 rounded-control text-small font-medium ${
                 p === meta.current
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border'
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-card text-ink-muted hover:bg-surface-sunken border'
               }`}
             >
               {p}

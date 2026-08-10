@@ -20,12 +20,25 @@ interface OrderItem {
   product?: { id: number; name: string; image?: string };
 }
 
+/**
+ * Ten truong PHAI khop backend: API tra ve `order_code` va `discount_amount`,
+ * khong phai `code` va `discount`. Frontend khai sai ten nen ca hai luon
+ * undefined:
+ *
+ *  - Cot "Ma DH" o bang quan tri hien rong vinh vien.
+ *  - O tim kiem cua trang don nguoi ban goi `orderCode(o).toLowerCase()` tren
+ *    undefined -> nem TypeError ngay ky tu dau tien.
+ *
+ * Giu ca hai ten va doc theo thu tu uu tien, de neu backend doi lai thi khong vo.
+ */
 interface Order {
   id: number;
-  code: string;
+  order_code?: string;
+  code?: string;
   total_amount: number | string;
   shipping_fee: number | string;
-  discount: number | string;
+  discount_amount?: number | string;
+  discount?: number | string;
   final_amount: number | string;
   status: OrderStatus;
   payment_method: string;
@@ -60,6 +73,16 @@ const STATUS_OPTIONS = ORDER_STATUSES;
 /** Bảng đếm rỗng dựng từ chính danh sách trạng thái, không liệt kê tay. */
 const emptyCounts = () =>
   Object.fromEntries(ORDER_STATUSES.map((s) => [s, 0])) as Record<OrderStatus, number>;
+
+
+/** Ma don hien cho nguoi doc. Khong co ma thi dung so thu tu, khong de trong. */
+function orderCode(o: Order): string {
+  return o.order_code || o.code || `#${o.id}`;
+}
+
+function orderDiscount(o: Order): number {
+  return Number(o.discount_amount ?? o.discount ?? 0);
+}
 
 export default function AdminOrdersPage() {
   const { toast } = useToast();
@@ -148,20 +171,20 @@ export default function AdminOrdersPage() {
   const statusCards = ORDER_STATUSES.map((key) => ({ key, tone: orderStatusTone(key) }));
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+    <div className="p-6 max-w-7xl mx-auto bg-surface-page min-h-screen">
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý Đơn hàng</h1>
-          <p className="text-gray-600 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-ink">Quản lý Đơn hàng</h1>
+          <p className="text-ink-muted text-small mt-1">
             {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} đơn hàng`}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setStatusFilter(''); setPage(1); }}
-            className={`px-4 py-2 text-sm rounded-lg border font-medium ${
-              !statusFilter ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+            className={`px-4 py-2 text-small rounded-control border font-medium ${
+              !statusFilter ? 'bg-brand text-white border-brand' : 'bg-surface-card text-ink-muted border-ink/16 hover:bg-surface-page'
             }`}
           >
             Tất cả
@@ -169,7 +192,7 @@ export default function AdminOrdersPage() {
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
             <option value="">Lọc theo trạng thái...</option>
             {STATUS_OPTIONS.map((s) => (
@@ -187,67 +210,67 @@ export default function AdminOrdersPage() {
             key={c.key}
             aria-pressed={statusFilter === c.key}
             onClick={() => { setStatusFilter(c.key); setPage(1); }}
-            className={`rounded-lg p-4 text-left transition ${TONE_CLASS[c.tone]} ${
+            className={`rounded-control p-4 text-left transition ${TONE_CLASS[c.tone]} ${
               statusFilter === c.key ? 'ring-2 ring-brand' : 'hover:opacity-90'
             }`}
           >
-            <div className="text-xs font-medium">{tStatus(c.key)}</div>
+            <div className="text-caption font-medium">{tStatus(c.key)}</div>
             <div className="mt-1 text-2xl font-bold tabular-nums">{statusCounts[c.key]}</div>
           </button>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface-card rounded-card overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-gray-600">
+          <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
             <p>Đang tải đơn hàng...</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Mã ĐH</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Người mua</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Người nhận</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Tổng tiền</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thanh toán</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Mã ĐH</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người mua</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người nhận</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Tổng tiền</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thanh toán</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Trạng thái</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Ngày tạo</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-ink/10">
               {orders.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-600">
-                    <ShoppingCart className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <td colSpan={8} className="py-12 text-center text-ink-muted">
+                    <ShoppingCart className="w-12 h-12 mx-auto text-ink-faint mb-3" />
                     <p>Không có đơn hàng nào</p>
                   </td>
                 </tr>
               ) : (
                 orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition">
+                  <tr key={order.id} className="hover:bg-surface-page transition">
                     <td className="py-4 px-6">
-                      <span className="font-mono text-sm font-medium text-gray-800">{order.code}</span>
-                      <div className="text-xs text-gray-600 mt-0.5">{order.items?.length || 0} sản phẩm</div>
+                      <span className="font-mono text-small font-medium text-ink">{orderCode(order)}</span>
+                      <div className="text-caption text-ink-muted mt-0.5">{order.items?.length || 0} sản phẩm</div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-sm font-medium text-gray-800">{order.user?.full_name || '—'}</div>
-                      <div className="text-xs text-gray-600">{order.user?.email || '—'}</div>
+                      <div className="text-small font-medium text-ink">{order.user?.full_name || '—'}</div>
+                      <div className="text-caption text-ink-muted">{order.user?.email || '—'}</div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-sm text-gray-800">{order.receiver_name}</div>
-                      <div className="text-xs text-gray-600">{order.receiver_phone}</div>
+                      <div className="text-small text-ink">{order.receiver_name}</div>
+                      <div className="text-caption text-ink-muted">{order.receiver_phone}</div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-sm font-semibold text-red-600">{formatCurrency(order.final_amount)}</div>
+                      <div className="text-small font-semibold text-red-600">{formatCurrency(order.final_amount)}</div>
                       {Number(order.shipping_fee) > 0 && (
-                        <div className="text-xs text-gray-600">ship: {formatCurrency(order.shipping_fee)}</div>
+                        <div className="text-caption text-ink-muted">ship: {formatCurrency(order.shipping_fee)}</div>
                       )}
                     </td>
                     <td className="py-4 px-6">
-                      <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                      <span className="text-caption px-2 py-1 rounded-full bg-surface-sunken text-ink">
                         {order.payment_method?.toUpperCase() || '—'}
                       </span>
                     </td>
@@ -257,7 +280,7 @@ export default function AdminOrdersPage() {
                           value={order.status}
                           disabled={updatingId === order.id}
                           onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                          className={`appearance-none cursor-pointer pr-7 pl-3 py-1.5 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          className={`appearance-none cursor-pointer pr-7 pl-3 py-1.5 rounded-full text-caption font-medium border-0 focus:outline-none focus:ring-2 focus:ring-brand/40 ${
                             statusClass(order.status)
                           } ${updatingId === order.id ? 'opacity-50' : ''}`}
                         >
@@ -272,14 +295,14 @@ export default function AdminOrdersPage() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-600 whitespace-nowrap">
+                    <td className="py-4 px-6 text-small text-ink-muted whitespace-nowrap">
                       {formatDate(order.created_at)}
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center">
                         <button
                           onClick={() => setViewingOrder(order)}
-                          className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
                           title="Xem chi tiết"
                         >
                           <Eye className="w-4 h-4" />
@@ -299,7 +322,7 @@ export default function AdminOrdersPage() {
           <button
             onClick={() => { setPage(page - 1); fetchOrders(page - 1); }}
             disabled={page === 1}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50"
+            className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 hover:bg-surface-page"
           >
             Trước
           </button>
@@ -307,10 +330,10 @@ export default function AdminOrdersPage() {
             <button
               key={p}
               onClick={() => { setPage(p); fetchOrders(p); }}
-              className={`w-9 h-9 rounded-lg text-sm font-medium ${
+              className={`w-9 h-9 rounded-control text-small font-medium ${
                 p === meta.current
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border'
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-card text-ink-muted hover:bg-surface-sunken border'
               }`}
             >
               {p}
@@ -319,7 +342,7 @@ export default function AdminOrdersPage() {
           <button
             onClick={() => { setPage(page + 1); fetchOrders(page + 1); }}
             disabled={page === meta.pages}
-            className="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50"
+            className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 hover:bg-surface-page"
           >
             Sau
           </button>
@@ -330,72 +353,72 @@ export default function AdminOrdersPage() {
       {viewingOrder && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setViewingOrder(null)}>
           <div
-            className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-surface-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-gray-800">Chi tiết đơn hàng</h2>
-                <p className="text-sm text-gray-600 font-mono">{viewingOrder.code}</p>
+                <h2 className="text-lg font-bold text-ink">Chi tiết đơn hàng</h2>
+                <p className="text-small text-ink-muted font-mono">{orderCode(viewingOrder)}</p>
               </div>
-              <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusClass(viewingOrder.status)}`}>
+                <span className={`px-3 py-1.5 rounded-full text-small font-medium ${statusClass(viewingOrder.status)}`}>
                   {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
-                  <div className="text-xs text-gray-600">Ngày đặt</div>
-                  <div className="text-sm text-gray-800">{formatDate(viewingOrder.created_at)}</div>
+                  <div className="text-caption text-ink-muted">Ngày đặt</div>
+                  <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
 
               {/* Customer */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-surface-page rounded-control p-4">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <UserIcon className="w-4 h-4" /> Khách hàng
                 </h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-2 gap-3 text-small">
                   <div>
-                    <div className="text-gray-600 text-xs">Tài khoản</div>
+                    <div className="text-ink-muted text-caption">Tài khoản</div>
                     <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
-                    <div className="text-xs text-gray-600">{viewingOrder.user?.email || ''}</div>
+                    <div className="text-caption text-ink-muted">{viewingOrder.user?.email || ''}</div>
                   </div>
                 </div>
               </div>
 
               {/* Receiver */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-surface-page rounded-control p-4">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> Thông tin nhận hàng
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-small">
                   <div className="flex items-start gap-2">
-                    <UserIcon className="w-4 h-4 text-gray-600 mt-0.5" />
+                    <UserIcon className="w-4 h-4 text-ink-muted mt-0.5" />
                     <div>
                       <div className="font-medium">{viewingOrder.receiver_name}</div>
-                      <div className="text-xs text-gray-600 flex items-center gap-1">
+                      <div className="text-caption text-ink-muted flex items-center gap-1">
                         <Phone className="w-3 h-3" /> {viewingOrder.receiver_phone}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-600 mt-0.5" />
-                    <div className="text-gray-700">
+                    <MapPin className="w-4 h-4 text-ink-muted mt-0.5" />
+                    <div className="text-ink">
                       {viewingOrder.shipping_address}
                       {(viewingOrder.district || viewingOrder.province) && (
-                        <div className="text-xs text-gray-600">
+                        <div className="text-caption text-ink-muted">
                           {[viewingOrder.district, viewingOrder.province].filter(Boolean).join(', ')}
                         </div>
                       )}
                     </div>
                   </div>
                   {viewingOrder.note && (
-                    <div className="text-xs text-gray-600 italic border-l-2 border-gray-300 pl-2">
+                    <div className="text-caption text-ink-muted italic border-l-2 border-ink/16 pl-2">
                       Ghi chú: {viewingOrder.note}
                     </div>
                   )}
@@ -404,13 +427,13 @@ export default function AdminOrdersPage() {
 
               {/* Items */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <Package className="w-4 h-4" /> Sản phẩm ({viewingOrder.items?.length || 0})
                 </h3>
                 <div className="space-y-2">
                   {viewingOrder.items?.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    <div key={item.id} className="flex items-center gap-3 p-3 border rounded-control">
+                      <div className="w-14 h-14 rounded-control bg-surface-sunken overflow-hidden flex-shrink-0">
                         {item.product?.image || item.product_image ? (
                           <img
                             src={imageUrl(item.product?.image || item.product_image) || ''}
@@ -418,16 +441,16 @@ export default function AdminOrdersPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-600">
+                          <div className="w-full h-full flex items-center justify-center text-ink-muted">
                             <Package className="w-6 h-6" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-800 line-clamp-1">{item.product_name}</div>
-                        <div className="text-xs text-gray-600">SL: {item.quantity} × {formatCurrency(item.price)}</div>
+                        <div className="text-small font-medium text-ink line-clamp-1">{item.product_name}</div>
+                        <div className="text-caption text-ink-muted">SL: {item.quantity} × {formatCurrency(item.price)}</div>
                       </div>
-                      <div className="text-sm font-semibold text-gray-800">
+                      <div className="text-small font-semibold text-ink">
                         {formatCurrency(item.subtotal)}
                       </div>
                     </div>
@@ -436,26 +459,26 @@ export default function AdminOrdersPage() {
               </div>
 
               {/* Summary */}
-              <div className="border-t pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-gray-600">
+              <div className="border-t pt-4 space-y-2 text-small">
+                <div className="flex justify-between text-ink-muted">
                   <span>Tạm tính</span>
                   <span>{formatCurrency(viewingOrder.total_amount)}</span>
                 </div>
-                {Number(viewingOrder.discount) > 0 && (
-                  <div className="flex justify-between text-gray-600">
+                {Number(orderDiscount(viewingOrder)) > 0 && (
+                  <div className="flex justify-between text-ink-muted">
                     <span>Giảm giá</span>
-                    <span className="text-green-700">-{formatCurrency(viewingOrder.discount)}</span>
+                    <span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-ink-muted">
                   <span>Phí ship</span>
                   <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : 'Miễn phí'}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-gray-800 pt-2 border-t">
+                <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
                   <span>Tổng cộng</span>
                   <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
-                <div className="text-xs text-gray-600 pt-1">
+                <div className="text-caption text-ink-muted pt-1">
                   Thanh toán: <span className="font-medium">{viewingOrder.payment_method?.toUpperCase()}</span>
                 </div>
               </div>

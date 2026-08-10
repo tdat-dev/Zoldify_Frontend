@@ -165,30 +165,30 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
+    <div className="p-6 max-w-7xl mx-auto bg-surface-page min-h-screen">
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý Users</h1>
-          <p className="text-gray-600 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-ink">Quản lý Users</h1>
+          <p className="text-ink-muted text-small mt-1">
             {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} người dùng`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-1 max-w-2xl justify-end flex-wrap">
           <form onSubmit={handleSearch} className="relative flex-1 min-w-[200px]">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
             <input
               type="text"
               placeholder="Tìm theo tên..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40"
             />
           </form>
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
             <option value="">Tất cả vai trò</option>
             <option value="buyer">Buyer</option>
@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
           <select
             value={lockFilter}
             onChange={(e) => setLockFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
             <option value="">Tất cả trạng thái</option>
             <option value="false">Hoạt động</option>
@@ -208,61 +208,61 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-surface-card rounded-card overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-gray-600">
+          <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
             <p>Đang tải người dùng...</p>
           </div>
         ) : (
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">ID</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Họ tên</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Email</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Vai trò</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Xác minh</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-xs font-semibold text-gray-600 uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">ID</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Họ tên</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Email</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Vai trò</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Xác minh</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Trạng thái</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Ngày tạo</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-ink/10">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-gray-600">
-                    <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <td colSpan={8} className="py-12 text-center text-ink-muted">
+                    <Users className="w-12 h-12 mx-auto text-ink-faint mb-3" />
                     <p>Không tìm thấy người dùng</p>
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition">
-                    <td className="py-4 px-6 text-sm text-gray-600">#{user.id}</td>
+                  <tr key={user.id} className="hover:bg-surface-page transition">
+                    <td className="py-4 px-6 text-small text-ink-muted">#{user.id}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium flex-shrink-0">
                           {user.full_name?.charAt(0).toUpperCase() || '?'}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-medium text-gray-800 line-clamp-1">{user.full_name}</div>
-                          <div className="text-xs text-gray-600">{user.phone_number || '—'}</div>
+                          <div className="font-medium text-ink line-clamp-1">{user.full_name}</div>
+                          <div className="text-caption text-ink-muted">{user.phone_number || '—'}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-600">{user.email}</td>
+                    <td className="py-4 px-6 text-small text-ink-muted">{user.email}</td>
                     <td className="py-4 px-6">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <span className={`px-2 py-1 rounded-full text-caption font-medium ${
                         user.role === 'admin' ? 'bg-red-100 text-red-700' :
-                        user.role === 'seller' ? 'bg-blue-100 text-blue-700' :
+                        user.role === 'seller' ? 'bg-blue-100 text-brand' :
                         user.role === 'moderator' ? 'bg-purple-100 text-purple-700' :
-                        'bg-gray-100 text-gray-700'
+                        'bg-surface-sunken text-ink'
                       }`}>
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-sm">
+                    <td className="py-4 px-6 text-small">
                       {user.email_verified || user.is_verified ? (
                         <span className="text-green-700 flex items-center gap-1">
                           <CheckCircle className="w-4 h-4" /> Đã xác minh
@@ -275,23 +275,23 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="py-4 px-6">
                       {user.is_locked ? (
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 flex items-center gap-1 w-max">
+                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-red-100 text-red-700 flex items-center gap-1 w-max">
                           <Lock className="w-3 h-3" /> Bị khóa
                         </span>
                       ) : (
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 flex items-center gap-1 w-max">
+                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-green-100 text-green-700 flex items-center gap-1 w-max">
                           <Unlock className="w-3 h-3" /> Hoạt động
                         </span>
                       )}
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-600 whitespace-nowrap">
+                    <td className="py-4 px-6 text-small text-ink-muted whitespace-nowrap">
                       {formatDate(user.created_at)}
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => openEditRole(user)}
-                          className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
+                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
                           title="Sửa vai trò"
                           disabled={user.role === 'admin'}
                         >
@@ -300,7 +300,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => handleToggleLock(user)}
                           disabled={togglingId === user.id || user.role === 'admin'}
-                          className={`p-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                          className={`p-2 rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed ${
                             user.is_locked
                               ? 'text-green-500 hover:bg-green-50'
                               : 'text-red-600 hover:bg-red-50'
@@ -318,7 +318,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => handleDelete(user)}
                           disabled={deletingId === user.id || user.role === 'admin'}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title={user.role === 'admin' ? 'Không thể xóa admin' : 'Xóa người dùng'}
                         >
                           {deletingId === user.id ? (
@@ -343,10 +343,10 @@ export default function AdminUsersPage() {
             <button
               key={p}
               onClick={() => fetchUsers(p)}
-              className={`w-9 h-9 rounded-lg text-sm font-medium ${
+              className={`w-9 h-9 rounded-control text-small font-medium ${
                 p === meta.current
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border'
+                  ? 'bg-brand text-white'
+                  : 'bg-surface-card text-ink-muted hover:bg-surface-sunken border'
               }`}
             >
               {p}
@@ -359,34 +359,34 @@ export default function AdminUsersPage() {
       {editingUser && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
           <div
-            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            className="bg-surface-card rounded-2xl shadow-xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <h2 className="text-lg font-bold text-ink flex items-center gap-2">
                 <Shield className="w-5 h-5 text-blue-500" />
                 Sửa vai trò
               </h2>
-              <button onClick={() => setEditingUser(null)} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setEditingUser(null)} className="p-1 hover:bg-surface-sunken rounded">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">Người dùng</p>
-              <p className="font-medium text-gray-800">{editingUser.full_name}</p>
-              <p className="text-xs text-gray-600">{editingUser.email}</p>
+            <div className="mb-4 p-3 bg-surface-page rounded-control">
+              <p className="text-small text-ink-muted">Người dùng</p>
+              <p className="font-medium text-ink">{editingUser.full_name}</p>
+              <p className="text-caption text-ink-muted">{editingUser.email}</p>
             </div>
 
             <div className="space-y-2 mb-6">
-              <label className="text-sm font-medium text-gray-700 block">Vai trò mới</label>
+              <label className="text-small font-medium text-ink block">Vai trò mới</label>
               {(['buyer', 'seller', 'moderator', 'admin'] as const).map((r) => (
                 <label
                   key={r}
-                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 p-3 border rounded-control cursor-pointer transition-colors ${
                     newRole === r
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-brand-tint'
+                      : 'border-ink/10 hover:border-ink/16'
                   }`}
                 >
                   <input
@@ -395,13 +395,13 @@ export default function AdminUsersPage() {
                     value={r}
                     checked={newRole === r}
                     onChange={() => setNewRole(r)}
-                    className="w-4 h-4 text-blue-600"
+                    className="w-4 h-4 text-brand"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800 capitalize">
+                    <p className="text-small font-medium text-ink capitalize">
                       {r === 'buyer' ? 'Người mua' : r === 'seller' ? 'Người bán' : r === 'moderator' ? 'Kiểm duyệt viên' : 'Quản trị viên'}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-caption text-ink-muted">
                       {r === 'buyer' && 'Chỉ mua hàng'}
                       {r === 'seller' && 'Đăng bán sản phẩm'}
                       {r === 'moderator' && 'Kiểm duyệt nội dung'}
@@ -415,14 +415,14 @@ export default function AdminUsersPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setEditingUser(null)}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium"
               >
                 Hủy
               </button>
               <button
                 onClick={handleSaveRole}
                 disabled={savingRole || newRole === editingUser.role}
-                className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 bg-brand text-white rounded-control hover:bg-brand-dark font-medium disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {savingRole ? (
                   <>
@@ -443,7 +443,7 @@ export default function AdminUsersPage() {
       {confirmAction && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmAction(null)}>
           <div
-            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6"
+            className="bg-surface-card rounded-2xl shadow-xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-4 mb-5">
@@ -453,27 +453,27 @@ export default function AdminUsersPage() {
                 {confirmAction.confirmStyle === 'danger' ? (
                   <Trash2 className="w-6 h-6 text-red-600" />
                 ) : (
-                  <Lock className="w-6 h-6 text-blue-600" />
+                  <Lock className="w-6 h-6 text-brand" />
                 )}
               </div>
               <div className="flex-1 pt-1">
-                <h2 className="text-lg font-bold text-gray-800">{confirmAction.title}</h2>
-                <p className="text-sm text-gray-600 mt-2 whitespace-pre-line">{confirmAction.message}</p>
+                <h2 className="text-lg font-bold text-ink">{confirmAction.title}</h2>
+                <p className="text-small text-ink-muted mt-2 whitespace-pre-line">{confirmAction.message}</p>
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmAction(null)}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium"
               >
                 Hủy
               </button>
               <button
                 onClick={confirmAction.onConfirm}
-                className={`flex-1 px-4 py-2.5 text-white rounded-lg font-medium ${
+                className={`flex-1 px-4 py-2.5 text-white rounded-control font-medium ${
                   confirmAction.confirmStyle === 'danger'
                     ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-brand hover:bg-brand-dark'
                 }`}
               >
                 {confirmAction.confirmText}
