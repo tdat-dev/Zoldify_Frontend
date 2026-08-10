@@ -165,24 +165,24 @@ export default function ShopOrdersPage() {
   const getImageSrc = imageUrl;
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
+    <div className="bg-surface-page min-h-screen pb-20 md:pb-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-gray-800">Đơn hàng của shop</h1>
-          <p className="text-gray-600 text-sm mt-1">{loading ? 'Đang tải...' : `${meta.total} đơn hàng`}</p>
+          <h1 className="text-2xl font-bold text-ink">Đơn hàng của shop</h1>
+          <p className="text-ink-muted text-small mt-1">{loading ? 'Đang tải...' : `${meta.total} đơn hàng`}</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-surface-card rounded-control border border-ink/10 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 overflow-x-auto">
+          <div className="flex border-b border-ink/10 overflow-x-auto">
             {TABS.map((t) => (
               <button
                 key={t.key}
                 onClick={() => { setActiveTab(t.key); setPage(1); }}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-6 py-4 text-small font-medium whitespace-nowrap transition-colors ${
                   activeTab === t.key
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                    : 'text-gray-600 hover:text-blue-600'
+                    ? 'text-brand border-b-2 border-brand bg-brand-tint/50'
+                    : 'text-ink-muted hover:text-brand'
                 }`}
               >
                 {t.status ? tShort(t.status) : 'Tất cả'}
@@ -190,57 +190,57 @@ export default function ShopOrdersPage() {
             ))}
           </div>
 
-          <div className="p-4 bg-gray-50 border-b border-gray-100 flex flex-wrap gap-4 items-center justify-between">
+          <div className="p-4 bg-surface-page border-b border-ink/10 flex flex-wrap gap-4 items-center justify-between">
             <div className="relative flex-1 min-w-[250px]">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
               <input
                 type="text"
                 placeholder="Tìm theo mã đơn, tên người nhận, sản phẩm..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-blue-500"
+                className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small outline-none focus:border-brand"
               />
             </div>
             <Link
               href="/product/create"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm whitespace-nowrap"
+              className="px-4 py-2 bg-brand text-white rounded-control text-small font-medium hover:bg-brand-dark whitespace-nowrap"
             >
               + Đăng bán mới
             </Link>
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-gray-600">
+            <div className="p-12 text-center text-ink-muted">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
               <p>Đang tải đơn hàng...</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-ink/10">
               {filteredOrders.length === 0 ? (
-                <div className="p-12 text-center text-gray-600">
-                  <Package className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <div className="p-12 text-center text-ink-muted">
+                  <Package className="w-12 h-12 mx-auto text-ink-faint mb-3" />
                   <p>Chưa có đơn hàng nào</p>
                 </div>
               ) : (
                 filteredOrders.map((order) => (
-                  <div key={order.id} className="p-6 hover:bg-gray-50 transition">
+                  <div key={order.id} className="p-6 hover:bg-surface-page transition">
                     <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                       <div className="flex flex-wrap gap-3 items-center">
-                        <span className="font-bold text-blue-600">{order.code}</span>
-                        <span className="text-xs text-gray-600">{formatDate(order.created_at)}</span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${TONE_CLASS[orderStatusTone(order.status)]}`}>
+                        <span className="font-bold text-brand">{order.code}</span>
+                        <span className="text-caption text-ink-muted">{formatDate(order.created_at)}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-caption font-medium ${TONE_CLASS[orderStatusTone(order.status)]}`}>
                           {tStatus(order.status)}
                         </span>
                         {order.tracking_code && (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
+                          <span className="px-2 py-0.5 rounded text-caption font-medium bg-orange-100 text-orange-700">
                             GHN: {order.tracking_code}
                           </span>
                         )}
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="px-2 py-0.5 rounded text-caption font-medium bg-surface-sunken text-ink">
                           {order.payment_method?.toUpperCase()}
                         </span>
                       </div>
-                      <div className="text-sm font-bold text-red-600">
+                      <div className="text-small font-bold text-red-600">
                         {formatCurrency(order.final_amount)}
                       </div>
                     </div>
@@ -248,7 +248,7 @@ export default function ShopOrdersPage() {
                     <div className="space-y-2 mb-4">
                       {order.items?.map((item) => (
                         <div key={item.id} className="flex items-center gap-3">
-                          <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                          <div className="w-16 h-16 rounded-control bg-surface-sunken overflow-hidden flex-shrink-0">
                             {getImageSrc(item.product?.image || item.product_image) ? (
                               <img
                                 src={getImageSrc(item.product?.image || item.product_image)!}
@@ -256,14 +256,14 @@ export default function ShopOrdersPage() {
                                 className="w-full h-full object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-600">
+                              <div className="w-full h-full flex items-center justify-center text-ink-muted">
                                 <Package className="w-6 h-6" />
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">{item.product_name}</p>
-                            <p className="text-xs text-gray-600">x{item.quantity} · {formatCurrency(item.subtotal)}</p>
+                            <p className="text-small font-medium text-ink truncate">{item.product_name}</p>
+                            <p className="text-caption text-ink-muted">x{item.quantity} · {formatCurrency(item.subtotal)}</p>
                           </div>
                         </div>
                       ))}
@@ -272,7 +272,7 @@ export default function ShopOrdersPage() {
                     <div className="flex justify-end gap-2 flex-wrap">
                       <button
                         onClick={() => setViewingOrder(order)}
-                        className="px-3 py-1.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 flex items-center gap-1"
+                        className="px-3 py-1.5 border border-ink/16 text-ink text-small font-medium rounded-control hover:bg-surface-page flex items-center gap-1"
                       >
                         <Eye className="w-4 h-4" /> Chi tiết
                       </button>
@@ -283,7 +283,7 @@ export default function ShopOrdersPage() {
                         <button
                           onClick={() => handleConfirmShip(order)}
                           disabled={actionLoading === order.id}
-                          className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 shadow-sm disabled:opacity-50 flex items-center gap-1"
+                          className="px-3 py-1.5 bg-brand text-white text-small font-medium rounded-control hover:bg-brand-dark disabled:opacity-50 flex items-center gap-1"
                         >
                           {actionLoading === order.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -297,7 +297,7 @@ export default function ShopOrdersPage() {
                         <button
                           onClick={() => setConfirmCancel(order)}
                           disabled={actionLoading === order.id}
-                          className="px-3 py-1.5 border border-red-300 text-red-700 text-sm font-medium rounded-md hover:bg-red-50 disabled:opacity-50"
+                          className="px-3 py-1.5 border border-red-300 text-red-700 text-small font-medium rounded-control hover:bg-red-50 disabled:opacity-50"
                         >
                           Hủy đơn
                         </button>
@@ -315,7 +315,7 @@ export default function ShopOrdersPage() {
             <button
               onClick={() => { setPage(page - 1); fetchOrders(page - 1); }}
               disabled={page === 1}
-              className="px-3 py-1.5 border rounded-md text-sm disabled:opacity-50 bg-white"
+              className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 bg-surface-card"
             >
               Trước
             </button>
@@ -323,8 +323,8 @@ export default function ShopOrdersPage() {
               <button
                 key={p}
                 onClick={() => { setPage(p); fetchOrders(p); }}
-                className={`w-9 h-9 rounded-md text-sm font-medium ${
-                  p === meta.current ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border'
+                className={`w-9 h-9 rounded-control text-small font-medium ${
+                  p === meta.current ? 'bg-brand text-white' : 'bg-surface-card text-ink-muted hover:bg-surface-sunken border'
                 }`}
               >
                 {p}
@@ -333,7 +333,7 @@ export default function ShopOrdersPage() {
             <button
               onClick={() => { setPage(page + 1); fetchOrders(page + 1); }}
               disabled={page === meta.pages}
-              className="px-3 py-1.5 border rounded-md text-sm disabled:opacity-50 bg-white"
+              className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 bg-surface-card"
             >
               Sau
             </button>
@@ -345,66 +345,66 @@ export default function ShopOrdersPage() {
       {viewingOrder && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setViewingOrder(null)}>
           <div
-            className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-surface-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-gray-800">Chi tiết đơn hàng</h2>
-                <p className="text-sm text-gray-600 font-mono">{viewingOrder.code}</p>
+                <h2 className="text-lg font-bold text-ink">Chi tiết đơn hàng</h2>
+                <p className="text-small text-ink-muted font-mono">{viewingOrder.code}</p>
               </div>
-              <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${TONE_CLASS[orderStatusTone(viewingOrder.status)]}`}>
+                <span className={`px-3 py-1.5 rounded-full text-small font-medium ${TONE_CLASS[orderStatusTone(viewingOrder.status)]}`}>
                   {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
-                  <div className="text-xs text-gray-600">Ngày đặt</div>
-                  <div className="text-sm text-gray-800">{formatDate(viewingOrder.created_at)}</div>
+                  <div className="text-caption text-ink-muted">Ngày đặt</div>
+                  <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-surface-page rounded-control p-4">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <UserIcon className="w-4 h-4" /> Khách hàng
                 </h3>
-                <div className="text-sm space-y-1">
+                <div className="text-small space-y-1">
                   <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
-                  <div className="text-xs text-gray-600">{viewingOrder.user?.email || ''}</div>
+                  <div className="text-caption text-ink-muted">{viewingOrder.user?.email || ''}</div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <div className="bg-surface-page rounded-control p-4">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> Thông tin nhận hàng
                 </h3>
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-small">
                   <div className="flex items-start gap-2">
-                    <UserIcon className="w-4 h-4 text-gray-600 mt-0.5" />
+                    <UserIcon className="w-4 h-4 text-ink-muted mt-0.5" />
                     <div>
                       <div className="font-medium">{viewingOrder.receiver_name}</div>
-                      <div className="text-xs text-gray-600 flex items-center gap-1">
+                      <div className="text-caption text-ink-muted flex items-center gap-1">
                         <Phone className="w-3 h-3" /> {viewingOrder.receiver_phone}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-600 mt-0.5" />
-                    <div className="text-gray-700">
+                    <MapPin className="w-4 h-4 text-ink-muted mt-0.5" />
+                    <div className="text-ink">
                       {viewingOrder.shipping_address}
                       {(viewingOrder.district || viewingOrder.province) && (
-                        <div className="text-xs text-gray-600">
+                        <div className="text-caption text-ink-muted">
                           {[viewingOrder.district, viewingOrder.province].filter(Boolean).join(', ')}
                         </div>
                       )}
                     </div>
                   </div>
                   {viewingOrder.note && (
-                    <div className="text-xs text-gray-600 italic border-l-2 border-gray-300 pl-2">
+                    <div className="text-caption text-ink-muted italic border-l-2 border-ink/16 pl-2">
                       Ghi chú: {viewingOrder.note}
                     </div>
                   )}
@@ -412,13 +412,13 @@ export default function ShopOrdersPage() {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
                   <Package className="w-4 h-4" /> Sản phẩm ({viewingOrder.items?.length || 0})
                 </h3>
                 <div className="space-y-2">
                   {viewingOrder.items?.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                      <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    <div key={item.id} className="flex items-center gap-3 p-3 border rounded-control">
+                      <div className="w-14 h-14 rounded-control bg-surface-sunken overflow-hidden flex-shrink-0">
                         {getImageSrc(item.product?.image || item.product_image) ? (
                           <img
                             src={getImageSrc(item.product?.image || item.product_image)!}
@@ -426,35 +426,35 @@ export default function ShopOrdersPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-600">
+                          <div className="w-full h-full flex items-center justify-center text-ink-muted">
                             <Package className="w-6 h-6" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-800 line-clamp-1">{item.product_name}</div>
-                        <div className="text-xs text-gray-600">SL: {item.quantity} × {formatCurrency(item.price)}</div>
+                        <div className="text-small font-medium text-ink line-clamp-1">{item.product_name}</div>
+                        <div className="text-caption text-ink-muted">SL: {item.quantity} × {formatCurrency(item.price)}</div>
                       </div>
-                      <div className="text-sm font-semibold text-gray-800">{formatCurrency(item.subtotal)}</div>
+                      <div className="text-small font-semibold text-ink">{formatCurrency(item.subtotal)}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-gray-600">
+              <div className="border-t pt-4 space-y-2 text-small">
+                <div className="flex justify-between text-ink-muted">
                   <span>Tạm tính</span><span>{formatCurrency(viewingOrder.total_amount)}</span>
                 </div>
                 {Number(viewingOrder.discount) > 0 && (
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-ink-muted">
                     <span>Giảm giá</span><span className="text-green-700">-{formatCurrency(viewingOrder.discount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-ink-muted">
                   <span>Phí ship</span>
                   <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : 'Miễn phí'}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-gray-800 pt-2 border-t">
+                <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
                   <span>Tổng cộng</span>
                   <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
@@ -467,14 +467,14 @@ export default function ShopOrdersPage() {
       {/* Cancel Confirm Modal */}
       {confirmCancel && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmCancel(null)}>
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface-card rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start gap-4 mb-5">
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
                 <XCircle className="w-6 h-6 text-red-600" />
               </div>
               <div className="flex-1 pt-1">
-                <h2 className="text-lg font-bold text-gray-800">Hủy đơn hàng</h2>
-                <p className="text-sm text-gray-600 mt-2">
+                <h2 className="text-lg font-bold text-ink">Hủy đơn hàng</h2>
+                <p className="text-small text-ink-muted mt-2">
                   Bạn có chắc muốn hủy đơn <span className="font-mono font-semibold">{confirmCancel.code}</span>?
                   {confirmCancel.user && (
                     <> Khách hàng <span className="font-medium">{confirmCancel.user.full_name}</span> sẽ được hoàn tiền (nếu đã thanh toán).</>
@@ -483,10 +483,10 @@ export default function ShopOrdersPage() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setConfirmCancel(null)} className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium">
+              <button onClick={() => setConfirmCancel(null)} className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium">
                 Không
               </button>
-              <button onClick={handleCancel} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">
+              <button onClick={handleCancel} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-control hover:bg-red-700 font-medium">
                 Hủy đơn
               </button>
             </div>
