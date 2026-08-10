@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Send, ArrowLeft, MessageCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { chatService } from '@/services/chat.service';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -14,6 +15,7 @@ export default function ChatPage() {
   const { token, user: currentUser } = useAuth();
   const { allowed } = useRequireAuth();
   const { toast } = useToast();
+  const t = useTranslations('chat');
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetConvId = searchParams.get('conversation');
@@ -189,7 +191,7 @@ export default function ChatPage() {
     } catch (err: any) {
       // Không nuốt: khung tin nhắn rỗng vì lỗi mạng trông y hệt một cuộc trò
       // chuyện chưa ai nhắn gì.
-      toast(err.response?.data?.message || 'Không tải được tin nhắn.', 'error');
+      toast(err.response?.data?.message || t('loadFailed'), 'error');
     }
   };
 
@@ -210,7 +212,7 @@ export default function ChatPage() {
       // tin nhắn người dùng vừa gõ mà không báo một tiếng nào. Trả chữ về ô
       // để họ bấm gửi lại chứ không phải gõ lại từ đầu.
       setText(content);
-      toast(err.response?.data?.message || 'Chưa gửi được tin nhắn. Thử lại giúp mình.', 'error');
+      toast(err.response?.data?.message || t('sendFailed'), 'error');
     }
     finally { setSending(false); }
   };
@@ -227,36 +229,37 @@ export default function ChatPage() {
     return d.toLocaleDateString('vi-VN');
   };
 
-  // Tính trạng thái online từ realtime socket hoặc fallback last_seen
-  const getOnlineStatus = (lastSeen?: string | Date | null, realtimeOnline?: boolean) => {
-    // Ưu tiên tín hiệu realtime từ socket (chính xác tại thời điểm hiện tại)
-    if (realtimeOnline === true) {
-      return { online: true, text: 'Đang trực tuyến', dotClass: 'bg-green-500' };
-    }
-    if (realtimeOnline === false) {
-      // Server vừa báo offline → tính theo last_seen
-      if (!lastSeen) return { online: false, text: 'Ngoại tuyến', dotClass: 'bg-gray-400' };
-      const diff = Date.now() - new Date(lastSeen).getTime();
-      const minutes = Math.floor(diff / 60000);
-      if (minutes < 1) return { online: false, text: 'Vừa mới truy cập', dotClass: 'bg-gray-400' };
-      if (minutes < 60) return { online: false, text: `Hoạt động ${minutes} phút trước`, dotClass: 'bg-gray-400' };
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return { online: false, text: `Hoạt động ${hours} giờ trước`, dotClass: 'bg-gray-400' };
-      const days = Math.floor(hours / 24);
-      return { online: false, text: `Hoạt động ${days} ngày trước`, dotClass: 'bg-gray-400' };
-    }
-    // Chưa có tín hiệu realtime → fallback theo last_seen
-    if (!lastSeen) return { online: false, text: 'Ngoại tuyến', dotClass: 'bg-gray-400' };
-    const diff = Date.now() - new Date(lastSeen).getTime();
-    if (diff < 5 * 60 * 1000) {
-      return { online: true, text: 'Đang trực tuyến', dotClass: 'bg-green-500' };
-    }
+  const ONLINE_DOT = 'bg-state-success-fg';
+  const OFFLINE_DOT = 'bg-ink-faint';
+
+  /**
+   * "Hoạt động N phút trước" — bản trước viết NGUYÊN KHỐI NÀY HAI LẦN trong
+   * cùng một hàm, một lần cho nhánh có tín hiệu realtime và một lần cho nhánh
+   * fallback. Hai bản chỉ khác nhau ở chỗ một bản có mốc "Vừa mới truy cập"
+   * còn bản kia không — tức là cùng một thông tin hiện ra hai kiểu khác nhau
+   * tuỳ socket đang bật hay tắt.
+   */
+  const lastSeenText = (diff: number) => {
     const minutes = Math.floor(diff / 60000);
-    if (minutes < 60) return { online: false, text: `Hoạt động ${minutes} phút trước`, dotClass: 'bg-gray-400' };
+    if (minutes < 1) return t('justNow');
+    if (minutes < 60) return t('activeMinutes', { count: minutes });
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return { online: false, text: `Hoạt động ${hours} giờ trước`, dotClass: 'bg-gray-400' };
-    const days = Math.floor(hours / 24);
-    return { online: false, text: `Hoạt động ${days} ngày trước`, dotClass: 'bg-gray-400' };
+    if (hours < 24) return t('activeHours', { count: hours });
+    return t('activeDays', { count: Math.floor(hours / 24) });
+  };
+
+  /** Ưu tiên tín hiệu realtime từ socket; chưa có thì suy từ last_seen. */
+  const getOnlineStatus = (lastSeen?: string | Date | null, realtimeOnline?: boolean) => {
+    const online = { online: true, text: t('online'), dotClass: ONLINE_DOT };
+    const offline = { online: false, text: t('offline'), dotClass: OFFLINE_DOT };
+
+    if (realtimeOnline === true) return online;
+    if (!lastSeen) return offline;
+
+    const diff = Date.now() - new Date(lastSeen).getTime();
+    // Chưa có tín hiệu realtime thì coi như còn online trong 5 phút đầu.
+    if (realtimeOnline === undefined && diff < 5 * 60 * 1000) return online;
+    return { online: false, text: lastSeenText(diff), dotClass: OFFLINE_DOT };
   };
 
   return (
@@ -266,13 +269,13 @@ export default function ChatPage() {
           {/* Sidebar */}
           <div className={`w-full md:w-1/3 border-r border-ink/10 flex flex-col ${showSidebar ? 'flex' : 'hidden md:flex'}`}>
             <div className="p-4 border-b border-ink/10 bg-surface-page">
-              <h3 className="font-bold text-ink">Hội thoại</h3>
+              <h3 className="font-bold text-ink">{t('conversations')}</h3>
             </div>
             <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-ink-muted" /></div>
               ) : conversations.length === 0 ? (
-                <div className="p-8 text-center text-ink-muted text-small">Chưa có hội thoại nào</div>
+                <div className="p-8 text-center text-ink-muted text-small">{t('noConversations')}</div>
               ) : (
                 conversations.map((conv: any) => {
                   const status = getOnlineStatus(conv.partner_last_seen, conv.partner_online);
@@ -288,7 +291,7 @@ export default function ChatPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-baseline mb-1">
-                        <h4 className="text-small font-medium text-ink truncate">{conv.partner_name || 'Người dùng'}</h4>
+                        <h4 className="text-small font-medium text-ink truncate">{conv.partner_name || t('anonUser')}</h4>
                         <span className="text-[10px] text-ink-muted">{conv.last_message?.created_at ? formatTime(conv.last_message.created_at) : ''}</span>
                       </div>
                       <p className={`text-caption truncate ${conv.unread_count > 0 ? 'font-bold text-ink' : 'text-ink-muted'}`}>
@@ -324,7 +327,7 @@ export default function ChatPage() {
                       <span className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ${headerStatus.dotClass} ring-2 ring-white`}></span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-ink text-base">{activeConv.partner_name || 'Người dùng'}</h3>
+                      <h3 className="font-bold text-ink text-base">{activeConv.partner_name || t('anonUser')}</h3>
                       <span className={`text-caption font-medium ${headerStatus.online ? 'text-green-500' : 'text-ink-muted'}`}>{headerStatus.text}</span>
                     </div>
                   </div>
@@ -336,7 +339,7 @@ export default function ChatPage() {
                       onClick={scrollToBottom}
                       className="sticky bottom-3 left-1/2 -translate-x-1/2 z-20 bg-brand hover:bg-brand-dark text-white text-caption font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 transition-all"
                     >
-                      ↓ Tin nhắn mới{unseenCount > 0 ? ` (${unseenCount})` : ''}
+                      {unseenCount > 0 ? t('newMessagesCount', { count: unseenCount }) : t('newMessages')}
                     </button>
                   )}
                   {messages.map((msg: any, idx: number) => {
@@ -371,7 +374,7 @@ export default function ChatPage() {
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={handleKeyDown}
                         className="w-full bg-surface-sunken text-ink border-none rounded-full py-2.5 px-5 focus:ring-2 focus:ring-blue-100 focus:bg-surface-card transition-all outline-none placeholder-gray-500"
-                        placeholder="Nhập tin nhắn..."
+                        placeholder={t('placeholder')}
                       />
                     </div>
                     <button
@@ -391,8 +394,8 @@ export default function ChatPage() {
                 <div className="w-32 h-32 bg-brand-tint rounded-full flex items-center justify-center mb-6">
                   <MessageCircle className="w-16 h-16 text-blue-200" />
                 </div>
-                <h3 className="text-lg font-medium text-ink">Chưa chọn cuộc hội thoại</h3>
-                <p className="text-small mt-2">Chọn một người từ danh sách bên trái để bắt đầu chat.</p>
+                <h3 className="text-lg font-medium text-ink">{t('noneSelected')}</h3>
+                <p className="text-small mt-2">{t('noneSelectedHint')}</p>
               </div>
             )}
           </div>
