@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ChevronRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
@@ -27,15 +28,20 @@ import { EmptyState } from '@/components/EmptyState';
  *    nuốt lỗi rồi hiện trạng thái rỗng — nói sai sự thật với người dùng. Nay
  *    tách rõ ba trạng thái: đang tải, lỗi, rỗng thật.
  */
+// Cùng thang tầm tiền với Header và /search, và dùng chung khoá dịch
+// `priceBands` với chúng thay vì chép lại nhãn tiếng Việt lần thứ ba.
 const BANDS = [
-  { label: 'Mọi giá', min: undefined, max: undefined },
-  { label: 'Dưới 100k', min: undefined, max: 100000 },
-  { label: '100k – 300k', min: 100000, max: 300000 },
-  { label: '300k – 1 triệu', min: 300000, max: 1000000 },
-  { label: 'Trên 1 triệu', min: 1000000, max: undefined },
-];
+  { key: 'any', min: undefined, max: undefined },
+  { key: 'under100k', min: undefined, max: 100000 },
+  { key: '100to300k', min: 100000, max: 300000 },
+  { key: '300kTo1m', min: 300000, max: 1000000 },
+  { key: 'over1m', min: 1000000, max: undefined },
+] as const;
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
+  const t = useTranslations('category');
+  const tBands = useTranslations('priceBands');
+  const tc = useTranslations('common');
   const [category, setCategory] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -74,9 +80,12 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   return (
     <div className="min-h-screen bg-surface-page pb-16">
       <div className="mx-auto max-w-[1500px] px-3 py-3">
-        <nav aria-label="Đường dẫn" className="mb-3 flex items-center gap-1 text-small text-ink-muted">
+        <nav
+          aria-label={t('breadcrumbLabel')}
+          className="mb-3 flex items-center gap-1 text-small text-ink-muted"
+        >
           <Link href="/" className="hover:text-brand">
-            Trang chủ
+            {t('breadcrumbHome')}
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
           <span className="truncate text-ink" aria-current="page">
@@ -87,10 +96,12 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         <div className="flex flex-col gap-3 lg:flex-row">
           <aside className="lg:w-[220px] lg:shrink-0">
             <div className="rounded-card bg-surface-card p-4">
-              <h2 className="mb-2 text-caption uppercase tracking-wide text-ink-faint">Tầm tiền</h2>
+              <h2 className="mb-2 text-caption uppercase tracking-wide text-ink-faint">
+                {t('priceBand')}
+              </h2>
               <ul className="flex flex-col gap-0.5">
                 {BANDS.map((b, i) => (
-                  <li key={b.label}>
+                  <li key={b.key}>
                     <button
                       type="button"
                       onClick={() => setBand(i)}
@@ -99,7 +110,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                         band === i ? 'bg-brand-tint font-semibold text-brand' : 'text-ink'
                       }`}
                     >
-                      {b.label}
+                      {tBands(b.key)}
                     </button>
                   </li>
                 ))}
@@ -110,7 +121,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                   htmlFor="cat-sort"
                   className="mb-2 block text-caption uppercase tracking-wide text-ink-faint"
                 >
-                  Sắp xếp
+                  {t('sort')}
                 </label>
                 <select
                   id="cat-sort"
@@ -118,9 +129,9 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                   onChange={(e) => setSort(e.target.value)}
                   className="w-full rounded-control border border-ink/16 bg-surface-card px-2.5 py-2 text-small text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                 >
-                  <option value="newest">Mới đăng trước</option>
-                  <option value="price_asc">Giá thấp trước</option>
-                  <option value="price_desc">Giá cao trước</option>
+                  <option value="newest">{t('sortNewest')}</option>
+                  <option value="price_asc">{t('sortPriceAsc')}</option>
+                  <option value="price_desc">{t('sortPriceDesc')}</option>
                 </select>
               </div>
             </div>
@@ -130,9 +141,13 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             <div className="rounded-card bg-surface-card p-5">
               <h1 className="text-h2 text-ink">{category?.name || params.slug}</h1>
               {state === 'ready' && (
-                <p className="mt-1 text-small text-ink-muted">
-                  <span className="tabular-nums">{products.length}</span> món
-                  {band > 0 && ` trong tầm ${BANDS[band].label.toLowerCase()}`}
+                <p className="mt-1 text-small tabular-nums text-ink-muted">
+                  {band > 0
+                    ? t('countInBand', {
+                        count: products.length,
+                        band: tBands(BANDS[band].key).toLowerCase(),
+                      })
+                    : t('count', { count: products.length })}
                 </p>
               )}
             </div>
@@ -140,48 +155,48 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             <div className="mt-3">
               {state === 'loading' ? (
                 <div className="rounded-card bg-surface-card p-10 text-center text-body text-ink-muted">
-                  Đang tải…
+                  {tc('loading')}
                 </div>
               ) : state === 'error' ? (
                 <div className="rounded-card bg-surface-card p-10 text-center">
-                  <p className="text-body font-semibold text-ink">Không tải được danh mục này.</p>
-                  <p className="mt-2 text-small text-ink-muted">
-                    Kiểm tra kết nối rồi thử lại. Đây không phải là “danh mục rỗng”.
+                  <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
+                  <p className="mx-auto mt-2 max-w-[44ch] text-small text-ink-muted">
+                    {t('loadFailedHint')}
                   </p>
                   <button
                     type="button"
                     onClick={load}
                     className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                   >
-                    Thử lại
+                    {tc('retry')}
                   </button>
                 </div>
               ) : products.length === 0 ? (
                 <div className="rounded-card bg-surface-card">
                   {band > 0 ? (
                     <EmptyState
-                      title="Không có món nào trong tầm tiền này."
-                      hint="Danh mục vẫn có hàng, chỉ là không món nào rơi vào khoảng giá bạn chọn."
+                      title={t('emptyBand')}
+                      hint={t('emptyBandHint')}
                       action={
                         <button
                           type="button"
                           onClick={() => setBand(0)}
                           className="rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                         >
-                          Xem mọi tầm giá
+                          {t('showAllBands')}
                         </button>
                       }
                     />
                   ) : (
                     <EmptyState
-                      title="Chưa ai đăng bán gì trong danh mục này."
-                      hint="Đồ cũ trong nhà bạn có thể là món ai đó đang tìm."
+                      title={t('empty')}
+                      hint={t('emptyHint')}
                       action={
                         <Link
                           href="/product/create"
                           className="inline-block rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                         >
-                          Đăng món đầu tiên
+                          {t('postFirst')}
                         </Link>
                       }
                     />

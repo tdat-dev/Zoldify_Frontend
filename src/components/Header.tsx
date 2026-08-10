@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
@@ -35,15 +36,20 @@ import { notificationService } from '@/services/notification.service';
  *
  * Cả hai tham số đều lọc THẬT: /search đọc q, price_min, price_max từ URL.
  */
+// Nhãn qua khoá `priceBands` dùng chung với /search và /category, thay vì viết
+// cứng tiếng Việt — header hiện trên MỌI trang nên đây là lỗ i18n dễ thấy nhất.
 const PRICE_SCOPES = [
-  { value: '', label: 'Mọi giá' },
-  { value: '0-100000', label: 'Dưới 100k' },
-  { value: '100000-300000', label: '100k – 300k' },
-  { value: '300000-1000000', label: '300k – 1tr' },
-  { value: '1000000-', label: 'Trên 1tr' },
-];
+  { value: '', key: 'any' },
+  { value: '0-100000', key: 'under100k' },
+  { value: '100000-300000', key: '100to300k' },
+  { value: '300000-1000000', key: '300kTo1m' },
+  { value: '1000000-', key: 'over1m' },
+] as const;
 
 export default function Header() {
+  const t = useTranslations('header');
+  const tc = useTranslations('common');
+  const tBands = useTranslations('priceBands');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [unreadNotis, setUnreadNotis] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,7 +129,7 @@ export default function Header() {
       <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
         <Link
           href="/"
-          aria-label="Zoldify — về trang chủ"
+          aria-label={t('home')}
           className="flex shrink-0 items-center rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
         >
           <img src="/images/logo.webp" alt="Zoldify" className="h-8 w-auto" decoding="async" />
@@ -136,10 +142,10 @@ export default function Header() {
           className="order-last w-full min-w-0 md:order-none md:w-auto md:flex-1"
         >
           <label htmlFor="site-search" className="sr-only">
-            Tìm đồ cũ đang bán
+            {tc('searchAria')}
           </label>
           <label htmlFor="price-scope" className="sr-only">
-            Giới hạn theo tầm tiền
+            {t('browseByPrice')}
           </label>
           <div className={searchBox}>
             <select
@@ -150,7 +156,7 @@ export default function Header() {
             >
               {PRICE_SCOPES.map((s) => (
                 <option key={s.value} value={s.value}>
-                  {s.label}
+                  {tBands(s.key)}
                 </option>
               ))}
             </select>
@@ -161,12 +167,12 @@ export default function Header() {
               enterKeyHint="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm đồ cũ: máy tính, xe đạp, đồ gia dụng…"
+              placeholder={tc('searchPlaceholder')}
               className="min-w-0 flex-1 bg-transparent px-3 text-body text-ink placeholder-ink-faint focus:outline-none"
             />
             <button
               type="submit"
-              aria-label="Tìm kiếm"
+              aria-label={tc('search')}
               className="mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               <Search className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -182,12 +188,12 @@ export default function Header() {
             className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-control bg-brand px-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 md:px-4"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Đăng bán</span>
+            <span className="hidden sm:inline">{t('sellShort')}</span>
           </Link>
 
           <Link
             href="/notifications"
-            aria-label={unreadNotis > 0 ? `Thông báo, ${unreadNotis} chưa đọc` : 'Thông báo'}
+            aria-label={unreadNotis > 0 ? t('notificationsUnread', { count: unreadNotis }) : t('notifications')}
             className={iconBtn}
           >
             <Bell className="h-5 w-5" aria-hidden="true" />
@@ -200,7 +206,7 @@ export default function Header() {
                 type="button"
                 onClick={() => setIsUserMenuOpen((v) => !v)}
                 aria-expanded={isUserMenuOpen}
-                aria-label="Tài khoản của tôi"
+                aria-label={t('account')}
                 className={`${iconBtn} w-auto gap-1 px-2`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
@@ -210,15 +216,15 @@ export default function Header() {
               {isUserMenuOpen && (
                 <div className="absolute right-0 top-full z-dropdown mt-1 w-[250px] overflow-hidden rounded-control border border-ink/12 bg-surface-card shadow-float">
                   <p className="truncate border-b border-ink/10 px-4 py-3 text-small font-semibold text-ink">
-                    Chào, {user?.full_name || 'bạn'}
+                    {t('greeting', { name: user?.full_name || t('you') })}
                   </p>
                   <div className="border-b border-ink/10 py-1.5">
                     {[
-                      { href: '/profile', icon: User, label: 'Hồ sơ của tôi' },
-                      { href: '/profile/change-password', icon: Key, label: 'Đổi mật khẩu' },
-                      { href: '/chat', icon: MessageSquare, label: 'Tin nhắn' },
-                      { href: '/profile/wallet', icon: Wallet, label: 'Tiền của tôi' },
-                      { href: '/profile/orders', icon: ShoppingBag, label: 'Đơn mua' },
+                      { href: '/profile', icon: User, label: t('myProfile') },
+                      { href: '/profile/change-password', icon: Key, label: t('changePassword') },
+                      { href: '/chat', icon: MessageSquare, label: t('messages') },
+                      { href: '/profile/wallet', icon: Wallet, label: t('wallet') },
+                      { href: '/profile/orders', icon: ShoppingBag, label: t('myOrders') },
                     ].map(({ href, icon: Icon, label }) => (
                       <Link
                         key={href}
@@ -235,9 +241,9 @@ export default function Header() {
                       Bán hàng
                     </p>
                     {[
-                      { href: '/product/create', icon: Plus, label: 'Đăng bán đồ cũ' },
-                      { href: '/profile/products', icon: Package, label: 'Sản phẩm của tôi' },
-                      { href: '/shop/orders', icon: ClipboardList, label: 'Đơn bán' },
+                      { href: '/product/create', icon: Plus, label: t('sell') },
+                      { href: '/profile/products', icon: Package, label: t('myProducts') },
+                      { href: '/shop/orders', icon: ClipboardList, label: t('sellerOrders') },
                     ].map(({ href, icon: Icon, label }) => (
                       <Link
                         key={href}
@@ -256,7 +262,7 @@ export default function Header() {
                         onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-3 px-4 py-2 text-small text-ink transition-colors hover:bg-surface-sunken"
                       >
-                        <Shield className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> Quản trị
+                        <Shield className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> {t('admin')}
                       </Link>
                     </div>
                   )}
@@ -268,7 +274,7 @@ export default function Header() {
                     }}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-small font-semibold text-price transition-colors hover:bg-price-bg"
                   >
-                    <LogOut className="h-[18px] w-[18px]" aria-hidden="true" /> Đăng xuất
+                    <LogOut className="h-[18px] w-[18px]" aria-hidden="true" /> {t('logout')}
                   </button>
                 </div>
               )}
@@ -277,16 +283,16 @@ export default function Header() {
             <Link
               href="/login"
               className={`${iconBtn} w-auto gap-1.5 px-2.5`}
-              aria-label="Đăng nhập"
+              aria-label={t('login')}
             >
               <User className="h-5 w-5" aria-hidden="true" />
-              <span className="hidden text-small font-semibold lg:inline">Đăng nhập</span>
+              <span className="hidden text-small font-semibold lg:inline">{t('login')}</span>
             </Link>
           )}
 
           <Link
             href="/cart"
-            aria-label={cartCount > 0 ? `Giỏ hàng, ${cartCount} sản phẩm` : 'Giỏ hàng'}
+            aria-label={cartCount > 0 ? t('cartCount', { count: cartCount }) : t('cart')}
             className={iconBtn}
           >
             <ShoppingCart className="h-[22px] w-[22px]" aria-hidden="true" />

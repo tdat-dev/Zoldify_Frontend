@@ -10,7 +10,8 @@
     "loading": "Loading…",
     "optional": "optional",
     "required": "required",
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "searchAria": "Search items for sale"
   },
   "header": {
     "home": "Zoldify — back to home",
@@ -34,7 +35,9 @@
     "selling": "Selling",
     "myProducts": "My listings",
     "sellerOrders": "My sales",
-    "admin": "Admin"
+    "admin": "Admin",
+    "sellShort": "Sell",
+    "you": "there"
   },
   "utilityBar": {
     "sellWithUs": "Sell on Zoldify",
@@ -44,6 +47,7 @@
     "notifications": "Notifications"
   },
   "priceBands": {
+    "any": "Any price",
     "under100k": "Under 100k",
     "100to300k": "100k – 300k",
     "300kTo1m": "300k – 1M",
@@ -198,6 +202,57 @@
     "sendOtpFailed": "Could not send the code. Please try again.",
     "verifyFailed": "That code isn't right. Please check it.",
     "back": "Back"
+  },
+  "category": {
+    "breadcrumbHome": "Home",
+    "breadcrumbLabel": "Breadcrumb",
+    "priceBand": "Price",
+    "sort": "Sort by",
+    "sortNewest": "Newest first",
+    "sortPriceAsc": "Cheapest first",
+    "sortPriceDesc": "Most expensive first",
+    "count": "{count} items",
+    "countInBand": "{count} items in {band}",
+    "loadFailed": "Could not load this category.",
+    "loadFailedHint": "Check your connection and try again. This does not mean the category is empty.",
+    "emptyBand": "Nothing in this price range.",
+    "emptyBandHint": "The category has items, just none in the range you picked.",
+    "showAllBands": "Show every price",
+    "empty": "Nobody has listed anything here yet.",
+    "emptyHint": "Something you no longer use may be exactly what someone is looking for.",
+    "postFirst": "List the first item"
+  },
+  "cart": {
+    "title": "Cart",
+    "removedItem": "Listing removed",
+    "loading": "Loading your cart…",
+    "loadFailed": "Could not load your cart.",
+    "loadFailedHint": "Check your connection and try again. Nothing has been lost.",
+    "empty": "Your cart is empty.",
+    "emptyHint": "Second-hand items are usually one of a kind. If you like something, add it early.",
+    "browse": "Browse what's for sale",
+    "selectAll": "Select all",
+    "select": "Select {name}",
+    "colPrice": "Price",
+    "colQuantity": "Quantity",
+    "colTotal": "Total",
+    "soldOut": "Already sold",
+    "stockShort": "Only {stock} left, your cart has {quantity}",
+    "stockLeft": "{stock} left",
+    "onlyOne": "1 item",
+    "decrease": "One fewer",
+    "increase": "One more",
+    "removeItem": "Remove {name} from cart",
+    "removeAsk": "Remove \"{name}\" from your cart?",
+    "removeFailed": "Could not remove it. Please try again.",
+    "quantityFailed": "Could not change the quantity. Please try again.",
+    "summary": "Summary",
+    "selected": "{count} items selected",
+    "shippingLater": "Delivery is calculated at the next step, based on your address.",
+    "subtotal": "Subtotal",
+    "checkout": "Place order",
+    "checkoutCount": "Place order ({count})",
+    "needSelection": "Pick at least one item that's still available."
   },
   "notifications": {
     "title": "Notifications",

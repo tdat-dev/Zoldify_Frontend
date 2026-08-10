@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Minus, Plus, Trash2, Package, AlertTriangle } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { cartService } from '@/services/cart.service';
@@ -33,6 +34,8 @@ import { formatPrice } from '@/lib/format';
  * có thể đã được người khác mua mất kể từ lúc bỏ vào giỏ.
  */
 export default function CartPage() {
+  const t = useTranslations('cart');
+  const tc = useTranslations('common');
   const { allowed } = useRequireAuth();
   const { refreshCartCount } = useCart();
   const { confirm, toast } = useToast();
@@ -46,7 +49,7 @@ export default function CartPage() {
       setCartItems(
         res.data?.data?.result?.map((item: any) => ({
           id: item.id,
-          name: item.product?.name || 'Món đã bị gỡ',
+          name: item.product?.name || t('removedItem'),
           price: Number(item.product?.price || 0),
           quantity: item.quantity,
           stock: Number(item.product?.stock ?? 0),
@@ -81,19 +84,19 @@ export default function CartPage() {
       setCartItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i)));
       refreshCartCount();
     } catch {
-      toast('Chưa đổi được số lượng. Thử lại giúp mình.', 'error');
+      toast(t('quantityFailed'), 'error');
     }
   };
 
   const removeItem = async (id: number, name: string) => {
-    const ok = await confirm(`Bỏ "${name}" khỏi giỏ?`);
+    const ok = await confirm(t('removeAsk', { name }));
     if (!ok) return;
     try {
       await cartService.remove(id);
       setCartItems((prev) => prev.filter((i) => i.id !== id));
       refreshCartCount();
     } catch {
-      toast('Chưa bỏ được món này. Thử lại giúp mình.', 'error');
+      toast(t('removeFailed'), 'error');
     }
   };
 
@@ -105,7 +108,7 @@ export default function CartPage() {
   if (state === 'loading') {
     return (
       <div className="flex min-h-[50vh] items-center justify-center bg-surface-page">
-        <p className="text-body text-ink-muted">Đang tải giỏ hàng…</p>
+        <p className="text-body text-ink-muted">{t('loading')}</p>
       </div>
     );
   }
@@ -115,16 +118,16 @@ export default function CartPage() {
       <div className="min-h-screen bg-surface-page">
         <div className="mx-auto max-w-[1240px] px-4 py-10">
           <div className="rounded-card bg-surface-card p-10 text-center">
-            <p className="text-body font-semibold text-ink">Không tải được giỏ hàng.</p>
+            <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
             <p className="mt-2 text-small text-ink-muted">
-              Kiểm tra kết nối rồi thử lại. Hàng trong giỏ vẫn còn nguyên.
+              {t('loadFailedHint')}
             </p>
             <button
               type="button"
               onClick={fetchCart}
               className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
-              Thử lại
+              {tc('retry')}
             </button>
           </div>
         </div>
@@ -136,17 +139,17 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-surface-page">
         <div className="mx-auto max-w-[1240px] px-4 py-10">
-          <h1 className="text-h1 text-ink">Giỏ hàng</h1>
+          <h1 className="text-h1 text-ink">{t('title')}</h1>
           <div className="mt-5 rounded-card bg-surface-card">
             <EmptyState
-              title="Giỏ đang trống."
-              hint="Đồ cũ mỗi món thường chỉ có một cái. Thấy món ưng thì thêm vào giỏ sớm."
+              title={t('empty')}
+              hint={t('emptyHint')}
               action={
                 <Link
                   href="/search"
                   className="inline-block rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                 >
-                  Xem hàng đang bán
+                  {t('browse')}
                 </Link>
               }
             />
@@ -159,7 +162,7 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-surface-page pb-16">
       <div className="mx-auto max-w-[1240px] px-4 py-5">
-        <h1 className="text-h1 text-ink">Giỏ hàng</h1>
+        <h1 className="text-h1 text-ink">{t('title')}</h1>
 
         <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-12">
           <div className="lg:col-span-8">
@@ -173,11 +176,11 @@ export default function CartPage() {
                     onChange={(e) => toggleSelectAll(e.target.checked)}
                     className="h-4 w-4 accent-brand"
                   />
-                  <span>Chọn hết</span>
+                  <span>{t('selectAll')}</span>
                 </label>
-                <span className="ml-auto w-[110px] text-right">Đơn giá</span>
-                <span className="w-[130px] text-center">Số lượng</span>
-                <span className="w-[120px] text-right">Thành tiền</span>
+                <span className="ml-auto w-[110px] text-right">{t('colPrice')}</span>
+                <span className="w-[130px] text-center">{t('colQuantity')}</span>
+                <span className="w-[120px] text-right">{t('colTotal')}</span>
                 <span className="w-9" />
               </div>
 
@@ -196,7 +199,7 @@ export default function CartPage() {
                           checked={item.selected && !gone}
                           disabled={gone}
                           onChange={() => toggleItem(item.id)}
-                          aria-label={`Chọn ${item.name}`}
+                          aria-label={t('select', { name: item.name })}
                           className="mt-6 h-4 w-4 shrink-0 accent-brand disabled:opacity-40"
                         />
                         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-control bg-surface-sunken">
@@ -223,14 +226,16 @@ export default function CartPage() {
                           {gone ? (
                             <p className="mt-1 inline-flex items-center gap-1.5 text-small font-semibold text-state-danger-fg">
                               <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                              Đã bán mất rồi
+                              {t('soldOut')}
                             </p>
                           ) : overStock ? (
                             <p className="mt-1 text-small text-state-pending-fg">
-                              Chỉ còn {item.stock} cái, giỏ đang để {item.quantity}
+                              {t('stockShort', { stock: item.stock, quantity: item.quantity })}
                             </p>
                           ) : item.stock > 1 ? (
-                            <p className="mt-1 text-small text-ink-muted">còn {item.stock} cái</p>
+                            <p className="mt-1 text-small text-ink-muted">
+                              {t('stockLeft', { stock: item.stock })}
+                            </p>
                           ) : null}
 
                           {/* Ở mobile, giá nằm ngay dưới tên thay vì thành một cột. */}
@@ -253,7 +258,7 @@ export default function CartPage() {
                               type="button"
                               onClick={() => updateQuantity(item.id, -1)}
                               disabled={item.quantity <= 1}
-                              aria-label="Bớt một"
+                              aria-label={t('decrease')}
                               className="flex h-9 w-9 items-center justify-center text-ink transition-colors hover:bg-surface-sunken disabled:text-ink-faint"
                             >
                               <Minus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -265,14 +270,14 @@ export default function CartPage() {
                               type="button"
                               onClick={() => updateQuantity(item.id, 1)}
                               disabled={item.quantity >= item.stock}
-                              aria-label="Thêm một"
+                              aria-label={t('increase')}
                               className="flex h-9 w-9 items-center justify-center text-ink transition-colors hover:bg-surface-sunken disabled:text-ink-faint"
                             >
                               <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                             </button>
                           </div>
                         ) : (
-                          <span className="text-small text-ink-muted">1 cái</span>
+                          <span className="text-small text-ink-muted">{t('onlyOne')}</span>
                         )}
                       </div>
 
@@ -283,7 +288,7 @@ export default function CartPage() {
                       <button
                         type="button"
                         onClick={() => removeItem(item.id, item.name)}
-                        aria-label={`Bỏ ${item.name} khỏi giỏ`}
+                        aria-label={t('removeItem', { name: item.name })}
                         className="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-control text-ink-muted transition-colors hover:bg-price-bg hover:text-price md:self-center"
                       >
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -297,22 +302,22 @@ export default function CartPage() {
 
           <div className="lg:col-span-4">
             <div className="rounded-card bg-surface-card p-5 lg:sticky lg:top-24">
-              <h2 className="border-b border-ink/10 pb-4 text-h3 text-ink">Tóm tắt</h2>
+              <h2 className="border-b border-ink/10 pb-4 text-h3 text-ink">{t('summary')}</h2>
 
               <dl className="mt-4 flex flex-col gap-2.5">
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-body text-ink-muted">
-                    Đã chọn <span className="tabular-nums">{buyable.length}</span> món
+                  <dt className="text-body tabular-nums text-ink-muted">
+                    {t('selected', { count: buyable.length })}
                   </dt>
                   <dd className="text-body tabular-nums text-ink">{formatPrice(grandTotal)}</dd>
                 </div>
                 <p className="text-caption font-normal text-ink-muted">
-                  Phí giao hàng tính ở bước sau, tuỳ địa chỉ nhận.
+                  {t('shippingLater')}
                 </p>
               </dl>
 
               <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-ink/10 pt-4">
-                <span className="text-body font-semibold text-ink">Tạm tính</span>
+                <span className="text-body font-semibold text-ink">{t('subtotal')}</span>
                 <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal)}</span>
               </div>
 
@@ -323,7 +328,7 @@ export default function CartPage() {
                   href={`/checkout?ids=${buyable.map((i) => i.id).join(',')}`}
                   className="mt-5 block w-full rounded-control bg-brand py-3 text-center text-body font-semibold text-white transition-colors hover:bg-brand-dark"
                 >
-                  Đặt hàng ({buyable.length})
+                  {t('checkoutCount', { count: buyable.length })}
                 </Link>
               ) : (
                 <>
@@ -332,10 +337,10 @@ export default function CartPage() {
                     disabled
                     className="mt-5 w-full cursor-not-allowed rounded-control bg-ink/15 py-3 text-center text-body font-semibold text-ink-muted"
                   >
-                    Đặt hàng
+                    {t('checkout')}
                   </button>
                   <p className="mt-2 text-center text-small text-ink-muted">
-                    Chọn ít nhất một món còn hàng.
+                    {t('needSelection')}
                   </p>
                 </>
               )}

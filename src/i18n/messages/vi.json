@@ -10,7 +10,8 @@
     "loading": "Đang tải…",
     "optional": "không bắt buộc",
     "required": "bắt buộc",
-    "seeAll": "Xem tất cả"
+    "seeAll": "Xem tất cả",
+    "searchAria": "Tìm đồ cũ đang bán"
   },
   "header": {
     "home": "Zoldify — về trang chủ",
@@ -34,7 +35,9 @@
     "selling": "Bán hàng",
     "myProducts": "Sản phẩm của tôi",
     "sellerOrders": "Đơn bán",
-    "admin": "Quản trị"
+    "admin": "Quản trị",
+    "sellShort": "Đăng bán",
+    "you": "bạn"
   },
   "utilityBar": {
     "sellWithUs": "Bán hàng cùng Zoldify",
@@ -44,6 +47,7 @@
     "notifications": "Thông báo"
   },
   "priceBands": {
+    "any": "Mọi giá",
     "under100k": "Dưới 100k",
     "100to300k": "100k – 300k",
     "300kTo1m": "300k – 1tr",
@@ -198,6 +202,57 @@
     "sendOtpFailed": "Chưa gửi được mã. Thử lại giúp mình.",
     "verifyFailed": "Mã không đúng. Kiểm tra lại giúp mình.",
     "back": "Quay lại"
+  },
+  "category": {
+    "breadcrumbHome": "Trang chủ",
+    "breadcrumbLabel": "Đường dẫn",
+    "priceBand": "Tầm tiền",
+    "sort": "Sắp xếp",
+    "sortNewest": "Mới đăng trước",
+    "sortPriceAsc": "Giá thấp trước",
+    "sortPriceDesc": "Giá cao trước",
+    "count": "{count} món",
+    "countInBand": "{count} món trong tầm {band}",
+    "loadFailed": "Không tải được danh mục này.",
+    "loadFailedHint": "Kiểm tra kết nối rồi thử lại. Đây không phải là “danh mục rỗng”.",
+    "emptyBand": "Không có món nào trong tầm tiền này.",
+    "emptyBandHint": "Danh mục vẫn có hàng, chỉ là không món nào rơi vào khoảng giá bạn chọn.",
+    "showAllBands": "Xem mọi tầm giá",
+    "empty": "Chưa ai đăng bán gì trong danh mục này.",
+    "emptyHint": "Đồ cũ trong nhà bạn có thể là món ai đó đang tìm.",
+    "postFirst": "Đăng món đầu tiên"
+  },
+  "cart": {
+    "title": "Giỏ hàng",
+    "removedItem": "Món đã bị gỡ",
+    "loading": "Đang tải giỏ hàng…",
+    "loadFailed": "Không tải được giỏ hàng.",
+    "loadFailedHint": "Kiểm tra kết nối rồi thử lại. Hàng trong giỏ vẫn còn nguyên.",
+    "empty": "Giỏ đang trống.",
+    "emptyHint": "Đồ cũ mỗi món thường chỉ có một cái. Thấy món ưng thì thêm vào giỏ sớm.",
+    "browse": "Xem hàng đang bán",
+    "selectAll": "Chọn hết",
+    "select": "Chọn {name}",
+    "colPrice": "Đơn giá",
+    "colQuantity": "Số lượng",
+    "colTotal": "Thành tiền",
+    "soldOut": "Đã bán mất rồi",
+    "stockShort": "Chỉ còn {stock} cái, giỏ đang để {quantity}",
+    "stockLeft": "còn {stock} cái",
+    "onlyOne": "1 cái",
+    "decrease": "Bớt một",
+    "increase": "Thêm một",
+    "removeItem": "Bỏ {name} khỏi giỏ",
+    "removeAsk": "Bỏ “{name}” khỏi giỏ?",
+    "removeFailed": "Chưa bỏ được món này. Thử lại giúp mình.",
+    "quantityFailed": "Chưa đổi được số lượng. Thử lại giúp mình.",
+    "summary": "Tóm tắt",
+    "selected": "Đã chọn {count} món",
+    "shippingLater": "Phí giao hàng tính ở bước sau, tuỳ địa chỉ nhận.",
+    "subtotal": "Tạm tính",
+    "checkout": "Đặt hàng",
+    "checkoutCount": "Đặt hàng ({count})",
+    "needSelection": "Chọn ít nhất một món còn hàng."
   },
   "notifications": {
     "title": "Thông báo",
