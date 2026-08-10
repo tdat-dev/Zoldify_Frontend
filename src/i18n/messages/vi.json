@@ -114,6 +114,15 @@
     "cancelled": "Đã huỷ",
     "refunded": "Đã hoàn tiền"
   },
+  "orderStatusShort": {
+    "pending": "Chờ xác nhận",
+    "confirmed": "Đã nhận đơn",
+    "processing": "Đang chuẩn bị",
+    "shipping": "Đang giao",
+    "delivered": "Đã giao",
+    "cancelled": "Đã huỷ",
+    "refunded": "Đã hoàn tiền"
+  },
   "orders": {
     "title": "Đơn mua của tôi",
     "filterLabel": "Lọc theo trạng thái",

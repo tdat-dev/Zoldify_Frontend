@@ -126,7 +126,7 @@ export default function Header() {
           aria-label="Zoldify — về trang chủ"
           className="flex shrink-0 items-center rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
         >
-          <img src="/images/logouni.png" alt="Zoldify" className="h-8 w-auto" decoding="async" />
+          <img src="/images/logo.webp" alt="Zoldify" className="h-8 w-auto" decoding="async" />
         </Link>
 
         {/* Ô tìm kiếm: chiếm hết phần giữa ở desktop, xuống hàng riêng ở mobile. */}

@@ -74,7 +74,13 @@ export default function UserOrdersPage() {
   };
 
   const tabs = ['all', ...ORDER_STATUSES];
-  const tStatus = useTranslations('orderStatus');
+
+  // Hàng tab dùng nhãn NGẮN, huy hiệu trên từng đơn dùng nhãn đầy đủ. Bản đầu
+  // dùng chung một bộ: "Chờ người bán xác nhận" và "Người bán đã nhận đơn" đẩy
+  // hàng tab vượt quá 1440px và cắt cụt tab cuối, mà tab tràn ra ngoài thì
+  // người dùng không biết là có nó. Trên huy hiệu thì vẫn cần nói rõ AI đang
+  // phải làm gì — "Chờ xác nhận" một mình không cho biết là chờ người bán.
+  const tShort = useTranslations('orderStatusShort');
 
   return (
     <div className="rounded-card bg-surface-card">
@@ -103,7 +109,7 @@ export default function UserOrdersPage() {
                   : 'border-transparent text-ink-muted hover:text-ink'
               }`}
             >
-              {s === 'all' ? t('tabAll') : tStatus(s)}
+              {s === 'all' ? t('tabAll') : tShort(s)}
             </button>
           );
         })}

@@ -57,7 +57,7 @@ export default function RegisterPage() {
 
       {/* Cột Ảnh bên trái */}
       <div className="hidden lg:flex flex-col items-center justify-center w-[55%]">
-        <img src="/images/homepage-text.png" alt="Zoldify Illustration" className="w-full h-auto object-contain drop-shadow-2xl" draggable={false} />
+        <img src="/images/auth-art.webp" alt="Zoldify Illustration" className="w-full h-auto object-contain drop-shadow-2xl" draggable={false} />
         <div className="mt-8 text-center text-gray-800">
           <p className="text-3xl font-bold mb-2">Tham gia Zoldify</p>
           <p className="text-blue-700 text-lg">Cộng đồng trao đổi đồ cũ</p>

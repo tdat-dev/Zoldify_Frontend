@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
 
         {/* Image Column */}
         <div className="hidden lg:flex items-center justify-center w-[55%]">
-          <img src="/images/homepage-text.png" alt="Zoldify" className="w-full h-auto object-contain drop-shadow-2xl opacity-50" draggable="false" />
+          <img src="/images/auth-art.webp" alt="Zoldify" className="w-full h-auto object-contain drop-shadow-2xl opacity-50" draggable="false" />
         </div>
 
         {/* Form Column */}

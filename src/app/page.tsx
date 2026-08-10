@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/format';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
 import { QuickLinks } from '@/components/home/QuickLinks';
@@ -32,12 +33,37 @@ import { SectionState, type LoadState } from '@/components/home/SectionState';
  * Shopee/Lazada để Flash Sale. Zoldify không có khuyến mãi nên không dựng đếm
  * ngược hay phần trăm giảm.
  */
+// Tiêu đề đi qua formatPrice chứ không viết tay "100.000₫": bản viết tay thiếu
+// khoảng trắng trước ₫ trong khi giá ngay bên dưới thẻ lại có (Intl vi-VN trả
+// "250.000 ₫"), nên hai con số cạnh nhau trông như hai đơn vị khác nhau. Đi qua
+// formatPrice thì đổi tiền tệ cũng theo luôn.
 const BANDS = [
-  { key: 'b1', title: 'Dưới 100.000₫', params: { price_max: 100000 }, qs: 'price_max=100000' },
-  { key: 'b2', title: '100.000₫ – 300.000₫', params: { price_min: 100000, price_max: 300000 }, qs: 'price_min=100000&price_max=300000' },
-  { key: 'b3', title: '300.000₫ – 1 triệu', params: { price_min: 300000, price_max: 1000000 }, qs: 'price_min=300000&price_max=1000000' },
-  { key: 'b4', title: 'Trên 1 triệu', params: { price_min: 1000000 }, qs: 'price_min=1000000' },
+  { key: 'b1', max: 100000, params: { price_max: 100000 }, qs: 'price_max=100000' },
+  { key: 'b2', min: 100000, max: 300000, params: { price_min: 100000, price_max: 300000 }, qs: 'price_min=100000&price_max=300000' },
+  { key: 'b3', min: 300000, max: 1000000, params: { price_min: 300000, price_max: 1000000 }, qs: 'price_min=300000&price_max=1000000' },
+  { key: 'b4', min: 1000000, params: { price_min: 1000000 }, qs: 'price_min=1000000' },
 ];
+
+/**
+ * Số cột ở breakpoint xl phải khớp số thẻ CÒN LẠI sau khi lọc, nếu không thì
+ * lọc mất một tầm sẽ để lại một ô trống bằng một phần tư chiều rộng trang.
+ *
+ * Viết sẵn từng chuỗi đầy đủ, KHÔNG ghép `xl:grid-cols-${n}`: Tailwind quét mã
+ * nguồn bằng văn bản nên tên lớp ghép động không sinh ra CSS nào — cùng cái bẫy
+ * đã làm chết 21 lớp bo màu và suýt làm chết nhóm state-* hôm nay.
+ */
+const XL_COLS: Record<number, string> = {
+  1: 'xl:grid-cols-1',
+  2: 'xl:grid-cols-2',
+  3: 'xl:grid-cols-3',
+  4: 'xl:grid-cols-4',
+};
+
+function bandTitle(b: (typeof BANDS)[number]): string {
+  if (b.min === undefined) return `Dưới ${formatPrice(b.max)}`;
+  if (b.max === undefined) return `Trên ${formatPrice(b.min)}`;
+  return `${formatPrice(b.min)} – ${formatPrice(b.max)}`;
+}
 
 export default function HomePage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -93,6 +119,12 @@ export default function HomePage() {
     loadNewest();
     loadBands();
   }, [loadCategories, loadNewest, loadBands]);
+
+  // Lúc đang tải thì giữ đủ bốn khung để bố cục không nhảy; tải xong mới lọc.
+  const visibleBands =
+    bandState === 'ready'
+      ? BANDS.filter((b) => (bandItems[b.key] || []).length > 0)
+      : BANDS;
 
   return (
     <div className="min-h-screen bg-surface-page pb-12">
@@ -153,38 +185,44 @@ export default function HomePage() {
           </section>
         </div>
 
-        {/* --- Amazon: lưới bốn thẻ trắng, mỗi thẻ một tầm tiền --- */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {BANDS.map((band) => {
-            const items = bandItems[band.key] || [];
-            return (
-              <HomeCard
-                key={band.key}
-                id={`card-${band.key}`}
-                title={band.title}
-                href={`/search?${band.qs}&sort=newest`}
-                linkText="Xem tất cả"
-              >
-                {bandState !== 'ready' || items.length === 0 ? (
-                  <SectionState
-                    state={bandState}
-                    empty={items.length === 0}
-                    emptyText="Chưa có món nào trong tầm này."
-                    onRetry={loadBands}
-                  />
-                ) : (
-                  <ul className="grid grid-cols-2 gap-3">
-                    {items.slice(0, 4).map((item) => (
-                      <li key={item.id}>
-                        <ItemTile item={item} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </HomeCard>
-            );
-          })}
-        </div>
+        {/* --- Amazon: lưới thẻ trắng, mỗi thẻ một tầm tiền ---
+            Khi đã tải xong thì CHỈ hiện tầm nào có hàng. Các thẻ trong lưới cao
+            bằng nhau, nên một tầm rỗng chiếm trọn một phần tư chỗ đẹp nhất
+            trang chủ chỉ để nói "không có gì" — đo được với dữ liệu thật: món
+            rẻ nhất 250.000 ₫ nên thẻ "Dưới 100.000 ₫" cao gần 500px và trống
+            trơn. Tầm rỗng không phải thông tin người mua cần. */}
+        {bandState === 'error' ? (
+          <div className="rounded-card bg-surface-card">
+            <SectionState state="error" empty={false} onRetry={loadBands} />
+          </div>
+        ) : visibleBands.length > 0 ? (
+          <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${XL_COLS[visibleBands.length]}`}>
+            {visibleBands.map((band) => {
+              const items = bandItems[band.key] || [];
+              return (
+                <HomeCard
+                  key={band.key}
+                  id={`card-${band.key}`}
+                  title={bandTitle(band)}
+                  href={`/search?${band.qs}&sort=newest`}
+                  linkText="Xem tất cả"
+                >
+                  {bandState !== 'ready' ? (
+                    <SectionState state={bandState} empty={false} onRetry={loadBands} />
+                  ) : (
+                    <ul className="grid grid-cols-2 gap-3">
+                      {items.slice(0, 4).map((item) => (
+                        <li key={item.id}>
+                          <ItemTile item={item} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </HomeCard>
+              );
+            })}
+          </div>
+        ) : null}
 
         {/* --- Amazon + Lazada: dải hàng cuộn ngang --- */}
         {newestState === 'ready' && newest.length > 0 && (

@@ -114,6 +114,15 @@
     "cancelled": "Cancelled",
     "refunded": "Refunded"
   },
+  "orderStatusShort": {
+    "pending": "Awaiting seller",
+    "confirmed": "Accepted",
+    "processing": "Packing",
+    "shipping": "On the way",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
+  },
   "orders": {
     "title": "My orders",
     "filterLabel": "Filter by status",

@@ -28,14 +28,18 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
       {/* Viền trên TỪNG ô, không dùng gap-px trên nền màu: với gap-px, hàng cuối
           thiếu ô sẽ để lộ nguyên mảng nền xám ở chỗ trống — đo được khi 6 danh
           mục xếp trên lưới 5 cột. Viền từng ô thì ô trống đơn giản không tồn tại. */}
-      <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5">
+      {/* flex-1 + auto-rows-fr: thẻ này cao bằng cột bên phải (cột đó có ảnh
+          nên cao hơn), nếu lưới giữ chiều cao tự nhiên thì dưới nó là một mảng
+          trắng rỗng chừng 130px — đo được trên màn 1440. Cho các hàng chia đều
+          phần cao dư thì ô giãn ra, không ai phải nhìn khoảng trắng vô nghĩa. */}
+      <ul className="grid flex-1 auto-rows-fr grid-cols-3 sm:grid-cols-4 lg:grid-cols-5">
         {categories.map((cat) => {
           const count = Number(cat.product_count ?? cat.productCount);
           return (
             <li key={cat.id} className="border-b border-r border-ink/10">
               <Link
                 href={`/category/${cat.slug || cat.id}`}
-                className="flex h-full flex-col items-center gap-2 bg-surface-card px-2 py-4 text-center transition-colors hover:bg-surface-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
+                className="flex h-full flex-col items-center justify-center gap-2 bg-surface-card px-2 py-4 text-center transition-colors hover:bg-surface-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
               >
                 <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-brand-tint">
                   {cat.image ? (

@@ -53,7 +53,7 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-[1400px] mx-auto px-4 flex flex-col lg:flex-row items-center justify-between gap-10 py-10">
       <div className="hidden lg:flex items-center justify-center w-[55%]">
-        <img src="/images/homepage-text.png" alt="Zoldify Illustration" className="w-full h-auto object-contain drop-shadow-2xl" draggable={false} />
+        <img src="/images/auth-art.webp" alt="Zoldify Illustration" className="w-full h-auto object-contain drop-shadow-2xl" draggable={false} />
       </div>
       <div className="w-full lg:w-[40%] max-w-[450px] bg-white rounded-3xl shadow-2xl p-8 md:p-10">
         <div className="text-center mb-6">
