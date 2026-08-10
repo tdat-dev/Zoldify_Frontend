@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit, Trash2, Box, Loader2, Eye, Search, Package } from 'lucide-react';
 import { productService } from '@/services/product.service';
+import { formatPrice } from '@/lib/format';
 import StockControl from '@/components/StockControl';
 import { useToast } from '@/components/Toast';
 import BackButton from '@/components/BackButton';
@@ -150,7 +151,7 @@ export default function AdminProductsPage() {
                       {product.category?.name || '—'}
                     </td>
                     <td className="py-4 px-6 text-sm font-medium text-red-600 whitespace-nowrap">
-                      {Number(product.price).toLocaleString('vi-VN')}đ
+                      {formatPrice(product.price)}
                     </td>
                     <td className="py-4 px-6">
                       <StockEditor

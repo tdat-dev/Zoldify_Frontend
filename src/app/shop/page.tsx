@@ -10,6 +10,7 @@ import { useToast } from '@/components/Toast';
 import { followService } from '@/services/follow.service';
 import { chatService } from '@/services/chat.service';
 import { productService } from '@/services/product.service';
+import { formatPrice } from '@/lib/format';
 import StockControl from '@/components/StockControl';
 
 interface ShopInfo {
@@ -323,7 +324,7 @@ export default function ShopPage() {
                     </h3>
                     <div className="flex items-center justify-between pt-1">
                       <div className="text-brand font-medium text-sm">
-                        {item.price.toLocaleString('vi-VN')}₫
+                        {formatPrice(item.price)}
                       </div>
                       {isOwner ? (
                         <div onClick={(e) => e.preventDefault()}>

@@ -1,3 +1,5 @@
+import { API_ORIGIN } from './config';
+
 /**
  * Một chỗ duy nhất định dạng tiền cho toàn site.
  * Trước đây trang chủ hiển thị cả "45.000đ" lẫn "đ45.000" trên cùng một màn hình.
@@ -44,6 +46,20 @@ const LOCALE_BY_CURRENCY: Record<string, string> = {
 };
 
 export const DEFAULT_CURRENCY = 'VND';
+
+/**
+ * Đường dẫn đầy đủ cho ảnh backend trả về.
+ *
+ * Backend trả khi thì URL tuyệt đối, khi thì đường dẫn tương đối. Ba trang từng
+ * tự ghép bằng chuỗi VIẾT CỨNG `http://localhost:3000/` — lên môi trường thật
+ * là ảnh chết hết, mà chỉ phát hiện được sau khi deploy. Ghép từ API_ORIGIN,
+ * cùng nguồn mà mọi request REST đang dùng.
+ */
+export function imageUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path) || path.startsWith('data:')) return path;
+  return `${API_ORIGIN}/${path.replace(/^\/+/, '')}`;
+}
 
 export function formatPrice(
   value: number | string | null | undefined,

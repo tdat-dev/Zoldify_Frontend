@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
 import BackButton from '@/components/BackButton';
+import { formatPrice, imageUrl } from '@/lib/format';
 import { ORDER_STATUSES, orderStatusTone, type OrderStatus } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
 
@@ -133,10 +134,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const formatCurrency = (v: number | string) => {
-    const n = Number(v) || 0;
-    return n.toLocaleString('vi-VN') + 'đ';
-  };
+  const formatCurrency = (v: number | string) => formatPrice(v);
 
   const formatDate = (d: string) => {
     try {
@@ -415,7 +413,7 @@ export default function AdminOrdersPage() {
                       <div className="w-14 h-14 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
                         {item.product?.image || item.product_image ? (
                           <img
-                            src={(item.product?.image || item.product_image || '').startsWith('http') ? (item.product?.image || item.product_image || '') : `http://localhost:3000/${item.product?.image || item.product_image}`}
+                            src={imageUrl(item.product?.image || item.product_image) || ''}
                             alt={item.product_name}
                             className="w-full h-full object-cover"
                           />

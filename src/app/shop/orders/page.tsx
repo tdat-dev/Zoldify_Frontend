@@ -3,10 +3,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Loader2, Search, X, Package, MapPin, Phone, User as UserIcon, Eye, CheckCircle2, XCircle, Truck, Clock, ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
-
-type OrderStatus = 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
+import { formatPrice, imageUrl } from '@/lib/format';
+import { ORDER_FLOW, ORDER_STATUSES, flowIndex, orderStatusTone, type OrderStatus } from '@/lib/order-status';
+import { TONE_CLASS } from '@/lib/status-tone';
 
 interface OrderItem {
   id: number;
@@ -39,32 +41,40 @@ interface Order {
   items: OrderItem[];
 }
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: 'Chờ xác nhận',
-  confirmed: 'Đã xác nhận',
-  shipping: 'Đang giao',
-  delivered: 'Hoàn thành',
-  cancelled: 'Đã hủy',
-};
-
-const STATUS_STYLES: Record<OrderStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  shipping: 'bg-purple-100 text-purple-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
-};
-
-const TABS: { key: string; label: string; status?: OrderStatus }[] = [
-  { key: 'all', label: 'Tất cả' },
-  { key: 'pending', label: 'Chờ xác nhận', status: 'pending' },
-  { key: 'shipping', label: 'Đang giao', status: 'shipping' },
-  { key: 'delivered', label: 'Đã giao', status: 'delivered' },
-  { key: 'cancelled', label: 'Đã hủy', status: 'cancelled' },
+/**
+ * Nhãn và màu lấy từ nguồn chung (src/lib/order-status.ts).
+ *
+ * Đây là BẢN SAO THỨ NĂM của bộ trạng thái đơn từng bị chép tay, và cũng thiếu
+ * `processing` lẫn `refunded` như bốn bản kia.
+ */
+const TABS: { key: string; status?: OrderStatus }[] = [
+  { key: 'all' },
+  ...ORDER_STATUSES.map((s) => ({ key: s, status: s })),
 ];
+
+/**
+ * Bước tiếp theo trên chuỗi trạng thái, null nếu đã hết chuỗi.
+ *
+ * Bản trước tính bước kế bằng `order.status === 'pending' ? 'confirmed' :
+ * 'shipping'`. Hai hậu quả:
+ *
+ *  - `processing` bị bỏ qua hoàn toàn, người bán không đánh dấu "đang chuẩn bị
+ *    hàng" được.
+ *  - Đơn đang ở `shipping` thì biểu thức trả về đúng `shipping` — bấm nút là
+ *    một lệnh PATCH không đổi gì, xong hiện toast "Đã chuyển sang: Đang giao".
+ *    Một thông báo thành công cho việc không xảy ra. Nghĩa là NGƯỜI BÁN KHÔNG
+ *    BAO GIỜ ĐÁNH DẤU ĐƯỢC ĐƠN ĐÃ GIAO — đơn kẹt ở "đang giao" vĩnh viễn.
+ */
+function nextInFlow(status: unknown): OrderStatus | null {
+  const i = flowIndex(status);
+  if (i === -1 || i >= ORDER_FLOW.length - 1) return null;
+  return ORDER_FLOW[i + 1];
+}
 
 export default function ShopOrdersPage() {
   const { toast } = useToast();
+  const tStatus = useTranslations('orderStatus');
+  const tShort = useTranslations('orderStatusShort');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
@@ -99,14 +109,15 @@ export default function ShopOrdersPage() {
   }, [fetchOrders]);
 
   const handleConfirmShip = async (order: Order) => {
-    const nextStatus: OrderStatus = order.status === 'pending' ? 'confirmed' : 'shipping';
+    const nextStatus = nextInFlow(order.status);
+    if (!nextStatus) return;
     setActionLoading(order.id);
     try {
       await http.patch(`/orders/${order.id}/status`, { status: nextStatus });
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: nextStatus } : o))
       );
-      toast(`Đã chuyển sang: ${STATUS_LABELS[nextStatus]}`, 'success');
+      toast(`Đã chuyển sang: ${tStatus(nextStatus)}`, 'success');
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Cập nhật thất bại';
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
@@ -134,7 +145,7 @@ export default function ShopOrdersPage() {
     }
   };
 
-  const formatCurrency = (v: number | string) => Number(v || 0).toLocaleString('vi-VN') + 'đ';
+  const formatCurrency = (v: number | string) => formatPrice(v);
   const formatDate = (d: string) => {
     try {
       return new Date(d).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -149,11 +160,9 @@ export default function ShopOrdersPage() {
       )
     : orders;
 
-  const getImageSrc = (path?: string) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `http://localhost:3000/${path.replace(/^\/+/, '')}`;
-  };
+  // Địa chỉ backend viết cứng ở đây từng là `http://localhost:3000/` — lên môi
+  // trường thật là ảnh chết hết. Nay dùng imageUrl() chung.
+  const getImageSrc = imageUrl;
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
@@ -176,7 +185,7 @@ export default function ShopOrdersPage() {
                     : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                {t.label}
+                {t.status ? tShort(t.status) : 'Tất cả'}
               </button>
             ))}
           </div>
@@ -219,8 +228,8 @@ export default function ShopOrdersPage() {
                       <div className="flex flex-wrap gap-3 items-center">
                         <span className="font-bold text-blue-600">{order.code}</span>
                         <span className="text-xs text-gray-600">{formatDate(order.created_at)}</span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[order.status]}`}>
-                          {STATUS_LABELS[order.status]}
+                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${TONE_CLASS[orderStatusTone(order.status)]}`}>
+                          {tStatus(order.status)}
                         </span>
                         {order.tracking_code && (
                           <span className="px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
@@ -267,7 +276,10 @@ export default function ShopOrdersPage() {
                       >
                         <Eye className="w-4 h-4" /> Chi tiết
                       </button>
-                      {(order.status === 'pending' || order.status === 'confirmed') && (
+                      {/* Nút chỉ hiện khi CÒN bước tiếp theo, và nói rõ nó
+                          chuyển đơn sang trạng thái nào. Bản cũ hiện nút cho cả
+                          đơn đang giao rồi gửi một lệnh không đổi gì. */}
+                      {nextInFlow(order.status) && (
                         <button
                           onClick={() => handleConfirmShip(order)}
                           disabled={actionLoading === order.id}
@@ -278,7 +290,7 @@ export default function ShopOrdersPage() {
                           ) : (
                             <CheckCircle2 className="w-4 h-4" />
                           )}
-                          {order.status === 'pending' ? 'Xác nhận' : 'Giao hàng'}
+                          {tShort(nextInFlow(order.status)!)}
                         </button>
                       )}
                       {(order.status === 'pending' || order.status === 'confirmed') && (
@@ -347,8 +359,8 @@ export default function ShopOrdersPage() {
             </div>
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${STATUS_STYLES[viewingOrder.status]}`}>
-                  {STATUS_LABELS[viewingOrder.status]}
+                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${TONE_CLASS[orderStatusTone(viewingOrder.status)]}`}>
+                  {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
                   <div className="text-xs text-gray-600">Ngày đặt</div>
