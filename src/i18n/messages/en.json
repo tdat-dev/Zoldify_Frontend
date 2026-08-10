@@ -201,7 +201,12 @@
     "verifying": "Verifying…",
     "sendOtpFailed": "Could not send the code. Please try again.",
     "verifyFailed": "That code isn't right. Please check it.",
-    "back": "Back"
+    "back": "Back",
+    "googleWorking": "Opening Google…",
+    "googleNotSetUp": "Firebase isn't connected yet, so this button doesn't work. Please use your email and password.",
+    "googleSignup": "Sign up with Google",
+    "registered": "Account created. Sign in to get started.",
+    "orEmail": "or use email"
   },
   "category": {
     "breadcrumbHome": "Home",

@@ -4,20 +4,28 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { AuthShell, authField, authLabel, authSubmit } from '@/components/auth/AuthShell';
+import { GoogleButton } from '@/components/auth/GoogleButton';
 
 /**
- * Đăng ký: hai bước, gửi mã rồi xác thực. Luồng này ĐÃ gọi API thật từ trước,
- * đây là bản đưa về khung chung và token màu.
+ * Đăng ký: gửi mã tới email, rồi xác thực mã và đặt mật khẩu.
  *
- * ĐÃ GỠ Ô SỐ ĐIỆN THOẠI. Nó được thu thập vào formData.phone rồi không bao giờ
- * gửi đi: cả SendRegisterOtpDto lẫn VerifyRegisterOtpDto của backend đều không
- * có trường đó (identity/auth/dto/auth.entity.ts:26-49). Hỏi người dùng một dữ
- * liệu rồi âm thầm vứt đi thì tệ hơn là không hỏi. Muốn có số điện thoại lúc
- * đăng ký thì phải thêm ở backend trước; người bán vẫn nhập số khi lưu địa chỉ
- * giao hàng.
+ * Ba thứ đã sửa ở lượt này:
+ *
+ * 1. THÊM NÚT GOOGLE. Trang đăng ký trước đây không có, dù đăng nhập Google
+ *    cũng tạo tài khoản — ai muốn vào nhanh phải mò ngược sang trang đăng nhập.
+ *
+ * 2. CHUYỂN VỀ /login KÈM EMAIL. Trước chỉ có ?registered=1 mà trang đăng nhập
+ *    lại không đọc, nên người dùng xác thực OTP xong bị ném về biểu mẫu trống.
+ *
+ * 3. Mật khẩu kiểm ĐỘ DÀI NGAY Ở BƯỚC 1. Bản trước gửi OTP trước rồi mới phát
+ *    hiện mật khẩu ngắn ở bước 2 — người dùng đã mất một mã và một vòng email.
+ *
+ * Ô số điện thoại vẫn không có: nó từng được thu vào formData.phone rồi không
+ * bao giờ gửi đi, vì cả SendRegisterOtpDto lẫn VerifyRegisterOtpDto của backend
+ * đều không có trường đó. Muốn có thì phải thêm ở backend trước.
  */
 export default function RegisterPage() {
   const router = useRouter();
@@ -57,7 +65,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await authService.verifyRegisterOtp(email, otp, password);
-      router.push('/login?registered=1');
+      router.push(`/login?registered=1&email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       const msg = err.response?.data?.message;
       setError(Array.isArray(msg) ? msg[0] : msg || t('verifyFailed'));
@@ -86,8 +94,9 @@ export default function RegisterPage() {
               setStep(1);
               setError('');
             }}
-            className="font-semibold text-brand hover:underline"
+            className="inline-flex items-center gap-1.5 font-semibold text-brand hover:underline"
           >
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             {t('back')}
           </button>
         }
@@ -104,6 +113,7 @@ export default function RegisterPage() {
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
+              autoFocus
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               className={`${authField} text-center text-h2 tabular-nums tracking-[0.4em]`}
@@ -131,6 +141,15 @@ export default function RegisterPage() {
       }
     >
       {alert}
+
+      <GoogleButton label={t('googleSignup')} onError={setError} />
+
+      <div className="my-6 flex items-center gap-4">
+        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+        <span className="text-small text-ink-faint">{t('orEmail')}</span>
+        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+      </div>
+
       <form onSubmit={handleSendOtp} noValidate className="flex flex-col gap-5">
         <div>
           <label htmlFor="reg-name" className={authLabel}>

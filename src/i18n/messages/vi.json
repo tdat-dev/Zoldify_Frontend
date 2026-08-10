@@ -201,7 +201,12 @@
     "verifying": "Đang xác thực…",
     "sendOtpFailed": "Chưa gửi được mã. Thử lại giúp mình.",
     "verifyFailed": "Mã không đúng. Kiểm tra lại giúp mình.",
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "googleWorking": "Đang mở Google…",
+    "googleNotSetUp": "Chưa nối Firebase nên nút này chưa dùng được. Đăng nhập bằng email và mật khẩu nhé.",
+    "googleSignup": "Đăng ký bằng Google",
+    "registered": "Tạo tài khoản xong. Đăng nhập để bắt đầu.",
+    "orEmail": "hoặc dùng email"
   },
   "category": {
     "breadcrumbHome": "Trang chủ",

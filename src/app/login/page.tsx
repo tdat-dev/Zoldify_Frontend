@@ -2,19 +2,36 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Eye, EyeOff } from 'lucide-react';
-import { signInWithPopup } from 'firebase/auth';
+import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import http from '@/lib/http';
-import { getFirebaseAuth, isFirebaseConfigured } from '@/lib/firebase';
-import { AuthShell, authField, authLabel, authSubmit } from '@/components/auth/AuthShell';
+import { AuthShell, authField, authSubmit } from '@/components/auth/AuthShell';
+import { GoogleButton } from '@/components/auth/GoogleButton';
 
+/**
+ * Đăng nhập.
+ *
+ * Ba thứ đã sửa ở lượt này:
+ *
+ * 1. NÚT GOOGLE LUÔN HIỆN, không còn ẩn im lặng khi thiếu cấu hình Firebase
+ *    (xem GoogleButton). Và nó lên TRÊN biểu mẫu email: ai có tài khoản Google
+ *    thì đó là đường ngắn nhất, đặt nó dưới cùng là bắt họ đọc hết form trước.
+ *
+ * 2. ĐĂNG KÝ XONG KHÔNG AI NÓI GÌ. /register chuyển tới /login?registered=1
+ *    nhưng trang này chưa bao giờ đọc tham số đó — người dùng vừa xác thực OTP
+ *    xong bị ném về một biểu mẫu trống, không biết mình đã tạo tài khoản thành
+ *    công hay vừa bị đá ra.
+ *
+ * 3. Email đã đăng ký được điền sẵn khi quay về từ trang đăng ký.
+ */
 export default function LoginPage() {
   const { login } = useAuth();
   const t = useTranslations('auth');
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('');
+  const justRegistered = searchParams.get('registered') === '1';
+  const [email, setEmail] = useState(searchParams.get('email') || '');
   const [password, setPassword] = useState('');
   const [reveal, setReveal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,27 +54,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    const fb = getFirebaseAuth();
-    if (!fb) {
-      setError(t('googleUnavailable'));
-      return;
-    }
-    try {
-      const result = await signInWithPopup(fb.auth, fb.googleProvider);
-      const idToken = await result.user.getIdToken();
-      const res = await http.post('/auth/firebase', { idToken });
-      const { access_token, user: userData } = res.data.data;
-      // Cùng BỘ HAI khoá mà AuthContext.login ghi và logout xoá. Ghi thiếu một
-      // khoá thì phiên nửa vời: có token nhưng không có người dùng.
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      window.location.href = '/';
-    } catch {
-      setError(t('googleFailed'));
-    }
-  };
-
   return (
     <AuthShell
       title={t('loginTitle')}
@@ -71,6 +67,13 @@ export default function LoginPage() {
         </>
       }
     >
+      {justRegistered && !error && (
+        <p className="mb-5 flex items-start gap-2 rounded-control bg-state-success-bg px-3.5 py-2.5 text-small text-state-success-fg">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          {t('registered')}
+        </p>
+      )}
+
       {error && (
         <p
           role="alert"
@@ -80,9 +83,17 @@ export default function LoginPage() {
         </p>
       )}
 
+      <GoogleButton label={t('google')} onError={setError} />
+
+      <div className="my-6 flex items-center gap-4">
+        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+        <span className="text-small text-ink-faint">{t('orEmail')}</span>
+        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+      </div>
+
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
         <div>
-          <label htmlFor="login-email" className={authLabel}>
+          <label htmlFor="login-email" className="mb-1.5 block text-small font-semibold text-ink">
             {t('email')}
           </label>
           <input
@@ -133,30 +144,6 @@ export default function LoginPage() {
         >
           {t('forgot')}
         </Link>
-
-        {isFirebaseConfigured && (
-          <>
-            <div className="flex items-center gap-4">
-              <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-              <span className="text-small text-ink-faint">{t('or')}</span>
-              <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-            </div>
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              className="flex w-full items-center justify-center gap-3 rounded-control border border-ink/16 bg-surface-card px-5 py-3 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
-            >
-              {/* SVG nội tuyến: trước đây hotlink svgrepo.com, hỏng là mất nút. */}
-              <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden="true">
-                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.2-.1-2.4-.4-3.5z" />
-                <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
-                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C39 36.2 44 31 44 24c0-1.2-.1-2.4-.4-3.5z" />
-              </svg>
-              {t('google')}
-            </button>
-          </>
-        )}
       </form>
     </AuthShell>
   );
