@@ -11,7 +11,7 @@ import BackButton from '@/components/BackButton';
 
 export default function AdminProductsPage() {
   const router = useRouter();
-  const { toast } = useToast();
+  const { toast, confirm } = useToast();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -37,7 +37,10 @@ export default function AdminProductsPage() {
   }, [fetchProducts]);
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Xóa sản phẩm "${name}"?\nHành động này không thể hoàn tác.`)) return;
+    // PHẢI await: confirm của useToast trả về Promise, còn window.confirm trả
+    // về boolean. Đổi nguồn mà quên await thì `!Promise` luôn là false và lệnh
+    // xoá chạy thẳng, không hỏi ai cả.
+    if (!(await confirm(`Xoá tin “${name}”? Không lấy lại được.`))) return;
     try {
       await productService.remove(id);
       toast('Đã xóa sản phẩm', 'success');

@@ -1,111 +1,155 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
+import { settingService, SETTING_KEYS } from '@/services/setting.service';
+import { useToast } from '@/components/Toast';
 
+/**
+ * Cài đặt hệ thống.
+ *
+ * BẢN TRƯỚC KHÔNG LƯU ĐƯỢC GÌ. `<form>` không có onSubmit, hai ô nhập dùng
+ * `defaultValue` nên không có state, và nút "Lưu thay đổi" là `type="button"`
+ * KHÔNG có onClick. Admin gõ tên website, bấm Lưu, và không có gì xảy ra —
+ * form chết thứ tư cùng kiểu, sau /profile/change-password, /reset-password và
+ * /forgot-password.
+ *
+ * Nay nối vào GET /settings và PATCH /settings (settings.controller.ts:22,28).
+ *
+ * ĐÃ GỠ:
+ *
+ * - THANH BÊN MỒ CÔI. Trang này là trang admin DUY NHẤT có thanh điều hướng,
+ *   chép cứng ngay trong file. Nay điều hướng nằm ở admin/layout.tsx nên mọi
+ *   trang admin đều có.
+ *
+ * - BA TAB RỖNG ("contact", "email", "payment") chỉ hiện dòng "đang được xây
+ *   dựng". Tab dẫn tới chỗ trống thì thà đừng có tab.
+ *
+ * - NÚT "BẬT bảo trì". Nó không có onClick, và kể cả nối vào một khoá cài đặt
+ *   thì cũng KHÔNG có gì trong app đọc khoá đó — một công tắc bảo trì không
+ *   chặn được ai còn nguy hơn là không có, vì admin sẽ tin là site đã đóng.
+ *   Muốn có thật thì cần middleware ở backend chặn request khi cờ bật.
+ */
 export default function AdminSettingsPage() {
-  const [activeTab, setActiveTab] = useState('general');
+  const { toast } = useToast();
+
+  const [siteName, setSiteName] = useState('');
+  const [siteDescription, setSiteDescription] = useState('');
+  const [saved, setSaved] = useState({ siteName: '', siteDescription: '' });
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    setState('loading');
+    try {
+      const res = await settingService.getAll();
+      const rows: any[] = res.data?.data || res.data || [];
+      const byKey = Object.fromEntries(rows.map((r: any) => [r.key, r.value]));
+      const next = {
+        siteName: byKey[SETTING_KEYS.siteName] ?? '',
+        siteDescription: byKey[SETTING_KEYS.siteDescription] ?? '',
+      };
+      setSiteName(next.siteName);
+      setSiteDescription(next.siteDescription);
+      setSaved(next);
+      setState('ready');
+    } catch {
+      setState('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const dirty = siteName !== saved.siteName || siteDescription !== saved.siteDescription;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dirty || saving) return;
+    setSaving(true);
+    try {
+      await settingService.update({
+        [SETTING_KEYS.siteName]: siteName,
+        [SETTING_KEYS.siteDescription]: siteDescription,
+      });
+      setSaved({ siteName, siteDescription });
+      toast('Đã lưu cài đặt.', 'success');
+    } catch (err: any) {
+      toast(err.response?.data?.message || 'Chưa lưu được cài đặt.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const field =
+    'w-full rounded-control border border-ink/16 bg-surface-card px-3 py-2.5 text-body text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20';
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      
-      {/* Sidebar Placeholder */}
-      <aside className="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col hidden md:flex">
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <span className="text-xl font-bold text-blue-500">Zoldify Admin</span>
-        </div>
-        <nav className="flex-1 overflow-y-auto py-4">
-          <ul className="space-y-1 px-3">
-            <li><Link href="/admin" className="flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800">Tổng quan</Link></li>
-            <li><Link href="/admin/products" className="flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800">Sản phẩm</Link></li>
-            <li><Link href="/admin/orders" className="flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800">Đơn hàng</Link></li>
-            <li><Link href="/admin/users" className="flex items-center px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800">Người dùng</Link></li>
-            <li><Link href="/admin/settings" className="flex items-center px-3 py-2 rounded-lg bg-blue-600 text-white">Cài đặt</Link></li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
-        {/* Top Header Placeholder */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
-          <h2 className="text-xl font-semibold text-gray-800">Cài đặt hệ thống</h2>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-700">Admin</span>
+    <div className="min-h-screen bg-surface-page">
+      <div className="mx-auto max-w-[900px] px-4 py-6">
+        <div className="rounded-card bg-surface-card">
+          <div className="border-b border-ink/10 px-6 py-5">
+            <h1 className="text-h2 text-ink">Cài đặt hệ thống</h1>
+            <p className="mt-1 text-small text-ink-muted">
+              Những giá trị này hiện ở tiêu đề trang và trong kết quả tìm kiếm.
+            </p>
           </div>
-        </header>
 
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-6xl mx-auto">
-            
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              {/* Tab Navigation */}
-              <div className="border-b border-gray-200 overflow-x-auto">
-                <nav className="flex min-w-max">
-                  {['general', 'contact', 'email', 'payment', 'maintenance'].map((tab) => (
-                    <button 
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap ${activeTab === tab ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-700'}`}
-                    >
-                      {tab === 'general' ? 'Thông tin chung' : 
-                       tab === 'contact' ? 'Liên hệ' : 
-                       tab === 'email' ? 'Email SMTP' : 
-                       tab === 'payment' ? 'Thanh toán' : 'Bảo trì'}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-
-              {/* Tab Contents */}
-              <div className="p-6">
-                
-                {/* General Settings */}
-                {activeTab === 'general' && (
-                  <form className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tên Website</label>
-                        <input type="text" defaultValue="Zoldify" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Mô tả Website</label>
-                        <input type="text" defaultValue="Chợ đồ cũ Zoldify" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-                      </div>
-                    </div>
-                    <button type="button" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Lưu thay đổi</button>
-                  </form>
-                )}
-
-                {/* Maintenance Settings */}
-                {activeTab === 'maintenance' && (
-                  <div className="space-y-6">
-                    <div className="p-6 border border-gray-200 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-800">Chế độ bảo trì</h3>
-                          <p className="text-sm text-gray-600 mt-1">Khi bật, người dùng sẽ không thể truy cập website</p>
-                        </div>
-                        <button type="button" className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                          BẬT bảo trì
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Other Tabs Placeholder */}
-                {(activeTab === 'contact' || activeTab === 'email' || activeTab === 'payment') && (
-                  <div className="text-gray-600 text-sm">Nội dung cài đặt cho {activeTab} đang được xây dựng...</div>
-                )}
-                
-              </div>
+          {state === 'loading' ? (
+            <p className="px-6 py-16 text-center text-body text-ink-muted">Đang tải…</p>
+          ) : state === 'error' ? (
+            <div className="px-6 py-16 text-center">
+              <p className="text-body font-semibold text-ink">Không tải được cài đặt.</p>
+              <button
+                type="button"
+                onClick={load}
+                className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                Thử lại
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="max-w-xl px-6 py-6">
+              <div className="flex flex-col gap-5">
+                <div>
+                  <label htmlFor="set-name" className="mb-1.5 block text-small font-semibold text-ink">
+                    Tên website
+                  </label>
+                  <input
+                    id="set-name"
+                    type="text"
+                    value={siteName}
+                    onChange={(e) => setSiteName(e.target.value)}
+                    className={field}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="set-desc" className="mb-1.5 block text-small font-semibold text-ink">
+                    Mô tả website
+                  </label>
+                  <input
+                    id="set-desc"
+                    type="text"
+                    value={siteDescription}
+                    onChange={(e) => setSiteDescription(e.target.value)}
+                    className={field}
+                  />
+                </div>
+              </div>
 
-          </div>
-        </main>
+              <div className="mt-7 flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={!dirty || saving}
+                  className="rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink/16 disabled:text-ink-faint"
+                >
+                  {saving ? 'Đang lưu…' : 'Lưu'}
+                </button>
+                {!dirty && <span className="text-small text-ink-faint">Chưa có gì thay đổi</span>}
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

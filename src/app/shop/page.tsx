@@ -35,7 +35,7 @@ interface Product {
 
 export default function ShopPage() {
   const { user: currentUser, isAuthenticated } = useAuth();
-  const { toast } = useToast();
+  const { toast, confirm } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetSellerId = searchParams.get('seller');
@@ -164,7 +164,7 @@ export default function ShopPage() {
   };
 
   const handleDeleteFromShop = async (id: number, name: string) => {
-    if (!confirm(`Xóa sản phẩm "${name}"?`)) return;
+    if (!(await confirm(`Xoá tin “${name}”? Không lấy lại được.`))) return;
     try {
       await productService.remove(id);
       toast('Đã xóa sản phẩm', 'success');

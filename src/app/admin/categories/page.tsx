@@ -25,7 +25,7 @@ export default function CategoriesPage() {
   const [iconFile, setIconFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  const { toast, confirm } = useToast();
 
   useEffect(() => {
     loadCategories();
@@ -58,7 +58,9 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Bạn có chắc muốn xóa danh mục này?')) return;
+    // confirm cua useToast, khong phai window.confirm: hop thoai native chan
+    // toan bo su kien trinh duyet va khong theo duoc giao dien cua app.
+    if (!(await confirm('Xoá danh mục này? Sản phẩm trong danh mục sẽ không còn danh mục.'))) return;
     try {
       await categoryService.remove(id);
       setCategories(categories.filter(c => c.id !== id));

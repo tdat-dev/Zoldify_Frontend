@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { ShoppingCart, Eye, Loader2, Search, ChevronDown, MapPin, Phone, User as UserIcon, Package, X, Clock, Truck, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
 import BackButton from '@/components/BackButton';
-
-type OrderStatus = 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
+import { ORDER_STATUSES, orderStatusTone, type OrderStatus } from '@/lib/order-status';
+import { TONE_CLASS } from '@/lib/status-tone';
 
 interface OrderItem {
   id: number;
@@ -39,26 +40,30 @@ interface Order {
   items: OrderItem[];
 }
 
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: 'Chờ xử lý',
-  confirmed: 'Đã xác nhận',
-  shipping: 'Đang giao',
-  delivered: 'Hoàn thành',
-  cancelled: 'Đã hủy',
-};
+/**
+ * Nhãn và màu lấy từ nguồn chung (src/lib/order-status.ts) thay vì chép tay.
+ *
+ * Bản trước là BẢN SAO THỨ TƯ của bộ trạng thái đơn, và nó tự khai một type
+ * riêng thiếu `processing` lẫn `refunded`. Hậu quả không chỉ là nhãn sai:
+ * STATUS_OPTIONS vừa là danh sách lọc VỪA là danh sách trong ô chọn để admin
+ * đổi trạng thái đơn — nên admin KHÔNG THỂ chuyển đơn sang "đang chuẩn bị
+ * hàng" hay đánh dấu "đã hoàn tiền". Hai trạng thái backend không với tới được
+ * từ giao diện quản trị. Đơn đang ở hai trạng thái đó cũng tra ra `undefined`
+ * trong bảng nhãn và hiện ra ô trống.
+ *
+ * Thêm: `delivered` ở đây từng là "Hoàn thành" trong khi phía người mua là
+ * "Đã giao" — cùng một trạng thái, hai cái tên.
+ */
+const STATUS_OPTIONS = ORDER_STATUSES;
 
-const STATUS_STYLES: Record<OrderStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  shipping: 'bg-purple-100 text-purple-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
-};
-
-const STATUS_OPTIONS: OrderStatus[] = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
+/** Bảng đếm rỗng dựng từ chính danh sách trạng thái, không liệt kê tay. */
+const emptyCounts = () =>
+  Object.fromEntries(ORDER_STATUSES.map((s) => [s, 0])) as Record<OrderStatus, number>;
 
 export default function AdminOrdersPage() {
   const { toast } = useToast();
+  const tStatus = useTranslations('orderStatus');
+  const statusClass = (s: unknown) => TONE_CLASS[orderStatusTone(s)];
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState({ current: 1, pageSize: 20, total: 0, pages: 0 });
@@ -66,9 +71,7 @@ export default function AdminOrdersPage() {
   const [page, setPage] = useState(1);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
-  const [statusCounts, setStatusCounts] = useState<Record<OrderStatus, number>>({
-    pending: 0, confirmed: 0, shipping: 0, delivered: 0, cancelled: 0,
-  });
+  const [statusCounts, setStatusCounts] = useState<Record<OrderStatus, number>>(emptyCounts);
 
   const fetchOrders = useCallback(async (p = 1) => {
     setLoading(true);
@@ -89,7 +92,7 @@ export default function AdminOrdersPage() {
 
   const fetchStatusCounts = useCallback(async () => {
     try {
-      const counts: Record<OrderStatus, number> = { pending: 0, confirmed: 0, shipping: 0, delivered: 0, cancelled: 0 };
+      const counts = emptyCounts();
       await Promise.all(
         STATUS_OPTIONS.map(async (s) => {
           const res = await http.get('/orders', { params: { status: s, limit: 1, currentPage: 1 } });
@@ -119,7 +122,7 @@ export default function AdminOrdersPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
-      toast(`Đã cập nhật trạng thái: ${STATUS_LABELS[newStatus]}`, 'success');
+      toast(`Đã cập nhật trạng thái: ${tStatus(newStatus)}`, 'success');
       fetchStatusCounts();
       window.dispatchEvent(new CustomEvent('admin-stats-refresh'));
     } catch (err: any) {
@@ -141,13 +144,10 @@ export default function AdminOrdersPage() {
     } catch { return d; }
   };
 
-  const statusCards: { key: OrderStatus; label: string; bg: string; text: string }[] = [
-    { key: 'pending', label: 'Chờ xử lý', bg: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700' },
-    { key: 'confirmed', label: 'Đã xác nhận', bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700' },
-    { key: 'shipping', label: 'Đang giao', bg: 'bg-purple-50 border-purple-200', text: 'text-purple-700' },
-    { key: 'delivered', label: 'Hoàn thành', bg: 'bg-green-50 border-green-200', text: 'text-green-700' },
-    { key: 'cancelled', label: 'Đã hủy', bg: 'bg-red-50 border-red-200', text: 'text-red-700' },
-  ];
+  // Thẻ đếm cho cả BẢY trạng thái, không phải năm. Trạng thái nào không đếm
+  // được thì vẫn phải hiện — số 0 là thông tin, còn thiếu hẳn thẻ thì admin
+  // không biết trạng thái đó tồn tại.
+  const statusCards = ORDER_STATUSES.map((key) => ({ key, tone: orderStatusTone(key) }));
 
   return (
     <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
@@ -175,25 +175,27 @@ export default function AdminOrdersPage() {
           >
             <option value="">Lọc theo trạng thái...</option>
             {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              <option key={s} value={s}>{tStatus(s)}</option>
             ))}
           </select>
         </div>
       </div>
 
       {/* Status Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6 md:grid-cols-4 xl:grid-cols-7">
         {statusCards.map((c) => (
-          <div
+          <button
+            type="button"
             key={c.key}
+            aria-pressed={statusFilter === c.key}
             onClick={() => { setStatusFilter(c.key); setPage(1); }}
-            className={`p-4 rounded-lg border cursor-pointer transition ${
-              statusFilter === c.key ? `${c.bg} ring-2 ring-blue-400` : `${c.bg} hover:shadow-md`
+            className={`rounded-lg p-4 text-left transition ${TONE_CLASS[c.tone]} ${
+              statusFilter === c.key ? 'ring-2 ring-brand' : 'hover:opacity-90'
             }`}
           >
-            <div className={`text-xs font-medium ${c.text}`}>{c.label}</div>
-            <div className={`text-2xl font-bold mt-1 ${c.text}`}>{statusCounts[c.key]}</div>
-          </div>
+            <div className="text-xs font-medium">{tStatus(c.key)}</div>
+            <div className="mt-1 text-2xl font-bold tabular-nums">{statusCounts[c.key]}</div>
+          </button>
         ))}
       </div>
 
@@ -258,11 +260,11 @@ export default function AdminOrdersPage() {
                           disabled={updatingId === order.id}
                           onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
                           className={`appearance-none cursor-pointer pr-7 pl-3 py-1.5 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            STATUS_STYLES[order.status]
+                            statusClass(order.status)
                           } ${updatingId === order.id ? 'opacity-50' : ''}`}
                         >
                           {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                            <option key={s} value={s}>{tStatus(s)}</option>
                           ))}
                         </select>
                         {updatingId === order.id ? (
@@ -345,8 +347,8 @@ export default function AdminOrdersPage() {
 
             <div className="p-6 space-y-6">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${STATUS_STYLES[viewingOrder.status]}`}>
-                  {STATUS_LABELS[viewingOrder.status]}
+                <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${statusClass(viewingOrder.status)}`}>
+                  {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
                   <div className="text-xs text-gray-600">Ngày đặt</div>
