@@ -98,6 +98,8 @@ export default function ShopOrdersPage() {
   const { toast } = useToast();
   const tStatus = useTranslations('orderStatus');
   const tShort = useTranslations('orderStatusShort');
+  const t = useTranslations('shop');
+  const tc = useTranslations('common');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
@@ -120,7 +122,7 @@ export default function ShopOrdersPage() {
       setMeta(data?.meta || { current: 1, pageSize: 20, total: 0, pages: 0 });
     } catch (err: any) {
       console.error(err);
-      toast(err.response?.data?.message || 'Lỗi tải danh sách đơn hàng', 'error');
+      toast(err.response?.data?.message || t('ordersLoadFailed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -140,9 +142,9 @@ export default function ShopOrdersPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: nextStatus } : o))
       );
-      toast(`Đã chuyển sang: ${tStatus(nextStatus)}`, 'success');
+      toast(t('movedTo', { status: tStatus(nextStatus) }), 'success');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Cập nhật thất bại';
+      const msg = err.response?.data?.message || t('updateFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setActionLoading(null);
@@ -159,9 +161,9 @@ export default function ShopOrdersPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: 'cancelled' as OrderStatus } : o))
       );
-      toast('Đã hủy đơn hàng', 'success');
+      toast(t('cancelled'), 'success');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Hủy đơn thất bại';
+      const msg = err.response?.data?.message || t('cancelFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setActionLoading(null);
@@ -191,8 +193,8 @@ export default function ShopOrdersPage() {
     <div className="bg-surface-page min-h-screen pb-20 md:pb-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-ink">Đơn hàng của shop</h1>
-          <p className="text-ink-muted text-small mt-1">{loading ? 'Đang tải...' : `${meta.total} đơn hàng`}</p>
+          <h1 className="text-2xl font-bold text-ink">{t('ordersTitle')}</h1>
+          <p className="text-ink-muted text-small mt-1">{loading ? tc('loading') : t('ordersCount', { count: meta.total })}</p>
         </div>
 
         <div className="bg-surface-card rounded-control border border-ink/10 overflow-hidden">
@@ -208,7 +210,9 @@ export default function ShopOrdersPage() {
                     : 'text-ink-muted hover:text-brand'
                 }`}
               >
-                {t.status ? tShort(t.status) : 'Tất cả'}
+                {/* `t` ở đây là phần tử tab của vòng lặp, KHÔNG phải hàm dịch —
+                    trùng tên nên phải dùng tc() cho nhãn "Tất cả". */}
+                {t.status ? tShort(t.status) : tc('all')}
               </button>
             ))}
           </div>
@@ -218,7 +222,7 @@ export default function ShopOrdersPage() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
               <input
                 type="text"
-                placeholder="Tìm theo mã đơn, tên người nhận, sản phẩm..."
+                placeholder={t('searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small outline-none focus:border-brand"
@@ -228,21 +232,21 @@ export default function ShopOrdersPage() {
               href="/product/create"
               className="px-4 py-2 bg-brand text-white rounded-control text-small font-medium hover:bg-brand-dark whitespace-nowrap"
             >
-              + Đăng bán mới
+              {t('newListing')}
             </Link>
           </div>
 
           {loading ? (
             <div className="p-12 text-center text-ink-muted">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-              <p>Đang tải đơn hàng...</p>
+              <p>{t('loadingOrders')}</p>
             </div>
           ) : (
             <div className="divide-y divide-ink/10">
               {filteredOrders.length === 0 ? (
                 <div className="p-12 text-center text-ink-muted">
                   <Package className="w-12 h-12 mx-auto text-ink-faint mb-3" />
-                  <p>Chưa có đơn hàng nào</p>
+                  <p>{t('noOrders')}</p>
                 </div>
               ) : (
                 filteredOrders.map((order) => (
@@ -297,7 +301,7 @@ export default function ShopOrdersPage() {
                         onClick={() => setViewingOrder(order)}
                         className="px-3 py-1.5 border border-ink/16 text-ink text-small font-medium rounded-control hover:bg-surface-page flex items-center gap-1"
                       >
-                        <Eye className="w-4 h-4" /> Chi tiết
+                        <Eye className="w-4 h-4" /> {t('detail')}
                       </button>
                       {/* Nút chỉ hiện khi CÒN bước tiếp theo, và nói rõ nó
                           chuyển đơn sang trạng thái nào. Bản cũ hiện nút cho cả
@@ -322,7 +326,7 @@ export default function ShopOrdersPage() {
                           disabled={actionLoading === order.id}
                           className="px-3 py-1.5 border border-red-300 text-red-700 text-small font-medium rounded-control hover:bg-red-50 disabled:opacity-50"
                         >
-                          Hủy đơn
+                          {t('cancelOrder')}
                         </button>
                       )}
                     </div>
@@ -340,7 +344,7 @@ export default function ShopOrdersPage() {
               disabled={page === 1}
               className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 bg-surface-card"
             >
-              Trước
+              {t('prev')}
             </button>
             {Array.from({ length: meta.pages }, (_, i) => i + 1).map((p) => (
               <button
@@ -373,7 +377,7 @@ export default function ShopOrdersPage() {
           >
             <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-ink">Chi tiết đơn hàng</h2>
+                <h2 className="text-lg font-bold text-ink">{t('orderDetail')}</h2>
                 <p className="text-small text-ink-muted font-mono">{orderCode(viewingOrder)}</p>
               </div>
               <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
@@ -386,14 +390,14 @@ export default function ShopOrdersPage() {
                   {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
-                  <div className="text-caption text-ink-muted">Ngày đặt</div>
+                  <div className="text-caption text-ink-muted">{t('placedAt')}</div>
                   <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
 
               <div className="bg-surface-page rounded-control p-4">
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4" /> Khách hàng
+                  <UserIcon className="w-4 h-4" /> {t('customer')}
                 </h3>
                 <div className="text-small space-y-1">
                   <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
@@ -403,7 +407,7 @@ export default function ShopOrdersPage() {
 
               <div className="bg-surface-page rounded-control p-4">
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Thông tin nhận hàng
+                  <MapPin className="w-4 h-4" /> {t('shipTo')}
                 </h3>
                 <div className="space-y-2 text-small">
                   <div className="flex items-start gap-2">
@@ -428,7 +432,7 @@ export default function ShopOrdersPage() {
                   </div>
                   {viewingOrder.note && (
                     <div className="text-caption text-ink-muted italic border-l-2 border-ink/16 pl-2">
-                      Ghi chú: {viewingOrder.note}
+                      {t('note', { note: viewingOrder.note })}
                     </div>
                   )}
                 </div>
@@ -436,7 +440,7 @@ export default function ShopOrdersPage() {
 
               <div>
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Package className="w-4 h-4" /> Sản phẩm ({viewingOrder.items?.length || 0})
+                  <Package className="w-4 h-4" /> {t('itemsIn', { count: viewingOrder.items?.length || 0 })}
                 </h3>
                 <div className="space-y-2">
                   {viewingOrder.items?.map((item) => (
@@ -466,19 +470,19 @@ export default function ShopOrdersPage() {
 
               <div className="border-t pt-4 space-y-2 text-small">
                 <div className="flex justify-between text-ink-muted">
-                  <span>Tạm tính</span><span>{formatCurrency(viewingOrder.total_amount)}</span>
+                  <span>{t('subtotal')}</span><span>{formatCurrency(viewingOrder.total_amount)}</span>
                 </div>
                 {Number(orderDiscount(viewingOrder)) > 0 && (
                   <div className="flex justify-between text-ink-muted">
-                    <span>Giảm giá</span><span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
+                    <span>{t('discount')}</span><span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-ink-muted">
-                  <span>Phí ship</span>
-                  <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : 'Miễn phí'}</span>
+                  <span>{t('shippingFee')}</span>
+                  <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : t('free')}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
-                  <span>Tổng cộng</span>
+                  <span>{t('total')}</span>
                   <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
               </div>
@@ -496,21 +500,19 @@ export default function ShopOrdersPage() {
                 <XCircle className="w-6 h-6 text-red-600" />
               </div>
               <div className="flex-1 pt-1">
-                <h2 className="text-lg font-bold text-ink">Hủy đơn hàng</h2>
+                <h2 className="text-lg font-bold text-ink">{t('cancelTitle')}</h2>
                 <p className="text-small text-ink-muted mt-2">
-                  Bạn có chắc muốn hủy đơn <span className="font-mono font-semibold">{orderCode(confirmCancel)}</span>?
-                  {confirmCancel.user && (
-                    <> Khách hàng <span className="font-medium">{confirmCancel.user.full_name}</span> sẽ được hoàn tiền (nếu đã thanh toán).</>
-                  )}
+                  {t('cancelAsk', { code: orderCode(confirmCancel) })}
+                  {confirmCancel.user && ` ${t('refundNote', { name: confirmCancel.user.full_name })}`}
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
               <button onClick={() => setConfirmCancel(null)} className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium">
-                Không
+                {t('no')}
               </button>
               <button onClick={handleCancel} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-control hover:bg-red-700 font-medium">
-                Hủy đơn
+                {t('cancelOrder')}
               </button>
             </div>
           </div>

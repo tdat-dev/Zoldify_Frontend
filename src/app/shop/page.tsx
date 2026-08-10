@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Package, UserPlus, UserCheck, Star, Store, Check, Plus, MessageCircle, UserMinus, Loader2, Edit, Trash2 } from 'lucide-react';
 import http from '@/lib/http';
@@ -37,6 +38,8 @@ interface Product {
 export default function ShopPage() {
   const { user: currentUser, isAuthenticated } = useAuth();
   const { toast, confirm } = useToast();
+  const t = useTranslations('shop');
+  const tc = useTranslations('common');
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetSellerId = searchParams.get('seller');
@@ -65,7 +68,7 @@ export default function ShopPage() {
               // User chưa tạo shop — vẫn hiện thông tin user + sản phẩm
               shopData = {
                 id: sellerId,
-                name: `Shop của ${sellerId}`,
+                name: t('shopOf', { id: sellerId }),
                 productCount: 0,
                 followerCount: 0,
                 user: { id: sellerId, full_name: `User #${sellerId}`, avatar: '' },
@@ -98,9 +101,9 @@ export default function ShopPage() {
         }
       } catch (err: any) {
         if (!targetSellerId && err?.response?.status === 404) {
-          setError('Bạn chưa có shop. Hãy tạo shop để bắt đầu bán hàng.');
+          setError(t('noShop'));
         } else {
-          setError('Không thể tải thông tin shop.');
+          setError(t('loadFailed'));
         }
       } finally {
         setLoading(false);
@@ -127,7 +130,7 @@ export default function ShopPage() {
     if (!sid) return;
     if (!isAuthenticated) { router.push('/login'); return; }
     if (currentUser?.id === sid) {
-      toast('Bạn không thể theo dõi chính mình', 'error');
+      toast(t('cannotFollowSelf'), 'error');
       return;
     }
     setToggling(true);
@@ -136,9 +139,9 @@ export default function ShopPage() {
       const followed = res.data?.data?.followed;
       setIsFollowing(!!followed);
       setFollowerCount((c) => c + (followed ? 1 : -1));
-      toast(followed ? 'Đã theo dõi shop' : 'Đã hủy theo dõi', 'success');
+      toast(followed ? t('followed') : t('unfollowed'), 'success');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Thao tác thất bại', 'error');
+      toast(err.response?.data?.message || t('followFailed'), 'error');
     } finally {
       setToggling(false);
     }
@@ -153,7 +156,7 @@ export default function ShopPage() {
       const conv = res.data?.data;
       router.push(conv?.id ? `/chat?conversation=${conv.id}` : '/chat');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Không thể mở chat', 'error');
+      toast(err.response?.data?.message || t('chatFailed'), 'error');
     }
   };
 
@@ -165,13 +168,13 @@ export default function ShopPage() {
   };
 
   const handleDeleteFromShop = async (id: number, name: string) => {
-    if (!(await confirm(`Xoá tin “${name}”? Không lấy lại được.`))) return;
+    if (!(await confirm(t('deleteAsk', { name })))) return;
     try {
       await productService.remove(id);
-      toast('Đã xóa sản phẩm', 'success');
+      toast(t('deleted'), 'success');
       setProducts((prev) => prev.filter((p) => p.id !== id));
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi xóa sản phẩm';
+      const msg = err.response?.data?.message || t('deleteFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     }
   };
@@ -179,7 +182,7 @@ export default function ShopPage() {
   if (loading) {
     return (
       <div className="bg-surface-page min-h-screen flex items-center justify-center">
-        <div className="text-ink-muted">Đang tải...</div>
+        <div className="text-ink-muted">{tc('loading')}</div>
       </div>
     );
   }
@@ -191,14 +194,14 @@ export default function ShopPage() {
           <Store className="w-16 h-16 text-ink-faint mx-auto mb-4" />
           <p className="text-ink-muted mb-4">{error}</p>
           <Link href="/product/create" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark">
-            Đăng bán ngay
+            {t('sellNow')}
           </Link>
         </div>
       </div>
     );
   }
 
-  const shopName = shop?.name || shop?.user?.full_name || 'Shop của tôi';
+  const shopName = shop?.name || shop?.user?.full_name || t('myShop');
   const shopLogo = shop?.logo || shop?.user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=2C67C8&color=fff`;
 
   return (
@@ -217,11 +220,18 @@ export default function ShopPage() {
               {shopName}
             </h1>
             <div className="flex gap-6 mt-2 text-small text-ink-muted">
-              <span className="flex items-center gap-1"><Package className="w-4 h-4" /> {shop?.productCount || products.length} Sản phẩm</span>
-              <span className="flex items-center gap-1"><UserPlus className="w-4 h-4" /> {followerCount} Người theo dõi</span>
+              <span className="flex items-center gap-1 tabular-nums">
+                <Package className="w-4 h-4" aria-hidden="true" />
+                {t('items', { count: shop?.productCount || products.length })}
+              </span>
+              <span className="flex items-center gap-1 tabular-nums">
+                <UserPlus className="w-4 h-4" aria-hidden="true" />
+                {t('followers', { count: followerCount })}
+              </span>
               {shop?.rating != null && (
-                <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500" /> Đánh giá: {shop.rating}/5.0
+                <span className="flex items-center gap-1 tabular-nums">
+                  <Star className="w-4 h-4 text-state-pending-fg" aria-hidden="true" />
+                  {t('rating', { rating: shop.rating })}
                 </span>
               )}
             </div>
@@ -243,9 +253,9 @@ export default function ShopPage() {
                   }`}
                 >
                   {isFollowing ? (
-                    <><UserCheck className="w-4 h-4" /> Đang theo dõi</>
+                    <><UserCheck className="w-4 h-4" /> {t('following')}</>
                   ) : (
-                    <><UserPlus className="w-4 h-4" /> Theo dõi</>
+                    <><UserPlus className="w-4 h-4" /> {t('follow')}</>
                   )}
                 </button>
                 <button
@@ -258,7 +268,7 @@ export default function ShopPage() {
             )}
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
               <Link href="/product/create" className="px-6 py-2 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Thêm sản phẩm
+                <Plus className="w-4 h-4" /> {t('addItem')}
               </Link>
             )}
           </div>
@@ -268,10 +278,10 @@ export default function ShopPage() {
         {products.length === 0 ? (
           <div className="bg-surface-card p-12 rounded-sm text-center">
             <Package className="w-16 h-16 text-ink-faint mx-auto mb-4" />
-            <p className="text-ink-muted mb-4">Chưa có sản phẩm nào</p>
+            <p className="text-ink-muted mb-4">{t('noItems')}</p>
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
               <Link href="/product/create" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark">
-                Đăng bán sản phẩm đầu tiên
+                {t('postFirst')}
               </Link>
             )}
           </div>
@@ -294,7 +304,7 @@ export default function ShopPage() {
                     )}
                     {item.stock <= 0 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-caption font-bold uppercase tracking-wider z-10">
-                        Hết hàng
+                        {t('soldOut')}
                       </div>
                     )}
                     {isOwner && (
@@ -302,14 +312,14 @@ export default function ShopPage() {
                         <button
                           onClick={(e) => { e.preventDefault(); router.push(`/product/${item.id}/edit`); }}
                           className="w-7 h-7 bg-surface-card/90 hover:bg-blue-500 hover:text-white text-brand rounded-control flex items-center justify-center shadow"
-                          title="Sửa sản phẩm"
+                          title={t('edit')}
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={(e) => { e.preventDefault(); handleDeleteFromShop(item.id, item.name); }}
                           className="w-7 h-7 bg-surface-card/90 hover:bg-red-500 hover:text-white text-red-600 rounded-control flex items-center justify-center shadow"
-                          title="Xóa sản phẩm"
+                          title={t('delete')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -336,7 +346,7 @@ export default function ShopPage() {
                         </div>
                       ) : (
                         <div className="text-[10px] text-ink-muted">
-                          Còn {item.stock}
+                          {t('left', { count: item.stock })}
                         </div>
                       )}
                     </div>
@@ -362,6 +372,7 @@ function ShopStockEditor({
   onLocalChange: (newStock: number) => void;
 }) {
   const { toast } = useToast();
+  const t = useTranslations('shop');
   const [stock, setStock] = useState(initialStock);
   const [saving, setSaving] = useState(false);
 
@@ -377,7 +388,7 @@ function ShopStockEditor({
     try {
       await productService.updateStock(productId, newStock);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi cập nhật số lượng';
+      const msg = err.response?.data?.message || t('stockFailed');
       setStock(prev);
       onLocalChange(prev);
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
