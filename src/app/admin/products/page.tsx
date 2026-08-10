@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Plus, Edit, Trash2, Box, Loader2, Eye, Search, Package } from 'lucide-react';
@@ -16,6 +17,8 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [meta, setMeta] = useState({ current: 1, pageSize: 20, total: 0, pages: 0 });
 
   const fetchProducts = useCallback(async (page = 1, q = '') => {
@@ -27,7 +30,7 @@ export default function AdminProductsPage() {
       setMeta(data?.meta || { current: 1, pageSize: 20, total: 0, pages: 0 });
     } catch (err) {
       console.error(err);
-      toast('Lỗi tải danh sách sản phẩm', 'error');
+      toast(t('prodLoadFailed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -41,14 +44,14 @@ export default function AdminProductsPage() {
     // PHẢI await: confirm của useToast trả về Promise, còn window.confirm trả
     // về boolean. Đổi nguồn mà quên await thì `!Promise` luôn là false và lệnh
     // xoá chạy thẳng, không hỏi ai cả.
-    if (!(await confirm(`Xoá tin “${name}”? Không lấy lại được.`))) return;
+    if (!(await confirm(t('prodDeleteAsk', { name })))) return;
     try {
       await productService.remove(id);
-      toast('Đã xóa sản phẩm', 'success');
+      toast(t('prodDeleted'), 'success');
       fetchProducts(meta.current, search);
       window.dispatchEvent(new CustomEvent('admin-stats-refresh'));
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi xóa sản phẩm';
+      const msg = err.response?.data?.message || t('prodDeleteFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     }
   };
@@ -67,9 +70,9 @@ export default function AdminProductsPage() {
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Quản lý Sản phẩm</h1>
+          <h1 className="text-2xl font-bold text-ink">{t('prodTitle')}</h1>
           <p className="text-ink-muted text-small mt-1">
-            Tổng cộng {meta.total} sản phẩm
+            {t('prodCount', { count: meta.total })}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-1 max-w-md justify-end">
@@ -77,7 +80,7 @@ export default function AdminProductsPage() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
             <input
               type="text"
-              placeholder="Tìm sản phẩm..."
+              placeholder={t('prodSearch')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40"
@@ -88,7 +91,7 @@ export default function AdminProductsPage() {
             className="px-4 py-2 bg-brand text-white rounded-control hover:bg-brand-dark transition flex items-center gap-2 whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
-            <span>Thêm</span>
+            <span>{t('prodAdd')}</span>
           </Link>
         </div>
       </div>
@@ -97,18 +100,18 @@ export default function AdminProductsPage() {
         {loading ? (
           <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-            <p>Đang tải...</p>
+            <p>{tc('loading')}</p>
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Sản phẩm</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Danh mục</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Giá</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Số lượng</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người bán</th>
-                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colProduct')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colCategory')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colPrice')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colStock')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colSeller')}</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colActions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink/10">
@@ -116,7 +119,7 @@ export default function AdminProductsPage() {
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-ink-muted">
                     <Box className="w-12 h-12 mx-auto text-ink-faint mb-3" />
-                    <p>Chưa có sản phẩm nào</p>
+                    <p>{t('prodEmpty')}</p>
                   </td>
                 </tr>
               ) : (
@@ -175,14 +178,14 @@ export default function AdminProductsPage() {
                         <button
                           onClick={() => router.push(`/product/${product.id}/edit`)}
                           className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
-                          title="Sửa"
+                          title={t('edit')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id, product.name)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-control transition"
-                          title="Xóa"
+                          title={t('del')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -242,7 +245,7 @@ function StockEditor({
     try {
       await productService.updateStock(productId, newStock);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi cập nhật số lượng';
+      const msg = err.response?.data?.message || 'Could not change the quantity.';
       setStock(prev);
       onLocalChange(prev);
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');

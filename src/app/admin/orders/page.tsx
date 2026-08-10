@@ -90,6 +90,8 @@ export default function AdminOrdersPage() {
   const statusClass = (s: unknown) => TONE_CLASS[orderStatusTone(s)];
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [meta, setMeta] = useState({ current: 1, pageSize: 20, total: 0, pages: 0 });
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(1);
@@ -108,7 +110,7 @@ export default function AdminOrdersPage() {
       setMeta(data?.meta || { current: 1, pageSize: 20, total: 0, pages: 0 });
     } catch (err: any) {
       console.error(err);
-      toast(err.response?.data?.message || 'Lỗi tải danh sách đơn hàng', 'error');
+      toast(err.response?.data?.message || t('ordLoadFailed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -146,11 +148,11 @@ export default function AdminOrdersPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
-      toast(`Đã cập nhật trạng thái: ${tStatus(newStatus)}`, 'success');
+      toast(t('ordUpdated', { status: tStatus(newStatus) }), 'success');
       fetchStatusCounts();
       window.dispatchEvent(new CustomEvent('admin-stats-refresh'));
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Cập nhật thất bại';
+      const msg = err.response?.data?.message || t('ordUpdateFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setUpdatingId(null);
@@ -175,9 +177,9 @@ export default function AdminOrdersPage() {
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Quản lý Đơn hàng</h1>
+          <h1 className="text-2xl font-bold text-ink">{t('ordTitle')}</h1>
           <p className="text-ink-muted text-small mt-1">
-            {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} đơn hàng`}
+            {loading ? tc('loading') : t('ordCount', { count: meta.total })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -187,14 +189,14 @@ export default function AdminOrdersPage() {
               !statusFilter ? 'bg-brand text-white border-brand' : 'bg-surface-card text-ink-muted border-ink/16 hover:bg-surface-page'
             }`}
           >
-            Tất cả
+            {t('ordAll')}
           </button>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
-            <option value="">Lọc theo trạng thái...</option>
+            <option value="">{t('ordFilter')}</option>
             {STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>{tStatus(s)}</option>
             ))}
@@ -224,20 +226,20 @@ export default function AdminOrdersPage() {
         {loading ? (
           <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-            <p>Đang tải đơn hàng...</p>
+            <p>{t('ordLoading')}</p>
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Mã ĐH</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người mua</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Người nhận</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Tổng tiền</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thanh toán</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colOrderCode')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colBuyer')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colReceiver')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colTotal')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colPayment')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colStatus')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colCreated')}</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colActions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink/10">
@@ -245,7 +247,7 @@ export default function AdminOrdersPage() {
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-ink-muted">
                     <ShoppingCart className="w-12 h-12 mx-auto text-ink-faint mb-3" />
-                    <p>Không có đơn hàng nào</p>
+                    <p>{t('ordEmpty')}</p>
                   </td>
                 </tr>
               ) : (
@@ -253,7 +255,7 @@ export default function AdminOrdersPage() {
                   <tr key={order.id} className="hover:bg-surface-page transition">
                     <td className="py-4 px-6">
                       <span className="font-mono text-small font-medium text-ink">{orderCode(order)}</span>
-                      <div className="text-caption text-ink-muted mt-0.5">{order.items?.length || 0} sản phẩm</div>
+                      <div className="text-caption text-ink-muted mt-0.5">{t('ordItems', { count: order.items?.length || 0 })}</div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="text-small font-medium text-ink">{order.user?.full_name || '—'}</div>
@@ -303,7 +305,7 @@ export default function AdminOrdersPage() {
                         <button
                           onClick={() => setViewingOrder(order)}
                           className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
-                          title="Xem chi tiết"
+                          title={t('viewDetail')}
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -324,7 +326,7 @@ export default function AdminOrdersPage() {
             disabled={page === 1}
             className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 hover:bg-surface-page"
           >
-            Trước
+            {t('prev')}
           </button>
           {Array.from({ length: meta.pages }, (_, i) => i + 1).map((p) => (
             <button
@@ -358,7 +360,7 @@ export default function AdminOrdersPage() {
           >
             <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-ink">Chi tiết đơn hàng</h2>
+                <h2 className="text-lg font-bold text-ink">{t('ordDetail')}</h2>
                 <p className="text-small text-ink-muted font-mono">{orderCode(viewingOrder)}</p>
               </div>
               <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
@@ -372,7 +374,7 @@ export default function AdminOrdersPage() {
                   {tStatus(viewingOrder.status)}
                 </span>
                 <div className="text-right">
-                  <div className="text-caption text-ink-muted">Ngày đặt</div>
+                  <div className="text-caption text-ink-muted">{t('placedAt')}</div>
                   <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
@@ -380,11 +382,11 @@ export default function AdminOrdersPage() {
               {/* Customer */}
               <div className="bg-surface-page rounded-control p-4">
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4" /> Khách hàng
+                  <UserIcon className="w-4 h-4" /> {t('customer')}
                 </h3>
                 <div className="grid grid-cols-2 gap-3 text-small">
                   <div>
-                    <div className="text-ink-muted text-caption">Tài khoản</div>
+                    <div className="text-ink-muted text-caption">{t('account')}</div>
                     <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
                     <div className="text-caption text-ink-muted">{viewingOrder.user?.email || ''}</div>
                   </div>
@@ -394,7 +396,7 @@ export default function AdminOrdersPage() {
               {/* Receiver */}
               <div className="bg-surface-page rounded-control p-4">
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Thông tin nhận hàng
+                  <MapPin className="w-4 h-4" /> {t('shipTo')}
                 </h3>
                 <div className="space-y-2 text-small">
                   <div className="flex items-start gap-2">
@@ -419,7 +421,7 @@ export default function AdminOrdersPage() {
                   </div>
                   {viewingOrder.note && (
                     <div className="text-caption text-ink-muted italic border-l-2 border-ink/16 pl-2">
-                      Ghi chú: {viewingOrder.note}
+                      {t('note', { note: viewingOrder.note })}
                     </div>
                   )}
                 </div>
@@ -428,7 +430,7 @@ export default function AdminOrdersPage() {
               {/* Items */}
               <div>
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Package className="w-4 h-4" /> Sản phẩm ({viewingOrder.items?.length || 0})
+                  <Package className="w-4 h-4" /> {t('itemsIn', { count: viewingOrder.items?.length || 0 })}
                 </h3>
                 <div className="space-y-2">
                   {viewingOrder.items?.map((item) => (
@@ -461,25 +463,25 @@ export default function AdminOrdersPage() {
               {/* Summary */}
               <div className="border-t pt-4 space-y-2 text-small">
                 <div className="flex justify-between text-ink-muted">
-                  <span>Tạm tính</span>
+                  <span>{t('subtotal')}</span>
                   <span>{formatCurrency(viewingOrder.total_amount)}</span>
                 </div>
                 {Number(orderDiscount(viewingOrder)) > 0 && (
                   <div className="flex justify-between text-ink-muted">
-                    <span>Giảm giá</span>
+                    <span>{t('discount')}</span>
                     <span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-ink-muted">
-                  <span>Phí ship</span>
-                  <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : 'Miễn phí'}</span>
+                  <span>{t('shippingFee')}</span>
+                  <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : t('free')}</span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
-                  <span>Tổng cộng</span>
+                  <span>{t('total')}</span>
                   <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
                 <div className="text-caption text-ink-muted pt-1">
-                  Thanh toán: <span className="font-medium">{viewingOrder.payment_method?.toUpperCase()}</span>
+                  {t('paidBy')} <span className="font-medium">{viewingOrder.payment_method?.toUpperCase()}</span>
                 </div>
               </div>
             </div>

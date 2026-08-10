@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Pencil, Trash2, Save, FolderOpen, Image as ImageIcon, Box, Loader2 } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { uploadService } from '@/services/upload.service';
@@ -19,6 +20,8 @@ type Category = {
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -60,13 +63,13 @@ export default function CategoriesPage() {
   const handleDelete = async (id: number) => {
     // confirm cua useToast, khong phai window.confirm: hop thoai native chan
     // toan bo su kien trinh duyet va khong theo duoc giao dien cua app.
-    if (!(await confirm('Xoá danh mục này? Sản phẩm trong danh mục sẽ không còn danh mục.'))) return;
+    if (!(await confirm(t('catDeleteAsk')))) return;
     try {
       await categoryService.remove(id);
       setCategories(categories.filter(c => c.id !== id));
       window.dispatchEvent(new CustomEvent('admin-stats-refresh'));
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Xóa thất bại', 'error');
+      toast(err.response?.data?.message || t('catDeleteFailed'), 'error');
     }
   };
 
@@ -90,7 +93,7 @@ export default function CategoriesPage() {
       await loadCategories();
       handleCancel();
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Thao tác thất bại', 'error');
+      toast(err.response?.data?.message || t('catSaveFailed'), 'error');
     } finally {
       setSaving(false);
     }
@@ -109,8 +112,8 @@ export default function CategoriesPage() {
       <BackButton />
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Quản lý Danh mục</h1>
-          <p className="text-ink-muted text-small mt-1">Tổng cộng {categories.length} danh mục</p>
+          <h1 className="text-2xl font-bold text-ink">{t('catTitle')}</h1>
+          <p className="text-ink-muted text-small mt-1">{t('catCount', { count: categories.length })}</p>
         </div>
       </div>
 
@@ -119,28 +122,28 @@ export default function CategoriesPage() {
         <div className="lg:col-span-1">
           <div className="bg-surface-card rounded-card border p-6">
             <h2 className="text-lg font-semibold text-ink mb-4">
-              {editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}
+              {editingCategory ? t('catEdit') : t('catAdd')}
             </h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
-                <label className="block text-small font-medium text-ink mb-2">Tên danh mục</label>
+                <label className="block text-small font-medium text-ink mb-2">{t('catName')}</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-2 border border-ink/16 rounded-control focus:ring-2 focus:ring-brand/40 focus:border-transparent outline-none"
-                  placeholder="VD: Điện tử"
+                  placeholder={t('catNamePlaceholder')}
                   required
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-small font-medium text-ink mb-2">Icon danh mục</label>
+                <label className="block text-small font-medium text-ink mb-2">{t('catIcon')}</label>
                 {editingCategory?.image && (
                   <div className="mb-2 flex items-center gap-2">
                     <img loading="lazy" decoding="async" src={editingCategory.image} alt="icon" className="w-10 h-10 object-contain rounded border" />
-                    <span className="text-caption text-ink-muted">Ảnh hiện tại</span>
+                    <span className="text-caption text-ink-muted">{t('catCurrentImage')}</span>
                   </div>
                 )}
                 <input
@@ -151,18 +154,18 @@ export default function CategoriesPage() {
                   className="w-full px-4 py-2 border border-ink/16 rounded-control text-small outline-none"
                 />
                 <p className="text-caption text-ink-muted mt-1">
-                  {editingCategory ? 'Để trống nếu không muốn thay đổi' : 'Hỗ trợ: JPG, PNG, GIF, SVG'}
+                  {editingCategory ? t('catKeepImage') : t('catFormats')}
                 </p>
               </div>
 
               <div className="mb-4">
-                <label className="block text-small font-medium text-ink mb-2">Mô tả</label>
+                <label className="block text-small font-medium text-ink mb-2">{t('catDesc')}</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-4 py-2 border border-ink/16 rounded-control outline-none"
-                  placeholder="Mô tả ngắn về danh mục..."
+                  placeholder={t('catDescPlaceholder')}
                 />
               </div>
 
@@ -173,7 +176,7 @@ export default function CategoriesPage() {
                   className="flex-1 flex items-center justify-center px-4 py-2 bg-brand text-white rounded-control hover:bg-brand-dark transition disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                  {editingCategory ? 'Cập nhật' : 'Thêm mới'}
+                  {editingCategory ? t('catUpdate') : t('catCreate')}
                 </button>
 
                 {editingCategory && (
@@ -182,7 +185,7 @@ export default function CategoriesPage() {
                     onClick={handleCancel}
                     className="px-4 py-2 bg-surface-sunken text-ink rounded-control hover:bg-gray-200 transition"
                   >
-                    Hủy
+                    {tc('cancel')}
                   </button>
                 )}
               </div>
@@ -197,10 +200,10 @@ export default function CategoriesPage() {
               <table className="w-full">
                 <thead className="bg-surface-page border-b">
                   <tr>
-                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Icon</th>
-                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Tên danh mục</th>
-                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Số SP</th>
-                    <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colIcon')}</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colCatName')}</th>
+                    <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colCatCount')}</th>
+                    <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colActions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-ink/10">
@@ -221,15 +224,15 @@ export default function CategoriesPage() {
                       </td>
                       <td className="py-4 px-6">
                         <span className="px-2 py-1 rounded-full text-caption font-medium bg-surface-sunken text-ink">
-                          {cat.product_count || 0} sản phẩm
+                          {t('catItems', { count: cat.product_count || 0 })}
                         </span>
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => handleEdit(cat)} className="p-2 text-brand hover:bg-blue-100 rounded-control transition" title="Sửa">
+                          <button onClick={() => handleEdit(cat)} className="p-2 text-brand hover:bg-blue-100 rounded-control transition" title={t('edit')}>
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-control transition" title="Xóa">
+                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-control transition" title={t('del')}>
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -241,7 +244,7 @@ export default function CategoriesPage() {
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-ink-muted">
                         <FolderOpen className="w-10 h-10 text-ink-faint mx-auto mb-3" />
-                        <p>Chưa có danh mục nào</p>
+                        <p>{t('catEmpty')}</p>
                       </td>
                     </tr>
                   )}

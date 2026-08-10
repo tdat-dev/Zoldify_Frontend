@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Users, Edit, Mail, Lock, Unlock, CheckCircle, Clock, Loader2, Search, Trash2, X, Save, Shield } from 'lucide-react';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
@@ -22,6 +23,8 @@ export default function AdminUsersPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [meta, setMeta] = useState({ current: 1, pageSize: 20, total: 0, pages: 0 });
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -53,7 +56,7 @@ export default function AdminUsersPage() {
       setMeta(data?.meta || { current: 1, pageSize: 20, total: 0, pages: 0 });
     } catch (err: any) {
       console.error(err);
-      toast(err.response?.data?.message || 'Lỗi tải danh sách users', 'error');
+      toast(err.response?.data?.message || t('usrLoadFailed'), 'error');
     } finally {
       setLoading(false);
     }
@@ -70,16 +73,16 @@ export default function AdminUsersPage() {
 
   const handleToggleLock = (user: User) => {
     if (user.role === 'admin') {
-      toast('Không thể khóa tài khoản admin', 'error');
+      toast(t('cannotLockAdmin'), 'error');
       return;
     }
     const willLock = !user.is_locked;
     setConfirmAction({
-      title: willLock ? 'Khóa tài khoản' : 'Mở khóa tài khoản',
-      message: `Bạn có chắc muốn ${willLock ? 'khóa' : 'mở khóa'} tài khoản "${user.full_name}"? ${
-        willLock ? 'Người dùng sẽ không thể đăng nhập cho đến khi được mở khóa.' : 'Người dùng sẽ có thể đăng nhập lại bình thường.'
-      }`,
-      confirmText: willLock ? 'Khóa tài khoản' : 'Mở khóa',
+      title: willLock ? t('lockTitle') : t('unlockTitle'),
+      message: willLock
+        ? `${t('lockAsk', { name: user.full_name })} ${t('lockHint')}`
+        : `${t('unlockAsk', { name: user.full_name })} ${t('unlockHint')}`,
+      confirmText: willLock ? t('lockConfirm') : t('unlockConfirm'),
       confirmStyle: willLock ? 'danger' : 'primary',
       onConfirm: () => doToggleLock(user),
     });
@@ -94,9 +97,9 @@ export default function AdminUsersPage() {
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, is_locked: updated?.is_locked ?? !u.is_locked } : u))
       );
-      toast(res.data?.data?.message || 'Cập nhật thành công', 'success');
+      toast(res.data?.data?.message || t('updated'), 'success');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi cập nhật';
+      const msg = err.response?.data?.message || t('updateFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setTogglingId(null);
@@ -105,9 +108,9 @@ export default function AdminUsersPage() {
 
   const handleDelete = (user: User) => {
     setConfirmAction({
-      title: 'Xóa người dùng',
-      message: `Bạn có chắc muốn xóa người dùng "${user.full_name}"?\n\nHành động này không thể hoàn tác và sẽ xóa toàn bộ dữ liệu liên quan (đơn hàng, sản phẩm, đánh giá...).`,
-      confirmText: 'Xóa vĩnh viễn',
+      title: t('delUserTitle'),
+      message: t('delUserAsk', { name: user.full_name }),
+      confirmText: t('delUserConfirm'),
       confirmStyle: 'danger',
       onConfirm: () => doDelete(user),
     });
@@ -118,12 +121,12 @@ export default function AdminUsersPage() {
     setDeletingId(user.id);
     try {
       await http.delete(`/admin/users/${user.id}`);
-      toast('Đã xóa người dùng', 'success');
+      toast(t('userDeleted'), 'success');
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
       setMeta((m) => ({ ...m, total: m.total - 1 }));
       window.dispatchEvent(new CustomEvent('admin-stats-refresh'));
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi xóa người dùng';
+      const msg = err.response?.data?.message || t('userDeleteFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setDeletingId(null);
@@ -146,10 +149,10 @@ export default function AdminUsersPage() {
       setUsers((prev) =>
         prev.map((u) => (u.id === editingUser.id ? { ...u, role: newRole as User['role'] } : u))
       );
-      toast('Đã cập nhật vai trò', 'success');
+      toast(t('roleUpdated'), 'success');
       setEditingUser(null);
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Lỗi cập nhật vai trò';
+      const msg = err.response?.data?.message || t('roleUpdateFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setSavingRole(false);
@@ -169,9 +172,9 @@ export default function AdminUsersPage() {
       <BackButton />
       <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Quản lý Users</h1>
+          <h1 className="text-2xl font-bold text-ink">{t('usrTitle')}</h1>
           <p className="text-ink-muted text-small mt-1">
-            {loading ? 'Đang tải...' : `Tổng cộng ${meta.total} người dùng`}
+            {loading ? tc('loading') : t('usrCount', { count: meta.total })}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-1 max-w-2xl justify-end flex-wrap">
@@ -179,7 +182,7 @@ export default function AdminUsersPage() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
             <input
               type="text"
-              placeholder="Tìm theo tên..."
+              placeholder={t('usrSearch')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40"
@@ -190,7 +193,7 @@ export default function AdminUsersPage() {
             onChange={(e) => setRoleFilter(e.target.value)}
             className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
-            <option value="">Tất cả vai trò</option>
+            <option value="">{t('usrAllRoles')}</option>
             <option value="buyer">Buyer</option>
             <option value="seller">Seller</option>
             <option value="admin">Admin</option>
@@ -201,9 +204,9 @@ export default function AdminUsersPage() {
             onChange={(e) => setLockFilter(e.target.value)}
             className="px-3 py-2 border border-ink/16 rounded-control text-small focus:outline-none focus:ring-2 focus:ring-brand/40 bg-surface-card"
           >
-            <option value="">Tất cả trạng thái</option>
-            <option value="false">Hoạt động</option>
-            <option value="true">Bị khóa</option>
+            <option value="">{t('usrAllStatus')}</option>
+            <option value="false">{t('usrActive')}</option>
+            <option value="true">{t('usrLocked')}</option>
           </select>
         </div>
       </div>
@@ -212,20 +215,20 @@ export default function AdminUsersPage() {
         {loading ? (
           <div className="py-16 text-center text-ink-muted">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
-            <p>Đang tải người dùng...</p>
+            <p>{t('usrLoading')}</p>
           </div>
         ) : (
           <table className="w-full">
             <thead className="bg-surface-page border-b">
               <tr>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">ID</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Họ tên</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Email</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Vai trò</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Xác minh</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Trạng thái</th>
-                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Ngày tạo</th>
-                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">Thao tác</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colId')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colName')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colEmail')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colRole')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colVerified')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colStatus')}</th>
+                <th className="text-left py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colCreated')}</th>
+                <th className="text-center py-4 px-6 text-caption font-semibold text-ink-muted uppercase">{t('colActions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-ink/10">
@@ -233,7 +236,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-ink-muted">
                     <Users className="w-12 h-12 mx-auto text-ink-faint mb-3" />
-                    <p>Không tìm thấy người dùng</p>
+                    <p>{t('usrEmpty')}</p>
                   </td>
                 </tr>
               ) : (
@@ -265,22 +268,22 @@ export default function AdminUsersPage() {
                     <td className="py-4 px-6 text-small">
                       {user.email_verified || user.is_verified ? (
                         <span className="text-green-700 flex items-center gap-1">
-                          <CheckCircle className="w-4 h-4" /> Đã xác minh
+                          <CheckCircle className="w-4 h-4" /> {t('verified')}
                         </span>
                       ) : (
                         <span className="text-orange-500 flex items-center gap-1">
-                          <Clock className="w-4 h-4" /> Chưa
+                          <Clock className="w-4 h-4" /> {t('notVerified')}
                         </span>
                       )}
                     </td>
                     <td className="py-4 px-6">
                       {user.is_locked ? (
                         <span className="px-2 py-1 rounded-full text-caption font-medium bg-red-100 text-red-700 flex items-center gap-1 w-max">
-                          <Lock className="w-3 h-3" /> Bị khóa
+                          <Lock className="w-3 h-3" /> {t('usrLocked')}
                         </span>
                       ) : (
                         <span className="px-2 py-1 rounded-full text-caption font-medium bg-green-100 text-green-700 flex items-center gap-1 w-max">
-                          <Unlock className="w-3 h-3" /> Hoạt động
+                          <Unlock className="w-3 h-3" /> {t('usrActive')}
                         </span>
                       )}
                     </td>
@@ -292,7 +295,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => openEditRole(user)}
                           className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
-                          title="Sửa vai trò"
+                          title={t('editRole')}
                           disabled={user.role === 'admin'}
                         >
                           <Edit className="w-4 h-4" />
@@ -305,7 +308,7 @@ export default function AdminUsersPage() {
                               ? 'text-green-500 hover:bg-green-50'
                               : 'text-red-600 hover:bg-red-50'
                           }`}
-                          title={user.role === 'admin' ? 'Không thể khóa admin' : user.is_locked ? 'Mở khóa' : 'Khóa tài khoản'}
+                          title={user.role === 'admin' ? t('cannotLockTitle') : user.is_locked ? t('unlockConfirm') : t('lockTitle')}
                         >
                           {togglingId === user.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -319,7 +322,7 @@ export default function AdminUsersPage() {
                           onClick={() => handleDelete(user)}
                           disabled={deletingId === user.id || user.role === 'admin'}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed"
-                          title={user.role === 'admin' ? 'Không thể xóa admin' : 'Xóa người dùng'}
+                          title={user.role === 'admin' ? t('cannotDeleteTitle') : t('delUserTitle')}
                         >
                           {deletingId === user.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -365,7 +368,7 @@ export default function AdminUsersPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-ink flex items-center gap-2">
                 <Shield className="w-5 h-5 text-blue-500" />
-                Sửa vai trò
+                {t('editRole')}
               </h2>
               <button onClick={() => setEditingUser(null)} className="p-1 hover:bg-surface-sunken rounded">
                 <X className="w-5 h-5" />
@@ -373,13 +376,13 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="mb-4 p-3 bg-surface-page rounded-control">
-              <p className="text-small text-ink-muted">Người dùng</p>
+              <p className="text-small text-ink-muted">{t('user')}</p>
               <p className="font-medium text-ink">{editingUser.full_name}</p>
               <p className="text-caption text-ink-muted">{editingUser.email}</p>
             </div>
 
             <div className="space-y-2 mb-6">
-              <label className="text-small font-medium text-ink block">Vai trò mới</label>
+              <label className="text-small font-medium text-ink block">{t('newRole')}</label>
               {(['buyer', 'seller', 'moderator', 'admin'] as const).map((r) => (
                 <label
                   key={r}
@@ -399,13 +402,19 @@ export default function AdminUsersPage() {
                   />
                   <div className="flex-1">
                     <p className="text-small font-medium text-ink capitalize">
-                      {r === 'buyer' ? 'Người mua' : r === 'seller' ? 'Người bán' : r === 'moderator' ? 'Kiểm duyệt viên' : 'Quản trị viên'}
+                      {r === 'buyer'
+                        ? t('roleBuyer')
+                        : r === 'seller'
+                          ? t('roleSeller')
+                          : r === 'moderator'
+                            ? t('roleModerator')
+                            : t('roleAdmin')}
                     </p>
                     <p className="text-caption text-ink-muted">
-                      {r === 'buyer' && 'Chỉ mua hàng'}
-                      {r === 'seller' && 'Đăng bán sản phẩm'}
-                      {r === 'moderator' && 'Kiểm duyệt nội dung'}
-                      {r === 'admin' && 'Toàn quyền quản trị'}
+                      {r === 'buyer' && t('roleBuyerHint')}
+                      {r === 'seller' && t('roleSellerHint')}
+                      {r === 'moderator' && t('roleModeratorHint')}
+                      {r === 'admin' && t('roleAdminHint')}
                     </p>
                   </div>
                 </label>
@@ -417,7 +426,7 @@ export default function AdminUsersPage() {
                 onClick={() => setEditingUser(null)}
                 className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium"
               >
-                Hủy
+                {tc('cancel')}
               </button>
               <button
                 onClick={handleSaveRole}
@@ -426,11 +435,11 @@ export default function AdminUsersPage() {
               >
                 {savingRole ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Đang lưu
+                    <Loader2 className="w-4 h-4 animate-spin" /> {t('saving')}
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" /> Lưu
+                    <Save className="w-4 h-4" /> {t('save')}
                   </>
                 )}
               </button>
@@ -466,7 +475,7 @@ export default function AdminUsersPage() {
                 onClick={() => setConfirmAction(null)}
                 className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium"
               >
-                Hủy
+                {tc('cancel')}
               </button>
               <button
                 onClick={confirmAction.onConfirm}
