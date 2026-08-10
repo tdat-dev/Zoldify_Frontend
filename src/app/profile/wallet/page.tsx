@@ -62,25 +62,13 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    // Khung trang (nền, chiều rộng, thanh điều hướng tài khoản) nay do
+    // AccountShell lo. Trang chỉ dựng nội dung của chính nó.
+    // TODO: phần thân dưới đây vẫn dùng lớp Tailwind cũ, chưa đưa về token.
+    <div>
+      <div>
         <h1 className="text-2xl font-semibold text-gray-900 mb-5">Ví Zoldify</h1>
-        <nav aria-label="Mục tài khoản" className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
-           <div className="flex gap-4">
-             <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-               <User className="w-4 h-4" /> Thông tin cá nhân
-             </Link>
-             <Link href="/profile/orders" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-               <Package className="w-4 h-4" /> Đơn hàng
-             </Link>
-             <Link href="/profile/wallet" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md whitespace-nowrap">
-                <Wallet className="w-4 h-4" /> Ví & Thanh toán
-              </Link>
-              <Link href="/profile/products" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-                <ShoppingBag className="w-4 h-4" /> Sản phẩm của tôi
-              </Link>
-           </div>
-        </nav>
+        {/* Thanh tab chép tay đã gỡ — điều hướng tài khoản ở AccountShell. */}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">

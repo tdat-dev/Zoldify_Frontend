@@ -108,8 +108,10 @@ export default function EditAddressPage() {
   if (loading) return <div className="p-8 text-center">Đang tải...</div>;
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
-      <div className="max-w-[600px] mx-auto px-4 pt-4">
+    // Khung trang nay do AccountShell lo.
+    // TODO: phần thân dưới đây vẫn dùng lớp Tailwind cũ, chưa đưa về token.
+    <div>
+      <div className="max-w-[600px]">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-brand">Trang chủ</Link>
           <span>&gt;</span>

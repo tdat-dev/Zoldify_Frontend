@@ -57,8 +57,11 @@ export default function OrderDetailPage() {
   const subTotal = (order.total_amount || 0) - (order.shipping_fee || 0);
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    // Khung trang nay do AccountShell lo.
+    // TODO: phần thân dưới đây vẫn dùng lớp Tailwind cũ và bản đồ trạng thái
+    // chép tay sai enum — thay bằng OrderStatusBadge ở lượt sau.
+    <div>
+      <div>
         <nav className="flex mb-6 text-sm text-gray-600">
           <Link href="/" className="hover:text-blue-600">Trang chủ</Link>
           <span className="mx-2">/</span>

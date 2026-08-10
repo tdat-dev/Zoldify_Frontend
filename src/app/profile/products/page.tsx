@@ -58,37 +58,10 @@ export default function MyProductsPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Sidebar */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
-          <div className="flex gap-2 sm:gap-4">
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap"
-            >
-              <User className="w-4 h-4" /> Thông tin cá nhân
-            </Link>
-            <Link
-              href="/profile/orders"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap"
-            >
-              <Package className="w-4 h-4" /> Đơn hàng
-            </Link>
-            <Link
-              href="/profile/wallet"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap"
-            >
-              <Wallet className="w-4 h-4" /> Ví & Thanh toán
-            </Link>
-            <Link
-              href="/profile/products"
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-50 text-blue-600 rounded-md whitespace-nowrap"
-            >
-              <ShoppingBag className="w-4 h-4" /> Sản phẩm của tôi
-            </Link>
-          </div>
-        </div>
+    // Khung trang nay do AccountShell lo.
+    // TODO: phần thân dưới đây vẫn dùng lớp Tailwind cũ, chưa đưa về token.
+    <div>
+      <div>
 
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

@@ -1,166 +1,244 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { User, Package, Wallet, Loader, ShoppingBasket, ShoppingBag } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import { formatPrice } from '@/lib/format';
+import { ORDER_STATUSES } from '@/lib/order-status';
+import { OrderStatusBadge } from '@/components/OrderStatusBadge';
+import { EmptyState } from '@/components/EmptyState';
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Chờ xác nhận',
-  pending_payment: 'Chờ thanh toán',
-  confirmed: 'Đã xác nhận',
-  shipping: 'Đang giao',
-  completed: 'Đã giao',
-  cancelled: 'Đã hủy',
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  pending_payment: 'bg-orange-100 text-orange-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  shipping: 'bg-indigo-100 text-indigo-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
-
+/**
+ * Đơn mua của người dùng.
+ *
+ * Bốn thứ của bản trước đã gỡ:
+ *
+ * 1. BỘ TRẠNG THÁI SAI (xem lib/order-status.ts). Hai tab vĩnh viễn rỗng, hai
+ *    trạng thái thật hiện ra bằng tiếng Anh.
+ *
+ * 2. NÚT "THANH TOÁN NGAY" GIẢ. Nó hỏi "Xác nhận thanh toán X qua Ví Zoldify?"
+ *    rồi gọi updateStatus(id, {status:'pending'}) — chỉ đổi một chữ trong cột
+ *    status, KHÔNG có đồng nào chuyển đi — xong báo "Thanh toán thành công!".
+ *    Nút này chỉ hiện khi status === 'pending_payment', một trạng thái backend
+ *    không có, nên thực tế chưa bao giờ vẽ ra. Gỡ hẳn: khi nào có luồng thanh
+ *    toán lại thật thì nối vào PayOS như trang /checkout, không phải đổi chữ.
+ *
+ * 3. LỖI API HIỆN THÀNH "CHƯA CÓ ĐƠN NÀO". catch chỉ console.error rồi để mảng
+ *    rỗng.
+ *
+ * 4. THANH TAB TÀI KHOẢN CHÉP TAY, nay ở AccountShell.
+ */
 export default function UserOrdersPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const { toast, confirm } = useToast();
-  const [activeTab, setActiveTab] = useState('all');
+  const t = useTranslations('orders');
+  const tc = useTranslations('common');
+
+  const [status, setStatus] = useState<string>('all');
   const [orders, setOrders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  const fetchOrders = useCallback(async () => {
+    setState('loading');
+    try {
+      const res = await orderService.getAll(1, 20, status === 'all' ? undefined : status);
+      setOrders(res.data?.data?.result || []);
+      setState('ready');
+    } catch {
+      setState('error');
+    }
+  }, [status]);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
     fetchOrders();
-  }, [isAuthenticated, activeTab]);
-
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      const params: any = {};
-      if (activeTab !== 'all') params.status = activeTab;
-      const res = await orderService.getAll(1, 20, activeTab === 'all' ? undefined : activeTab);
-      setOrders(res.data?.data?.result || []);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+  }, [isAuthenticated, router, fetchOrders]);
 
   const handleCancel = async (id: number) => {
-    const ok = await confirm('Bạn có chắc muốn hủy đơn hàng này?');
-    if (!ok) return;
+    if (!(await confirm(t('cancelAsk')))) return;
     try {
       await orderService.cancel(id);
       fetchOrders();
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Hủy đơn thất bại', 'error');
+      toast(err.response?.data?.message || t('cancelFailed'), 'error');
     }
   };
 
-  const handlePayment = async (id: number, total: number) => {
-    const ok = await confirm(`Xác nhận thanh toán ${total.toLocaleString('vi-VN')}đ qua Ví Zoldify?`);
-    if (!ok) return;
-    try {
-      await orderService.updateStatus(id, { status: 'pending' });
-      toast('Thanh toán thành công!', 'success');
-      fetchOrders();
-    } catch (err: any) {
-      toast(err.response?.data?.message || 'Thanh toán thất bại', 'error');
-    }
-  };
+  const tabs = ['all', ...ORDER_STATUSES];
+  const tStatus = useTranslations('orderStatus');
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-5">Đơn mua của tôi</h1>
-        <nav aria-label="Mục tài khoản" className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
-           <div className="flex gap-4">
-             <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-               <User className="w-4 h-4" /> Thông tin cá nhân
-             </Link>
-             <Link href="/profile/orders" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md whitespace-nowrap">
-               <Package className="w-4 h-4" /> Đơn hàng
-             </Link>
-            <Link href="/profile/wallet" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-              <Wallet className="w-4 h-4" /> Ví & Thanh toán
-            </Link>
-            <Link href="/profile/products" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-              <ShoppingBag className="w-4 h-4" /> Sản phẩm của tôi
-            </Link>
-           </div>
-        </nav>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="flex border-b border-gray-200 overflow-x-auto">
-            {['all', 'pending', 'pending_payment', 'shipping', 'completed', 'cancelled'].map((status) => (
-              <button
-                key={status}
-                onClick={() => setActiveTab(status)}
-                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${activeTab === status ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-gray-600 hover:text-blue-600'}`}
-              >
-                {status === 'all' ? 'Tất cả' : STATUS_LABELS[status] || status}
-              </button>
-            ))}
-          </div>
-
-          <div className="divide-y divide-gray-100">
-            {loading ? (
-              <div className="p-12 text-center text-gray-600"><Loader className="w-6 h-6 animate-spin mx-auto" /></div>
-            ) : orders.length === 0 ? (
-              <div className="p-12 text-center text-gray-600">
-                <ShoppingBasket className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-                <p>Bạn chưa có đơn hàng nào.</p>
-                <Link href="/" className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Mua sắm ngay</Link>
-              </div>
-            ) : (
-              orders.map((order: any) => (
-                <div key={order.id} className="p-6 hover:bg-gray-50 transition">
-                  <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
-                    <div className="flex gap-3 items-center">
-                      <span className="font-bold text-blue-600">#ORD-{order.id}</span>
-                      <span className="text-xs text-gray-600">{order.created_at ? new Date(order.created_at).toLocaleDateString('vi-VN') : ''}</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800'}`}>
-                        {STATUS_LABELS[order.status] || order.status}
-                      </span>
-                    </div>
-                    <div className="text-sm font-bold text-red-600">
-                      {Number(order.total_amount).toLocaleString('vi-VN')}đ
-                    </div>
-                  </div>
-
-                  {order.items?.slice(0, 2).map((item: any, idx: number) => (
-                    <div key={idx} className="flex items-center gap-3 mb-3">
-                      <img loading="lazy" decoding="async" src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-14 h-14 object-cover rounded-lg border border-gray-200" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-800 truncate">{item.product_name}</p>
-                        <p className="text-xs text-gray-600">x{item.quantity}</p>
-                      </div>
-                    </div>
-                  ))}
-                  {order.items?.length > 2 && <p className="text-xs text-gray-600 mb-3">+{order.items.length - 2} sản phẩm khác</p>}
-
-                  <div className="flex flex-wrap justify-end items-center gap-2">
-                    {order.status === 'pending_payment' && (
-                      <>
-                        <button onClick={() => handleCancel(order.id)} className="px-4 py-2 border border-red-500 text-red-600 text-sm font-medium rounded-md hover:bg-red-50 whitespace-nowrap">Hủy đơn hàng</button>
-                        <button onClick={() => handlePayment(order.id, order.total_amount)} className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-md hover:bg-orange-600 whitespace-nowrap">Thanh toán ngay</button>
-                      </>
-                    )}
-                    {order.status === 'pending' && (
-                      <button onClick={() => handleCancel(order.id)} className="px-4 py-2 border border-red-500 text-red-600 text-sm font-medium rounded-md hover:bg-red-50 whitespace-nowrap">Hủy đơn hàng</button>
-                    )}
-                    <Link href={`/profile/orders/${order.id}`} className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 whitespace-nowrap">Chi tiết</Link>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+    <div className="rounded-card bg-surface-card">
+      <div className="border-b border-ink/10 px-6 py-5">
+        <h1 className="text-h2 text-ink">{t('title')}</h1>
       </div>
+
+      {/* Danh sách tab cuộn ngang, không xuống dòng: bảy trạng thái mà wrap thì
+          chiều cao đầu trang nhảy loạn giữa các cỡ màn hình. */}
+      <div
+        role="tablist"
+        aria-label={t('filterLabel')}
+        className="flex gap-1 overflow-x-auto border-b border-ink/10 px-4"
+      >
+        {tabs.map((s) => {
+          const active = status === s;
+          return (
+            <button
+              key={s}
+              role="tab"
+              aria-selected={active}
+              onClick={() => setStatus(s)}
+              className={`shrink-0 whitespace-nowrap border-b-2 px-3.5 py-3 text-small transition-colors ${
+                active
+                  ? 'border-brand font-semibold text-brand'
+                  : 'border-transparent text-ink-muted hover:text-ink'
+              }`}
+            >
+              {s === 'all' ? t('tabAll') : tStatus(s)}
+            </button>
+          );
+        })}
+      </div>
+
+      {state === 'loading' ? (
+        <p className="px-6 py-16 text-center text-body text-ink-muted">{tc('loading')}</p>
+      ) : state === 'error' ? (
+        <div className="px-6 py-16 text-center">
+          <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
+          <p className="mx-auto mt-2 max-w-[42ch] text-small text-ink-muted">
+            {t('loadFailedHint')}
+          </p>
+          <button
+            type="button"
+            onClick={fetchOrders}
+            className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+          >
+            {tc('retry')}
+          </button>
+        </div>
+      ) : orders.length === 0 ? (
+        status === 'all' ? (
+          <EmptyState
+            title={t('emptyAll')}
+            hint={t('emptyAllHint')}
+            action={
+              <Link
+                href="/search"
+                className="inline-block rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {t('browse')}
+              </Link>
+            }
+          />
+        ) : (
+          <EmptyState
+            title={t('emptyFiltered')}
+            hint={t('emptyFilteredHint')}
+            action={
+              <button
+                type="button"
+                onClick={() => setStatus('all')}
+                className="rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {t('showAll')}
+              </button>
+            }
+          />
+        )
+      ) : (
+        <ul className="divide-y divide-ink/10">
+          {orders.map((order: any) => {
+            const items: any[] = order.items || [];
+            const extra = Math.max(0, items.length - 2);
+            return (
+              <li key={order.id} className="px-6 py-5">
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    <Link
+                      href={`/profile/orders/${order.id}`}
+                      className="text-small font-semibold text-ink hover:text-brand"
+                    >
+                      {t('orderCode', { id: order.id })}
+                    </Link>
+                    {order.created_at && (
+                      <time
+                        dateTime={order.created_at}
+                        className="text-small tabular-nums text-ink-faint"
+                      >
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </time>
+                    )}
+                    <OrderStatusBadge status={order.status} />
+                  </div>
+                  <span className="text-body font-bold tabular-nums text-price">
+                    {formatPrice(order.total_amount)}
+                  </span>
+                </div>
+
+                <ul className="mt-4 flex flex-col gap-3">
+                  {items.slice(0, 2).map((item: any, idx: number) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
+                        {item.product_image ? (
+                          <img
+                            src={item.product_image}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-small text-ink">
+                          {item.product_name}
+                        </span>
+                        <span className="block text-caption tabular-nums text-ink-muted">
+                          {t('quantity', { count: item.quantity })}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {extra > 0 && (
+                  <p className="mt-2 text-small text-ink-muted">{t('moreItems', { count: extra })}</p>
+                )}
+
+                <div className="mt-4 flex flex-wrap justify-end gap-2">
+                  {/* Huỷ được khi người bán chưa bắt tay vào chuẩn bị hàng.
+                      Từ `processing` trở đi thì huỷ phải qua người bán. */}
+                  {(order.status === 'pending' || order.status === 'confirmed') && (
+                    <button
+                      type="button"
+                      onClick={() => handleCancel(order.id)}
+                      className="rounded-control border border-price/40 px-4 py-2 text-small font-semibold text-price transition-colors hover:bg-price-bg"
+                    >
+                      {t('cancel')}
+                    </button>
+                  )}
+                  <Link
+                    href={`/profile/orders/${order.id}`}
+                    className="rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
+                  >
+                    {t('detail')}
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

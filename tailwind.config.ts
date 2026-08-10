@@ -5,6 +5,10 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // src/lib cũng chứa tên lớp: lib/order-status.ts giữ bản đồ sắc thái ->
+    // lớp CSS. Thiếu dòng này thì Tailwind không thấy chúng và mọi nhãn trạng
+    // thái đơn hàng ra trong suốt, không báo lỗi gì.
+    "./src/lib/**/*.{js,ts}",
   ],
   theme: {
     extend: {
