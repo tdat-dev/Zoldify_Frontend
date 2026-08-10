@@ -199,6 +199,26 @@
     "verifyFailed": "Mã không đúng. Kiểm tra lại giúp mình.",
     "back": "Quay lại"
   },
+  "notifications": {
+    "title": "Thông báo",
+    "unread": "{count} chưa đọc",
+    "markAll": "Đánh dấu tất cả đã đọc",
+    "markRead": "Đánh dấu đã đọc",
+    "delete": "Xoá thông báo",
+    "deleteAsk": "Xoá thông báo này?",
+    "deleted": "Đã xoá.",
+    "deleteFailed": "Chưa xoá được thông báo.",
+    "markFailed": "Chưa đánh dấu được.",
+    "loadFailed": "Không tải được thông báo.",
+    "loadFailedHint": "Kiểm tra kết nối rồi thử lại. Đây không phải là “bạn chưa có thông báo”.",
+    "empty": "Chưa có thông báo nào.",
+    "emptyHint": "Có đơn mới, tin nhắn mới hay thay đổi trạng thái, bạn sẽ thấy ở đây.",
+    "viewOrder": "Xem đơn hàng",
+    "openChat": "Mở tin nhắn",
+    "justNow": "Vừa xong",
+    "minutesAgo": "{count} phút trước",
+    "hoursAgo": "{count} giờ trước"
+  },
   "productStatus": {
     "draft": "Nháp",
     "pending": "Chờ duyệt",

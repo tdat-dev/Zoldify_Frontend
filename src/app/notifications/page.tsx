@@ -1,142 +1,228 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Bell, CheckCheck, Trash2, MessageSquare, ShoppingBag, CreditCard } from 'lucide-react';
 import { notificationService } from '@/services/notification.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
-import { Bell, Loader, CheckCheck, Trash2, ArrowLeft, MessageSquare, ShoppingBag, CreditCard } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
 
-const typeIcons: Record<string, any> = {
+const TYPE_ICONS: Record<string, any> = {
   order_status: ShoppingBag,
   message: MessageSquare,
   payment: CreditCard,
   system: Bell,
 };
 
+/**
+ * Thông báo.
+ *
+ * Năm thứ của bản trước đã gỡ:
+ *
+ * 1. BA KHỐI `catch {}` RỖNG HOÀN TOÀN. Tải hỏng thì hiện "Chưa có thông báo"
+ *    — nói sai sự thật. Đánh dấu đã đọc hỏng thì không có dấu hiệu nào, người
+ *    dùng bấm lại vài lần rồi bỏ.
+ *
+ * 2. `<div onClick>` LÀM NÚT đánh dấu đã đọc: không tab tới được, không có
+ *    role, trình đọc màn hình không biết nó bấm được.
+ *
+ * 3. NÚT XOÁ MÀU `text-gray-300` — gần như vô hình trên nền trắng, dưới xa
+ *    ngưỡng tương phản 3:1 cho thành phần giao diện.
+ *
+ * 4. MỐC THỜI GIAN CỠ 10px.
+ *
+ * 5. NÚT "Đánh dấu đã đọc" luôn bấm được kể cả khi không còn cái nào chưa đọc.
+ */
 export default function NotificationsPage() {
   const { allowed } = useRequireAuth();
-  const router = useRouter();
   const { confirm, toast } = useToast();
+  const t = useTranslations('notifications');
+  const tc = useTranslations('common');
+
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
 
-  useEffect(() => {
-    if (!allowed) return;
-    fetchNotis();
-  }, [allowed]);
-
-  const fetchNotis = async () => {
+  const fetchNotis = useCallback(async () => {
+    setState('loading');
     try {
       const res = await notificationService.getAll(1, 50);
       setNotifications(res.data?.data?.result || []);
-    } catch {}
-    finally { setLoading(false); }
-  };
+      setState('ready');
+    } catch {
+      setState('error');
+    }
+  }, []);
 
-  const handleMarkRead = async (id: number) => {
+  useEffect(() => {
+    if (allowed) fetchNotis();
+  }, [allowed, fetchNotis]);
+
+  const unread = notifications.filter((n) => !n.is_read).length;
+
+  const markRead = async (id: number) => {
+    // Cập nhật lạc quan rồi trả lại nếu server từ chối, thay vì nuốt lỗi.
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
     try {
       await notificationService.markAsRead(id);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
-    } catch {}
+    } catch {
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: false } : n)));
+      toast(t('markFailed'), 'error');
+    }
   };
 
-  const handleMarkAllRead = async () => {
+  const markAllRead = async () => {
+    const before = notifications;
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     try {
       await notificationService.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    } catch {}
+    } catch {
+      setNotifications(before);
+      toast(t('markFailed'), 'error');
+    }
   };
 
-  const handleDelete = async (id: number) => {
-    const ok = await confirm('Xóa thông báo này?');
-    if (!ok) return;
+  const remove = async (id: number) => {
+    if (!(await confirm(t('deleteAsk')))) return;
     try {
       await notificationService.remove(id);
-      setNotifications(prev => prev.filter(n => n.id !== id));
-      toast('Đã xóa thông báo', 'success');
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      toast(t('deleted'), 'success');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Xóa thất bại', 'error');
+      toast(err.response?.data?.message || t('deleteFailed'), 'error');
     }
   };
 
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr);
-    const now = new Date();
-    const diff = now.getTime() - d.getTime();
-    if (diff < 60000) return 'Vừa xong';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} phút trước`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} giờ trước`;
-    return d.toLocaleDateString('vi-VN');
+    const diff = Date.now() - d.getTime();
+    if (diff < 60_000) return t('justNow');
+    if (diff < 3_600_000) return t('minutesAgo', { count: Math.floor(diff / 60_000) });
+    if (diff < 86_400_000) return t('hoursAgo', { count: Math.floor(diff / 3_600_000) });
+    return d.toLocaleDateString();
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-10">
-      <div className="max-w-[800px] mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-brand">Trang chủ</Link>
-          <span>&gt;</span>
-          <span className="text-gray-800">Thông báo</span>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-medium text-gray-800">Thông báo</h1>
-          <button onClick={handleMarkAllRead} className="inline-flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-            <CheckCheck className="w-4 h-4" /> Đánh dấu đã đọc
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center"><Loader className="w-5 h-5 animate-spin mx-auto text-gray-600" /></div>
-        ) : notifications.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-            <Bell className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-800 mb-2">Chưa có thông báo</h3>
-            <p className="text-gray-600">Bạn sẽ nhận được thông báo khi có đơn hàng hoặc tin nhắn mới</p>
+    <div className="min-h-screen bg-surface-page pb-16">
+      <div className="mx-auto max-w-[820px] px-3 py-4">
+        <div className="rounded-card bg-surface-card">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-6 py-5">
+            <div>
+              <h1 className="text-h2 text-ink">{t('title')}</h1>
+              {unread > 0 && (
+                <p className="mt-1 text-small tabular-nums text-ink-muted">
+                  {t('unread', { count: unread })}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={markAllRead}
+              disabled={unread === 0}
+              className="inline-flex items-center gap-2 rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:cursor-not-allowed disabled:border-ink/12 disabled:text-ink-faint"
+            >
+              <CheckCheck className="h-4 w-4" aria-hidden="true" />
+              {t('markAll')}
+            </button>
           </div>
-        ) : (
-          <div className="space-y-2">
-            {notifications.map((noti: any) => {
-              const Icon = typeIcons[noti.type] || Bell;
-              return (
-                <div
-                  key={noti.id}
-                  className={`bg-white rounded-lg shadow-sm p-4 flex gap-4 items-start transition-colors ${!noti.is_read ? 'border-l-4 border-brand bg-blue-50/30' : ''}`}
-                >
-                  <div className={`p-2 rounded-full flex-shrink-0 ${!noti.is_read ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                    <Icon className={`w-5 h-5 ${!noti.is_read ? 'text-brand' : 'text-gray-600'}`} />
-                  </div>
-                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => !noti.is_read && handleMarkRead(noti.id)}>
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className={`text-sm ${!noti.is_read ? 'font-bold text-gray-800' : 'text-gray-700'}`}>{noti.title}</h4>
-                      <span className="text-[10px] text-gray-600 flex-shrink-0 ml-2">{formatTime(noti.created_at)}</span>
+
+          {state === 'loading' ? (
+            <p className="px-6 py-16 text-center text-body text-ink-muted">{tc('loading')}</p>
+          ) : state === 'error' ? (
+            <div className="px-6 py-16 text-center">
+              <p className="text-body font-semibold text-ink">{t('loadFailed')}</p>
+              <p className="mx-auto mt-2 max-w-[42ch] text-small text-ink-muted">
+                {t('loadFailedHint')}
+              </p>
+              <button
+                type="button"
+                onClick={fetchNotis}
+                className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {tc('retry')}
+              </button>
+            </div>
+          ) : notifications.length === 0 ? (
+            <EmptyState title={t('empty')} hint={t('emptyHint')} />
+          ) : (
+            <ul className="divide-y divide-ink/10">
+              {notifications.map((n: any) => {
+                const Icon = TYPE_ICONS[n.type] || Bell;
+                return (
+                  <li
+                    key={n.id}
+                    className={`flex items-start gap-3 px-6 py-4 ${
+                      n.is_read ? '' : 'border-l-2 border-brand bg-brand-tint'
+                    }`}
+                  >
+                    <span
+                      className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                        n.is_read ? 'bg-surface-sunken text-ink-muted' : 'bg-surface-card text-brand'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h2
+                          className={`text-small ${n.is_read ? 'text-ink' : 'font-semibold text-ink'}`}
+                        >
+                          {n.title}
+                        </h2>
+                        {n.created_at && (
+                          <time
+                            dateTime={n.created_at}
+                            className="shrink-0 text-caption tabular-nums text-ink-faint"
+                          >
+                            {formatTime(n.created_at)}
+                          </time>
+                        )}
+                      </div>
+                      <p className="clamp-2 mt-1 text-small text-ink-muted">{n.content}</p>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                        {n.data?.order_id && (
+                          <Link
+                            href={`/profile/orders/${n.data.order_id}`}
+                            className="text-small font-semibold text-brand hover:underline"
+                          >
+                            {t('viewOrder')}
+                          </Link>
+                        )}
+                        {n.data?.conversation_id && (
+                          <Link href="/chat" className="text-small font-semibold text-brand hover:underline">
+                            {t('openChat')}
+                          </Link>
+                        )}
+                        {/* Nút thật, không phải div bấm được: tab tới được và
+                            trình đọc màn hình biết nó làm gì. */}
+                        {!n.is_read && (
+                          <button
+                            type="button"
+                            onClick={() => markRead(n.id)}
+                            className="text-small text-ink-muted transition-colors hover:text-ink"
+                          >
+                            {t('markRead')}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-600 line-clamp-2">{noti.content}</p>
-                    {noti.data?.order_code && (
-                      <Link href={`/profile/orders/${noti.data.order_id}`} className="text-xs text-blue-600 hover:underline mt-1 inline-block">
-                        Xem đơn hàng
-                      </Link>
-                    )}
-                    {noti.data?.conversation_id && (
-                      <Link href="/chat" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
-                        Mở chat
-                      </Link>
-                    )}
-                  </div>
-                  <button onClick={() => handleDelete(noti.id)} className="p-1 text-gray-300 hover:text-red-600 transition-colors flex-shrink-0">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
 
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-gray-600 hover:text-brand transition-colors inline-flex items-center">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại trang chủ
-          </Link>
+                    <button
+                      type="button"
+                      onClick={() => remove(n.id)}
+                      aria-label={`${t('delete')} — ${n.title}`}
+                      className="shrink-0 rounded-control p-2 text-ink-muted transition-colors hover:bg-price-bg hover:text-price"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </div>

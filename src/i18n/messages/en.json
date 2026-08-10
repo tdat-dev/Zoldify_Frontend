@@ -199,6 +199,26 @@
     "verifyFailed": "That code isn't right. Please check it.",
     "back": "Back"
   },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "{count} unread",
+    "markAll": "Mark all as read",
+    "markRead": "Mark as read",
+    "delete": "Delete notification",
+    "deleteAsk": "Delete this notification?",
+    "deleted": "Deleted.",
+    "deleteFailed": "Could not delete it.",
+    "markFailed": "Could not mark it as read.",
+    "loadFailed": "Could not load your notifications.",
+    "loadFailedHint": "Check your connection and try again. This does not mean you have none.",
+    "empty": "No notifications yet.",
+    "emptyHint": "New orders, messages and status changes will show up here.",
+    "viewOrder": "View order",
+    "openChat": "Open messages",
+    "justNow": "Just now",
+    "minutesAgo": "{count} min ago",
+    "hoursAgo": "{count} h ago"
+  },
   "productStatus": {
     "draft": "Draft",
     "pending": "Awaiting review",

@@ -5,6 +5,7 @@ import { Search, Send, ArrowLeft, MessageCircle, Loader } from 'lucide-react';
 import Link from 'next/link';
 import { chatService } from '@/services/chat.service';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/Toast';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSocket, disconnectSocket } from '@/lib/socket';
@@ -12,6 +13,7 @@ import { getSocket, disconnectSocket } from '@/lib/socket';
 export default function ChatPage() {
   const { token, user: currentUser } = useAuth();
   const { allowed } = useRequireAuth();
+  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetConvId = searchParams.get('conversation');
@@ -184,7 +186,11 @@ export default function ChatPage() {
       const res = await chatService.getMessages(convId);
       setMessages(res.data?.data?.result || []);
       chatService.markAsRead(convId).catch(() => {});
-    } catch (err) { console.error(err); }
+    } catch (err: any) {
+      // Không nuốt: khung tin nhắn rỗng vì lỗi mạng trông y hệt một cuộc trò
+      // chuyện chưa ai nhắn gì.
+      toast(err.response?.data?.message || 'Không tải được tin nhắn.', 'error');
+    }
   };
 
   const handleSend = async () => {
@@ -199,7 +205,13 @@ export default function ChatPage() {
         const res = await chatService.sendMessage(activeConv.id, content);
         setMessages(prev => [...prev, res.data?.data]);
       }
-    } catch (err) { console.error(err); }
+    } catch (err: any) {
+      // Ô nhập đã bị xoá TRƯỚC khi gửi, nên nuốt lỗi ở đây là làm mất luôn
+      // tin nhắn người dùng vừa gõ mà không báo một tiếng nào. Trả chữ về ô
+      // để họ bấm gửi lại chứ không phải gõ lại từ đầu.
+      setText(content);
+      toast(err.response?.data?.message || 'Chưa gửi được tin nhắn. Thử lại giúp mình.', 'error');
+    }
     finally { setSending(false); }
   };
 
