@@ -207,10 +207,21 @@
     "verifyFailed": "That code isn't right. Please check it.",
     "back": "Back",
     "googleWorking": "Opening Google…",
-    "googleNotSetUp": "Firebase isn't connected yet, so this button doesn't work. Please use your email and password.",
+    "googleTooltipOff": "Google sign-in isn't set up yet. Use your email and password.",
     "googleSignup": "Sign up with Google",
     "registered": "Account created. Sign in to get started.",
-    "orEmail": "or use email"
+    "orEmail": "or use email",
+    "remember": "Keep me signed in",
+    "backHome": "Back to shopping",
+    "errEmailRequired": "Enter your email.",
+    "errEmailFormat": "That doesn't look like an email address.",
+    "errPasswordRequired": "Enter your password."
+  },
+  "authArt": {
+    "slogan": "One person's old things are what someone else is looking for.",
+    "pointEscrow": "We hold the money until the buyer confirms the item arrived.",
+    "pointMeet": "Meet in person or have it shipped — your call.",
+    "pointFree": "Listing is free. You only pay when something sells."
   },
   "category": {
     "breadcrumbHome": "Home",

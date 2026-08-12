@@ -8,6 +8,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { AuthShell, authField, authLabel, authSubmit } from '@/components/auth/AuthShell';
 import { GoogleButton } from '@/components/auth/GoogleButton';
+import { isFirebaseConfigured } from '@/lib/firebase';
 
 /**
  * Đăng ký: gửi mã tới email, rồi xác thực mã và đặt mật khẩu.
@@ -142,13 +143,19 @@ export default function RegisterPage() {
     >
       {alert}
 
-      <GoogleButton label={t('googleSignup')} onError={setError} />
-
-      <div className="my-6 flex items-center gap-4">
-        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-        <span className="text-small text-ink-faint">{t('orEmail')}</span>
-        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-      </div>
+      {/* Cùng quy tắc với trang đăng nhập: Google chỉ đứng trên khi nó BẤM
+          ĐƯỢC. Chưa cấu hình thì nó là một nút mờ, mà mở trang ra gặp ngay một
+          cánh cửa khoá thì thà để biểu mẫu lên trước. */}
+      {isFirebaseConfigured && (
+        <>
+          <GoogleButton label={t('googleSignup')} onError={setError} />
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+            <span className="text-small text-ink-faint">{t('orEmail')}</span>
+            <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+          </div>
+        </>
+      )}
 
       <form onSubmit={handleSendOtp} noValidate className="flex flex-col gap-5">
         <div>
@@ -215,6 +222,18 @@ export default function RegisterPage() {
           {loading ? t('sending') : t('continue')}
         </button>
       </form>
+
+      {!isFirebaseConfigured && (
+        <>
+          {/* "hoặc" chứ không phải "hoặc dùng email": ô email nằm ở TRÊN rồi. */}
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+            <span className="text-small text-ink-faint">{t('or')}</span>
+            <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+          </div>
+          <GoogleButton label={t('googleSignup')} onError={setError} />
+        </>
+      )}
     </AuthShell>
   );
 }

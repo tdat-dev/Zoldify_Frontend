@@ -3,9 +3,8 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
-import Header from "@/components/Header";
+import { SiteChrome } from "@/components/SiteChrome";
 import { AnnounceBar } from "@/components/AnnounceBar";
-import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/components/Toast";
@@ -81,14 +80,12 @@ export default async function RootLayout({
             <CartProvider>
               <ToastProvider>
                 <a href="#main" className="skip-link">Tới nội dung chính</a>
-                <div className="flex min-h-screen flex-col">
-                  <AnnounceBar />
-                  <Header />
-                  <main id="main" className="flex-1">
-                    {children}
-                  </main>
-                  <Footer />
-                </div>
+                {/* Khung (header/footer) do SiteChrome chọn theo route: khu xác
+                    thực dùng bản rút gọn, phần còn lại dùng bản đầy đủ. */}
+                {/* AnnounceBar dựng ở ĐÂY (phía server) rồi mới đưa xuống: nó
+                    là server component async, import thẳng vào SiteChrome sẽ
+                    làm trắng mọi trang không-phải-auth. */}
+                <SiteChrome announce={<AnnounceBar />}>{children}</SiteChrome>
               </ToastProvider>
             </CartProvider>
           </AuthProvider>

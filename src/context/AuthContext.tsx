@@ -2,19 +2,24 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import http from '@/lib/http';
+import {
+  clearSession,
+  readSession,
+  updateStoredUser,
+  writeSession,
+  type StoredUser,
+} from '@/lib/session';
 
-export interface IUser {
-  id: number;
-  full_name: string;
-  email: string;
-  role: string;
-  avatar?: string;
-}
+export type IUser = StoredUser;
 
 interface AuthContextType {
   user: IUser | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  /**
+   * `remember` mặc định true để mọi nơi gọi cũ giữ nguyên hành vi. Chỉ trang
+   * đăng nhập truyền false, khi người dùng bỏ tick "ghi nhớ đăng nhập".
+   */
+  login: (email: string, password: string, remember?: boolean) => Promise<void>;
   register: (full_name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: IUser) => void;
@@ -38,20 +43,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('access_token');
-    const storedUser = localStorage.getItem('user');
+    const { token: storedToken, user: storedUser } = readSession();
     if (storedToken && storedUser) {
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      setUser(storedUser);
     }
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, remember = true) => {
     const res = await http.post('/auth/login', { email, password });
     const { access_token, user: userData } = res.data.data;
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    writeSession(access_token, userData, remember);
     setToken(access_token);
     setUser(userData);
   };
@@ -61,17 +64,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    clearSession();
     setToken(null);
     setUser(null);
     window.location.href = '/login';
   };
 
   const updateUser = (userData: IUser) => {
-  setUser(userData);
-  localStorage.setItem('user', JSON.stringify(userData));
-};
+    setUser(userData);
+    // Ghi lại đúng kho đang giữ phiên. Ghi cứng vào localStorage như bản cũ thì
+    // ai đăng nhập không-ghi-nhớ, sau khi sửa hồ sơ, sẽ để lại dấu vết tài khoản
+    // trên máy — đúng thứ họ vừa từ chối.
+    updateStoredUser(userData);
+  };
 
   // KHÔNG `if (loading) return null`.
   //

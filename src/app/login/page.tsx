@@ -6,24 +6,32 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { AuthShell, authField, authSubmit } from '@/components/auth/AuthShell';
+import { isFirebaseConfigured } from '@/lib/firebase';
+import {
+  AuthShell,
+  authField,
+  authFieldError,
+  authLabel,
+  authSubmit,
+} from '@/components/auth/AuthShell';
 import { GoogleButton } from '@/components/auth/GoogleButton';
 
 /**
  * Đăng nhập.
  *
- * Ba thứ đã sửa ở lượt này:
+ * THỨ TỰ GOOGLE / BIỂU MẪU LÀ CÓ ĐIỀU KIỆN, không cố định.
  *
- * 1. NÚT GOOGLE LUÔN HIỆN, không còn ẩn im lặng khi thiếu cấu hình Firebase
- *    (xem GoogleButton). Và nó lên TRÊN biểu mẫu email: ai có tài khoản Google
- *    thì đó là đường ngắn nhất, đặt nó dưới cùng là bắt họ đọc hết form trước.
+ * Đăng nhập bằng Google là đường ngắn nhất nên đáng đứng trên — NHƯNG chỉ khi
+ * nó bấm được. Đặt một nút mờ, không bấm được lên làm phần tử đầu tiên của
+ * trang thì thứ người dùng gặp trước nhất là một cánh cửa khoá. Nên khi chưa
+ * cấu hình Firebase, biểu mẫu email lên trước và Google lùi xuống dưới; cấu
+ * hình xong thì tự đảo lại, không phải sửa gì.
  *
- * 2. ĐĂNG KÝ XONG KHÔNG AI NÓI GÌ. /register chuyển tới /login?registered=1
- *    nhưng trang này chưa bao giờ đọc tham số đó — người dùng vừa xác thực OTP
- *    xong bị ném về một biểu mẫu trống, không biết mình đã tạo tài khoản thành
- *    công hay vừa bị đá ra.
- *
- * 3. Email đã đăng ký được điền sẵn khi quay về từ trang đăng ký.
+ * LỖI HIỆN DƯỚI ĐÚNG Ô SAI. Bản trước gom mọi lỗi vào một khung đỏ trên đầu
+ * biểu mẫu: bỏ trống email thì phải đọc một câu ở trên rồi tự dò xuống xem ô
+ * nào. Nay lỗi của từng trường nằm ngay dưới trường đó, còn khung chung chỉ
+ * dành cho lỗi từ máy chủ (sai mật khẩu, tài khoản khoá) — thứ không thuộc về
+ * một ô cụ thể nào.
  */
 export default function LoginPage() {
   const { login } = useAuth();
@@ -33,16 +41,31 @@ export default function LoginPage() {
   const justRegistered = searchParams.get('registered') === '1';
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const [reveal, setReveal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loiTruong, setLoiTruong] = useState<{ email?: string; password?: string }>({});
+
+  /** Chỉ bắt hai thứ máy chủ không nên phải trả lời: bỏ trống và sai dạng. */
+  const soat = () => {
+    const loi: { email?: string; password?: string } = {};
+    if (!email.trim()) loi.email = t('errEmailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) loi.email = t('errEmailFormat');
+    if (!password) loi.password = t('errPasswordRequired');
+    return loi;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const loi = soat();
+    setLoiTruong(loi);
+    if (Object.keys(loi).length) return;
+
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, remember);
       // Nạp lại cả trang chứ không router.push: Header, giỏ hàng và thông báo
       // đều đọc phiên lúc mount, đẩy route sẽ để chúng ở trạng thái chưa đăng
       // nhập cho tới lần điều hướng sau.
@@ -53,6 +76,112 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  const nutGoogle = <GoogleButton label={t('google')} onError={setError} />;
+
+  // Nhãn phải nói đúng thứ NẰM DƯỚI nó. Dùng cứng "hoặc dùng email" trong khi
+  // ô email đã ở phía trên là câu vô nghĩa — đo được ngay khi chụp màn hình,
+  // không thấy được khi đọc HTML.
+  const phanCach = (nhan: string) => (
+    <div className="my-6 flex items-center gap-4">
+      <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+      <span className="text-small text-ink-faint">{nhan}</span>
+      <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
+    </div>
+  );
+
+  const bieuMau = (
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      <div>
+        <label htmlFor="login-email" className={authLabel}>
+          {t('email')}
+        </label>
+        <input
+          id="login-email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            // Xoá lỗi ngay khi người ta bắt đầu sửa: giữ dòng đỏ trong lúc họ
+            // đang gõ lại là mắng người đang chữa lỗi.
+            if (loiTruong.email) setLoiTruong((v) => ({ ...v, email: undefined }));
+          }}
+          aria-invalid={!!loiTruong.email}
+          aria-describedby={loiTruong.email ? 'login-email-err' : undefined}
+          className={loiTruong.email ? authFieldError : authField}
+        />
+        {loiTruong.email && (
+          <p id="login-email-err" className="mt-1.5 text-small text-state-danger-fg">
+            {loiTruong.email}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <div className="mb-1.5 flex items-baseline justify-between gap-3">
+          <label htmlFor="login-password" className="text-small font-semibold text-ink">
+            {t('password')}
+          </label>
+          <button
+            type="button"
+            onClick={() => setReveal((v) => !v)}
+            className="flex items-center gap-1.5 text-small text-ink-muted transition-colors hover:text-brand"
+          >
+            {reveal ? (
+              <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            {reveal ? t('hidePassword') : t('showPassword')}
+          </button>
+        </div>
+        <input
+          id="login-password"
+          type={reveal ? 'text' : 'password'}
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (loiTruong.password) setLoiTruong((v) => ({ ...v, password: undefined }));
+          }}
+          aria-invalid={!!loiTruong.password}
+          aria-describedby={loiTruong.password ? 'login-password-err' : undefined}
+          className={loiTruong.password ? authFieldError : authField}
+        />
+        {loiTruong.password && (
+          <p id="login-password-err" className="mt-1.5 text-small text-state-danger-fg">
+            {loiTruong.password}
+          </p>
+        )}
+      </div>
+
+      {/* Ghi nhớ và quên mật khẩu đứng cùng hàng, ngay trên nút chính: đây là
+          hai quyết định cuối trước khi bấm, để rời rạc thì người dùng bấm xong
+          mới nhớ ra. Cái ô này ĐỔI HÀNH VI THẬT — xem lib/session.ts. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <label className="flex cursor-pointer items-center gap-2 text-small text-ink">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="h-4 w-4 cursor-pointer rounded-[3px] border-ink/30 text-brand focus:ring-[3px] focus:ring-brand/30"
+          />
+          {t('remember')}
+        </label>
+        <Link
+          href="/forgot-password"
+          className="text-small font-semibold text-brand hover:underline"
+        >
+          {t('forgot')}
+        </Link>
+      </div>
+
+      <button type="submit" disabled={loading} className={authSubmit}>
+        {loading ? t('loggingIn') : t('login')}
+      </button>
+    </form>
+  );
 
   return (
     <AuthShell
@@ -83,68 +212,19 @@ export default function LoginPage() {
         </p>
       )}
 
-      <GoogleButton label={t('google')} onError={setError} />
-
-      <div className="my-6 flex items-center gap-4">
-        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-        <span className="text-small text-ink-faint">{t('orEmail')}</span>
-        <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-      </div>
-
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-        <div>
-          <label htmlFor="login-email" className="mb-1.5 block text-small font-semibold text-ink">
-            {t('email')}
-          </label>
-          <input
-            id="login-email"
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={authField}
-          />
-        </div>
-
-        <div>
-          <div className="mb-1.5 flex items-baseline justify-between gap-3">
-            <label htmlFor="login-password" className="text-small font-semibold text-ink">
-              {t('password')}
-            </label>
-            <button
-              type="button"
-              onClick={() => setReveal((v) => !v)}
-              className="flex items-center gap-1.5 text-small text-ink-muted transition-colors hover:text-brand"
-            >
-              {reveal ? (
-                <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />
-              ) : (
-                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-              )}
-              {reveal ? t('hidePassword') : t('showPassword')}
-            </button>
-          </div>
-          <input
-            id="login-password"
-            type={reveal ? 'text' : 'password'}
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={authField}
-          />
-        </div>
-
-        <button type="submit" disabled={loading} className={authSubmit}>
-          {loading ? t('loggingIn') : t('login')}
-        </button>
-
-        <Link
-          href="/forgot-password"
-          className="text-center text-small font-semibold text-brand hover:underline"
-        >
-          {t('forgot')}
-        </Link>
-      </form>
+      {isFirebaseConfigured ? (
+        <>
+          {nutGoogle}
+          {phanCach(t('orEmail'))}
+          {bieuMau}
+        </>
+      ) : (
+        <>
+          {bieuMau}
+          {phanCach(t('or'))}
+          {nutGoogle}
+        </>
+      )}
     </AuthShell>
   );
 }

@@ -207,10 +207,21 @@
     "verifyFailed": "Mã không đúng. Kiểm tra lại giúp mình.",
     "back": "Quay lại",
     "googleWorking": "Đang mở Google…",
-    "googleNotSetUp": "Chưa nối Firebase nên nút này chưa dùng được. Đăng nhập bằng email và mật khẩu nhé.",
+    "googleTooltipOff": "Đăng nhập bằng Google chưa mở. Dùng email và mật khẩu nhé.",
     "googleSignup": "Đăng ký bằng Google",
     "registered": "Tạo tài khoản xong. Đăng nhập để bắt đầu.",
-    "orEmail": "hoặc dùng email"
+    "orEmail": "hoặc dùng email",
+    "remember": "Ghi nhớ đăng nhập",
+    "backHome": "Về trang chủ",
+    "errEmailRequired": "Nhập email đã.",
+    "errEmailFormat": "Cái này chưa giống địa chỉ email.",
+    "errPasswordRequired": "Nhập mật khẩu đã."
+  },
+  "authArt": {
+    "slogan": "Đồ cũ của người này là thứ người kia đang tìm.",
+    "pointEscrow": "Tiền giữ lại tới khi người mua xác nhận đã nhận hàng.",
+    "pointMeet": "Xem tận nơi hay ship tận nhà, tuỳ bạn.",
+    "pointFree": "Đăng tin miễn phí. Bán được mới mất phí."
   },
   "category": {
     "breadcrumbHome": "Trang chủ",
