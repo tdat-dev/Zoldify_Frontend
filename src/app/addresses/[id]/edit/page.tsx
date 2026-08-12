@@ -31,7 +31,7 @@ export default function EditAddressPage() {
       setInitial({
         recipient_name: a.recipient_name || '',
         phone_number: a.phone_number || '',
-        label: a.label || 'Nhà riêng',
+        label: a.label || '',
         province: a.province || '',
         district: a.district || '',
         ward: a.ward || '',

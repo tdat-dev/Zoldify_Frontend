@@ -3,11 +3,20 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { CheckCircle2, XCircle, Loader2, ArrowRight } from 'lucide-react';
 import { payosService } from '@/services/payos.service';
 
+/**
+ * Màn hình PayOS trả người dùng về sau khi thanh toán.
+ *
+ * Câu thông báo giữ ở dạng KHOÁ trong state, dịch lúc render. Lưu thẳng câu đã
+ * dịch vào state thì đổi ngôn ngữ giữa chừng sẽ để lại câu cũ đứng yên — mà đây
+ * đúng là màn hình người ta ngồi nhìn lâu nhất, vì nó đang đếm.
+ */
 function ReturnContent() {
   const router = useRouter();
+  const t = useTranslations('payment');
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const isTopup = searchParams.get('topup') === '1';
@@ -15,8 +24,8 @@ function ReturnContent() {
   const code = searchParams.get('code');
 
   const [phase, setPhase] = useState<'verifying' | 'success' | 'failed'>('verifying');
-  const [message, setMessage] = useState('Đang xác nhận thanh toán...');
-  const [finalOrder, setFinalOrder] = useState<any>(null);
+  const [msgKey, setMsgKey] = useState<string>('verifying');
+  const [tries, setTries] = useState<{ n: number; max: number } | null>(null);
 
   useEffect(() => {
     verifyPayment();
@@ -26,7 +35,7 @@ function ReturnContent() {
     // Nếu PayOS báo CANCELLED ngay từ returnUrl
     if (status === 'CANCELLED' || (code && code !== '00')) {
       setPhase('failed');
-      setMessage('Thanh toán đã bị hủy');
+      setMsgKey('cancelled');
       return;
     }
 
@@ -35,7 +44,7 @@ function ReturnContent() {
       // Chờ vài giây cho webhook xử lý xong
       await new Promise((r) => setTimeout(r, 3000));
       setPhase('success');
-      setMessage('Nạp ví thành công! Đang chuyển hướng...');
+      setMsgKey('topupDone');
       setTimeout(() => router.push('/profile/wallet'), 2500);
       return;
     }
@@ -43,7 +52,7 @@ function ReturnContent() {
     // Đơn hàng: polling tối đa 30s
     if (!orderId) {
       setPhase('failed');
-      setMessage('Không tìm thấy mã đơn hàng');
+      setMsgKey('noOrderId');
       return;
     }
 
@@ -54,11 +63,10 @@ function ReturnContent() {
     const poll = async () => {
       try {
         const res = await payosService.refresh(Number(orderId));
-        const data = res.data?.data;
         if (res.data?.data?.is_paid) {
-          setFinalOrder(data);
           setPhase('success');
-          setMessage('Thanh toán thành công!');
+          setMsgKey('paid');
+          setTries(null);
           return;
         }
       } catch (err) {
@@ -66,50 +74,56 @@ function ReturnContent() {
       }
       attempts++;
       if (attempts < maxAttempts) {
-        setMessage(`Đang xác nhận thanh toán... (${attempts}/${maxAttempts})`);
+        setMsgKey('verifyingCount');
+        setTries({ n: attempts, max: maxAttempts });
         setTimeout(poll, interval);
       } else {
         setPhase('failed');
-        setMessage('Không nhận được xác nhận từ hệ thống. Vui lòng kiểm tra lại trong mục đơn hàng.');
+        setMsgKey('noConfirm');
       }
     };
 
     poll();
   };
 
+  const message = tries ? t('verifyingCount', tries) : t(msgKey as any);
+
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-card bg-surface-card p-8 text-center">
         {phase === 'verifying' && (
           <>
-            <Loader2 className="w-16 h-16 text-blue-500 animate-spin mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Đang xử lý</h1>
-            <p className="text-gray-600">{message}</p>
+            <Loader2 className="mx-auto mb-4 h-14 w-14 animate-spin text-brand" aria-hidden="true" />
+            <h1 className="mb-2 text-h2 text-ink">{t('working')}</h1>
+            <p className="text-small text-ink-muted">{message}</p>
           </>
         )}
 
         {phase === 'success' && (
           <>
-            <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Thành công!</h1>
-            <p className="text-gray-600 mb-6">{message}</p>
+            <CheckCircle2
+              className="mx-auto mb-4 h-14 w-14 text-state-success-fg"
+              aria-hidden="true"
+            />
+            <h1 className="mb-2 text-h2 text-ink">{t('successTitle')}</h1>
+            <p className="mb-6 text-small text-ink-muted">{message}</p>
             {isTopup ? (
               <Link
                 href="/profile/wallet"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="inline-flex items-center gap-2 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
               >
-                Về trang ví <ArrowRight className="w-4 h-4" />
+                {t('toWallet')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 <Link
                   href={`/profile/orders/${orderId}`}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="inline-flex items-center justify-center gap-2 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                 >
-                  Xem đơn hàng <ArrowRight className="w-4 h-4" />
+                  {t('viewOrder')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
-                <Link href="/" className="text-sm text-gray-600 hover:text-gray-700">
-                  Tiếp tục mua sắm
+                <Link href="/" className="text-small text-ink-muted hover:text-brand">
+                  {t('keepShopping')}
                 </Link>
               </div>
             )}
@@ -118,25 +132,25 @@ function ReturnContent() {
 
         {phase === 'failed' && (
           <>
-            <XCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Không thành công</h1>
-            <p className="text-gray-600 mb-6">{message}</p>
-            <div className="flex flex-col gap-2">
+            <XCircle className="mx-auto mb-4 h-14 w-14 text-price" aria-hidden="true" />
+            <h1 className="mb-2 text-h2 text-ink">{t('failedTitle')}</h1>
+            <p className="mb-6 text-small text-ink-muted">{message}</p>
+            <div className="flex flex-col gap-3">
               {orderId && !isTopup && (
                 <Link
                   href={`/checkout?ids=${orderId}`}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                 >
-                  Thử thanh toán lại
+                  {t('tryAgain')}
                 </Link>
               )}
               {isTopup ? (
-                <Link href="/profile/wallet" className="text-sm text-gray-600 hover:text-gray-700">
-                  Về trang ví
+                <Link href="/profile/wallet" className="text-small text-ink-muted hover:text-brand">
+                  {t('toWallet')}
                 </Link>
               ) : (
-                <Link href="/cart" className="text-sm text-gray-600 hover:text-gray-700">
-                  Quay lại giỏ hàng
+                <Link href="/cart" className="text-small text-ink-muted hover:text-brand">
+                  {t('backToCart')}
                 </Link>
               )}
             </div>
@@ -151,8 +165,8 @@ export default function PaymentReturnPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" aria-hidden="true" />
         </div>
       }
     >

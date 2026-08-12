@@ -317,7 +317,7 @@ function StockStepper({
         type="button"
         onClick={() => update(stock - 1)}
         disabled={stock <= 0 || saving}
-        aria-label="Giảm một"
+        aria-label={t('decrease')}
         className={btn}
       >
         <Minus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -327,7 +327,7 @@ function StockStepper({
         type="button"
         onClick={() => update(stock + 1)}
         disabled={saving}
-        aria-label="Tăng một"
+        aria-label={t('increase')}
         className={btn}
       >
         <Plus className="h-3.5 w-3.5" aria-hidden="true" />

@@ -35,6 +35,7 @@ export default function OrderDetailPage() {
   const { allowed } = useRequireAuth();
   const params = useParams();
   const t = useTranslations('orderDetail');
+  const tc = useTranslations('common');
 
   const [order, setOrder] = useState<any>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'error' | 'missing'>('loading');
@@ -97,7 +98,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="flex flex-col gap-3">
-      <nav aria-label="Đường dẫn" className="flex items-center gap-1 text-small text-ink-muted">
+      <nav aria-label={tc('breadcrumb')} className="flex items-center gap-1 text-small text-ink-muted">
         <Link href="/profile/orders" className="hover:text-brand">
           {t('breadcrumbOrders')}
         </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
@@ -21,6 +22,9 @@ const ToastContext = createContext<ToastContextType | null>(null);
 let toastId = 0;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
+  // Đặt tên `tr` chứ không phải `t`: bên dưới `t` đã là biến của vòng lặp
+  // toasts.map((t) => …), đặt trùng là che mất nó.
+  const tr = useTranslations('common');
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmState, setConfirmState] = useState<{
     message: string;
@@ -82,7 +86,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <span className="flex-1">{t.message}</span>
             <button
               onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
-              aria-label="Đóng thông báo"
+              aria-label={tr('dismiss')}
               className="ml-2 opacity-70 hover:opacity-100 transition-opacity"
             >
               <X className="w-4 h-4" aria-hidden="true" />
@@ -104,13 +108,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 onClick={() => handleConfirm(false)}
                 className="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium transition-colors"
               >
-                Hủy
+                {tr('cancel')}
               </button>
               <button
                 onClick={() => handleConfirm(true)}
                 className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition-colors"
               >
-                Xác nhận
+                {tr('confirm')}
               </button>
             </div>
           </div>

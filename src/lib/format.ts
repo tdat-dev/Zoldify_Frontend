@@ -8,18 +8,44 @@ import { API_ORIGIN } from './config';
  * "2 giờ trước", "3 ngày trước" — tín hiệu quan trọng nhất của chợ đồ cũ mà
  * khuôn thương mại điện tử không có chỗ đặt. Món đăng hôm nay đáng tin hơn món
  * treo ba tháng, và người mua đọc nó trước cả giá.
+ *
+ * ⚠️ CHƯA CÓ TRANG NÀO GỌI HÀM NÀY. Grep toàn src chỉ ra đúng một kết quả: dòng
+ * khai báo bên dưới. Ý tưởng được viết ra rồi bỏ dở giữa chừng — giữ lại vì nó
+ * đúng, nhưng đừng tưởng "món này đăng bao lâu rồi" đang hiện ở đâu đó.
+ *
+ * Dùng Intl.RelativeTimeFormat thay vì sáu câu chép tay: trình duyệt đã có sẵn
+ * bảng từ cho mọi ngôn ngữ, kể cả số nhiều và cách chia mà tiếng Việt không có
+ * nhưng tiếng Anh thì có ("1 day ago" / "2 days ago"). Bản cũ ghép chuỗi tay
+ * nên chỉ đúng một thứ tiếng, và sẽ đẻ ra "2 day ago" nếu ai đó dịch máy móc.
  */
-export function timeAgo(value: any): string | null {
-  const t = new Date(value).getTime();
-  if (!Number.isFinite(t)) return null;
-  const s = Math.floor((Date.now() - t) / 1000);
-  if (s < 0) return null;
-  if (s < 60) return 'vừa xong';
-  if (s < 3600) return `${Math.floor(s / 60)} phút trước`;
-  if (s < 86400) return `${Math.floor(s / 3600)} giờ trước`;
-  if (s < 2592000) return `${Math.floor(s / 86400)} ngày trước`;
-  if (s < 31536000) return `${Math.floor(s / 2592000)} tháng trước`;
-  return `${Math.floor(s / 31536000)} năm trước`;
+const BAC: [gioi: number, don: Intl.RelativeTimeFormatUnit][] = [
+  [60, 'second'],
+  [3600, 'minute'],
+  [86400, 'hour'],
+  [2592000, 'day'],
+  [31536000, 'month'],
+  [Infinity, 'year'],
+];
+
+const CHIA: Record<string, number> = {
+  second: 1,
+  minute: 60,
+  hour: 3600,
+  day: 86400,
+  month: 2592000,
+  year: 31536000,
+};
+
+export function timeAgo(value: any, locale = 'vi'): string | null {
+  const moc = new Date(value).getTime();
+  if (!Number.isFinite(moc)) return null;
+  const giay = Math.floor((Date.now() - moc) / 1000);
+  if (giay < 0) return null;
+
+  const [, don] = BAC.find(([gioi]) => giay < gioi)!;
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  // Số ÂM vì đây là chuyện đã qua. Đưa số dương vào sẽ ra "trong 2 giờ nữa".
+  return rtf.format(-Math.floor(giay / CHIA[don]), don);
 }
 
 /**

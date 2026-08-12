@@ -1,7 +1,10 @@
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Wrench } from 'lucide-react';
 
 export default function MaintenancePage() {
+  const t = useTranslations('errors');
+
   return (
     <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen flex items-center justify-center">
       <div className="text-center px-6">
@@ -12,12 +15,12 @@ export default function MaintenancePage() {
 
         {/* Title */}
         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Website đang bảo trì
+          {t('maintenanceTitle')}
         </h1>
 
         {/* Message */}
         <p className="text-lg text-gray-300 max-w-md mx-auto mb-8">
-          Chúng tôi đang nâng cấp hệ thống. Vui lòng quay lại sau!
+          {t('maintenanceLead')}
         </p>
 
         {/* Decorative Line */}
@@ -25,7 +28,7 @@ export default function MaintenancePage() {
 
         {/* Contact Info */}
         <p className="text-gray-600 text-sm">
-          Nếu cần hỗ trợ, vui lòng liên hệ:{" "}
+          {t('maintenanceContact')}{" "}
           <a href="mailto:admin@zoldify.com" className="text-yellow-500 hover:underline">
             admin@zoldify.com
           </a>

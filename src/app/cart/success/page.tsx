@@ -2,28 +2,35 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 
 export default function CartSuccessPage() {
+  const t = useTranslations('payment');
+
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:py-10">
-      <div className="max-w-[600px] mx-auto px-4">
-        <div className="bg-white rounded-sm shadow-sm p-8 text-center animate-fade-in-up">
-          <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10" />
-          </div>
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-[600px] rounded-card bg-surface-card p-8 text-center">
+        <span className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-state-success-bg text-state-success-fg">
+          <Check className="h-10 w-10" aria-hidden="true" />
+        </span>
 
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h1>
-          <p className="text-gray-600 mb-8">Cảm ơn bạn đã mua hàng tại Zoldify. Đơn hàng của bạn đang được xử lý.</p>
+        <h1 className="mb-2 text-h1 text-ink">{t('orderPlacedTitle')}</h1>
+        <p className="mb-8 text-small leading-relaxed text-ink-muted">{t('orderPlacedLead')}</p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/" className="px-6 py-2.5 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors shadow-sm">
-              Về trang chủ
-            </Link>
-            <Link href="/profile/orders" className="px-6 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-sm hover:bg-gray-50 transition-colors">
-              Xem đơn hàng
-            </Link>
-          </div>
+        <div className="flex flex-col justify-center gap-3 sm:flex-row">
+          <Link
+            href="/"
+            className="rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+          >
+            {t('toHome')}
+          </Link>
+          <Link
+            href="/profile/orders"
+            className="rounded-control border border-ink/16 px-6 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
+          >
+            {t('viewOrder')}
+          </Link>
         </div>
       </div>
     </div>

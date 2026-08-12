@@ -46,7 +46,7 @@ export type AddressValues = {
 const EMPTY: AddressValues = {
   recipient_name: '',
   phone_number: '',
-  label: 'Nhà riêng',
+  label: '',
   province: '',
   district: '',
   ward: '',
@@ -54,7 +54,10 @@ const EMPTY: AddressValues = {
   is_default: false,
 };
 
-const NICKNAMES = ['Nhà riêng', 'Công ty', 'Trường học', 'Nhà bạn'];
+// Bon goi y nay la GOI Y, khong phai danh sach dong. Nguoi dung chon mot cai
+// roi no duoc luu nguyen van xuong backend nhu du lieu cua ho — nen dich o day
+// chi doi thu HIEN RA de chon, khong dong toi dia chi da luu.
+const NICK_KEYS = ['home', 'work', 'school', 'friend'] as const;
 
 type Errors = Partial<Record<keyof AddressValues, string>>;
 
@@ -167,7 +170,7 @@ export function AddressForm({
         <fieldset>
           <legend className={labelCls}>{t('nickname')}</legend>
           <div className="flex flex-wrap gap-2">
-            {NICKNAMES.map((n) => (
+            {NICK_KEYS.map((k) => t(`nick_${k}`)).map((n) => (
               <button
                 key={n}
                 type="button"

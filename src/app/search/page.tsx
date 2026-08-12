@@ -41,7 +41,14 @@ export default function SearchPage() {
   const selectedCat = catFromUrl;
   const [sort, setSort] = useState(sortFromUrl);
   const [currentPage, setCurrentPage] = useState(1);
-  const [trendingKeywords, setTrendingKeywords] = useState<string[]>(['Laptop', 'Sách', 'Điện thoại', 'Tai nghe', 'Áo thun', 'Giày']);
+  // Sáu từ khoá MỒI, hiện ngay lúc mở trang rồi bị API ghi đè bằng tên sản phẩm
+  // thật (xem setTrendingKeywords bên dưới). Vì là chữ do mình viết chứ không
+  // phải dữ liệu, chúng phải đổi theo ngôn ngữ — "Sách" không giúp ai đang đọc
+  // giao diện tiếng Anh. Còn từ khoá lấy từ API thì để nguyên: đó là tên người
+  // bán tự đặt, dịch nó là bịa.
+  const [trendingKeywords, setTrendingKeywords] = useState<string[]>(() =>
+    ['laptop', 'books', 'phones', 'headphones', 'tshirts', 'shoes'].map((k) => t(`trend_${k}`)),
+  );
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
 
   const fetchProducts = useCallback(async (page: number) => {

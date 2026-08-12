@@ -11,7 +11,11 @@
     "optional": "không bắt buộc",
     "required": "bắt buộc",
     "seeAll": "Xem tất cả",
-    "searchAria": "Tìm đồ cũ đang bán"
+    "searchAria": "Tìm đồ cũ đang bán",
+    "confirm": "Xác nhận",
+    "dismiss": "Đóng thông báo",
+    "back": "Quay lại",
+    "breadcrumb": "Đường dẫn"
   },
   "header": {
     "home": "Zoldify — về trang chủ",
@@ -324,7 +328,9 @@
     "stockFailed": "Chưa đổi được số lượng.",
     "pagePrev": "Trang trước",
     "pageNext": "Trang sau",
-    "pageOf": "Trang {current}/{total}"
+    "pageOf": "Trang {current}/{total}",
+    "decrease": "Giảm một",
+    "increase": "Tăng một"
   },
   "wallet": {
     "title": "Ví Zoldify",
@@ -406,7 +412,11 @@
     "errPhoneFormat": "Số điện thoại chỉ gồm chữ số, khoảng 9–11 số.",
     "errProvince": "Chọn tỉnh hoặc thành phố.",
     "errDistrict": "Chọn quận hoặc huyện.",
-    "errStreet": "Nhập số nhà và tên đường."
+    "errStreet": "Nhập số nhà và tên đường.",
+    "nick_home": "Nhà riêng",
+    "nick_work": "Công ty",
+    "nick_school": "Trường học",
+    "nick_friend": "Nhà bạn"
   },
   "account": {
     "navLabel": "Khu tài khoản",
@@ -472,7 +482,13 @@
     "empty": "Không có món nào khớp.",
     "emptyHint": "Thử bỏ bớt bộ lọc, hoặc gõ từ khoá ngắn hơn.",
     "trending": "Hay được tìm",
-    "pagination": "Phân trang"
+    "pagination": "Phân trang",
+    "trend_laptop": "Laptop",
+    "trend_books": "Sách",
+    "trend_phones": "Điện thoại",
+    "trend_headphones": "Tai nghe",
+    "trend_tshirts": "Áo thun",
+    "trend_shoes": "Giày"
   },
   "checkout": {
     "removedItem": "Món đã bị gỡ",
@@ -834,5 +850,40 @@
     "sellPanelLead": "Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người cần sẽ tìm thấy.",
     "sellPanelCta": "Đăng bán đồ cũ",
     "sellPanelAlt": "Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp."
+  },
+  "payment": {
+    "working": "Đang xử lý",
+    "verifying": "Đang xác nhận thanh toán…",
+    "verifyingCount": "Đang xác nhận thanh toán… ({n}/{max})",
+    "cancelled": "Thanh toán đã bị huỷ.",
+    "topupDone": "Nạp ví thành công. Đang chuyển về trang ví…",
+    "noOrderId": "Không tìm thấy mã đơn hàng.",
+    "paid": "Thanh toán thành công.",
+    "noConfirm": "Chưa nhận được xác nhận từ hệ thống. Kiểm tra lại trong mục đơn hàng của bạn.",
+    "successTitle": "Xong",
+    "failedTitle": "Chưa xong",
+    "toWallet": "Về trang ví",
+    "viewOrder": "Xem đơn hàng",
+    "keepShopping": "Tiếp tục xem hàng",
+    "tryAgain": "Thử thanh toán lại",
+    "backToCart": "Quay lại giỏ hàng",
+    "toHome": "Về trang chủ",
+    "cancelTitle": "Đã huỷ thanh toán",
+    "cancelTopupLead": "Bạn đã huỷ giao dịch nạp ví. Tiền chưa bị trừ.",
+    "cancelOrderLead": "Bạn đã huỷ thanh toán. Đơn hàng vẫn đang chờ thanh toán, chưa mất đi đâu.",
+    "orderPlacedTitle": "Đặt hàng xong",
+    "orderPlacedLead": "Cảm ơn bạn. Người bán đã nhận được đơn và sẽ xác nhận sớm."
+  },
+  "errors": {
+    "pageTitle": "Trang này đang gặp sự cố",
+    "pageLead": "Có lỗi khi tải nội dung. Bạn thử lại, hoặc quay về trang chủ rồi vào lại sau.",
+    "retry": "Thử lại",
+    "toHome": "Về trang chủ",
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundLead": "Trang bạn tìm có thể đã bị xoá, đổi tên, hoặc tạm thời không vào được.",
+    "maintenanceTitle": "Zoldify đang bảo trì",
+    "maintenanceLead": "Chúng tôi đang nâng cấp hệ thống. Bạn quay lại sau một lát nhé.",
+    "maintenanceContact": "Cần hỗ trợ thì liên hệ:",
+    "loadingPage": "Đang tải trang"
   }
 }

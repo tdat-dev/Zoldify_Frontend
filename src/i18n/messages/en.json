@@ -11,7 +11,11 @@
     "optional": "optional",
     "required": "required",
     "seeAll": "See all",
-    "searchAria": "Search items for sale"
+    "searchAria": "Search items for sale",
+    "confirm": "Confirm",
+    "dismiss": "Dismiss",
+    "back": "Back",
+    "breadcrumb": "Breadcrumb"
   },
   "header": {
     "home": "Zoldify — back to home",
@@ -324,7 +328,9 @@
     "stockFailed": "Could not change the quantity.",
     "pagePrev": "Previous",
     "pageNext": "Next",
-    "pageOf": "Page {current} of {total}"
+    "pageOf": "Page {current} of {total}",
+    "decrease": "One fewer",
+    "increase": "One more"
   },
   "wallet": {
     "title": "Zoldify wallet",
@@ -406,7 +412,11 @@
     "errPhoneFormat": "A phone number is 9–11 digits, no letters.",
     "errProvince": "Choose a province or city.",
     "errDistrict": "Choose a district.",
-    "errStreet": "Enter the street address."
+    "errStreet": "Enter the street address.",
+    "nick_home": "Home",
+    "nick_work": "Work",
+    "nick_school": "School",
+    "nick_friend": "A friend's place"
   },
   "account": {
     "navLabel": "Account section",
@@ -472,7 +482,13 @@
     "empty": "Nothing matches.",
     "emptyHint": "Try removing a filter, or a shorter keyword.",
     "trending": "Often searched",
-    "pagination": "Pagination"
+    "pagination": "Pagination",
+    "trend_laptop": "Laptops",
+    "trend_books": "Books",
+    "trend_phones": "Phones",
+    "trend_headphones": "Headphones",
+    "trend_tshirts": "T-shirts",
+    "trend_shoes": "Shoes"
   },
   "checkout": {
     "removedItem": "Listing removed",
@@ -834,5 +850,40 @@
     "sellPanelLead": "Things still in good shape that you don't need any more. List it once and the person looking for it will find it.",
     "sellPanelCta": "List an item",
     "sellPanelAlt": "Used items in good condition laid out in a row: a film camera, headphones, books, a denim jacket, a desk lamp, a bike helmet."
+  },
+  "payment": {
+    "working": "Working on it",
+    "verifying": "Confirming your payment…",
+    "verifyingCount": "Confirming your payment… ({n}/{max})",
+    "cancelled": "The payment was cancelled.",
+    "topupDone": "Money added. Taking you back to your wallet…",
+    "noOrderId": "No order reference found.",
+    "paid": "Payment went through.",
+    "noConfirm": "We haven't heard back from the payment system. Check your orders to see where it stands.",
+    "successTitle": "Done",
+    "failedTitle": "Not done",
+    "toWallet": "Back to my wallet",
+    "viewOrder": "View the order",
+    "keepShopping": "Keep browsing",
+    "tryAgain": "Try paying again",
+    "backToCart": "Back to the cart",
+    "toHome": "Back to home",
+    "cancelTitle": "Payment cancelled",
+    "cancelTopupLead": "You cancelled adding money. Nothing was charged.",
+    "cancelOrderLead": "You cancelled the payment. The order is still waiting to be paid — it hasn't gone anywhere.",
+    "orderPlacedTitle": "Order placed",
+    "orderPlacedLead": "Thanks. The seller has your order and will confirm it shortly."
+  },
+  "errors": {
+    "pageTitle": "Something went wrong on this page",
+    "pageLead": "The content failed to load. Try again, or go back home and come back in a bit.",
+    "retry": "Try again",
+    "toHome": "Back to home",
+    "notFoundTitle": "Page not found",
+    "notFoundLead": "This page may have been removed, renamed, or is temporarily unavailable.",
+    "maintenanceTitle": "Zoldify is down for maintenance",
+    "maintenanceLead": "We're upgrading the system. Please check back shortly.",
+    "maintenanceContact": "Need help? Get in touch:",
+    "loadingPage": "Loading"
   }
 }

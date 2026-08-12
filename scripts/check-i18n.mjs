@@ -127,6 +127,10 @@ for (const duong of tep) {
   // Dòng GỐC để tìm dấu i18n-ignore: dấu đó nằm trong chú thích, mà chú thích
   // thì bị bóc mất trước khi kiểm — tìm trên bản đã bóc thì không bao giờ thấy.
   const dongGoc = nguon.split('\n');
+  // Dấu cấp TỆP, cho những file mà cả nội dung là ngoại lệ có lý do (ví dụ
+  // global-error.tsx chạy khi provider i18n đã chết). Dấu cấp dòng đặt trong
+  // một khối chú thích ở đầu tệp thì không với tới được chỗ vi phạm ở cuối.
+  if (/i18n-ignore-file/.test(nguon)) continue;
   const daBoc = bocChuThich(nguon);
   const trongConsole = dongTrongConsole(daBoc.join('\n'));
 
