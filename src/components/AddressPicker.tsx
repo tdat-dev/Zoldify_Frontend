@@ -119,16 +119,16 @@ export default function AddressPicker({ onSelect }: Props) {
             <div
               key={addr.id}
               onClick={() => handleSelectSaved(addr)}
-              className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === addr.id ? 'border-brand bg-orange-50' : 'border-gray-200 hover:border-gray-300'}`}
+              className={`p-3 border rounded-lg cursor-pointer transition-colors ${selectedId === addr.id ? 'border-brand bg-state-pending-bg' : 'border-ink/10 hover:border-ink/16'}`}
             >
               <div className="flex items-center gap-2">
                 <input type="radio" checked={selectedId === addr.id} readOnly className="accent-brand" />
                 <div>
-                  <span className="font-medium text-gray-800">{addr.recipient_name}</span>
-                  <span className="text-gray-600 mx-1">|</span>
-                  <span className="text-gray-600">{addr.phone_number}</span>
+                  <span className="font-medium text-ink">{addr.recipient_name}</span>
+                  <span className="text-ink-muted mx-1">|</span>
+                  <span className="text-ink-muted">{addr.phone_number}</span>
                   {addr.is_default && <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-brand text-white rounded">{t('default')}</span>}
-                  <p className="text-sm text-gray-600 mt-0.5">{addr.street}{addr.ward ? `, ${addr.ward}` : ''}, {addr.district}, {addr.province}</p>
+                  <p className="text-sm text-ink-muted mt-0.5">{addr.street}{addr.ward ? `, ${addr.ward}` : ''}, {addr.district}, {addr.province}</p>
                 </div>
               </div>
             </div>
@@ -140,38 +140,38 @@ export default function AddressPicker({ onSelect }: Props) {
       {(useNew || savedAddresses.length === 0) && (
         <div className="space-y-3">
           {savedAddresses.length > 0 && (
-            <button type="button" onClick={() => { setUseNew(false); if (savedAddresses.length) emitSelection(savedAddresses[0]); }} className="text-sm text-blue-600 hover:underline">
+            <button type="button" onClick={() => { setUseNew(false); if (savedAddresses.length) emitSelection(savedAddresses[0]); }} className="text-sm text-brand hover:underline">
               &larr; {t('pickSaved')}
             </button>
           )}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-small font-semibold text-ink">{t('recipient')} <span className="text-price">*</span></label>
-              <input type="text" value={form.recipient_name} onChange={(e) => handleNewFormChange('recipient_name', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder={t('recipientPlaceholder')} />
+              <input type="text" value={form.recipient_name} onChange={(e) => handleNewFormChange('recipient_name', e.target.value)} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder={t('recipientPlaceholder')} />
             </div>
             <div>
               <label className="text-small font-semibold text-ink">{t('phone')} <span className="text-price">*</span></label>
-              <input type="tel" value={form.phone_number} onChange={(e) => handleNewFormChange('phone_number', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder="090..." />
+              <input type="tel" value={form.phone_number} onChange={(e) => handleNewFormChange('phone_number', e.target.value)} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder="090..." />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="text-small font-semibold text-ink">{t('province')} <span className="text-price">*</span></label>
-              <select value={form.provinceCode} onChange={(e) => handleProvinceChange(Number(e.target.value))} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white">
+              <select value={form.provinceCode} onChange={(e) => handleProvinceChange(Number(e.target.value))} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white">
                 <option value={0}>{t('choose')}</option>
                 {provinces.map((p: any) => <option key={p.code} value={p.code}>{p.name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-small font-semibold text-ink">{t('district')} <span className="text-price">*</span></label>
-              <select value={form.districtCode} onChange={(e) => handleDistrictChange(Number(e.target.value))} disabled={!form.provinceCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100">
+              <select value={form.districtCode} onChange={(e) => handleDistrictChange(Number(e.target.value))} disabled={!form.provinceCode} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-surface-sunken">
                 <option value={0}>{t('choose')}</option>
                 {districts.map((d: any) => <option key={d.code} value={d.code}>{d.name}</option>)}
               </select>
             </div>
             <div>
               <label className="text-small font-semibold text-ink">{t('ward')}</label>
-              <select value={form.ward} onChange={(e) => handleWardChange(e.target.value)} disabled={!form.districtCode} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-gray-100">
+              <select value={form.ward} onChange={(e) => handleWardChange(e.target.value)} disabled={!form.districtCode} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none bg-white disabled:bg-surface-sunken">
                 <option value="">{t('choose')}</option>
                 {wards.map((w: any) => <option key={w.code} value={w.name}>{w.name}</option>)}
               </select>
@@ -179,7 +179,7 @@ export default function AddressPicker({ onSelect }: Props) {
           </div>
           <div>
             <label className="text-small font-semibold text-ink">{t('street')} <span className="text-price">*</span></label>
-            <input type="text" value={form.street} onChange={(e) => handleNewFormChange('street', e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder={t('streetPlaceholder')} />
+            <input type="text" value={form.street} onChange={(e) => handleNewFormChange('street', e.target.value)} className="w-full mt-1 px-3 py-2 border border-ink/16 rounded-lg focus:ring-2 focus:ring-brand focus:border-transparent outline-none" placeholder={t('streetPlaceholder')} />
           </div>
         </div>
       )}

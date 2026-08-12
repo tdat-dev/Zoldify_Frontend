@@ -28,7 +28,7 @@ const TYPE_ICONS: Record<string, any> = {
  * 2. `<div onClick>` LÀM NÚT đánh dấu đã đọc: không tab tới được, không có
  *    role, trình đọc màn hình không biết nó bấm được.
  *
- * 3. NÚT XOÁ MÀU `text-gray-300` — gần như vô hình trên nền trắng, dưới xa
+ * 3. NÚT XOÁ MÀU `text-ink-faint` — gần như vô hình trên nền trắng, dưới xa
  *    ngưỡng tương phản 3:1 cho thành phần giao diện.
  *
  * 4. MỐC THỜI GIAN CỠ 10px.

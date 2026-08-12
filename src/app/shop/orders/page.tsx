@@ -256,7 +256,7 @@ export default function ShopOrdersPage() {
                           {tStatus(order.status)}
                         </span>
                         {order.tracking_code && (
-                          <span className="px-2 py-0.5 rounded text-caption font-medium bg-orange-100 text-orange-700">
+                          <span className="px-2 py-0.5 rounded text-caption font-medium bg-state-pending-bg text-state-pending-fg">
                             GHN: {order.tracking_code}
                           </span>
                         )}
@@ -264,7 +264,7 @@ export default function ShopOrdersPage() {
                           {order.payment_method?.toUpperCase()}
                         </span>
                       </div>
-                      <div className="text-small font-bold text-red-600">
+                      <div className="text-small font-bold text-state-danger-fg">
                         {formatCurrency(order.final_amount)}
                       </div>
                     </div>
@@ -321,7 +321,7 @@ export default function ShopOrdersPage() {
                         <button
                           onClick={() => setConfirmCancel(order)}
                           disabled={actionLoading === order.id}
-                          className="px-3 py-1.5 border border-red-300 text-red-700 text-small font-medium rounded-control hover:bg-red-50 disabled:opacity-50"
+                          className="px-3 py-1.5 border border-state-danger-fg/30 text-state-danger-fg text-small font-medium rounded-control hover:bg-state-danger-bg disabled:opacity-50"
                         >
                           {t('cancelOrder')}
                         </button>
@@ -471,7 +471,7 @@ export default function ShopOrdersPage() {
                 </div>
                 {Number(orderDiscount(viewingOrder)) > 0 && (
                   <div className="flex justify-between text-ink-muted">
-                    <span>{t('discount')}</span><span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
+                    <span>{t('discount')}</span><span className="text-state-success-fg">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-ink-muted">
@@ -480,7 +480,7 @@ export default function ShopOrdersPage() {
                 </div>
                 <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
                   <span>{t('total')}</span>
-                  <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
+                  <span className="text-state-danger-fg">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
               </div>
             </div>
@@ -493,8 +493,8 @@ export default function ShopOrdersPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmCancel(null)}>
           <div className="bg-surface-card rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start gap-4 mb-5">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                <XCircle className="w-6 h-6 text-red-600" />
+              <div className="w-12 h-12 rounded-full bg-state-danger-bg flex items-center justify-center flex-shrink-0">
+                <XCircle className="w-6 h-6 text-state-danger-fg" />
               </div>
               <div className="flex-1 pt-1">
                 <h2 className="text-lg font-bold text-ink">{t('cancelTitle')}</h2>
@@ -508,7 +508,7 @@ export default function ShopOrdersPage() {
               <button onClick={() => setConfirmCancel(null)} className="flex-1 px-4 py-2.5 border border-ink/16 text-ink rounded-control hover:bg-surface-page font-medium">
                 {t('no')}
               </button>
-              <button onClick={handleCancel} className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-control hover:bg-red-700 font-medium">
+              <button onClick={handleCancel} className="flex-1 px-4 py-2.5 bg-price text-white rounded-control hover:bg-state-danger-fg font-medium">
                 {t('cancelOrder')}
               </button>
             </div>

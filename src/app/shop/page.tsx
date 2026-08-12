@@ -212,7 +212,7 @@ export default function ShopPage() {
         <div className="bg-surface-card p-6 rounded-sm mb-6 flex items-center gap-6">
           <div className="relative">
             <img loading="lazy" decoding="async" src={shopLogo} alt={shopName} className="w-20 h-20 rounded-full border-2 border-ink/10 object-cover" />
-            <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+            <div className="absolute bottom-0 right-0 w-5 h-5 bg-state-success-fg rounded-full border-2 border-white"></div>
           </div>
 
           <div className="flex-1">
@@ -248,7 +248,7 @@ export default function ShopPage() {
                   disabled={toggling}
                   className={`px-5 py-2 font-medium rounded-sm transition-colors flex items-center gap-2 disabled:opacity-70 ${
                     isFollowing
-                      ? 'bg-surface-sunken text-ink border border-ink/16 hover:bg-gray-200'
+                      ? 'bg-surface-sunken text-ink border border-ink/16 hover:bg-ink/10'
                       : 'bg-brand text-white hover:bg-brand-dark'
                   }`}
                 >
@@ -311,14 +311,14 @@ export default function ShopPage() {
                       <div className="absolute top-1 right-1 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={(e) => { e.preventDefault(); router.push(`/product/${item.id}/edit`); }}
-                          className="w-7 h-7 bg-surface-card/90 hover:bg-blue-500 hover:text-white text-brand rounded-control flex items-center justify-center shadow"
+                          className="w-7 h-7 bg-surface-card/90 hover:bg-brand hover:text-white text-brand rounded-control flex items-center justify-center shadow"
                           title={t('edit')}
                         >
                           <Edit className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={(e) => { e.preventDefault(); handleDeleteFromShop(item.id, item.name); }}
-                          className="w-7 h-7 bg-surface-card/90 hover:bg-red-500 hover:text-white text-red-600 rounded-control flex items-center justify-center shadow"
+                          className="w-7 h-7 bg-surface-card/90 hover:bg-price hover:text-white text-state-danger-fg rounded-control flex items-center justify-center shadow"
                           title={t('delete')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -407,7 +407,7 @@ function ShopStockEditor({
         mini
         disabled={saving}
       />
-      {saving && <Loader2 className="w-3 h-3 animate-spin text-blue-500" />}
+      {saving && <Loader2 className="w-3 h-3 animate-spin text-brand" />}
     </div>
   );
 }

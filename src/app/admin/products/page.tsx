@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
                     <td className="py-4 px-6 text-small text-ink-muted">
                       {product.category?.name || '—'}
                     </td>
-                    <td className="py-4 px-6 text-small font-medium text-red-600 whitespace-nowrap">
+                    <td className="py-4 px-6 text-small font-medium text-state-danger-fg whitespace-nowrap">
                       {formatPrice(product.price)}
                     </td>
                     <td className="py-4 px-6">
@@ -177,14 +177,14 @@ export default function AdminProductsPage() {
                         </Link>
                         <button
                           onClick={() => router.push(`/product/${product.id}/edit`)}
-                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
+                          className="p-2 text-brand hover:bg-brand-tint rounded-control transition"
                           title={t('edit')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(product.id, product.name)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-control transition"
+                          className="p-2 text-state-danger-fg hover:bg-state-danger-bg rounded-control transition"
                           title={t('del')}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -264,7 +264,7 @@ function StockEditor({
         compact
         disabled={saving}
       />
-      {saving && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />}
+      {saving && <Loader2 className="w-3.5 h-3.5 animate-spin text-brand" />}
     </div>
   );
 }

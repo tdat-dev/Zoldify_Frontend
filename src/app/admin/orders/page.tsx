@@ -266,7 +266,7 @@ export default function AdminOrdersPage() {
                       <div className="text-caption text-ink-muted">{order.receiver_phone}</div>
                     </td>
                     <td className="py-4 px-6">
-                      <div className="text-small font-semibold text-red-600">{formatCurrency(order.final_amount)}</div>
+                      <div className="text-small font-semibold text-state-danger-fg">{formatCurrency(order.final_amount)}</div>
                       {Number(order.shipping_fee) > 0 && (
                         <div className="text-caption text-ink-muted">ship: {formatCurrency(order.shipping_fee)}</div>
                       )}
@@ -304,7 +304,7 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center justify-center">
                         <button
                           onClick={() => setViewingOrder(order)}
-                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
+                          className="p-2 text-brand hover:bg-brand-tint rounded-control transition"
                           title={t('viewDetail')}
                         >
                           <Eye className="w-4 h-4" />
@@ -469,7 +469,7 @@ export default function AdminOrdersPage() {
                 {Number(orderDiscount(viewingOrder)) > 0 && (
                   <div className="flex justify-between text-ink-muted">
                     <span>{t('discount')}</span>
-                    <span className="text-green-700">-{formatCurrency(orderDiscount(viewingOrder))}</span>
+                    <span className="text-state-success-fg">-{formatCurrency(orderDiscount(viewingOrder))}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-ink-muted">
@@ -478,7 +478,7 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
                   <span>{t('total')}</span>
-                  <span className="text-red-600">{formatCurrency(viewingOrder.final_amount)}</span>
+                  <span className="text-state-danger-fg">{formatCurrency(viewingOrder.final_amount)}</span>
                 </div>
                 <div className="text-caption text-ink-muted pt-1">
                   {t('paidBy')} <span className="font-medium">{viewingOrder.payment_method?.toUpperCase()}</span>

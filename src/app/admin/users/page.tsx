@@ -245,7 +245,11 @@ export default function AdminUsersPage() {
                     <td className="py-4 px-6 text-small text-ink-muted">#{user.id}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-medium flex-shrink-0">
+                        {/* Chữ cái đầu trên nền phẳng màu thương hiệu. Trước là
+                            gradient xanh→tím — một màu không có ở đâu khác trong
+                            site, đặt cạnh nhau thành một cột tròn tím giữa bảng
+                            quản trị. */}
+                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-tint font-semibold text-brand">
                           {user.full_name?.charAt(0).toUpperCase() || '?'}
                         </div>
                         <div className="min-w-0">
@@ -257,9 +261,9 @@ export default function AdminUsersPage() {
                     <td className="py-4 px-6 text-small text-ink-muted">{user.email}</td>
                     <td className="py-4 px-6">
                       <span className={`px-2 py-1 rounded-full text-caption font-medium ${
-                        user.role === 'admin' ? 'bg-red-100 text-red-700' :
-                        user.role === 'seller' ? 'bg-blue-100 text-brand' :
-                        user.role === 'moderator' ? 'bg-purple-100 text-purple-700' :
+                        user.role === 'admin' ? 'bg-state-danger-bg text-state-danger-fg' :
+                        user.role === 'seller' ? 'bg-state-progress-bg text-brand' :
+                        user.role === 'moderator' ? 'bg-state-progress-bg text-state-progress-fg' :
                         'bg-surface-sunken text-ink'
                       }`}>
                         {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
@@ -267,22 +271,22 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="py-4 px-6 text-small">
                       {user.email_verified || user.is_verified ? (
-                        <span className="text-green-700 flex items-center gap-1">
+                        <span className="text-state-success-fg flex items-center gap-1">
                           <CheckCircle className="w-4 h-4" /> {t('verified')}
                         </span>
                       ) : (
-                        <span className="text-orange-500 flex items-center gap-1">
+                        <span className="text-state-pending-fg flex items-center gap-1">
                           <Clock className="w-4 h-4" /> {t('notVerified')}
                         </span>
                       )}
                     </td>
                     <td className="py-4 px-6">
                       {user.is_locked ? (
-                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-red-100 text-red-700 flex items-center gap-1 w-max">
+                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-state-danger-bg text-state-danger-fg flex items-center gap-1 w-max">
                           <Lock className="w-3 h-3" /> {t('usrLocked')}
                         </span>
                       ) : (
-                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-green-100 text-green-700 flex items-center gap-1 w-max">
+                        <span className="px-2 py-1 rounded-full text-caption font-medium bg-state-success-bg text-state-success-fg flex items-center gap-1 w-max">
                           <Unlock className="w-3 h-3" /> {t('usrActive')}
                         </span>
                       )}
@@ -294,7 +298,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => openEditRole(user)}
-                          className="p-2 text-blue-500 hover:bg-brand-tint rounded-control transition"
+                          className="p-2 text-brand hover:bg-brand-tint rounded-control transition"
                           title={t('editRole')}
                           disabled={user.role === 'admin'}
                         >
@@ -305,8 +309,8 @@ export default function AdminUsersPage() {
                           disabled={togglingId === user.id || user.role === 'admin'}
                           className={`p-2 rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed ${
                             user.is_locked
-                              ? 'text-green-500 hover:bg-green-50'
-                              : 'text-red-600 hover:bg-red-50'
+                              ? 'text-state-success-fg hover:bg-state-success-bg'
+                              : 'text-state-danger-fg hover:bg-state-danger-bg'
                           }`}
                           title={user.role === 'admin' ? t('cannotLockTitle') : user.is_locked ? t('unlockConfirm') : t('lockTitle')}
                         >
@@ -321,7 +325,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => handleDelete(user)}
                           disabled={deletingId === user.id || user.role === 'admin'}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="p-2 text-state-danger-fg hover:bg-state-danger-bg rounded-control transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title={user.role === 'admin' ? t('cannotDeleteTitle') : t('delUserTitle')}
                         >
                           {deletingId === user.id ? (
@@ -367,7 +371,7 @@ export default function AdminUsersPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-ink flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-500" />
+                <Shield className="w-5 h-5 text-brand" />
                 {t('editRole')}
               </h2>
               <button onClick={() => setEditingUser(null)} className="p-1 hover:bg-surface-sunken rounded">
@@ -388,7 +392,7 @@ export default function AdminUsersPage() {
                   key={r}
                   className={`flex items-center gap-3 p-3 border rounded-control cursor-pointer transition-colors ${
                     newRole === r
-                      ? 'border-blue-500 bg-brand-tint'
+                      ? 'border-brand bg-brand-tint'
                       : 'border-ink/10 hover:border-ink/16'
                   }`}
                 >
@@ -457,10 +461,10 @@ export default function AdminUsersPage() {
           >
             <div className="flex items-start gap-4 mb-5">
               <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                confirmAction.confirmStyle === 'danger' ? 'bg-red-100' : 'bg-blue-100'
+                confirmAction.confirmStyle === 'danger' ? 'bg-state-danger-bg' : 'bg-state-progress-bg'
               }`}>
                 {confirmAction.confirmStyle === 'danger' ? (
-                  <Trash2 className="w-6 h-6 text-red-600" />
+                  <Trash2 className="w-6 h-6 text-state-danger-fg" />
                 ) : (
                   <Lock className="w-6 h-6 text-brand" />
                 )}
@@ -481,7 +485,7 @@ export default function AdminUsersPage() {
                 onClick={confirmAction.onConfirm}
                 className={`flex-1 px-4 py-2.5 text-white rounded-control font-medium ${
                   confirmAction.confirmStyle === 'danger'
-                    ? 'bg-red-600 hover:bg-red-700'
+                    ? 'bg-price hover:bg-state-danger-fg'
                     : 'bg-brand hover:bg-brand-dark'
                 }`}
               >

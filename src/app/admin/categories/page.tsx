@@ -183,7 +183,7 @@ export default function CategoriesPage() {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-4 py-2 bg-surface-sunken text-ink rounded-control hover:bg-gray-200 transition"
+                    className="px-4 py-2 bg-surface-sunken text-ink rounded-control hover:bg-ink/10 transition"
                   >
                     {tc('cancel')}
                   </button>
@@ -229,10 +229,10 @@ export default function CategoriesPage() {
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center justify-center gap-2">
-                          <button onClick={() => handleEdit(cat)} className="p-2 text-brand hover:bg-blue-100 rounded-control transition" title={t('edit')}>
+                          <button onClick={() => handleEdit(cat)} className="p-2 text-brand hover:bg-state-progress-bg rounded-control transition" title={t('edit')}>
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-control transition" title={t('del')}>
+                          <button onClick={() => handleDelete(cat.id)} className="p-2 text-state-danger-fg hover:bg-state-danger-bg rounded-control transition" title={t('del')}>
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>

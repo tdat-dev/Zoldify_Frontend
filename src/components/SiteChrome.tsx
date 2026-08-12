@@ -20,6 +20,16 @@ import { AuthHeader } from '@/components/auth/AuthHeader';
 const ROUTE_AUTH = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 /**
+ * Trang KHÔNG có khung nào cả.
+ *
+ * /maintenance nói "hệ thống đang bảo trì" mà bên trên vẫn là ô tìm kiếm, nút
+ * "Đăng bán", giỏ hàng, và bên dưới là footer đủ liên kết — tự mâu thuẫn với
+ * chính thông báo của nó, và mọi liên kết đó đều dẫn vào cái site vừa được
+ * tuyên bố là đang đóng.
+ */
+const ROUTE_TRAN = ['/maintenance'];
+
+/**
  * `announce` được TRUYỀN VÀO chứ không import.
  *
  * AnnounceBar là server component `async` (nó gọi getTranslations của
@@ -43,6 +53,14 @@ export function SiteChrome({
 }) {
   const pathname = usePathname();
   const laAuth = ROUTE_AUTH.includes(pathname);
+
+  if (ROUTE_TRAN.includes(pathname)) {
+    return (
+      <main id="main" className="min-h-screen">
+        {children}
+      </main>
+    );
+  }
 
   if (laAuth) {
     // Không AnnounceBar, không Footer: cả hai đều mời người dùng đi chỗ khác,

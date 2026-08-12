@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
 
         <div className="bg-surface-card p-6 rounded-control border border-ink/10">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-control bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <div className="w-12 h-12 rounded-control bg-state-progress-bg flex items-center justify-center text-state-progress-fg">
               <Package className="w-6 h-6" />
             </div>
           </div>
@@ -72,7 +72,7 @@ export default function AdminDashboardPage() {
 
         <div className="bg-surface-card p-6 rounded-control border border-ink/10">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-control bg-orange-50 flex items-center justify-center text-orange-600">
+            <div className="w-12 h-12 rounded-control bg-state-pending-bg flex items-center justify-center text-state-pending-fg">
               <ShoppingCart className="w-6 h-6" />
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
 
         <div className="bg-surface-card p-6 rounded-control border border-ink/10">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 rounded-control bg-green-50 flex items-center justify-center text-green-700">
+            <div className="w-12 h-12 rounded-control bg-state-success-bg flex items-center justify-center text-state-success-fg">
               <DollarSign className="w-6 h-6" />
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
             </Link>
 
             <Link href="/admin/users" className="flex items-center gap-4 p-3 rounded-control border border-ink/10 hover:bg-surface-page hover:border-ink/10 transition-all group">
-              <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-state-progress-bg text-state-progress-fg flex items-center justify-center">
                 <Users className="w-5 h-5" />
               </div>
               <div>
@@ -121,7 +121,7 @@ export default function AdminDashboardPage() {
               <ChevronRight className="w-4 h-4 ml-auto text-ink-muted group-hover:text-ink-muted" />
             </Link>
             <Link href="/admin/categories" className="flex items-center gap-4 p-3 rounded-control border border-ink/10 hover:bg-surface-page hover:border-ink/10 transition-all group">
-              <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-state-success-bg text-state-success-fg flex items-center justify-center">
                 <FolderOpen className="w-5 h-5" />
               </div>
               <div>
@@ -131,7 +131,7 @@ export default function AdminDashboardPage() {
               <ChevronRight className="w-4 h-4 ml-auto text-ink-muted group-hover:text-ink-muted" />
             </Link>
             <Link href="/admin/orders" className="flex items-center gap-4 p-3 rounded-control border border-ink/10 hover:bg-surface-page hover:border-ink/10 transition-all group">
-              <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-state-pending-bg text-state-pending-fg flex items-center justify-center">
                 <List className="w-5 h-5" />
               </div>
               <div>

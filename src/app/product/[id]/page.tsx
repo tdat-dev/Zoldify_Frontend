@@ -422,7 +422,7 @@ export default function ProductDetailPage() {
               <span className="text-h1 tabular-nums text-ink">{avgRating}</span>
               <div className="flex">
                 {[1,2,3,4,5].map((s) => (
-                  <Star key={s} className={`w-4 h-4 ${s <= Math.round(Number(avgRating)) ? 'text-amber-500 fill-amber-500' : 'text-ink/25'}`} />
+                  <Star key={s} className={`w-4 h-4 ${s <= Math.round(Number(avgRating)) ? 'text-state-pending-fg fill-amber-500' : 'text-ink/25'}`} />
                 ))}
               </div>
               <span className="text-xs text-ink-muted ml-2">/ 5 sao</span>
@@ -441,7 +441,7 @@ export default function ProductDetailPage() {
                     onClick={() => setNewRating(s)}
                     className="focus:outline-none"
                   >
-                    <Star className={`w-6 h-6 ${s <= newRating ? 'text-amber-500 fill-amber-500' : 'text-ink/25 hover:text-amber-400'}`} />
+                    <Star className={`w-6 h-6 ${s <= newRating ? 'text-state-pending-fg fill-amber-500' : 'text-ink/25 hover:text-state-pending-fg'}`} />
                   </button>
                 ))}
                 <span className="text-sm text-ink-muted ml-2">{newRating}/5</span>
@@ -496,7 +496,7 @@ export default function ProductDetailPage() {
                     <p className="text-sm font-medium text-ink">{rev.user?.full_name || t('anonUser')}</p>
                     <div className="flex items-center gap-1 my-1">
                       {[1,2,3,4,5].map((s) => (
-                        <Star key={s} className={`w-3 h-3 ${s <= (rev.rating || 0) ? 'text-amber-500 fill-amber-500' : 'text-ink/25'}`} />
+                        <Star key={s} className={`w-3 h-3 ${s <= (rev.rating || 0) ? 'text-state-pending-fg fill-amber-500' : 'text-ink/25'}`} />
                       ))}
                     </div>
                     <p className="text-sm text-ink-muted">{rev.comment || rev.content}</p>

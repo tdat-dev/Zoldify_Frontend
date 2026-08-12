@@ -299,7 +299,7 @@ export default function ChatPage() {
                       </p>
                     </div>
                     {conv.unread_count > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
+                      <span className="bg-price text-white text-[10px] font-bold min-w-[18px] h-[18px] flex items-center justify-center rounded-full px-1">
                         {conv.unread_count > 99 ? '99+' : conv.unread_count}
                       </span>
                     )}
@@ -311,7 +311,7 @@ export default function ChatPage() {
           </div>
 
           {/* Chat Area */}
-          <div className={`w-full md:w-2/3 flex flex-col bg-slate-50 relative ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`w-full md:w-2/3 flex flex-col bg-surface-sunken relative ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
             {activeConv ? (
               (() => {
                 const headerStatus = getOnlineStatus(activeConv.partner_last_seen, activeConv.partner_online);
@@ -328,12 +328,12 @@ export default function ChatPage() {
                     </div>
                     <div>
                       <h3 className="font-bold text-ink text-base">{activeConv.partner_name || t('anonUser')}</h3>
-                      <span className={`text-caption font-medium ${headerStatus.online ? 'text-green-500' : 'text-ink-muted'}`}>{headerStatus.text}</span>
+                      <span className={`text-caption font-medium ${headerStatus.online ? 'text-state-success-fg' : 'text-ink-muted'}`}>{headerStatus.text}</span>
                     </div>
                   </div>
                 </div>
 
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50 relative">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface-sunken relative">
                   {showJumpButton && (
                     <button
                       onClick={scrollToBottom}
@@ -373,7 +373,7 @@ export default function ChatPage() {
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="w-full bg-surface-sunken text-ink border-none rounded-full py-2.5 px-5 focus:ring-2 focus:ring-blue-100 focus:bg-surface-card transition-all outline-none placeholder-gray-500"
+                        className="w-full bg-surface-sunken text-ink border-none rounded-full py-2.5 px-5 focus:ring-2 focus:ring-brand/20 focus:bg-surface-card transition-all outline-none placeholder:text-ink-faint"
                         placeholder={t('placeholder')}
                       />
                     </div>
@@ -390,9 +390,9 @@ export default function ChatPage() {
                 );
               })()
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-ink-muted bg-slate-50/50">
+              <div className="flex-1 flex flex-col items-center justify-center text-ink-muted bg-surface-sunken/50">
                 <div className="w-32 h-32 bg-brand-tint rounded-full flex items-center justify-center mb-6">
-                  <MessageCircle className="w-16 h-16 text-blue-200" />
+                  <MessageCircle className="w-16 h-16 text-brand/40" />
                 </div>
                 <h3 className="text-lg font-medium text-ink">{t('noneSelected')}</h3>
                 <p className="text-small mt-2">{t('noneSelectedHint')}</p>
