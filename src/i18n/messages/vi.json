@@ -885,5 +885,10 @@
     "maintenanceLead": "Chúng tôi đang nâng cấp hệ thống. Bạn quay lại sau một lát nhé.",
     "maintenanceContact": "Cần hỗ trợ thì liên hệ:",
     "loadingPage": "Đang tải trang"
+  },
+  "meta": {
+    "title": "Zoldify — Chợ đồ cũ",
+    "description": "Mua bán đồ cũ còn dùng tốt. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.",
+    "skipToContent": "Tới nội dung chính"
   }
 }

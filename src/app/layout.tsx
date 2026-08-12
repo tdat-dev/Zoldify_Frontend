@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { AnnounceBar } from "@/components/AnnounceBar";
@@ -32,32 +32,41 @@ const beVietnamPro = Be_Vietnam_Pro({
  * hội không hiểu đường dẫn tương đối.
  */
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
-const TITLE = "Zoldify — Chợ đồ cũ";
-const DESCRIPTION =
-  "Mua bán đồ cũ còn dùng tốt. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: TITLE,
-    // Trang con đặt title riêng sẽ tự nối đuôi thương hiệu, không phải lặp tay.
-    template: "%s — Zoldify",
-  },
-  description: DESCRIPTION,
-  openGraph: {
-    type: "website",
-    siteName: "Zoldify",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: [{ url: "/media/og.jpg", width: 1200, height: 630, alt: TITLE }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: ["/media/og.jpg"],
-  },
-};
+/**
+ * generateMetadata thay cho hằng `metadata`: tiêu đề và mô tả phải theo ngôn
+ * ngữ người đang xem. Viết cứng tiếng Việt ở đây thì tab trình duyệt và thẻ
+ * chia sẻ lên Facebook/Zalo luôn là tiếng Việt, kể cả khi cả trang đang tiếng
+ * Anh — và thẻ chia sẻ là thứ người CHƯA vào site nhìn thấy đầu tiên.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  const title = t("title");
+  const description = t("description");
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: title,
+      // Trang con đặt title riêng sẽ tự nối đuôi thương hiệu, không phải lặp tay.
+      template: "%s — Zoldify",
+    },
+    description,
+    openGraph: {
+      type: "website",
+      siteName: "Zoldify",
+      title,
+      description,
+      images: [{ url: "/media/og.jpg", width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/media/og.jpg"],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -68,6 +77,7 @@ export default async function RootLayout({
   // hình chọn giọng đọc theo thuộc tính này, và trình duyệt dùng nó để gợi ý dịch.
   const locale = await getLocale();
   const messages = await getMessages();
+  const tc = await getTranslations("meta");
 
   return (
     <html lang={locale}>
@@ -79,7 +89,7 @@ export default async function RootLayout({
           <AuthProvider>
             <CartProvider>
               <ToastProvider>
-                <a href="#main" className="skip-link">Tới nội dung chính</a>
+                <a href="#main" className="skip-link">{tc("skipToContent")}</a>
                 {/* Khung (header/footer) do SiteChrome chọn theo route: khu xác
                     thực dùng bản rút gọn, phần còn lại dùng bản đầy đủ. */}
                 {/* AnnounceBar dựng ở ĐÂY (phía server) rồi mới đưa xuống: nó

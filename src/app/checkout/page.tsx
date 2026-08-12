@@ -219,8 +219,10 @@ export default function CheckoutPage() {
             role="alert"
             className="mt-4 rounded-control border border-state-danger-fg/30 bg-state-danger-bg px-4 py-3 text-body text-state-danger-fg"
           >
+            {/* Không nối thêm chữ vào sau t(): chuỗi soldOutWarning đã kết thúc
+                bằng "trước khi đặt.", nên dòng cứng ở đây làm câu đó in HAI LẦN
+                trên màn hình. Vết của một lần tách chuỗi bỏ dở. */}
             {t('soldOutWarning', { count: soldOutItems.length })}
-            trước khi đặt.
           </p>
         )}
 

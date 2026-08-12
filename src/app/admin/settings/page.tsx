@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { settingService, SETTING_KEYS } from '@/services/setting.service';
 import { useToast } from '@/components/Toast';
 
@@ -31,6 +32,8 @@ import { useToast } from '@/components/Toast';
  */
 export default function AdminSettingsPage() {
   const { toast } = useToast();
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
 
   const [siteName, setSiteName] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
@@ -73,9 +76,9 @@ export default function AdminSettingsPage() {
         [SETTING_KEYS.siteDescription]: siteDescription,
       });
       setSaved({ siteName, siteDescription });
-      toast('Đã lưu cài đặt.', 'success');
+      toast(t('settingsSaved'), 'success');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Chưa lưu được cài đặt.', 'error');
+      toast(err.response?.data?.message || t('settingsSaveFailed'), 'error');
     } finally {
       setSaving(false);
     }
@@ -89,23 +92,23 @@ export default function AdminSettingsPage() {
       <div className="mx-auto max-w-[900px] px-4 py-6">
         <div className="rounded-card bg-surface-card">
           <div className="border-b border-ink/10 px-6 py-5">
-            <h1 className="text-h2 text-ink">Cài đặt hệ thống</h1>
+            <h1 className="text-h2 text-ink">{t('settingsTitle')}</h1>
             <p className="mt-1 text-small text-ink-muted">
-              Những giá trị này hiện ở tiêu đề trang và trong kết quả tìm kiếm.
+              {t('settingsLead')}
             </p>
           </div>
 
           {state === 'loading' ? (
-            <p className="px-6 py-16 text-center text-body text-ink-muted">Đang tải…</p>
+            <p className="px-6 py-16 text-center text-body text-ink-muted">{tc('loading')}</p>
           ) : state === 'error' ? (
             <div className="px-6 py-16 text-center">
-              <p className="text-body font-semibold text-ink">Không tải được cài đặt.</p>
+              <p className="text-body font-semibold text-ink">{t('settingsLoadFailed')}</p>
               <button
                 type="button"
                 onClick={load}
                 className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
               >
-                Thử lại
+                {tc('retry')}
               </button>
             </div>
           ) : (
@@ -113,7 +116,7 @@ export default function AdminSettingsPage() {
               <div className="flex flex-col gap-5">
                 <div>
                   <label htmlFor="set-name" className="mb-1.5 block text-small font-semibold text-ink">
-                    Tên website
+                    {t('settingsSiteName')}
                   </label>
                   <input
                     id="set-name"
@@ -125,7 +128,7 @@ export default function AdminSettingsPage() {
                 </div>
                 <div>
                   <label htmlFor="set-desc" className="mb-1.5 block text-small font-semibold text-ink">
-                    Mô tả website
+                    {t('settingsSiteDesc')}
                   </label>
                   <input
                     id="set-desc"
@@ -143,9 +146,9 @@ export default function AdminSettingsPage() {
                   disabled={!dirty || saving}
                   className="rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink/16 disabled:text-ink-faint"
                 >
-                  {saving ? 'Đang lưu…' : 'Lưu'}
+                  {saving ? t('settingsSaving') : tc('save')}
                 </button>
-                {!dirty && <span className="text-small text-ink-faint">Chưa có gì thay đổi</span>}
+                {!dirty && <span className="text-small text-ink-faint">{t('settingsNoChange')}</span>}
               </div>
             </form>
           )}

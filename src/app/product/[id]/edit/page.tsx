@@ -76,7 +76,7 @@ export default function EditProductPage() {
         setCategories(catRes.data?.data?.result || []);
 
         if (user && p.seller?.id && p.seller.id !== user.id && user.role !== 'admin') {
-          toast('Bạn không sửa được tin của người khác.', 'error');
+          toast(t('errNotYours'), 'error');
           router.push(`/product/${productId}`);
         }
       })
@@ -139,7 +139,7 @@ export default function EditProductPage() {
         image: images[0],
         images,
       } as any);
-      toast('Đã lưu thay đổi.', 'success');
+      toast(t('savedOk'), 'success');
       router.push(`/product/${productId}`);
     } catch (err: any) {
       const msg = err.response?.data?.message || t('errUpdate');
@@ -153,10 +153,10 @@ export default function EditProductPage() {
     setDeleting(true);
     try {
       await productService.remove(productId);
-      toast('Đã xoá tin.', 'success');
+      toast(t('deletedOk'), 'success');
       router.push('/profile/products');
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'Chưa xoá được tin. Thử lại giúp mình.';
+      const msg = err.response?.data?.message || t('errDelete');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
       setDeleting(false);
     }
@@ -385,7 +385,7 @@ export default function EditProductPage() {
                   className={control}
                 />
                 <p className="mt-1.5 text-caption font-normal text-ink-muted">
-                  Đặt về 0 khi đã bán xong. Tin vẫn còn nhưng hiện là đã bán.
+                  {t('stockZeroHint')}
                 </p>
               </div>
             </div>
@@ -437,17 +437,18 @@ export default function EditProductPage() {
           className="mt-8 rounded-card border border-state-danger-fg/25 bg-surface-card p-5"
         >
           <h2 id="sec-danger" className="text-h3 text-ink">
-            Xoá tin này
+            {t('deleteTitle')}
           </h2>
           <p className="mt-1 text-small text-ink-muted">
-            Tin bị gỡ khỏi sàn và không lấy lại được. Nếu chỉ vì đã bán xong thì đặt số lượng
-            về 0, đừng xoá.
+            {t('deleteLead')}
           </p>
 
           {confirmDelete ? (
             <div className="mt-4">
               <p className="text-small text-ink">
-                Xoá hẳn <span className="font-semibold">{name || 'tin này'}</span>?
+                {t.rich('deleteAsk', {
+                name: () => <span className="font-semibold">{name || t('thisListing')}</span>,
+              })}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <button
@@ -457,7 +458,7 @@ export default function EditProductPage() {
                   className="inline-flex items-center gap-2 rounded-control bg-state-danger-fg px-4 py-2.5 text-small font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
                   {deleting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-                  {deleting ? 'Đang xoá…' : 'Xoá hẳn'}
+                  {deleting ? t('deleting') : t('deleteConfirm')}
                 </button>
                 <button
                   type="button"
@@ -465,7 +466,7 @@ export default function EditProductPage() {
                   disabled={deleting}
                   className="rounded-control border border-ink/16 px-4 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
                 >
-                  Thôi, giữ lại
+                  {t('deleteKeep')}
                 </button>
               </div>
             </div>
@@ -476,7 +477,7 @@ export default function EditProductPage() {
               className="mt-4 inline-flex items-center gap-2 rounded-control border border-state-danger-fg/40 px-4 py-2.5 text-small font-semibold text-state-danger-fg transition-colors hover:bg-state-danger-bg"
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
-              Xoá tin
+              {t('deleteButton')}
             </button>
           )}
         </section>
