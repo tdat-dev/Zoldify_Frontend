@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Grid3x3, Package } from 'lucide-react';
 
 /**
@@ -9,6 +12,7 @@ import { Grid3x3, Package } from 'lucide-react';
  * khi số danh mục lẻ. Dòng đếm chỉ in khi API trả về số thật.
  */
 export function CategoryRail({ categories }: { categories: any[] }) {
+  const t = useTranslations('home');
   const shown = categories.slice(0, 7);
 
   return (
@@ -32,7 +36,7 @@ export function CategoryRail({ categories }: { categories: any[] }) {
               {cat.name}
             </span>
             {Number.isFinite(count) && count > 0 && (
-              <span className="text-[11px] text-ink-faint">{count} món</span>
+              <span className="text-[11px] text-ink-faint">{t('itemCount', { count })}</span>
             )}
           </Link>
         );
@@ -45,8 +49,8 @@ export function CategoryRail({ categories }: { categories: any[] }) {
         <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-surface-sunken">
           <Grid3x3 className="h-5 w-5 text-ink-muted" aria-hidden="true" />
         </div>
-        <span className="text-[12.5px] font-semibold leading-tight text-ink">Tất cả</span>
-        <span className="text-[11px] text-ink-faint">Xem hết</span>
+        <span className="text-[12.5px] font-semibold leading-tight text-ink">{t('allCategories')}</span>
+        <span className="text-[11px] text-ink-faint">{t('browseAll')}</span>
       </Link>
     </div>
   );

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ItemTile } from './ItemTile';
 
 /**
@@ -14,14 +17,16 @@ export function ItemStrip({
   title,
   items,
   href,
-  linkText = 'Xem tất cả',
+  linkText,
 }: {
   id: string;
   title: string;
   items: any[];
   href?: string;
+  /** Bo trong thi dung nhan chung. */
   linkText?: string;
 }) {
+  const t = useTranslations('home');
   return (
     <section aria-labelledby={id} className="rounded-card bg-surface-card p-5">
       <div className="mb-4 flex items-baseline justify-between gap-4">
@@ -30,7 +35,7 @@ export function ItemStrip({
         </h2>
         {href && (
           <Link href={href} className="shrink-0 text-small text-brand hover:text-brand-dark hover:underline">
-            {linkText}
+            {linkText || t('seeAll')}
           </Link>
         )}
       </div>

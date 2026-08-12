@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
   Plus, Wallet, ShoppingBag, MessageSquare, Clock, Tag, type LucideIcon,
 } from 'lucide-react';
@@ -11,21 +14,25 @@ import {
  * Shopee để "Flash Sale / Vouchers / Telco & Bills" — dịch vụ của họ. Zoldify
  * đặt vào đó những việc sàn này làm THẬT, không bịa dịch vụ cho giống.
  */
-const LINKS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: '/product/create', label: 'Đăng bán', icon: Plus },
-  { href: '/search?sort=newest', label: 'Mới đăng', icon: Clock },
-  { href: '/search?price_max=100000&sort=newest', label: 'Dưới 100k', icon: Tag },
-  { href: '/profile/orders', label: 'Đơn mua', icon: ShoppingBag },
-  { href: '/profile/wallet', label: 'Ví của tôi', icon: Wallet },
-  { href: '/chat', label: 'Tin nhắn', icon: MessageSquare },
+// Nhãn giữ ở dạng KHOÁ, dịch lúc render. Viết thẳng chữ tiếng Việt vào mảng
+// hằng này là cách sáu lối tắt đứng yên khi cả trang đã đổi sang tiếng Anh.
+const LINKS: { href: string; key: string; icon: LucideIcon }[] = [
+  { href: '/product/create', key: 'sell', icon: Plus },
+  { href: '/search?sort=newest', key: 'newest', icon: Clock },
+  { href: '/search?price_max=100000&sort=newest', key: 'under100k', icon: Tag },
+  { href: '/profile/orders', key: 'purchases', icon: ShoppingBag },
+  { href: '/profile/wallet', key: 'wallet', icon: Wallet },
+  { href: '/chat', key: 'messages', icon: MessageSquare },
 ];
 
 export function QuickLinks() {
+  const t = useTranslations('home');
+
   return (
-    <nav aria-label="Lối tắt" className="rounded-card bg-surface-card px-2 py-4">
+    <nav aria-label={t('quickLinksLabel')} className="rounded-card bg-surface-card px-2 py-4">
       {/* Cuộn ngang BÊN TRONG khối ở màn hẹp, không đẩy tràn trang. */}
       <ul className="flex justify-start gap-1 overflow-x-auto md:justify-around">
-        {LINKS.map(({ href, label, icon: Icon }) => (
+        {LINKS.map(({ href, key, icon: Icon }) => (
           <li key={href} className="shrink-0">
             <Link
               href={href}
@@ -35,7 +42,7 @@ export function QuickLinks() {
                 <Icon className="h-[21px] w-[21px] text-brand" aria-hidden="true" />
               </span>
               <span className="text-center text-caption font-normal leading-tight text-ink">
-                {label}
+                {t(`quick_${key}`)}
               </span>
             </Link>
           </li>

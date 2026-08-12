@@ -238,7 +238,7 @@ export default function Header() {
                   </div>
                   <div className="border-b border-ink/10 py-1.5">
                     <p className="px-4 py-1 text-caption uppercase tracking-wide text-ink-faint">
-                      Bán hàng
+                      {t('sellingGroup')}
                     </p>
                     {[
                       { href: '/product/create', icon: Plus, label: t('sell') },

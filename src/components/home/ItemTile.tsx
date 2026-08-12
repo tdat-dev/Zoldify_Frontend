@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 
@@ -15,6 +18,7 @@ export function ItemTile({
   item: any;
   size?: 'sm' | 'md';
 }) {
+  const t = useTranslations('home');
   const stock = Number(item.stock ?? item.quantity);
   const soldOut = Number.isFinite(stock) && stock <= 0;
 
@@ -38,7 +42,7 @@ export function ItemTile({
         )}
         {soldOut && (
           <span className="absolute inset-0 flex items-center justify-center bg-surface-card/80 text-small font-bold text-ink">
-            Đã bán
+            {t('sold')}
           </span>
         )}
       </div>

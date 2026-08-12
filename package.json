@@ -8,6 +8,7 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "check:tokens": "node scripts/check-tokens.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});console.log('Cache cleared')\"",
     "clean:dev": "npm run clean && next dev -p 3001",
     "gen:api": "node node_modules/openapi-typescript/bin/cli.js ../Zoldify_Backend/openapi.json -o src/api/schema.d.ts"

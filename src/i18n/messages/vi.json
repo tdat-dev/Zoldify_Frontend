@@ -37,7 +37,8 @@
     "sellerOrders": "Đơn bán",
     "admin": "Quản trị",
     "sellShort": "Đăng bán",
-    "you": "bạn"
+    "you": "bạn",
+    "sellingGroup": "Bán hàng"
   },
   "utilityBar": {
     "sellWithUs": "Bán hàng cùng Zoldify",
@@ -806,5 +807,32 @@
     "navLabel": "Khu quản trị",
     "settings": "Cài đặt",
     "revenueAmount": "{amount}"
+  },
+  "home": {
+    "quickLinksLabel": "Lối tắt",
+    "quick_sell": "Đăng bán",
+    "quick_newest": "Mới đăng",
+    "quick_under100k": "Dưới 100k",
+    "quick_purchases": "Đơn mua",
+    "quick_wallet": "Ví của tôi",
+    "quick_messages": "Tin nhắn",
+    "categories": "Danh mục",
+    "allCategories": "Tất cả",
+    "browseAll": "Xem hết",
+    "seeAll": "Xem tất cả",
+    "itemCount": "{count} món",
+    "sold": "Đã bán",
+    "stateLoading": "Đang tải…",
+    "stateError": "Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.",
+    "stateEmpty": "Chưa có món nào ở đây.",
+    "retry": "Thử lại",
+    "noCategories": "Chưa có danh mục nào.",
+    "bandUnder": "Dưới {max}",
+    "bandOver": "Trên {min}",
+    "newestTitle": "Mới đăng gần đây",
+    "sellPanelTitle": "Bán đồ bạn không dùng nữa",
+    "sellPanelLead": "Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người cần sẽ tìm thấy.",
+    "sellPanelCta": "Đăng bán đồ cũ",
+    "sellPanelAlt": "Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp."
   }
 }

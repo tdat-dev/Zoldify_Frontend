@@ -11,6 +11,9 @@ export function toSlug(input: string): string {
   return input
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    // NFD tách được dấu thanh ra khỏi nguyên âm, nhưng đ/Đ là CHỮ CÁI riêng
+    // trong bảng chữ cái tiếng Việt chứ không phải d có dấu — nó không tách ra,
+    // phải thay tay. i18n-ignore: đây là dữ liệu chuyển tự, không phải giao diện.
     .replace(/đ/g, 'd')
     .replace(/Đ/g, 'D')
     .toLowerCase()

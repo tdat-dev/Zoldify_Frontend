@@ -37,7 +37,8 @@
     "sellerOrders": "My sales",
     "admin": "Admin",
     "sellShort": "Sell",
-    "you": "there"
+    "you": "there",
+    "sellingGroup": "Selling"
   },
   "utilityBar": {
     "sellWithUs": "Sell on Zoldify",
@@ -806,5 +807,32 @@
     "navLabel": "Admin area",
     "settings": "Settings",
     "revenueAmount": "{amount}"
+  },
+  "home": {
+    "quickLinksLabel": "Shortcuts",
+    "quick_sell": "Sell",
+    "quick_newest": "Just listed",
+    "quick_under100k": "Under 100k",
+    "quick_purchases": "My orders",
+    "quick_wallet": "My wallet",
+    "quick_messages": "Messages",
+    "categories": "Categories",
+    "allCategories": "Everything",
+    "browseAll": "Browse all",
+    "seeAll": "See all",
+    "itemCount": "{count} items",
+    "sold": "Sold",
+    "stateLoading": "Loading…",
+    "stateError": "Couldn't load this. Check your connection and try again.",
+    "stateEmpty": "Nothing here yet.",
+    "retry": "Try again",
+    "noCategories": "No categories yet.",
+    "bandUnder": "Under {max}",
+    "bandOver": "Over {min}",
+    "newestTitle": "Just listed",
+    "sellPanelTitle": "Sell what you no longer use",
+    "sellPanelLead": "Things still in good shape that you don't need any more. List it once and the person looking for it will find it.",
+    "sellPanelCta": "List an item",
+    "sellPanelAlt": "Used items in good condition laid out in a row: a film camera, headphones, books, a denim jacket, a desk lamp, a bike helmet."
   }
 }

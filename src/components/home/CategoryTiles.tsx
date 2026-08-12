@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 /**
  * Lưới danh mục dạng ô — khuôn lấy từ khối "CATEGORIES" của shopee.vn (xem
@@ -10,6 +13,7 @@ import Link from 'next/link';
  * xám rỗng — ô rỗng ở vị trí lẽ ra là ảnh đọc ra là "hỏng ảnh".
  */
 export function CategoryTiles({ categories }: { categories: any[] }) {
+  const t = useTranslations('home');
   return (
     // h-full: cột bên phải cao theo ảnh flat-lay, không phải theo số danh mục.
     // Thiếu h-full thì thẻ trắng dừng ở chiều cao tự nhiên và để lộ một mảng nền
@@ -22,7 +26,7 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
         id="cat-tiles"
         className="border-b border-ink/10 px-5 py-3.5 text-small font-semibold uppercase tracking-wide text-ink-muted"
       >
-        Danh mục
+        {t('categories')}
       </h2>
 
       {/* Viền trên TỪNG ô, không dùng gap-px trên nền màu: với gap-px, hàng cuối
@@ -60,7 +64,7 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
                 </span>
                 {Number.isFinite(count) && count > 0 && (
                   <span className="text-caption font-normal tabular-nums text-ink-faint">
-                    {count} món
+                    {t('itemCount', { count })}
                   </span>
                 )}
               </Link>

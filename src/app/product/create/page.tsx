@@ -32,6 +32,8 @@ import { toSlug } from '@/lib/slug';
  * `used` và `refurbished` — hai giá trị backend không hề biết.
  */
 export default function CreateProductPage() {
+  const t = useTranslations('sell');
+  const tc = useTranslations('common');
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,7 +77,7 @@ export default function CreateProductPage() {
     } catch {
       // Bản trước chỉ console.error, nên người dùng bấm thêm ảnh mà không có gì
       // xảy ra và không biết vì sao.
-      setUploadError('Tải ảnh lên không được. Thử lại hoặc chọn ảnh nhẹ hơn.');
+      setUploadError(t('uploadFailed'));
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -84,11 +86,11 @@ export default function CreateProductPage() {
 
   const validate = () => {
     const next: Record<string, string> = {};
-    if (images.length === 0) next.images = 'Cần ít nhất một ảnh chụp món đồ.';
-    if (!name.trim()) next.name = 'Nhập tên món đồ.';
-    if (!categoryId) next.category = 'Chọn một danh mục.';
+    if (images.length === 0) next.images = t('errNoPhoto');
+    if (!name.trim()) next.name = t('errNoName');
+    if (!categoryId) next.category = t('errNoCategory');
     const p = Number(price);
-    if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = 'Nhập giá lớn hơn 0.';
+    if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = t('errBadPrice');
     setFieldErrors(next);
     return next;
   };
@@ -121,7 +123,7 @@ export default function CreateProductPage() {
       } as any)
       .then((res) => router.push(`/product/${res.data.data.id}`))
       .catch((err) =>
-        setError(err.response?.data?.message || 'Chưa đăng được tin. Thử lại giúp mình.'),
+        setError(err.response?.data?.message || t('errCreate')),
       )
       .finally(() => setSubmitting(false));
   };
@@ -134,9 +136,9 @@ export default function CreateProductPage() {
   return (
     <div className="min-h-screen bg-surface-page pb-16">
       <div className="mx-auto max-w-[820px] px-4 py-6 md:py-8">
-        <h1 className="text-h1 text-ink">Đăng bán một món</h1>
+        <h1 className="text-h1 text-ink">{t('titleCreate')}</h1>
         <p className="mt-1.5 text-body text-ink-muted">
-          Mỗi tin là một món. Chụp đúng món bạn đang có, ghi đúng tình trạng của nó.
+          {t('leadCreate')}
         </p>
 
         {error && (
@@ -152,11 +154,10 @@ export default function CreateProductPage() {
           {/* ---------- Ảnh ---------- */}
           <section aria-labelledby="sec-photo" className="rounded-card bg-surface-card p-5">
             <h2 id="sec-photo" className="text-h3 text-ink">
-              Ảnh món đồ <span className="text-price">*</span>
+              {t('photos')} <span className="text-price">*</span>
             </h2>
             <p className="mt-1 text-small text-ink-muted">
-              Chụp chính món bạn bán, đủ sáng. Có vết xước hay sờn thì chụp luôn chỗ đó. Giấu
-              đi thì người mua nhận hàng sẽ trả lại.
+              {t('photosHint')}
             </p>
 
             <div className="mt-4 flex flex-wrap gap-3">
@@ -164,18 +165,18 @@ export default function CreateProductPage() {
                 <div key={url} className="relative h-24 w-24 shrink-0">
                   <img
                     src={url}
-                    alt={i === 0 ? 'Ảnh bìa' : `Ảnh ${i + 1}`}
+                    alt=""
                     className="h-full w-full rounded-control border border-ink/12 object-cover"
                   />
                   {i === 0 && (
                     <span className="absolute inset-x-0 bottom-0 rounded-b-control bg-ink/75 py-0.5 text-center text-caption text-white">
-                      Ảnh bìa
+                      {t('cover')}
                     </span>
                   )}
                   <button
                     type="button"
                     onClick={() => setImages((prev) => prev.filter((_, x) => x !== i))}
-                    aria-label={`Bỏ ảnh ${i + 1}`}
+                    aria-label={t('removePhoto', { index: i + 1 })}
                     className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-price"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden="true" />
@@ -196,7 +197,7 @@ export default function CreateProductPage() {
                   ) : (
                     <>
                       <Camera className="h-5 w-5" aria-hidden="true" />
-                      <span className="text-caption font-normal">Thêm ảnh</span>
+                      <span className="text-caption font-normal">{t('addPhoto')}</span>
                       <span className="text-caption font-normal text-ink-faint">
                         {images.length}/9
                       </span>
@@ -221,19 +222,19 @@ export default function CreateProductPage() {
           {/* ---------- Món gì ---------- */}
           <section aria-labelledby="sec-what" className="rounded-card bg-surface-card p-5">
             <h2 id="sec-what" className="mb-4 text-h3 text-ink">
-              Món này là gì
+              {t('whatIsIt')}
             </h2>
 
             <div className="flex flex-col gap-4">
               <div>
                 <label htmlFor="field-name" className={label}>
-                  Tên món <span className="text-price">*</span>
+                  {t('name')} <span className="text-price">*</span>
                 </label>
                 <input
                   id="field-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Máy tính Casio fx-580VN X"
+                  placeholder={t('namePlaceholder')}
                   aria-invalid={!!fieldErrors.name}
                   aria-describedby={fieldErrors.name ? 'err-name' : undefined}
                   className={control}
@@ -248,7 +249,7 @@ export default function CreateProductPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="field-category" className={label}>
-                    Danh mục <span className="text-price">*</span>
+                    {t('category')} <span className="text-price">*</span>
                   </label>
                   <select
                     id="field-category"
@@ -258,7 +259,7 @@ export default function CreateProductPage() {
                     aria-describedby={fieldErrors.category ? 'err-category' : undefined}
                     className={control}
                   >
-                    <option value="">Chọn danh mục</option>
+                    <option value="">{t('categoryPlaceholder')}</option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.name}
@@ -274,17 +275,18 @@ export default function CreateProductPage() {
 
                 <div>
                   <label htmlFor="field-brand" className={label}>
-                    Hãng <span className="font-normal text-ink-faint">(không bắt buộc)</span>
+                    {t('brand')}{' '}
+              <span className="font-normal text-ink-faint">({tc('optional')})</span>
                   </label>
                   <input
                     id="field-brand"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    placeholder="Casio, Sony, Thống Nhất…"
+                    placeholder={t('brandPlaceholder')}
                     className={control}
                   />
                   <p className="mt-1.5 text-caption font-normal text-ink-muted">
-                    Điền vào thì người tìm theo tên hãng sẽ thấy tin của bạn.
+                    {t('brandHint')}
                   </p>
                 </div>
               </div>
@@ -294,10 +296,10 @@ export default function CreateProductPage() {
           {/* ---------- Tình trạng: trường lớn nhất của trang ---------- */}
           <section aria-labelledby="sec-cond" className="rounded-card bg-surface-card p-5">
             <h2 id="sec-cond" className="text-h3 text-ink">
-              Món này cũ tới mức nào <span className="text-price">*</span>
+              {t('conditionTitle')} <span className="text-price">*</span>
             </h2>
             <p className="mt-1 text-small text-ink-muted">
-              Đây là thứ người mua đọc kỹ nhất. Chọn đúng thì ít bị trả hàng.
+              {t('conditionHint')}
             </p>
 
             <div className="mt-4">
@@ -308,12 +310,12 @@ export default function CreateProductPage() {
           {/* ---------- Giá & giao hàng ---------- */}
           <section aria-labelledby="sec-price" className="rounded-card bg-surface-card p-5">
             <h2 id="sec-price" className="mb-4 text-h3 text-ink">
-              Giá và giao hàng
+              {t('priceAndShipping')}
             </h2>
 
             <div className="max-w-[280px]">
               <label htmlFor="field-price" className={label}>
-                Giá bán <span className="text-price">*</span>
+                {t('price')} <span className="text-price">*</span>
               </label>
               <div
                 className={`flex items-center overflow-hidden rounded-control border bg-surface-card transition-colors focus-within:ring-2 focus-within:ring-brand/20 ${
@@ -351,9 +353,9 @@ export default function CreateProductPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
               />
               <span className="text-small text-ink">
-                Miễn phí giao trong khu vực
+                {t('freeship')}
                 <span className="mt-0.5 block text-caption font-normal text-ink-muted">
-                  Bạn tự mang tới cho người mua quanh khu vực, không tính phí ship.
+                  {t('freeshipHint')}
                 </span>
               </span>
             </label>
@@ -371,9 +373,9 @@ export default function CreateProductPage() {
                 className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
               />
               <span className="text-small text-ink">
-                Tôi có nhiều cái giống hệt nhau
+                {t('manyCopies')}
                 <span className="mt-0.5 block text-caption font-normal text-ink-muted">
-                  Ví dụ mua nhầm hai quyển cùng loại. Bình thường thì bỏ qua ô này.
+                  {t('manyCopiesHint')}
                 </span>
               </span>
             </label>
@@ -381,7 +383,7 @@ export default function CreateProductPage() {
             {manyCopies && (
               <div className="mt-3 max-w-[160px]">
                 <label htmlFor="field-stock" className={label}>
-                  Có mấy cái
+                  {t('stock')}
                 </label>
                 <input
                   id="field-stock"
@@ -400,27 +402,27 @@ export default function CreateProductPage() {
           {/* ---------- Mô tả ---------- */}
           <section aria-labelledby="sec-desc" className="rounded-card bg-surface-card p-5">
             <h2 id="sec-desc" className="text-h3 text-ink">
-              Kể thêm về món này
+              {t('describe')}
             </h2>
             <p className="mt-1 text-small text-ink-muted">
-              Không bắt buộc, nhưng tin có mô tả thì người mua ít nhắn hỏi lại hơn.
+              {t('describeHint')}
             </p>
 
             <label htmlFor="field-desc" className="sr-only">
-              Mô tả món đồ
+              {t('describeLabel')}
             </label>
             <textarea
               id="field-desc"
               rows={5}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Mua năm ngoái, dùng một kỳ rồi thôi. Còn hộp, còn sạc. Góc dưới bên trái có vết xước nhỏ."
+              placeholder={t('describePlaceholder')}
               className={`${control} mt-4 resize-y`}
             />
 
             <p className="mt-3 flex items-start gap-2 text-caption font-normal text-ink-muted">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              Nên có: dùng bao lâu rồi, còn phụ kiện gì, hỏng hóc hay vết xước nào, vì sao bán.
+              {t('describeTip')}
             </p>
           </section>
 
@@ -431,14 +433,14 @@ export default function CreateProductPage() {
               className="inline-flex items-center gap-2 rounded-control bg-brand px-6 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark disabled:bg-ink-faint"
             >
               {submitting && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-              {submitting ? 'Đang đăng…' : 'Đăng tin'}
+              {submitting ? t('submitCreating') : t('submitCreate')}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
               className="rounded-control px-4 py-3 text-body text-ink-muted transition-colors hover:text-ink"
             >
-              Huỷ
+              {tc('cancel')}
             </button>
           </div>
         </form>

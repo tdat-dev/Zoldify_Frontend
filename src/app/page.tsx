@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { formatPrice } from '@/lib/format';
 import { categoryService } from '@/services/category.service';
 import { productService } from '@/services/product.service';
@@ -59,13 +60,22 @@ const XL_COLS: Record<number, string> = {
   4: 'xl:grid-cols-4',
 };
 
-function bandTitle(b: (typeof BANDS)[number]): string {
-  if (b.min === undefined) return `Dưới ${formatPrice(b.max)}`;
-  if (b.max === undefined) return `Trên ${formatPrice(b.min)}`;
+// Nhan tam tien dung ham dich truyen vao, khong tu ghep chu: "Duoi"/"Tren"
+// dat truoc so o tieng Viet nhung tieng Anh la "Under"/"Over" — cung vi tri,
+// khac tu, nen phai la chuoi hoan chinh trong messages chu khong phai ghep tay.
+function bandTitle(
+  b: (typeof BANDS)[number],
+  // Kiểu lấy thẳng từ next-intl thay vì tự khai `(key, values) => string`:
+  // TranslationValues của nó hẹp hơn Record<string, unknown>, tự khai là lệch.
+  t: ReturnType<typeof useTranslations<'home'>>,
+): string {
+  if (b.min === undefined) return t('bandUnder', { max: formatPrice(b.max) });
+  if (b.max === undefined) return t('bandOver', { min: formatPrice(b.min) });
   return `${formatPrice(b.min)} – ${formatPrice(b.max)}`;
 }
 
 export default function HomePage() {
+  const t = useTranslations('home');
   const [categories, setCategories] = useState<any[]>([]);
   const [catState, setCatState] = useState<LoadState>('loading');
 
@@ -140,7 +150,7 @@ export default function HomePage() {
                 <SectionState
                   state={catState}
                   empty={categories.length === 0}
-                  emptyText="Chưa có danh mục nào."
+                  emptyText={t('noCategories')}
                   onRetry={loadCategories}
                 />
               </div>
@@ -160,7 +170,7 @@ export default function HomePage() {
           >
             <img
               src="/media/sell-flatlay.webp"
-              alt="Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp."
+              alt={t('sellPanelAlt')}
               width={1000}
               height={667}
               className="aspect-[3/2] w-full object-cover"
@@ -168,18 +178,17 @@ export default function HomePage() {
             <div className="flex flex-1 flex-col justify-between gap-4 p-5">
               <div>
                 <h2 id="panel-sell" className="text-[17px] font-bold text-ink">
-                  Bán đồ bạn không dùng nữa
+                  {t('sellPanelTitle')}
                 </h2>
                 <p className="mt-1.5 text-small leading-relaxed text-ink-muted">
-                  Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người
-                  cần sẽ tìm thấy.
+                  {t('sellPanelLead')}
                 </p>
               </div>
               <Link
                 href="/product/create"
                 className="inline-flex w-fit items-center rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2"
               >
-                Đăng bán đồ cũ
+                {t('sellPanelCta')}
               </Link>
             </div>
           </section>
@@ -203,9 +212,8 @@ export default function HomePage() {
                 <HomeCard
                   key={band.key}
                   id={`card-${band.key}`}
-                  title={bandTitle(band)}
+                  title={bandTitle(band, t)}
                   href={`/search?${band.qs}&sort=newest`}
-                  linkText="Xem tất cả"
                 >
                   {bandState !== 'ready' ? (
                     <SectionState state={bandState} empty={false} onRetry={loadBands} />
@@ -228,7 +236,7 @@ export default function HomePage() {
         {newestState === 'ready' && newest.length > 0 && (
           <ItemStrip
             id="strip-newest"
-            title="Mới đăng gần đây"
+            title={t('newestTitle')}
             items={newest}
             href="/search?sort=newest"
           />
