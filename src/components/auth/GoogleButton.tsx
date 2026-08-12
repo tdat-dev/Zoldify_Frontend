@@ -76,15 +76,15 @@ export function GoogleButton({
     }
   };
 
-  const tat = !isFirebaseConfigured;
+  const off = !isFirebaseConfigured;
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      aria-disabled={tat || busy}
-      title={tat ? t('googleTooltipOff') : undefined}
-      className={`${authSecondary} ${tat ? 'cursor-not-allowed opacity-45' : ''}`}
+      aria-disabled={off || busy}
+      title={off ? t('googleTooltipOff') : undefined}
+      className={`${authSecondary} ${off ? 'cursor-not-allowed opacity-45' : ''}`}
     >
       {/* SVG nội tuyến: trước đây hotlink svgrepo.com, hỏng là mất luôn hình. */}
       <svg viewBox="0 0 48 48" className="h-5 w-5 shrink-0" aria-hidden="true">

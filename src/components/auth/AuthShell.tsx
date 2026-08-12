@@ -50,7 +50,7 @@ export function AuthShell({
 }) {
   const t = useTranslations('authArt');
 
-  const diem = [
+  const points = [
     { Icon: ShieldCheck, text: t('pointEscrow') },
     { Icon: Handshake, text: t('pointMeet') },
     { Icon: Wallet, text: t('pointFree') },
@@ -87,7 +87,7 @@ export function AuthShell({
           <p className="max-w-[34ch] text-h3 leading-snug text-white">{t('slogan')}</p>
 
           <ul className="mt-6 flex flex-col gap-3">
-            {diem.map(({ Icon, text }) => (
+            {points.map(({ Icon, text }) => (
               <li key={text} className="flex items-start gap-2.5 text-small text-white/85">
                 <Icon className="mt-0.5 h-4 w-4 shrink-0 text-white/70" aria-hidden="true" />
                 {text}

@@ -822,7 +822,11 @@
     "cannotDeleteTitle": "Admins cannot be deleted",
     "navLabel": "Admin area",
     "settings": "Settings",
-    "revenueAmount": "{amount}"
+    "revenueAmount": "{amount}",
+    "maintenanceLabel": "Turn on maintenance mode",
+    "maintenanceHint": "Regular users get the maintenance page and the API stops answering them. Admins keep full access so they can switch it back off. Takes effect within about 15 seconds.",
+    "maintenanceWarn": "Hitting Save closes the marketplace to everyone outside straight away. Only admin accounts get in.",
+    "maintenanceOn": "The marketplace is CLOSED to users. Untick and save to reopen it."
   },
   "home": {
     "quickLinksLabel": "Shortcuts",

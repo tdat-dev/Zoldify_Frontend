@@ -18,7 +18,7 @@ import { API_ORIGIN } from './config';
  * nhưng tiếng Anh thì có ("1 day ago" / "2 days ago"). Bản cũ ghép chuỗi tay
  * nên chỉ đúng một thứ tiếng, và sẽ đẻ ra "2 day ago" nếu ai đó dịch máy móc.
  */
-const BAC: [gioi: number, don: Intl.RelativeTimeFormatUnit][] = [
+const STEPS: [limit: number, unit: Intl.RelativeTimeFormatUnit][] = [
   [60, 'second'],
   [3600, 'minute'],
   [86400, 'hour'],
@@ -27,7 +27,7 @@ const BAC: [gioi: number, don: Intl.RelativeTimeFormatUnit][] = [
   [Infinity, 'year'],
 ];
 
-const CHIA: Record<string, number> = {
+const SECONDS_IN: Record<string, number> = {
   second: 1,
   minute: 60,
   hour: 3600,
@@ -37,15 +37,15 @@ const CHIA: Record<string, number> = {
 };
 
 export function timeAgo(value: any, locale = 'vi'): string | null {
-  const moc = new Date(value).getTime();
-  if (!Number.isFinite(moc)) return null;
-  const giay = Math.floor((Date.now() - moc) / 1000);
-  if (giay < 0) return null;
+  const at = new Date(value).getTime();
+  if (!Number.isFinite(at)) return null;
+  const seconds = Math.floor((Date.now() - at) / 1000);
+  if (seconds < 0) return null;
 
-  const [, don] = BAC.find(([gioi]) => giay < gioi)!;
+  const [, unit] = STEPS.find(([limit]) => seconds < limit)!;
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
   // Số ÂM vì đây là chuyện đã qua. Đưa số dương vào sẽ ra "trong 2 giờ nữa".
-  return rtf.format(-Math.floor(giay / CHIA[don]), don);
+  return rtf.format(-Math.floor(seconds / SECONDS_IN[unit]), unit);
 }
 
 /**

@@ -822,7 +822,11 @@
     "cannotDeleteTitle": "Không thể xoá admin",
     "navLabel": "Khu quản trị",
     "settings": "Cài đặt",
-    "revenueAmount": "{amount}"
+    "revenueAmount": "{amount}",
+    "maintenanceLabel": "Bật chế độ bảo trì",
+    "maintenanceHint": "Người dùng thường sẽ thấy trang thông báo bảo trì và không gọi được API. Admin vẫn vào bình thường để tắt lại. Có hiệu lực trong khoảng 15 giây.",
+    "maintenanceWarn": "Bấm Lưu là cả sàn đóng với người ngoài ngay. Chỉ tài khoản admin còn vào được.",
+    "maintenanceOn": "Sàn đang ĐÓNG với người dùng. Bỏ tick rồi bấm Lưu để mở lại."
   },
   "home": {
     "quickLinksLabel": "Lối tắt",

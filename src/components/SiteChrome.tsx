@@ -27,7 +27,7 @@ const ROUTE_AUTH = ['/login', '/register', '/forgot-password', '/reset-password'
  * chính thông báo của nó, và mọi liên kết đó đều dẫn vào cái site vừa được
  * tuyên bố là đang đóng.
  */
-const ROUTE_TRAN = ['/maintenance'];
+const ROUTE_BARE = ['/maintenance'];
 
 /**
  * `announce` được TRUYỀN VÀO chứ không import.
@@ -52,9 +52,9 @@ export function SiteChrome({
   announce: ReactNode;
 }) {
   const pathname = usePathname();
-  const laAuth = ROUTE_AUTH.includes(pathname);
+  const isAuth = ROUTE_AUTH.includes(pathname);
 
-  if (ROUTE_TRAN.includes(pathname)) {
+  if (ROUTE_BARE.includes(pathname)) {
     return (
       <main id="main" className="min-h-screen">
         {children}
@@ -62,7 +62,7 @@ export function SiteChrome({
     );
   }
 
-  if (laAuth) {
+  if (isAuth) {
     // Không AnnounceBar, không Footer: cả hai đều mời người dùng đi chỗ khác,
     // mà trang này có đúng một việc cần xong.
     return (

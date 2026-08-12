@@ -16,79 +16,118 @@ import { readFileSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-const GOC = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
-const THU_MUC = join(GOC, 'src');
+const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+const SRC_DIR = join(ROOT, 'src');
 
-const DAU = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
+const DIACRITIC = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i;
 
 /** Thuộc tính có chữ người dùng đọc được — chuỗi trong đó cũng phải qua i18n. */
-const THUOC_TINH = /\b(placeholder|alt|title|aria-label|label)\s*=\s*["']/;
+const TEXT_ATTR = /\b(placeholder|alt|title|aria-label|label)\s*=\s*["']/;
+
+/**
+ * Ký tự có nghĩa cuối cùng trước vị trí i, bỏ qua khoảng trắng.
+ *
+ * Dùng để phân biệt `/` mở regex với `/` phép chia: sau một GIÁ TRỊ (tên biến,
+ * số, ngoặc đóng) thì `/` là chia; sau một TOÁN TỬ hay dấu mở thì `/` là regex.
+ */
+function lastMeaningful(src, i) {
+  let j = i - 1;
+  while (j >= 0 && /\s/.test(src[j])) j--;
+  return j >= 0 ? src[j] : '';
+}
 
 /**
  * Bóc chú thích, giữ nguyên chuỗi và template literal.
  *
  * Trả về mảng dòng đã sạch chú thích, giữ đúng số dòng để còn báo vị trí.
+ *
+ * PHẢI HIỂU CẢ REGEX, không chỉ chuỗi. Lỗi này bắt được bằng phép thử chứ không
+ * bằng đọc: một regex như /\b(alt|title)\s*=\s*["']/ có dấu nháy kép NẰM TRONG
+ * nó. Máy trạng thái chỉ biết chuỗi sẽ tưởng dấu `"` đó mở một chuỗi mới, rồi
+ * kẹt ở trạng thái "đang trong chuỗi" tới hết tệp — nên mọi chú thích phía sau
+ * KHÔNG được bóc, và bộ soát báo chính chú thích tiếng Việt là vi phạm.
+ * Trớ trêu là chính tệp này có một regex như vậy.
  */
-function bocChuThich(ma) {
-  let ra = '';
+function stripComments(src) {
+  let out = '';
   let i = 0;
-  // trang thai: 0 thuong, 1 trong chuoi ' " `, 2 chu thich //, 3 chu thich /* */
-  let trong = null; // ky tu mo chuoi
-  while (i < ma.length) {
-    const c = ma[i];
-    const sau = ma[i + 1];
-    if (trong) {
+  let inString = null; // ký tự đã mở chuỗi: ' " hoặc `
+
+  while (i < src.length) {
+    const c = src[i];
+    const next = src[i + 1];
+
+    // Regex literal: nuốt trọn, kể cả dấu nháy bên trong. Trong lớp ký tự
+    // [...] thì `/` không kết thúc regex, nên phải theo dõi riêng.
+    if (!inString && c === '/' && next !== '/' && next !== '*') {
+      const before = lastMeaningful(src, i);
+      const isRegex = before === '' || '(,=:[!&|?{};+-*%~^<>'.includes(before);
+      if (isRegex) {
+        out += c;
+        i++;
+        let inClass = false;
+        while (i < src.length) {
+          const r = src[i];
+          if (r === '\\') {
+            out += '  ';
+            i += 2;
+            continue;
+          }
+          if (r === '[') inClass = true;
+          else if (r === ']') inClass = false;
+          else if (r === '/' && !inClass) {
+            out += r;
+            i++;
+            break;
+          } else if (r === '\n') break; // regex không xuống dòng: coi như đoán nhầm
+          out += r;
+          i++;
+        }
+        continue;
+      }
+    }
+
+    if (inString) {
       if (c === '\\') {
-        ra += '  ';
+        out += '  ';
         i += 2;
         continue;
       }
-      if (c === trong) trong = null;
-      ra += c;
+      if (c === inString) inString = null;
+      out += c;
       i++;
       continue;
     }
-    if (c === '/' && sau === '/') {
-      while (i < ma.length && ma[i] !== '\n') {
-        ra += ' ';
+
+    if (c === '/' && next === '/') {
+      while (i < src.length && src[i] !== '\n') {
+        out += ' ';
         i++;
       }
       continue;
     }
-    if (c === '/' && sau === '*') {
-      while (i < ma.length && !(ma[i] === '*' && ma[i + 1] === '/')) {
+
+    if (c === '/' && next === '*') {
+      while (i < src.length && !(src[i] === '*' && src[i + 1] === '/')) {
         // Giữ lại xuống dòng để số dòng không lệch.
-        ra += ma[i] === '\n' ? '\n' : ' ';
+        out += src[i] === '\n' ? '\n' : ' ';
         i++;
       }
-      ra += '  ';
+      out += '  ';
       i += 2;
       continue;
     }
-    if (c === '"' || c === "'" || c === '`') trong = c;
-    ra += c;
+
+    if (c === '"' || c === "'" || c === '`') inString = c;
+    out += c;
     i++;
   }
-  return ra.split('\n');
-}
 
-async function quet(thuMuc, ra = []) {
-  for (const m of await readdir(thuMuc, { withFileTypes: true })) {
-    const duong = join(thuMuc, m.name);
-    if (m.isDirectory()) {
-      // messages/ CHÍNH LÀ nơi chữ tiếng Việt phải nằm.
-      if (m.name === 'messages' || m.name === 'node_modules') continue;
-      await quet(duong, ra);
-    } else if (/\.tsx?$/.test(m.name)) {
-      ra.push(duong);
-    }
-  }
-  return ra;
+  return out.split('\n');
 }
 
 /**
- * Đánh dấu mọi dòng nằm trong một lời gọi console.*, kể cả khi nó trải nhiều
- * dòng.
+ * Đánh dấu mọi dòng nằm trong một lời gọi console.*, kể cả khi nó trải nhiều dòng.
  *
  * Bắt theo từng dòng là hỏng: một console.warn xuống dòng thì chỉ dòng ĐẦU có
  * chữ "console", các dòng chuỗi phía sau trông y hệt chữ giao diện. Nên phải
@@ -98,83 +137,99 @@ async function quet(thuMuc, ra = []) {
  * người mua hàng. Bắt nó qua next-intl còn tệ hơn: thông báo lỗi lại đi phụ
  * thuộc vào chính hệ thống i18n có nạp được hay không.
  */
-function dongTrongConsole(nguon) {
-  const trong = new Set();
+function consoleLines(src) {
+  const marked = new Set();
   const re = /\bconsole\.(log|warn|error|info|debug)\s*\(/g;
-  let m;
-  while ((m = re.exec(nguon))) {
-    let sau = 0;
-    let i = m.index + m[0].length - 1;
-    for (; i < nguon.length; i++) {
-      if (nguon[i] === '(') sau++;
-      else if (nguon[i] === ')') {
-        sau--;
-        if (sau === 0) break;
+  let match;
+
+  while ((match = re.exec(src))) {
+    let depth = 0;
+    let i = match.index + match[0].length - 1;
+    for (; i < src.length; i++) {
+      if (src[i] === '(') depth++;
+      else if (src[i] === ')') {
+        depth--;
+        if (depth === 0) break;
       }
     }
-    const dauDong = nguon.slice(0, m.index).split('\n').length;
-    const cuoiDong = nguon.slice(0, i).split('\n').length;
-    for (let d = dauDong; d <= cuoiDong; d++) trong.add(d);
+    const firstLine = src.slice(0, match.index).split('\n').length;
+    const lastLine = src.slice(0, i).split('\n').length;
+    for (let n = firstLine; n <= lastLine; n++) marked.add(n);
   }
-  return trong;
+
+  return marked;
 }
 
-const tep = await quet(THU_MUC);
-const thay = [];
+async function walk(dir, out = []) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      // messages/ CHÍNH LÀ nơi chữ tiếng Việt phải nằm.
+      if (entry.name === 'messages' || entry.name === 'node_modules') continue;
+      await walk(full, out);
+    } else if (/\.tsx?$/.test(entry.name)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
 
-for (const duong of tep) {
-  const nguon = readFileSync(duong, 'utf8');
-  // Dòng GỐC để tìm dấu i18n-ignore: dấu đó nằm trong chú thích, mà chú thích
-  // thì bị bóc mất trước khi kiểm — tìm trên bản đã bóc thì không bao giờ thấy.
-  const dongGoc = nguon.split('\n');
+const files = await walk(SRC_DIR);
+const hits = [];
+
+for (const full of files) {
+  const source = readFileSync(full, 'utf8');
+
   // Dấu cấp TỆP, cho những file mà cả nội dung là ngoại lệ có lý do (ví dụ
   // global-error.tsx chạy khi provider i18n đã chết). Dấu cấp dòng đặt trong
   // một khối chú thích ở đầu tệp thì không với tới được chỗ vi phạm ở cuối.
-  if (/i18n-ignore-file/.test(nguon)) continue;
-  const daBoc = bocChuThich(nguon);
-  const trongConsole = dongTrongConsole(daBoc.join('\n'));
+  if (/i18n-ignore-file/.test(source)) continue;
 
-  daBoc.forEach((d, idx) => {
-    if (!DAU.test(d)) return;
-    if (trongConsole.has(idx + 1)) return;
+  // Dòng GỐC để tìm dấu i18n-ignore: dấu đó nằm trong chú thích, mà chú thích
+  // thì bị bóc mất trước khi kiểm — tìm trên bản đã bóc thì không bao giờ thấy.
+  const srcLines = source.split('\n');
+  const stripped = stripComments(source);
+  const inConsole = consoleLines(stripped.join('\n'));
 
-    const cat = d.trim();
-    if (/^import\b/.test(cat)) return;
+  stripped.forEach((line, idx) => {
+    if (!DIACRITIC.test(line)) return;
+    if (inConsole.has(idx + 1)) return;
 
-    // Đánh dấu tay cho những chỗ chữ tiếng Việt là DỮ LIỆU chứ không phải giao
-    // diện — ví dụ bảng chuyển tự bỏ dấu trong lib/slug.ts. Nhận dấu trên chính
-    // dòng đó hoặc trên ba dòng ngay trước (để đặt được trong khối chú thích
-    // giải thích lý do).
-    const quanh = dongGoc.slice(Math.max(0, idx - 3), idx + 1).join('\n');
-    if (/i18n-ignore/.test(quanh)) return;
+    const trimmed = line.trim();
+    if (/^import\b/.test(trimmed)) return;
 
-    thay.push({
-      tep: relative(GOC, duong).replace(/\\/g, '/'),
-      dong: idx + 1,
-      noiDung: cat.length > 110 ? cat.slice(0, 110) + '…' : cat,
-      thuocTinh: THUOC_TINH.test(d),
+    // Nhận dấu i18n-ignore trên chính dòng đó hoặc trên ba dòng ngay trước (để
+    // đặt được trong khối chú thích giải thích lý do).
+    const around = srcLines.slice(Math.max(0, idx - 3), idx + 1).join('\n');
+    if (/i18n-ignore/.test(around)) return;
+
+    hits.push({
+      file: relative(ROOT, full).replace(/\\/g, '/'),
+      line: idx + 1,
+      text: trimmed.length > 110 ? `${trimmed.slice(0, 110)}…` : trimmed,
+      isAttr: TEXT_ATTR.test(line),
     });
   });
 }
 
-if (!thay.length) {
+if (!hits.length) {
   console.log('Khong con chuoi tieng Viet viet cung ngoai messages/.');
   process.exit(0);
 }
 
-const theoTep = new Map();
-for (const t of thay) {
-  if (!theoTep.has(t.tep)) theoTep.set(t.tep, []);
-  theoTep.get(t.tep).push(t);
+const byFile = new Map();
+for (const hit of hits) {
+  if (!byFile.has(hit.file)) byFile.set(hit.file, []);
+  byFile.get(hit.file).push(hit);
 }
 
-console.log(`CHUOI TIENG VIET VIET CUNG: ${thay.length} dong, ${theoTep.size} tep`);
+console.log(`CHUOI TIENG VIET VIET CUNG: ${hits.length} dong, ${byFile.size} tep`);
 console.log('(Chu thich da duoc boc. Con lai la chu CO THE hien ra man hinh.)\n');
 
-for (const [tepDuong, ds] of [...theoTep].sort((a, b) => b[1].length - a[1].length)) {
-  console.log(`${tepDuong}  (${ds.length})`);
-  for (const d of ds) {
-    console.log(`  ${String(d.dong).padStart(4)}  ${d.thuocTinh ? '[attr] ' : ''}${d.noiDung}`);
+for (const [filePath, list] of [...byFile].sort((a, b) => b[1].length - a[1].length)) {
+  console.log(`${filePath}  (${list.length})`);
+  for (const hit of list) {
+    console.log(`  ${String(hit.line).padStart(4)}  ${hit.isAttr ? '[attr] ' : ''}${hit.text}`);
   }
   console.log('');
 }

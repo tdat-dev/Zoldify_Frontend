@@ -11,6 +11,18 @@ import http from '@/lib/http';
 export const SETTING_KEYS = {
   siteName: 'site_name',
   siteDescription: 'site_description',
+  /**
+   * Chuỗi 'true' / 'false', KHÔNG phải boolean — bảng settings lưu value dạng
+   * text nên mọi thứ đi qua đây đều là chuỗi. Đọc bằng `=== 'true'`, đừng dùng
+   * ép kiểu thật thà: chuỗi 'false' là truthy trong JavaScript, và đó là cách
+   * một công tắc TẮT bật cả site lên.
+   *
+   * Ba chỗ cùng đọc khoá này, phải khớp nhau từng chữ:
+   *   - middleware.ts (frontend, chuyển hướng)
+   *   - common/guards/maintenance.guard.ts (backend, chặn thật)
+   *   - trang này (bật/tắt)
+   */
+  maintenanceMode: 'maintenance_mode',
 } as const;
 
 export const settingService = {

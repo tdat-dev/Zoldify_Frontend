@@ -37,7 +37,8 @@ export default function AdminSettingsPage() {
 
   const [siteName, setSiteName] = useState('');
   const [siteDescription, setSiteDescription] = useState('');
-  const [saved, setSaved] = useState({ siteName: '', siteDescription: '' });
+  const [maintenance, setMaintenance] = useState(false);
+  const [saved, setSaved] = useState({ siteName: '', siteDescription: '', maintenance: false });
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [saving, setSaving] = useState(false);
 
@@ -50,9 +51,12 @@ export default function AdminSettingsPage() {
       const next = {
         siteName: byKey[SETTING_KEYS.siteName] ?? '',
         siteDescription: byKey[SETTING_KEYS.siteDescription] ?? '',
+        // === 'true' chu khong phai ep kieu: chuoi 'false' la truthy.
+        maintenance: byKey[SETTING_KEYS.maintenanceMode] === 'true',
       };
       setSiteName(next.siteName);
       setSiteDescription(next.siteDescription);
+      setMaintenance(next.maintenance);
       setSaved(next);
       setState('ready');
     } catch {
@@ -64,7 +68,10 @@ export default function AdminSettingsPage() {
     load();
   }, [load]);
 
-  const dirty = siteName !== saved.siteName || siteDescription !== saved.siteDescription;
+  const dirty =
+    siteName !== saved.siteName ||
+    siteDescription !== saved.siteDescription ||
+    maintenance !== saved.maintenance;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,8 +81,9 @@ export default function AdminSettingsPage() {
       await settingService.update({
         [SETTING_KEYS.siteName]: siteName,
         [SETTING_KEYS.siteDescription]: siteDescription,
+        [SETTING_KEYS.maintenanceMode]: maintenance ? 'true' : 'false',
       });
-      setSaved({ siteName, siteDescription });
+      setSaved({ siteName, siteDescription, maintenance });
       toast(t('settingsSaved'), 'success');
     } catch (err: any) {
       toast(err.response?.data?.message || t('settingsSaveFailed'), 'error');
@@ -138,6 +146,48 @@ export default function AdminSettingsPage() {
                     className={field}
                   />
                 </div>
+              </div>
+
+              {/* --- Chế độ bảo trì ---
+                  Tách khỏi hai ô trên bằng một đường kẻ và một khối riêng: đây
+                  là công tắc DUY NHẤT trên trang này có hậu quả tức thì với
+                  người ngoài, đừng để nó trông ngang hàng với việc đổi tên site.
+
+                  Bản trước từng có một nút "BẬT bảo trì" ở đây và tôi đã gỡ, vì
+                  nó không có onClick — và kể cả nối vào một khoá cài đặt thì
+                  cũng KHÔNG có gì trong app đọc khoá đó. Nay đã có: guard chặn
+                  ở backend và middleware chuyển hướng ở frontend. */}
+              <div className="mt-8 border-t border-ink/10 pt-7">
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={maintenance}
+                    onChange={(e) => setMaintenance(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded-[3px] border-ink/30 text-brand focus:ring-[3px] focus:ring-brand/30"
+                  />
+                  <span>
+                    <span className="block text-small font-semibold text-ink">
+                      {t('maintenanceLabel')}
+                    </span>
+                    <span className="mt-1 block max-w-[52ch] text-small leading-relaxed text-ink-muted">
+                      {t('maintenanceHint')}
+                    </span>
+                  </span>
+                </label>
+
+                {maintenance && !saved.maintenance && (
+                  <p className="mt-4 rounded-control bg-state-pending-bg px-4 py-3 text-small leading-relaxed text-state-pending-fg">
+                    {t('maintenanceWarn')}
+                  </p>
+                )}
+                {saved.maintenance && (
+                  <p
+                    role="status"
+                    className="mt-4 rounded-control bg-state-danger-bg px-4 py-3 text-small font-semibold leading-relaxed text-state-danger-fg"
+                  >
+                    {t('maintenanceOn')}
+                  </p>
+                )}
               </div>
 
               <div className="mt-7 flex items-center gap-3">

@@ -45,22 +45,22 @@ export default function LoginPage() {
   const [reveal, setReveal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [loiTruong, setLoiTruong] = useState<{ email?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
   /** Chỉ bắt hai thứ máy chủ không nên phải trả lời: bỏ trống và sai dạng. */
-  const soat = () => {
-    const loi: { email?: string; password?: string } = {};
-    if (!email.trim()) loi.email = t('errEmailRequired');
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) loi.email = t('errEmailFormat');
-    if (!password) loi.password = t('errPasswordRequired');
-    return loi;
+  const validate = () => {
+    const errs: { email?: string; password?: string } = {};
+    if (!email.trim()) errs.email = t('errEmailRequired');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errs.email = t('errEmailFormat');
+    if (!password) errs.password = t('errPasswordRequired');
+    return errs;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const loi = soat();
-    setLoiTruong(loi);
-    if (Object.keys(loi).length) return;
+    const errs = validate();
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) return;
 
     setError('');
     setLoading(true);
@@ -77,20 +77,20 @@ export default function LoginPage() {
     }
   };
 
-  const nutGoogle = <GoogleButton label={t('google')} onError={setError} />;
+  const googleButton = <GoogleButton label={t('google')} onError={setError} />;
 
   // Nhãn phải nói đúng thứ NẰM DƯỚI nó. Dùng cứng "hoặc dùng email" trong khi
   // ô email đã ở phía trên là câu vô nghĩa — đo được ngay khi chụp màn hình,
   // không thấy được khi đọc HTML.
-  const phanCach = (nhan: string) => (
+  const divider = (label: string) => (
     <div className="my-6 flex items-center gap-4">
       <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
-      <span className="text-small text-ink-faint">{nhan}</span>
+      <span className="text-small text-ink-faint">{label}</span>
       <span className="h-px flex-1 bg-ink/12" aria-hidden="true" />
     </div>
   );
 
-  const bieuMau = (
+  const form = (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
       <div>
         <label htmlFor="login-email" className={authLabel}>
@@ -105,15 +105,15 @@ export default function LoginPage() {
             setEmail(e.target.value);
             // Xoá lỗi ngay khi người ta bắt đầu sửa: giữ dòng đỏ trong lúc họ
             // đang gõ lại là mắng người đang chữa lỗi.
-            if (loiTruong.email) setLoiTruong((v) => ({ ...v, email: undefined }));
+            if (fieldErrors.email) setFieldErrors((v) => ({ ...v, email: undefined }));
           }}
-          aria-invalid={!!loiTruong.email}
-          aria-describedby={loiTruong.email ? 'login-email-err' : undefined}
-          className={loiTruong.email ? authFieldError : authField}
+          aria-invalid={!!fieldErrors.email}
+          aria-describedby={fieldErrors.email ? 'login-email-err' : undefined}
+          className={fieldErrors.email ? authFieldError : authField}
         />
-        {loiTruong.email && (
+        {fieldErrors.email && (
           <p id="login-email-err" className="mt-1.5 text-small text-state-danger-fg">
-            {loiTruong.email}
+            {fieldErrors.email}
           </p>
         )}
       </div>
@@ -143,15 +143,15 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            if (loiTruong.password) setLoiTruong((v) => ({ ...v, password: undefined }));
+            if (fieldErrors.password) setFieldErrors((v) => ({ ...v, password: undefined }));
           }}
-          aria-invalid={!!loiTruong.password}
-          aria-describedby={loiTruong.password ? 'login-password-err' : undefined}
-          className={loiTruong.password ? authFieldError : authField}
+          aria-invalid={!!fieldErrors.password}
+          aria-describedby={fieldErrors.password ? 'login-password-err' : undefined}
+          className={fieldErrors.password ? authFieldError : authField}
         />
-        {loiTruong.password && (
+        {fieldErrors.password && (
           <p id="login-password-err" className="mt-1.5 text-small text-state-danger-fg">
-            {loiTruong.password}
+            {fieldErrors.password}
           </p>
         )}
       </div>
@@ -214,15 +214,15 @@ export default function LoginPage() {
 
       {isFirebaseConfigured ? (
         <>
-          {nutGoogle}
-          {phanCach(t('orEmail'))}
-          {bieuMau}
+          {googleButton}
+          {divider(t('orEmail'))}
+          {form}
         </>
       ) : (
         <>
-          {bieuMau}
-          {phanCach(t('or'))}
-          {nutGoogle}
+          {form}
+          {divider(t('or'))}
+          {googleButton}
         </>
       )}
     </AuthShell>

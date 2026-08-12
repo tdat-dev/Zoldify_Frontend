@@ -67,12 +67,12 @@ export function readToken(): string | null {
 
 export function writeSession(token: string, user: StoredUser, remember: boolean) {
   if (typeof window === 'undefined') return;
-  const dung = remember ? window.localStorage : window.sessionStorage;
-  const bo = remember ? window.sessionStorage : window.localStorage;
-  bo.removeItem(TOKEN_KEY);
-  bo.removeItem(USER_KEY);
-  dung.setItem(TOKEN_KEY, token);
-  dung.setItem(USER_KEY, JSON.stringify(user));
+  const target = remember ? window.localStorage : window.sessionStorage;
+  const other = remember ? window.sessionStorage : window.localStorage;
+  other.removeItem(TOKEN_KEY);
+  other.removeItem(USER_KEY);
+  target.setItem(TOKEN_KEY, token);
+  target.setItem(USER_KEY, JSON.stringify(user));
 }
 
 /** Cập nhật hồ sơ mà KHÔNG đổi chỗ lưu — người dùng đã chọn nhớ hay không. */
