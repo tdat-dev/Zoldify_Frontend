@@ -185,7 +185,7 @@ export default function MyProductsPage() {
                       {product.category?.name || '—'}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-right text-small font-bold tabular-nums text-price">
-                      {formatPrice(product.price)}
+                      {formatPrice(product.price, product.currency)}
                     </td>
                     <td className="px-4 py-3">
                       <StockStepper

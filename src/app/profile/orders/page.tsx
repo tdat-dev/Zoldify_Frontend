@@ -209,7 +209,7 @@ export default function UserOrdersPage() {
                     <OrderStatusBadge status={order.status} />
                   </div>
                   <span className="text-body font-bold tabular-nums text-price">
-                    {formatPrice(order.total_amount)}
+                    {formatPrice(order.total_amount, order.currency)}
                   </span>
                 </div>
 

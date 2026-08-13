@@ -77,6 +77,10 @@ export default function CheckoutPage() {
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const grandTotal = subtotal + SHIPPING_FEE;
+  // Cùng luật với giỏ hàng và với orders.service phía backend: một đơn, một
+  // loại tiền. Xem chú thích ở cart/page.tsx.
+  const cur = cartItems[0]?.currency;
+  const mixedCurrency = cartItems.some((i: any) => (i.currency || 'VND') !== (cur || 'VND'));
 
   const handleOrder = async () => {
     if (!addressInfo.receiver_name || !addressInfo.receiver_phone || !addressInfo.shipping_address) {
@@ -277,12 +281,12 @@ export default function CheckoutPage() {
                     <div className="min-w-0 flex-1">
                       <p className="clamp-2 text-body text-ink">{item.name}</p>
                       <p className="mt-0.5 text-small text-ink-muted">
-                        {formatPrice(item.price)}
+                        {formatPrice(item.price, cur)}
                         {item.quantity > 1 && ` × ${item.quantity}`}
                       </p>
                     </div>
                     <span className="shrink-0 text-body font-bold tabular-nums text-price">
-                      {formatPrice(item.price * item.quantity)}
+                      {formatPrice(item.price * item.quantity, cur)}
                     </span>
                   </li>
                 ))}
@@ -297,19 +301,19 @@ export default function CheckoutPage() {
               <dl className="mt-4 flex flex-col gap-2.5">
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-body text-ink-muted">{t('goods')}</dt>
-                  <dd className="text-body tabular-nums text-ink">{formatPrice(subtotal)}</dd>
+                  <dd className="text-body tabular-nums text-ink">{formatPrice(subtotal, cur)}</dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-body text-ink-muted">{t('shippingFee')}</dt>
                   <dd className="text-body text-ink">
-                    {SHIPPING_FEE === 0 ? t('free') : formatPrice(SHIPPING_FEE)}
+                    {SHIPPING_FEE === 0 ? t('free') : formatPrice(SHIPPING_FEE, cur)}
                   </dd>
                 </div>
               </dl>
 
               <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-ink/10 pt-4">
                 <span className="text-body font-semibold text-ink">{t('total')}</span>
-                <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal)}</span>
+                <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal, cur)}</span>
               </div>
 
               <fieldset className="mt-5">

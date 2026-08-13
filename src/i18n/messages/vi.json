@@ -277,7 +277,9 @@
     "subtotal": "Tạm tính",
     "checkout": "Đặt hàng",
     "checkoutCount": "Đặt hàng ({count})",
-    "needSelection": "Chọn ít nhất một món còn hàng."
+    "needSelection": "Chọn ít nhất một món còn hàng.",
+    "mixedCurrency": "Giỏ đang có nhiều loại tiền khác nhau. Mỗi đơn chỉ thanh toán được một loại — bỏ chọn bớt để còn cùng một loại tiền nhé.",
+    "mixedCurrencyHint": "Chọn lại các món cùng một loại tiền."
   },
   "notifications": {
     "title": "Thông báo",

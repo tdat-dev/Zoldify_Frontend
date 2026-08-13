@@ -90,6 +90,9 @@ export default function OrderDetailPage() {
   }
 
   const items: any[] = order.items || [];
+  // Tiền tệ CỦA ĐƠN, không phải của sản phẩm hiện tại: đơn đã chụp lại lúc đặt
+  // nên người bán sửa tin sau này cũng không đổi được hoá đơn cũ.
+  const cur = order.currency;
   const shippingFee = Number(order.shipping_fee || 0);
   const total = Number(order.total_amount || 0);
   const subTotal = total - shippingFee;
@@ -188,11 +191,11 @@ export default function OrderDetailPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-small text-ink">{item.product_name}</span>
                   <span className="block text-caption tabular-nums text-ink-muted">
-                    {formatPrice(item.price_at_purchase)} × {item.quantity}
+                    {formatPrice(item.price_at_purchase, cur)} × {item.quantity}
                   </span>
                 </span>
                 <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
-                  {formatPrice(Number(item.price_at_purchase || 0) * Number(item.quantity || 0))}
+                  {formatPrice(Number(item.price_at_purchase || 0) * Number(item.quantity || 0), cur)}
                 </span>
               </li>
             ))}
@@ -215,15 +218,15 @@ export default function OrderDetailPage() {
           <dl className="flex flex-col gap-2 text-small">
             <div className="flex justify-between text-ink-muted">
               <dt>{t('subtotal')}</dt>
-              <dd className="tabular-nums">{formatPrice(subTotal)}</dd>
+              <dd className="tabular-nums">{formatPrice(subTotal, cur)}</dd>
             </div>
             <div className="flex justify-between text-ink-muted">
               <dt>{t('shippingFee')}</dt>
-              <dd className="tabular-nums">{formatPrice(shippingFee)}</dd>
+              <dd className="tabular-nums">{formatPrice(shippingFee, cur)}</dd>
             </div>
             <div className="mt-1 flex justify-between border-t border-ink/10 pt-3">
               <dt className="font-semibold text-ink">{t('total')}</dt>
-              <dd className="text-body font-bold tabular-nums text-price">{formatPrice(total)}</dd>
+              <dd className="text-body font-bold tabular-nums text-price">{formatPrice(total, cur)}</dd>
             </div>
             {order.payment_method && (
               <div className="mt-1 flex justify-between text-ink-muted">

@@ -167,7 +167,8 @@ export default function ShopOrdersPage() {
     }
   };
 
-  const formatCurrency = (v: number | string) => formatPrice(v);
+  const formatCurrency = (v: number | string, currency?: string) =>
+    formatPrice(v, currency);
   const formatDate = (d: string) => {
     try {
       return new Date(d).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });

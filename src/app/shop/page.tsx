@@ -30,6 +30,9 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  /** Mã ISO 4217. Backend luôn trả về (mặc định 'VND'), nhưng để optional cho
+   *  dữ liệu cũ đã nằm trong bộ nhớ đệm của trình duyệt. */
+  currency?: string;
   image: string;
   stock: number;
   is_freeship: boolean;
@@ -334,7 +337,7 @@ export default function ShopPage() {
                     </h3>
                     <div className="flex items-center justify-between pt-1">
                       <div className="text-brand font-medium text-small">
-                        {formatPrice(item.price)}
+                        {formatPrice(item.price, item.currency)}
                       </div>
                       {isOwner ? (
                         <div onClick={(e) => e.preventDefault()}>

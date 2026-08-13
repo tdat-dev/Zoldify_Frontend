@@ -277,7 +277,9 @@
     "subtotal": "Subtotal",
     "checkout": "Place order",
     "checkoutCount": "Place order ({count})",
-    "needSelection": "Pick at least one item that's still available."
+    "needSelection": "Pick at least one item that's still available.",
+    "mixedCurrency": "Your cart mixes different currencies. One order can only be paid in one currency — deselect items until they all match.",
+    "mixedCurrencyHint": "Pick items that share the same currency."
   },
   "notifications": {
     "title": "Notifications",

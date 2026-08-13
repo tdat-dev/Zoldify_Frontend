@@ -159,7 +159,8 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const formatCurrency = (v: number | string) => formatPrice(v);
+  const formatCurrency = (v: number | string, currency?: string) =>
+    formatPrice(v, currency);
 
   const formatDate = (d: string) => {
     try {

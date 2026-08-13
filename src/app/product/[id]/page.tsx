@@ -242,7 +242,7 @@ export default function ProductDetailPage() {
               <div className="rounded-control bg-surface-sunken p-4">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-[28px] font-bold tabular-nums text-price">
-                    {formatPrice(product.price)}
+                    {formatPrice(product.price, product.currency)}
                   </span>
                   {!!product.is_freeship && (
                     <span className="inline-flex items-center gap-1 rounded-control bg-state-success-bg px-2 py-1 text-caption text-state-success-fg">

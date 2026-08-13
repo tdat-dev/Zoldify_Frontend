@@ -63,7 +63,7 @@ export function ItemTile({
             : 'mt-0.5 text-small font-bold tabular-nums text-price'
         }
       >
-        {formatPrice(item.price)}
+        {formatPrice(item.price, item.currency)}
       </p>
     </Link>
   );

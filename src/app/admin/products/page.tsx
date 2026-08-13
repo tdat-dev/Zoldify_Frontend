@@ -154,7 +154,7 @@ export default function AdminProductsPage() {
                       {product.category?.name || '—'}
                     </td>
                     <td className="py-4 px-6 text-small font-medium text-state-danger-fg whitespace-nowrap">
-                      {formatPrice(product.price)}
+                      {formatPrice(product.price, product.currency)}
                     </td>
                     <td className="py-4 px-6">
                       <StockEditor

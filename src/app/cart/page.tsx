@@ -51,6 +51,10 @@ export default function CartPage() {
           id: item.id,
           name: item.product?.name || t('removedItem'),
           price: Number(item.product?.price || 0),
+          // Không quên chép sang: hàm map này dựng một đối tượng MỚI, nên trường
+          // nào không liệt kê ở đây thì phần còn lại của trang không thấy — và
+          // `cur` bên dưới sẽ lặng lẽ là undefined, rơi về VND cho mọi thứ.
+          currency: item.product?.currency,
           quantity: item.quantity,
           stock: Number(item.product?.stock ?? 0),
           image: item.product?.image || null,
@@ -102,6 +106,14 @@ export default function CartPage() {
 
   const buyable = cartItems.filter((i) => i.selected && i.stock > 0);
   const grandTotal = buyable.reduce((acc, i) => acc + i.price * Math.min(i.quantity, i.stock), 0);
+
+  // Tiền tệ của giỏ, lấy từ món đầu tiên đang chọn. `mixedCurrency` báo trước
+  // điều mà backend sẽ TỪ CHỐI khi đặt đơn (orders.service kiểm cùng luật):
+  // cộng 500 USD với 500 VND ra 1000 thì không sai ở đâu để mà báo lỗi, nó chỉ
+  // lặng lẽ hiện một con số vô nghĩa. Nói ngay ở giỏ còn hơn để người dùng điền
+  // xong địa chỉ rồi mới bị chặn ở bước cuối.
+  const cur = buyable[0]?.currency;
+  const mixedCurrency = buyable.some((i) => (i.currency || 'VND') !== (cur || 'VND'));
   const selectableCount = cartItems.filter((i) => i.stock > 0).length;
   const allSelected = selectableCount > 0 && cartItems.every((i) => i.stock <= 0 || i.selected);
 
@@ -240,13 +252,13 @@ export default function CartPage() {
 
                           {/* Ở mobile, giá nằm ngay dưới tên thay vì thành một cột. */}
                           <p className="mt-2 text-body font-bold tabular-nums text-price md:hidden">
-                            {formatPrice(item.price * Math.min(item.quantity, item.stock || 1))}
+                            {formatPrice(item.price * Math.min(item.quantity, item.stock || 1), item.currency)}
                           </p>
                         </div>
                       </div>
 
                       <span className="hidden w-[110px] shrink-0 text-right text-body tabular-nums text-ink-muted md:block">
-                        {formatPrice(item.price)}
+                        {formatPrice(item.price, item.currency)}
                       </span>
 
                       <div className="flex items-center gap-3 md:w-[130px] md:shrink-0 md:justify-center">
@@ -282,7 +294,7 @@ export default function CartPage() {
                       </div>
 
                       <span className="hidden w-[120px] shrink-0 text-right text-body font-bold tabular-nums text-price md:block">
-                        {gone ? '—' : formatPrice(item.price * Math.min(item.quantity, item.stock))}
+                        {gone ? '—' : formatPrice(item.price * Math.min(item.quantity, item.stock), item.currency)}
                       </span>
 
                       <button
@@ -309,7 +321,7 @@ export default function CartPage() {
                   <dt className="text-body tabular-nums text-ink-muted">
                     {t('selected', { count: buyable.length })}
                   </dt>
-                  <dd className="text-body tabular-nums text-ink">{formatPrice(grandTotal)}</dd>
+                  <dd className="text-body tabular-nums text-ink">{formatPrice(grandTotal, cur)}</dd>
                 </div>
                 <p className="text-caption font-normal text-ink-muted">
                   {t('shippingLater')}
@@ -318,12 +330,24 @@ export default function CartPage() {
 
               <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-ink/10 pt-4">
                 <span className="text-body font-semibold text-ink">{t('subtotal')}</span>
-                <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal)}</span>
+                <span className="text-h2 tabular-nums text-price">{formatPrice(grandTotal, cur)}</span>
               </div>
+
+              {/* Giỏ trộn tiền tệ: tổng ở trên là phép cộng vô nghĩa, và backend
+                  sẽ từ chối khi đặt. Nói ở ĐÂY, trước khi người dùng đi tiếp và
+                  điền xong địa chỉ mới bị chặn ở bước cuối. */}
+              {mixedCurrency && (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-control bg-state-pending-bg px-4 py-3 text-small leading-relaxed text-state-pending-fg"
+                >
+                  {t('mixedCurrency')}
+                </p>
+              )}
 
               {/* Nút thật, không phải <a href="#"> đội lốt nút bị vô hiệu. Và có
                   câu nói rõ vì sao chưa bấm được, thay vì để người dùng đoán. */}
-              {buyable.length > 0 ? (
+              {buyable.length > 0 && !mixedCurrency ? (
                 <Link
                   href={`/checkout?ids=${buyable.map((i) => i.id).join(',')}`}
                   className="mt-5 block w-full rounded-control bg-brand py-3 text-center text-body font-semibold text-white transition-colors hover:bg-brand-dark"
@@ -340,7 +364,7 @@ export default function CartPage() {
                     {t('checkout')}
                   </button>
                   <p className="mt-2 text-center text-small text-ink-muted">
-                    {t('needSelection')}
+                    {mixedCurrency ? t('mixedCurrencyHint') : t('needSelection')}
                   </p>
                 </>
               )}
