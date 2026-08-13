@@ -20,7 +20,7 @@ import { API_URL } from '@/lib/config';
  * thường — tức là trả giá suốt ngày cho một tính năng dùng vài lần một năm.
  */
 const ALLOW_EXACT = ['/maintenance', '/login'];
-const TIEN_TO_ALLOW_EXACT = ['/admin', '/_next', '/media', '/images', '/favicon'];
+const ALLOW_PREFIX = ['/admin', '/_next', '/media', '/images', '/favicon'];
 
 let cache: { maintenance: boolean; expiresAt: number } = { maintenance: false, expiresAt: 0 };
 
@@ -53,7 +53,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (ALLOW_EXACT.includes(pathname)) return NextResponse.next();
-  if (TIEN_TO_ALLOW_EXACT.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  if (ALLOW_PREFIX.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
   if (!(await isMaintenanceOn())) return NextResponse.next();
 
