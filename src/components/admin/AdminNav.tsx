@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { LayoutDashboard, Package, ShoppingCart, Users, FolderTree, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FolderTree, Settings, Banknote } from 'lucide-react';
 
 /**
  * Điều hướng khu quản trị.
@@ -21,6 +21,7 @@ const ITEMS = [
   { href: '/admin/products', key: 'prodTitle', Icon: Package },
   { href: '/admin/categories', key: 'catTitle', Icon: FolderTree },
   { href: '/admin/users', key: 'usrTitle', Icon: Users },
+  { href: '/admin/withdrawals', key: 'wdNav', Icon: Banknote },
   { href: '/admin/settings', key: 'settings', Icon: Settings },
 ] as const;
 
