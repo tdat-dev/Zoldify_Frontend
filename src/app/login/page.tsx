@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { isFirebaseConfigured } from '@/lib/firebase';
+import { useFirebaseConfig } from '@/context/FirebaseConfigContext';
 import {
   AuthShell,
   authField,
@@ -36,6 +36,9 @@ import { GoogleButton } from '@/components/auth/GoogleButton';
 export default function LoginPage() {
   const { login } = useAuth();
   const t = useTranslations('auth');
+  // null khi chua cau hinh Firebase. Doc o server roi truyen xuong, nen bien
+  // moi truong KHONG can tien to NEXT_PUBLIC_ — xem lib/firebase-config.ts.
+  const firebaseReady = !!useFirebaseConfig();
   const searchParams = useSearchParams();
 
   const justRegistered = searchParams.get('registered') === '1';
@@ -212,7 +215,7 @@ export default function LoginPage() {
         </p>
       )}
 
-      {isFirebaseConfigured ? (
+      {firebaseReady ? (
         <>
           {googleButton}
           {divider(t('orEmail'))}

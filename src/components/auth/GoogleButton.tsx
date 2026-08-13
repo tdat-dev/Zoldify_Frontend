@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { signInWithPopup } from 'firebase/auth';
 import http from '@/lib/http';
-import { getFirebaseAuth, isFirebaseConfigured } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
+import { useFirebaseConfig } from '@/context/FirebaseConfigContext';
 import { writeSession } from '@/lib/session';
 import { authSecondary } from './AuthShell';
 
@@ -39,17 +40,20 @@ export function GoogleButton({
   onError: (message: string) => void;
 }) {
   const t = useTranslations('auth');
+  // Cau hinh doc o server roi truyen xuong — xem lib/firebase-config.ts.
+  const config = useFirebaseConfig();
   const [busy, setBusy] = useState(false);
 
   const handleClick = async () => {
-    const fb = getFirebaseAuth();
+    const fb = getFirebaseAuth(config);
     if (!fb) {
       // Câu cho người dùng: nói họ làm gì tiếp theo, không nói vì sao hỏng.
       onError(t('googleUnavailable'));
       // Câu cho người dựng: nói đúng cái thiếu.
       console.warn(
-        '[auth] Google sign-in tắt: thiếu NEXT_PUBLIC_FIREBASE_API_KEY / _AUTH_DOMAIN / _PROJECT_ID trong .env.local. ' +
-          'Lưu ý .env.example ghi thiếu tiền tố NEXT_PUBLIC_, điền theo đó thì biến không xuống được trình duyệt.',
+        '[auth] Google sign-in tat: thieu FIREBASE_API_KEY / FIREBASE_AUTH_DOMAIN / FIREBASE_PROJECT_ID. ' +
+          'Doc o phia server (lib/firebase-config.ts) nen KHONG can tien to NEXT_PUBLIC_. ' +
+          'Sua xong phai khoi dong lai dev server: Next doc bien moi truong luc khoi dong.',
       );
       return;
     }
@@ -76,7 +80,7 @@ export function GoogleButton({
     }
   };
 
-  const off = !isFirebaseConfigured;
+  const off = !config;
 
   return (
     <button

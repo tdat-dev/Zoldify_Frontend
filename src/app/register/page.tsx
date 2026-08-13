@@ -8,7 +8,7 @@ import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { authService } from '@/services/auth.service';
 import { AuthShell, authField, authLabel, authSubmit } from '@/components/auth/AuthShell';
 import { GoogleButton } from '@/components/auth/GoogleButton';
-import { isFirebaseConfigured } from '@/lib/firebase';
+import { useFirebaseConfig } from '@/context/FirebaseConfigContext';
 
 /**
  * Đăng ký: gửi mã tới email, rồi xác thực mã và đặt mật khẩu.
@@ -31,6 +31,7 @@ import { isFirebaseConfigured } from '@/lib/firebase';
 export default function RegisterPage() {
   const router = useRouter();
   const t = useTranslations('auth');
+  const firebaseReady = !!useFirebaseConfig();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [fullName, setFullName] = useState('');
@@ -146,7 +147,7 @@ export default function RegisterPage() {
       {/* Cùng quy tắc với trang đăng nhập: Google chỉ đứng trên khi nó BẤM
           ĐƯỢC. Chưa cấu hình thì nó là một nút mờ, mà mở trang ra gặp ngay một
           cánh cửa khoá thì thà để biểu mẫu lên trước. */}
-      {isFirebaseConfigured && (
+      {firebaseReady && (
         <>
           <GoogleButton label={t('googleSignup')} onError={setError} />
           <div className="my-6 flex items-center gap-4">
@@ -223,7 +224,7 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      {!isFirebaseConfigured && (
+      {!firebaseReady && (
         <>
           {/* "hoặc" chứ không phải "hoặc dùng email": ô email nằm ở TRÊN rồi. */}
           <div className="my-6 flex items-center gap-4">

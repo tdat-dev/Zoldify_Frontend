@@ -6,6 +6,8 @@ import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { AnnounceBar } from "@/components/AnnounceBar";
 import { AuthProvider } from "@/context/AuthContext";
+import { FirebaseConfigProvider } from "@/context/FirebaseConfigContext";
+import { readFirebaseConfig } from "@/lib/firebase-config";
 import { CartProvider } from "@/context/CartContext";
 import { ToastProvider } from "@/components/Toast";
 
@@ -78,6 +80,10 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
   const tc = await getTranslations("meta");
+  // Doc bien moi truong o DAY: layout la server component nen process.env co
+  // that. Truyen xuong client duoi dang prop, nho vay ba bien Firebase
+  // khong can tien to NEXT_PUBLIC_. Xem lib/firebase-config.ts.
+  const firebaseConfig = readFirebaseConfig();
 
   return (
     <html lang={locale}>
@@ -86,22 +92,25 @@ export default async function RootLayout({
           trong CSS. Thiếu className thì cả trang rơi về Times New Roman. */}
       <body className={`${beVietnamPro.variable} ${beVietnamPro.className}`}>
         <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <CartProvider>
-              <ToastProvider>
-                <a href="#main" className="skip-link">{tc("skipToContent")}</a>
-                {/* Khung (header/footer) do SiteChrome chọn theo route: khu xác
+          <FirebaseConfigProvider config={firebaseConfig}>
+            <AuthProvider>
+              <CartProvider>
+                <ToastProvider>
+                  <a href="#main" className="skip-link">
+                    {tc("skipToContent")}
+                  </a>
+                  {/* Khung (header/footer) do SiteChrome chọn theo route: khu xác
                     thực dùng bản rút gọn, phần còn lại dùng bản đầy đủ. */}
-                {/* AnnounceBar dựng ở ĐÂY (phía server) rồi mới đưa xuống: nó
+                  {/* AnnounceBar dựng ở ĐÂY (phía server) rồi mới đưa xuống: nó
                     là server component async, import thẳng vào SiteChrome sẽ
                     làm trắng mọi trang không-phải-auth. */}
-                <SiteChrome announce={<AnnounceBar />}>{children}</SiteChrome>
-              </ToastProvider>
-            </CartProvider>
-          </AuthProvider>
+                  <SiteChrome announce={<AnnounceBar />}>{children}</SiteChrome>
+                </ToastProvider>
+              </CartProvider>
+            </AuthProvider>
+          </FirebaseConfigProvider>
         </NextIntlClientProvider>
       </body>
     </html>
   );
 }
-
