@@ -1,30 +1,36 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, type Auth } from 'firebase/auth';
+import type { FirebaseConfig } from './firebase-config';
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-};
-
-/** Chưa cấu hình Firebase thì tắt hẳn nút đăng nhập Google, không làm sập trang. */
-export const isFirebaseConfigured = Boolean(
-  firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId,
-);
-
+/**
+ * Khởi tạo Firebase từ cấu hình ĐƯỢC TRUYỀN VÀO, không tự đọc process.env.
+ *
+ * Bản trước đọc `process.env.NEXT_PUBLIC_FIREBASE_*` ngay trong file này. Cách
+ * đó chạy được, nhưng buộc mọi biến phải mang tiền tố NEXT_PUBLIC_ — và
+ * .env.example của dự án lại ghi tên KHÔNG có tiền tố, nên ai điền theo file
+ * mẫu thì cờ cấu hình vẫn false và nút Google vẫn tắt, không dấu vết.
+ *
+ * Nay cấu hình đọc ở server (lib/firebase-config.ts) rồi đi xuống qua
+ * FirebaseConfigProvider. File này chỉ nhận và dựng, không biết biến môi trường
+ * tên là gì — nên đổi tên biến sau này không phải sửa tới đây.
+ */
 let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
 let provider: GoogleAuthProvider | null = null;
 
 /**
- * Khởi tạo lười và chỉ ở phía client.
- * Trước đây initializeApp chạy ngay khi import module, nên thiếu env là
- * prerender /login đổ vỡ và người dùng nhận trang trắng.
+ * Trả về null khi chưa cấu hình hoặc đang chạy trên server.
+ *
+ * Khởi tạo LƯỜI và chỉ ở phía client: bản đầu gọi initializeApp ngay lúc import
+ * module, nên thiếu biến môi trường là prerender /login đổ vỡ và người dùng
+ * nhận một trang trắng.
  */
-export function getFirebaseAuth(): { auth: Auth; googleProvider: GoogleAuthProvider } | null {
-  if (typeof window === 'undefined' || !isFirebaseConfigured) return null;
+export function getFirebaseAuth(
+  config: FirebaseConfig,
+): { auth: Auth; googleProvider: GoogleAuthProvider } | null {
+  if (typeof window === 'undefined' || !config) return null;
   try {
-    if (!app) app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    if (!app) app = getApps().length === 0 ? initializeApp(config) : getApps()[0];
     if (!authInstance) authInstance = getAuth(app);
     if (!provider) provider = new GoogleAuthProvider();
     return { auth: authInstance, googleProvider: provider };

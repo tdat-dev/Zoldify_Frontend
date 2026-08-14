@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint",
     "check:tokens": "node scripts/check-tokens.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});console.log('Cache cleared')\"",
-    "clean:dev": "npm run clean && next dev",
+    "clean:dev": "npm run clean && next dev -p 3001",
     "gen:api": "node node_modules/openapi-typescript/bin/cli.js ../Zoldify_Backend/openapi.json -o src/api/schema.d.ts"
   },
   "dependencies": {
@@ -18,8 +19,10 @@
     "firebase": "^12.14.0",
     "lucide-react": "^0.378.0",
     "next": "^14.2.35",
+    "next-intl": "^3.26.5",
     "react": "^18",
     "react-dom": "^18",
+    "sharp": "^0.35.3",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^2.3.0"
   },

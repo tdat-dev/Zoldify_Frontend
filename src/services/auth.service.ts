@@ -16,4 +16,19 @@ export const authService = {
   getProfile() {
     return http.get('/auth/profile');
   },
+
+  /**
+   * Quên mật khẩu — HAI bước, không phải ba.
+   *
+   * Backend gộp "xác thực OTP" và "đặt mật khẩu mới" vào một lần gọi
+   * (auth.controller.ts:152, ResetPasswordDto = email + otp + newPassword).
+   * Không có endpoint chỉ để kiểm OTP, nên không thể có một trang
+   * /reset-password đứng riêng — trang đó sẽ không có email lẫn otp trong tay.
+   */
+  sendForgotPasswordOtp(email: string) {
+    return http.post('/auth/forgot-password/send-otp', { email });
+  },
+  resetPassword(email: string, otp: string, newPassword: string) {
+    return http.post('/auth/forgot-password/reset', { email, otp, newPassword });
+  },
 };

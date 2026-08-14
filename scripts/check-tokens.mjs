@@ -32,10 +32,19 @@ function walk(dir, out = []) {
 const ALPHA_CLASS =
   /\b((?:bg|text|border|ring|divide|outline|from|via|to|shadow|fill|stroke|placeholder|accent|caret)-[a-z][a-z0-9-]*)\/(\d{1,3})\b/g;
 
+/**
+ * Nhóm state-* nằm trong src/lib/order-status.ts chứ không nằm trong component.
+ * Tailwind chỉ quét những thư mục ghi trong `content`, và src/lib từng KHÔNG có
+ * trong đó — mọi nhãn trạng thái đơn hàng ra trong suốt mà không báo lỗi gì.
+ * Kiểm luôn nhóm này để lần sau ai đó sửa `content` là biết ngay.
+ */
+const STATE_CLASS = /\b((?:bg|text|border|ring)-state-[a-z]+-(?:fg|bg))\b/g;
+
 const used = new Set();
 for (const file of walk(join(ROOT, 'src'))) {
   const src = readFileSync(file, 'utf8');
   for (const m of src.matchAll(ALPHA_CLASS)) used.add(`${m[1]}/${m[2]}`);
+  for (const m of src.matchAll(STATE_CLASS)) used.add(m[1]);
 }
 
 const out = join(mkdtempSync(join(tmpdir(), 'zoldify-tokens-')), 'out.css');

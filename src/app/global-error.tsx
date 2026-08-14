@@ -3,6 +3,16 @@
 /**
  * Lưới an toàn cuối cùng: bắt cả lỗi ném ra từ root layout (ví dụ Firebase
  * thiếu biến môi trường), thay vì để người dùng nhìn trang trắng.
+ *
+ * i18n-ignore-file — chữ ở đây CỐ Ý viết cứng, và cố ý không dùng Tailwind.
+ *
+ * global-error THAY THẾ layout gốc chứ không nằm trong nó. Nghĩa là
+ * NextIntlClientProvider không tồn tại khi màn này chạy: gọi useTranslations sẽ
+ * ném lỗi ngay bên trong trình xử lý lỗi, và người dùng lại về đúng trang trắng
+ * mà file này sinh ra để tránh. Cũng vì vậy mà style viết inline: file CSS có
+ * thể chính là thứ vừa hỏng.
+ *
+ * Đây là chỗ duy nhất trong site được phép như vậy.
  */
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (

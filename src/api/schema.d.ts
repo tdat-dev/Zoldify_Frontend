@@ -1392,36 +1392,30 @@ export interface paths {
         patch: operations["AdminController_rejectWithdrawal_v1"];
         trace?: never;
     };
-    "/api/v1/settings/public": {
+    "/api/v1/admin/withdrawals/{id}/complete": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SettingsController_getPublic_v1"];
+        get?: never;
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["SettingsController_findAll_v1"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["SettingsController_update_v1"];
+        /**
+         * Chặng thứ ba: tiền rời khỏi hệ thống sang `bank_external` sau khi admin đã
+         *     chuyển khoản thật ngoài đời.
+         *
+         *     `AdminService.completeWithdrawal` và `WithdrawalsService.complete` đều đã
+         *     tồn tại và có test, nhưng KHÔNG có route nào gọi tới. Nghĩa là lệnh rút chỉ
+         *     đi được tới `approved` rồi đứng đó vĩnh viễn, và tiền vẫn nằm trong
+         *     `withdrawal_pending` — sổ cái nói người bán chưa được trả, dù thực tế đã
+         *     chuyển. Thiếu đúng bảy dòng này.
+         */
+        patch: operations["AdminController_completeWithdrawal_v1"];
         trace?: never;
     };
     "/api/v1/withdrawals": {
@@ -1454,6 +1448,48 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SettingsController_getPublic_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ĐỌC được thì cần đăng nhập; GHI thì phải là admin.
+         *
+         *     Bản trước hai endpoint dưới đây chỉ có JwtAuthGuard, nghĩa là BẤT KỲ tài
+         *     khoản nào đăng nhập cũng sửa được cài đặt toàn hệ thống — đổi tên site, đổi
+         *     mô tả, và (từ nay) bật được chế độ bảo trì để đóng cửa cả sàn. Không có gì
+         *     trong giao diện dẫn tới đó, nhưng endpoint thì gọi thẳng bằng curl là xong.
+         *
+         *     AdminGuard đã có sẵn trong repo từ trước, chỉ là chỗ này quên gắn.
+         */
+        get: operations["SettingsController_findAll_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SettingsController_update_v1"];
         trace?: never;
     };
 }
@@ -1489,7 +1525,6 @@ export interface components {
             /** @enum {string} */
             role: "buyer" | "seller" | "admin" | "moderator";
             avatar: string;
-            balance: number;
             email_verified: boolean;
             is_locked: boolean;
             /** Format: date-time */
@@ -1588,6 +1623,22 @@ export interface components {
             slug: string;
             description: string;
             price: number;
+            /**
+             * @description 4.1. Đơn vị tiền của `price` — mã ISO 4217 ('VND', 'USD', 'JPY'…).
+             *
+             *     VÌ SAO CẦN: trước cột này, mọi con số trong hệ thống đều NGẦM hiểu là đồng
+             *     Việt Nam, và không chỗ nào trong mã nói ra điều đó. Giao diện tiếng Anh vì
+             *     vậy vẫn in "1.890.000 ₫" — không phải lỗi định dạng, mà là vì thật sự không
+             *     có dữ liệu nào cho nó biết số đó là tiền gì.
+             *
+             *     ⚠️ CỘT NÀY CHỈ LÀM ĐÚNG PHẦN HIỂN THỊ. Nó KHÔNG khiến sàn giao dịch được
+             *     xuyên tiền tệ. Muốn thế còn cần: nguồn tỉ giá, thời điểm chốt giá, và một
+             *     sổ cái nhiều tiền tệ. Sổ cái hiện tại (ledger_accounts) kiểm bất biến
+             *     `sum(entries) = 0`, mà bất biến đó chỉ có nghĩa TRONG CÙNG một tiền tệ —
+             *     trộn hai loại tiền vào một sổ là cách làm hỏng sổ sách mà không ai thấy.
+             *     Nên tới khi có thiết kế đó, mỗi sàn vẫn nên chạy một tiền tệ.
+             */
+            currency: string;
             stock: number;
             image: string;
             brand: string;
@@ -1622,6 +1673,15 @@ export interface components {
         CreateProductDto: {
             name: string;
             price: number;
+            /**
+             * @description Mã ISO 4217, 3 chữ hoa. Bỏ trống thì entity mặc định 'VND'.
+             *
+             *     Chỉ kiểm HÌNH DẠNG chứ không kiểm mã có thật: danh sách ISO 4217 thay đổi
+             *     theo thời gian và giữ một bản chép tay ở đây thì sớm muộn cũng lạc hậu.
+             *     Mã lạ lọt qua sẽ hiện ra ở phần định dạng phía frontend (Intl ném lỗi và
+             *     rơi về in số kèm mã), chứ không làm hỏng dữ liệu.
+             */
+            currency?: string;
             image?: string;
             description?: string;
             slug?: string;
@@ -1682,6 +1742,17 @@ export interface components {
             shipping_fee: number;
             discount_amount: number;
             final_amount: number;
+            /**
+             * @description Đơn vị tiền của đơn — CHỤP LẠI lúc đặt, không đọc lại từ sản phẩm.
+             *
+             *     Người bán đổi tiền tệ của tin đăng sau khi đơn đã đặt là chuyện có thật, và
+             *     khi đó đơn cũ phải giữ nguyên thứ nó đã thoả thuận. Đọc `product.currency`
+             *     lúc hiển thị thì một đơn 1.890.000 VND có thể biến thành 1.890.000 USD chỉ
+             *     vì người bán sửa tin — hoá đơn tự đổi số sau lưng người mua.
+             *
+             *     Cùng lý do mà `order_items` đã chụp lại tên và giá sản phẩm.
+             */
+            currency: string;
             /** @enum {string} */
             status: "pending" | "confirmed" | "processing" | "shipping" | "delivered" | "cancelled" | "refunded";
             /** @enum {string} */
@@ -1921,6 +1992,20 @@ export interface components {
             recipient_name: string;
             phone_number: string;
             label: string;
+            /**
+             * @description Mã quốc gia ISO 3166-1 alpha-2 ('VN', 'US', 'JP'…).
+             *
+             *     Đứng TRƯỚC province vì nó quyết định mấy ô còn lại có nghĩa gì: 'province /
+             *     district / ward' là ba cấp hành chính của Việt Nam. Nước khác chia khác —
+             *     Mỹ có state/city/ZIP, Nhật có prefecture/city/chōme. Cột này chưa làm cho
+             *     biểu mẫu tự đổi theo nước, nhưng nó ghi lại được ĐỊA CHỈ NÀY THUỘC NƯỚC NÀO,
+             *     là thứ tối thiểu phải có trước khi làm việc đó.
+             *
+             *     Mặc định 'VN' cho mọi dòng đang có: tất cả địa chỉ trong database lúc này
+             *     đều nhập bằng bộ chọn tỉnh/huyện/xã Việt Nam, nên đó là sự thật chứ không
+             *     phải phỏng đoán.
+             */
+            country: string;
             province: string;
             district: string;
             ward: string;
@@ -3446,7 +3531,7 @@ export interface operations {
                         /** @example 200 */
                         statusCode: number;
                         message?: string;
-                        data: unknown;
+                        data: Record<string, never>;
                     };
                 };
             };
@@ -5385,6 +5470,90 @@ export interface operations {
             };
         };
     };
+    AdminController_completeWithdrawal_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example 200 */
+                        statusCode: number;
+                        message?: string;
+                        data: components["schemas"]["Withdrawal"];
+                    };
+                };
+            };
+        };
+    };
+    WithdrawalsController_create_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWithdrawalDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example 201 */
+                        statusCode: number;
+                        message?: string;
+                        data: components["schemas"]["Withdrawal"];
+                    };
+                };
+            };
+        };
+    };
+    WithdrawalsController_getMyWithdrawals_v1: {
+        parameters: {
+            query?: {
+                page?: string;
+                limit?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @example 200 */
+                        statusCode: number;
+                        message?: string;
+                        data: {
+                            meta: components["schemas"]["PaginationMetaDto"];
+                            result: components["schemas"]["Withdrawal"][];
+                        };
+                    };
+                };
+            };
+        };
+    };
     SettingsController_getPublic_v1: {
         parameters: {
             query?: never;
@@ -5452,64 +5621,6 @@ export interface operations {
                         statusCode: number;
                         message?: string;
                         data: components["schemas"]["Setting"][];
-                    };
-                };
-            };
-        };
-    };
-    WithdrawalsController_create_v1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWithdrawalDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example 201 */
-                        statusCode: number;
-                        message?: string;
-                        data: components["schemas"]["Withdrawal"];
-                    };
-                };
-            };
-        };
-    };
-    WithdrawalsController_getMyWithdrawals_v1: {
-        parameters: {
-            query?: {
-                page?: string;
-                limit?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @example 200 */
-                        statusCode: number;
-                        message?: string;
-                        data: {
-                            meta: components["schemas"]["PaginationMetaDto"];
-                            result: components["schemas"]["Withdrawal"][];
-                        };
                     };
                 };
             };

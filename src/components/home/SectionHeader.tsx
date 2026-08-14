@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 
 /** Tiêu đề section + link "Xem tất cả" bên phải, đúng nhịp của các sàn tham chiếu. */
@@ -6,13 +9,15 @@ export function SectionHeader({
   id,
   title,
   href,
-  linkText = 'Xem tất cả',
+  linkText,
 }: {
   id: string;
   title: string;
   href?: string;
+  /** Bo trong thi dung nhan chung "Xem tat ca". */
   linkText?: string;
 }) {
+  const t = useTranslations('home');
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
       {/* 17/19px semibold thay cho 20/24px extrabold: tiêu đề mục trước đây gần
@@ -29,7 +34,7 @@ export function SectionHeader({
           href={href}
           className="inline-flex shrink-0 items-center gap-1 py-1 text-[13px] font-medium text-brand transition-colors hover:text-brand-dark"
         >
-          {linkText}
+          {linkText || t('seeAll')}
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       )}

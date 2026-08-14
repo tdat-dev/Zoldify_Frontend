@@ -3,45 +3,45 @@
 import React, { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { XCircle, ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { XCircle, ArrowLeft, Loader2 } from 'lucide-react';
 
 function CancelContent() {
+  const t = useTranslations('payment');
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const isTopup = searchParams.get('topup') === '1';
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center px-4">
-      <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
-        <XCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
-        <h1 className="text-xl font-semibold text-gray-800 mb-2">Đã hủy thanh toán</h1>
-        <p className="text-gray-600 mb-6">
-          {isTopup
-            ? 'Bạn đã hủy giao dịch nạp ví. Số tiền chưa được cộng vào ví.'
-            : 'Bạn đã hủy thanh toán đơn hàng. Đơn hàng vẫn được giữ ở trạng thái chờ thanh toán.'}
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md rounded-card bg-surface-card p-8 text-center">
+        <XCircle className="mx-auto mb-4 h-14 w-14 text-state-pending-fg" aria-hidden="true" />
+        <h1 className="mb-2 text-h2 text-ink">{t('cancelTitle')}</h1>
+        <p className="mb-6 text-small leading-relaxed text-ink-muted">
+          {isTopup ? t('cancelTopupLead') : t('cancelOrderLead')}
         </p>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {!isTopup && orderId && (
             <Link
               href={`/checkout?ids=${orderId}`}
-              className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
-              Thử thanh toán lại
+              {t('tryAgain')}
             </Link>
           )}
           {isTopup ? (
             <Link
               href="/profile/wallet"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="inline-flex items-center justify-center gap-2 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
             >
-              <ArrowLeft className="w-4 h-4" /> Quay lại trang ví
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {t('toWallet')}
             </Link>
           ) : (
             <Link
               href="/cart"
-              className="inline-flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-700"
+              className="inline-flex items-center justify-center gap-2 text-small text-ink-muted transition-colors hover:text-brand"
             >
-              <ArrowLeft className="w-4 h-4" /> Quay lại giỏ hàng
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {t('backToCart')}
             </Link>
           )}
         </div>
@@ -54,8 +54,8 @@ export default function PaymentCancelPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand" aria-hidden="true" />
         </div>
       }
     >

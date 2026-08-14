@@ -1,20 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 export default function NotFound() {
+  const t = useTranslations('errors');
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
-        <h1 className="text-9xl font-extrabold text-brand opacity-20">404</h1>
-        <h2 className="text-3xl font-bold text-gray-800 mt-[-40px] mb-4">Không tìm thấy trang</h2>
-        <p className="text-gray-600 mb-8">
-          Trang bạn đang tìm kiếm có thể đã bị xóa, đổi tên hoặc tạm thời không thể truy cập.
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md text-center">
+        <p className="text-[120px] font-extrabold leading-none text-brand/20" aria-hidden="true">
+          404
         </p>
-        <Link 
-          href="/" 
-          className="inline-flex items-center justify-center px-6 py-3 bg-brand text-white font-medium rounded-lg hover:bg-brand-dark transition-colors"
+        <h1 className="mt-[-16px] text-h1 text-ink">{t('notFoundTitle')}</h1>
+        <p className="mb-8 mt-3 text-small leading-relaxed text-ink-muted">{t('notFoundLead')}</p>
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-control bg-brand px-6 py-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
         >
-          Trở về Trang chủ
+          {t('toHome')}
         </Link>
       </div>
     </div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from 'next-intl';
 import { AlertCircle, Loader } from 'lucide-react';
 
 export type LoadState = 'loading' | 'ready' | 'error';
@@ -9,19 +12,22 @@ export type LoadState = 'loading' | 'ready' | 'error';
 export function SectionState({
   state,
   empty,
-  emptyText = 'Chưa có món nào ở đây.',
+  emptyText,
   onRetry,
 }: {
   state: LoadState;
   empty: boolean;
+  /** Bỏ trống thì dùng câu chung. Truyền vào khi khu vực đó cần nói cụ thể hơn. */
   emptyText?: string;
   onRetry?: () => void;
 }) {
+  const t = useTranslations('home');
+
   if (state === 'loading') {
     return (
-      <div className="flex items-center justify-center gap-2 py-14 text-sm text-ink-muted">
+      <div className="flex items-center justify-center gap-2 py-14 text-small text-ink-muted">
         <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />
-        Đang tải…
+        {t('stateLoading')}
       </div>
     );
   }
@@ -29,17 +35,17 @@ export function SectionState({
   if (state === 'error') {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-14 text-center">
-        <p className="flex items-center gap-2 text-sm text-ink">
+        <p className="flex items-center gap-2 text-small text-ink">
           <AlertCircle className="h-4 w-4 text-price" aria-hidden="true" />
-          Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.
+          {t('stateError')}
         </p>
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-lg border border-ink/15 px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface-sunken"
+            className="rounded-control border border-ink/16 px-4 py-2 text-small font-medium text-ink transition-colors hover:bg-surface-sunken"
           >
-            Thử lại
+            {t('retry')}
           </button>
         )}
       </div>
@@ -47,7 +53,7 @@ export function SectionState({
   }
 
   if (empty) {
-    return <p className="py-14 text-center text-sm text-ink-muted">{emptyText}</p>;
+    return <p className="py-14 text-center text-small text-ink-muted">{emptyText || t('stateEmpty')}</p>;
   }
 
   return null;

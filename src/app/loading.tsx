@@ -1,10 +1,20 @@
+"use client";
+
+import { useTranslations } from 'next-intl';
+
 export default function Loading() {
+  const t = useTranslations('errors');
+
   return (
-    <div className="min-h-[50vh] flex items-center justify-center" role="status" aria-live="polite">
-      <span className="sr-only">Đang tải trang</span>
+    <div
+      className="flex min-h-[50vh] items-center justify-center"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="sr-only">{t('loadingPage')}</span>
       <span
         aria-hidden="true"
-        className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-brand animate-spin"
+        className="h-8 w-8 animate-spin rounded-full border-2 border-ink/16 border-t-brand"
       />
     </div>
   );

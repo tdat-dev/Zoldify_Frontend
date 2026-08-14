@@ -1,163 +1,248 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { ChevronRight, Package, Check } from 'lucide-react';
 import { orderService } from '@/services/order.service';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { formatPrice } from '@/lib/format';
+import { ORDER_FLOW, flowIndex } from '@/lib/order-status';
+import { OrderStatusBadge } from '@/components/OrderStatusBadge';
 
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'Chờ xác nhận',
-  pending_payment: 'Chờ thanh toán',
-  confirmed: 'Đã xác nhận',
-  shipping: 'Đang giao',
-  completed: 'Đã giao',
-  cancelled: 'Đã hủy',
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  pending_payment: 'bg-orange-100 text-orange-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  shipping: 'bg-indigo-100 text-indigo-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
-};
-
+/**
+ * Chi tiết một đơn mua.
+ *
+ * Bốn thứ của bản trước đã gỡ:
+ *
+ * 1. BẢN ĐỒ TRẠNG THÁI SAI, chép tay lần thứ hai (xem lib/order-status.ts).
+ *
+ * 2. TIẾN TRÌNH ĐƠN NGƯỢC LOGIC. Mốc "Đã xác nhận" được tô sáng khi
+ *    `order.status === 'pending'` — tức là báo đơn đã xác nhận đúng vào lúc nó
+ *    CHƯA được xác nhận. Và tiến trình chỉ có hai mốc, bỏ qua hoàn toàn
+ *    processing / shipping / delivered, nên một đơn đã giao xong vẫn hiện như
+ *    đang đứng ở "Đã xác nhận".
+ *
+ * 3. LỖI API BỊ NUỐT: catch chỉ console.error rồi để order = null, và trang
+ *    hiện "Không tìm thấy đơn hàng" — đổ lỗi cho dữ liệu trong khi thật ra là
+ *    mạng chết.
+ *
+ * 4. GIÁ NHÂN TAY `toLocaleString('vi-VN')}đ`, không qua formatPrice nên không
+ *    đổi theo tiền tệ.
+ */
 export default function OrderDetailPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
+  const { allowed } = useRequireAuth();
   const params = useParams();
+  const t = useTranslations('orderDetail');
+  const tc = useTranslations('common');
+
   const [order, setOrder] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<'loading' | 'ready' | 'error' | 'missing'>('loading');
+
+  const id = Number(params.id);
+
+  const fetchOrder = useCallback(async () => {
+    setState('loading');
+    try {
+      const res = await orderService.getOne(id);
+      const data = res.data?.data || res.data;
+      if (!data) {
+        setState('missing');
+        return;
+      }
+      setOrder(data);
+      setState('ready');
+    } catch (err: any) {
+      // 404 là "đơn không tồn tại", mọi mã khác là "không tải được". Hai chuyện
+      // khác nhau và cần hai câu khác nhau.
+      setState(err?.response?.status === 404 ? 'missing' : 'error');
+    }
+  }, [id]);
 
   useEffect(() => {
-    if (!isAuthenticated) { router.push('/login'); return; }
-    if (params.id) fetchOrder();
-  }, [isAuthenticated, params.id]);
+    if (allowed && Number.isFinite(id)) fetchOrder();
+  }, [allowed, id, fetchOrder]);
 
-  const fetchOrder = async () => {
-    try {
-      const res = await orderService.getOne(Number(params.id));
-      setOrder(res.data?.data || res.data);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
+  const card = 'rounded-card bg-surface-card';
 
-  if (loading) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><Loader className="w-6 h-6 animate-spin text-gray-600" /></div>;
+  if (state === 'loading') {
+    return <div className={`${card} px-6 py-20 text-center text-body text-ink-muted`}>…</div>;
   }
 
-  if (!order) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center"><p className="text-gray-600">Không tìm thấy đơn hàng</p></div>;
+  if (state !== 'ready' || !order) {
+    return (
+      <div className={`${card} px-6 py-20 text-center`}>
+        <p className="text-body font-semibold text-ink">
+          {state === 'missing' ? t('notFound') : t('loadFailed')}
+        </p>
+        <p className="mx-auto mt-2 max-w-[40ch] text-small text-ink-muted">
+          {state === 'missing' ? t('notFoundHint') : ''}
+        </p>
+        <Link
+          href="/profile/orders"
+          className="mt-6 inline-block rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+        >
+          {t('backToOrders')}
+        </Link>
+      </div>
+    );
   }
 
-  const subTotal = (order.total_amount || 0) - (order.shipping_fee || 0);
+  const items: any[] = order.items || [];
+  // Tiền tệ CỦA ĐƠN, không phải của sản phẩm hiện tại: đơn đã chụp lại lúc đặt
+  // nên người bán sửa tin sau này cũng không đổi được hoá đơn cũ.
+  const cur = order.currency;
+  const shippingFee = Number(order.shipping_fee || 0);
+  const total = Number(order.total_amount || 0);
+  const subTotal = total - shippingFee;
+  const current = flowIndex(order.status);
+  const offFlow = current === -1;
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <nav className="flex mb-6 text-sm text-gray-600">
-          <Link href="/" className="hover:text-blue-600">Trang chủ</Link>
-          <span className="mx-2">/</span>
-          <Link href="/profile/orders" className="hover:text-blue-600">Đơn hàng của tôi</Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">Chi tiết đơn hàng #ORD-{order.id}</span>
-        </nav>
+    <div className="flex flex-col gap-3">
+      <nav aria-label={tc('breadcrumb')} className="flex items-center gap-1 text-small text-ink-muted">
+        <Link href="/profile/orders" className="hover:text-brand">
+          {t('breadcrumbOrders')}
+        </Link>
+        <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
+        <span className="text-ink" aria-current="page">
+          {t('title', { id: order.id })}
+        </span>
+      </nav>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
-              <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                <h2 className="font-bold text-gray-800">Sản phẩm ({order.items?.length || 0})</h2>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-800'}`}>
-                  {STATUS_LABELS[order.status] || order.status}
-                </span>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {(order.items || []).map((item: any, idx: number) => (
-                  <div key={idx} className="p-4 hover:bg-gray-50 transition">
-                    <div className="flex gap-4">
-                      <div className="w-20 h-20 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden border border-gray-200">
-                        <img loading="lazy" decoding="async" src={item.product_image || '/images/default-product.png'} alt={item.product_name} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h4 className="font-medium text-gray-900 line-clamp-2">{item.product_name}</h4>
-                          <span className="font-bold text-gray-900 ml-4">{(Number(item.price_at_purchase || 0) * item.quantity).toLocaleString('vi-VN')}đ</span>
-                        </div>
-                        <div className="flex justify-between items-center mt-2">
-                          <span className="text-sm text-gray-600">x{item.quantity}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="font-bold text-gray-800 mb-4">Trạng thái đơn hàng</h3>
-              <div className="relative pl-4 border-l-2 border-gray-200 space-y-6">
-                <div className="relative">
-                  <div className={`absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 border-white ring-2 ${order.status !== 'cancelled' ? 'bg-blue-500 ring-blue-100' : 'bg-gray-300 ring-gray-100'}`}></div>
-                  <div className="text-sm font-bold text-gray-900">Đơn hàng được tạo</div>
-                  <div className="text-xs text-gray-600">{order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : ''}</div>
-                </div>
-                {order.status !== 'cancelled' && (
-                  <div className="relative">
-                    <div className={`absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 border-white ring-2 ${order.status === 'pending' ? 'bg-blue-500 ring-blue-100' : 'bg-gray-300 ring-gray-100'}`}></div>
-                    <div className="text-sm font-bold text-gray-900">Đã xác nhận</div>
-                  </div>
-                )}
-                {order.status === 'cancelled' && (
-                  <div className="relative">
-                    <div className="absolute -left-[21px] top-1 w-4 h-4 rounded-full bg-red-500 border-2 border-white ring-2 ring-red-100"></div>
-                    <div className="text-sm font-bold text-red-600">Đã hủy</div>
-                  </div>
-                )}
-              </div>
-            </div>
+      <div className={card}>
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-ink/10 px-6 py-5">
+          <div>
+            <h1 className="text-h2 text-ink">{t('title', { id: order.id })}</h1>
+            {order.created_at && (
+              <p className="mt-1 text-small text-ink-muted">
+                {t('placedAt', { when: new Date(order.created_at).toLocaleString() })}
+              </p>
+            )}
           </div>
-
-          <div className="w-full md:w-80 flex-shrink-0 flex flex-col gap-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-              <h3 className="font-bold text-gray-800 mb-3 pb-3 border-b border-gray-100">Địa chỉ nhận hàng</h3>
-              <div className="flex flex-col gap-2 text-sm">
-                <span className="font-bold text-gray-900">{order.receiver_name || 'N/A'}</span>
-                <span className="text-gray-600">{order.receiver_phone || 'N/A'}</span>
-                <span className="text-gray-600 block mt-1">{order.shipping_address || 'N/A'}</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-              <h3 className="font-bold text-gray-800 mb-3 pb-3 border-b border-gray-100">Chi tiết thanh toán</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-600">
-                  <span>Tổng tiền hàng</span>
-                  <span>{subTotal.toLocaleString('vi-VN')}đ</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Phí vận chuyển</span>
-                  <span>{(order.shipping_fee || 0).toLocaleString('vi-VN')}đ</span>
-                </div>
-                <div className="border-t border-gray-100 pt-2 flex justify-between items-center">
-                  <span className="font-bold text-gray-900">Tổng thanh toán</span>
-                  <span className="font-bold text-xl text-red-600">{Number(order.total_amount || 0).toLocaleString('vi-VN')}đ</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <Link href="/profile/orders" className="block w-full text-center py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md transition text-sm shadow-sm">
-                Quay lại
-              </Link>
-            </div>
-          </div>
+          <OrderStatusBadge status={order.status} />
         </div>
+
+        {/* --- Tiến trình --- */}
+        <div className="border-b border-ink/10 px-6 py-6">
+          <h2 className="mb-4 text-small font-semibold text-ink">{t('progress')}</h2>
+          {offFlow ? (
+            <p className="text-small text-ink-muted">{t('offFlow')}</p>
+          ) : (
+            <ol className="flex flex-col gap-0 sm:flex-row">
+              {ORDER_FLOW.map((step, i) => {
+                const done = i <= current;
+                return (
+                  <li key={step} className="flex flex-1 items-start gap-3 sm:flex-col sm:gap-2">
+                    {/* Thanh nối nằm cùng hàng với chấm để hai thứ luôn thẳng
+                        nhau, không dựa vào absolute + offset âm như bản cũ. */}
+                    <div className="flex flex-col items-center sm:w-full sm:flex-row">
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-caption font-bold ${
+                          done ? 'bg-brand text-white' : 'bg-surface-sunken text-ink-faint'
+                        }`}
+                      >
+                        {done ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : i + 1}
+                      </span>
+                      {i < ORDER_FLOW.length - 1 && (
+                        <span
+                          aria-hidden="true"
+                          className={`w-0.5 flex-1 sm:h-0.5 sm:w-full ${
+                            i < current ? 'bg-brand' : 'bg-ink/12'
+                          }`}
+                          style={{ minHeight: '1.25rem' }}
+                        />
+                      )}
+                    </div>
+                    <span
+                      className={`pb-5 text-small sm:pb-0 sm:pr-3 ${
+                        done ? 'font-semibold text-ink' : 'text-ink-faint'
+                      }`}
+                    >
+                      <StepLabel step={step} />
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
+
+        {/* --- Món --- */}
+        <div className="px-6 py-5">
+          <h2 className="mb-4 text-small font-semibold text-ink">{t('itemsTitle')}</h2>
+          <ul className="flex flex-col gap-4">
+            {items.map((item: any, idx: number) => (
+              <li key={idx} className="flex items-start gap-3">
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
+                  {item.product_image ? (
+                    <img
+                      src={item.product_image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-small text-ink">{item.product_name}</span>
+                  <span className="block text-caption tabular-nums text-ink-muted">
+                    {formatPrice(item.price_at_purchase, cur)} × {item.quantity}
+                  </span>
+                </span>
+                <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
+                  {formatPrice(Number(item.price_at_purchase || 0) * Number(item.quantity || 0), cur)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <section className={`${card} p-6`}>
+          <h2 className="mb-3 text-small font-semibold text-ink">{t('shipTo')}</h2>
+          <p className="text-small leading-relaxed text-ink-muted">
+            <span className="block font-semibold text-ink">{order.receiver_name || '—'}</span>
+            <span className="block tabular-nums">{order.receiver_phone || '—'}</span>
+            <span className="mt-1 block">{order.shipping_address || '—'}</span>
+          </p>
+        </section>
+
+        <section className={`${card} p-6`}>
+          <h2 className="mb-3 text-small font-semibold text-ink">{t('payment')}</h2>
+          <dl className="flex flex-col gap-2 text-small">
+            <div className="flex justify-between text-ink-muted">
+              <dt>{t('subtotal')}</dt>
+              <dd className="tabular-nums">{formatPrice(subTotal, cur)}</dd>
+            </div>
+            <div className="flex justify-between text-ink-muted">
+              <dt>{t('shippingFee')}</dt>
+              <dd className="tabular-nums">{formatPrice(shippingFee, cur)}</dd>
+            </div>
+            <div className="mt-1 flex justify-between border-t border-ink/10 pt-3">
+              <dt className="font-semibold text-ink">{t('total')}</dt>
+              <dd className="text-body font-bold tabular-nums text-price">{formatPrice(total, cur)}</dd>
+            </div>
+            {order.payment_method && (
+              <div className="mt-1 flex justify-between text-ink-muted">
+                <dt>{t('method')}</dt>
+                <dd className="uppercase">{order.payment_method}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
       </div>
     </div>
   );
+}
+
+/** Tách ra để dùng được useTranslations của namespace khác trong cùng cây. */
+function StepLabel({ step }: { step: string }) {
+  const tShort = useTranslations('orderStatusShort');
+  return <>{tShort(step)}</>;
 }

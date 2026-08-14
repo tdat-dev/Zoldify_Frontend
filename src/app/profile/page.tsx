@@ -1,105 +1,126 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { User, Package, Wallet, MapPin, Key } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import http from '@/lib/http';
 import { useAuth } from '@/context/AuthContext';
-import { userService } from '@/services/user.service';
 import { useToast } from '@/components/Toast';
 
+/**
+ * Thông tin cá nhân.
+ *
+ * Bốn thứ của bản trước đã gỡ:
+ *
+ * 1. THANH TAB CHÉP TAY. Trang này liệt kê ba mục, trang đổi mật khẩu liệt kê
+ *    hai mục khác. Nay điều hướng nằm ở AccountShell, một nguồn duy nhất.
+ *
+ * 2. HAI Ô "Mật khẩu" VÀ "Địa chỉ giao hàng" nằm giữa form, trông như trường
+ *    nhập nhưng thật ra là link đi trang khác. Nhét điều hướng vào giữa một
+ *    biểu mẫu là bẫy: người dùng đang gõ dở, bấm vào tưởng mở rộng, hoá ra mất
+ *    luôn phần chưa lưu. Cả hai nay ở thanh bên.
+ *
+ * 3. LABEL KHÔNG NỐI VỚI INPUT. Không có htmlFor, không có id — bấm vào chữ
+ *    "Họ và tên" không đưa con trỏ vào ô, và trình đọc màn hình đọc ô trống
+ *    không tên.
+ *
+ * 4. NÚT LƯU LUÔN BẤM ĐƯỢC kể cả khi chưa sửa gì, và lưu tên rỗng cũng được.
+ */
 export default function ProfilePage() {
   const { user: authUser, updateUser } = useAuth();
   const { toast } = useToast();
-  const [fullName, setFullName] = useState(authUser?.full_name || '');
-  const [email] = useState(authUser?.email || '');
+  const t = useTranslations('account');
+  const tc = useTranslations('common');
+
+  const [fullName, setFullName] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const handleSave = async () => {
-  if (!authUser) return;
-  setSaving(true);
-  try {
-    const res = await http.patch('/auth/profile', { full_name: fullName });
-    const updatedUser = res.data.data;
-    updateUser(updatedUser);
-    toast('Cập nhật thành công', 'success');
-  } catch (err: any) {
-    toast(err.response?.data?.message || 'Cập nhật thất bại', 'error');
-  } finally {
-    setSaving(false);
-  }
-};
+  // authUser đến sau lần render đầu (context đọc token rồi mới gọi API), nên
+  // useState(authUser?.full_name) chỉ chạy một lần và giữ nguyên chuỗi rỗng.
+  useEffect(() => {
+    setFullName(authUser?.full_name || '');
+  }, [authUser?.full_name]);
 
+  const original = authUser?.full_name || '';
+  const trimmed = fullName.trim();
+  const dirty = trimmed !== original;
+  const canSave = dirty && trimmed.length > 0 && !saving;
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!authUser || !canSave) return;
+    setSaving(true);
+    try {
+      const res = await http.patch('/auth/profile', { full_name: trimmed });
+      updateUser(res.data.data);
+      toast(t('saved'), 'success');
+    } catch (err: any) {
+      toast(err.response?.data?.message || t('saveFailed'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const field =
+    'w-full rounded-control border border-ink/16 bg-surface-card px-3 py-2.5 text-body text-ink placeholder:text-ink-faint focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20';
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-20 md:pb-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex items-center justify-between overflow-x-auto">
-           <div className="flex gap-4">
-             <Link href="/profile" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md whitespace-nowrap">
-               <User className="w-4 h-4" /> Thông tin cá nhân
-             </Link>
-             <Link href="/profile/orders" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-               <Package className="w-4 h-4" /> Đơn hàng
-             </Link>
-             <Link href="/profile/wallet" className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md whitespace-nowrap">
-               <Wallet className="w-4 h-4" /> Ví & Thanh toán
-             </Link>
-           </div>
-        </div>
+    <div className="rounded-card bg-surface-card">
+      <div className="border-b border-ink/10 px-6 py-5">
+        <h1 className="text-h2 text-ink">{t('profileTitle')}</h1>
+        <p className="mt-1 text-small text-ink-muted">{t('profileLead')}</p>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-6 pb-2 border-b">Thông tin cá nhân</h2>
+      <form onSubmit={handleSubmit} className="max-w-xl px-6 py-6">
+        <div className="flex flex-col gap-5">
+          <div>
+            <label htmlFor="pf-name" className="mb-1.5 block text-small font-semibold text-ink">
+              {t('fullName')}
+            </label>
+            <input
+              id="pf-name"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              autoComplete="name"
+              className={field}
+            />
+            {dirty && trimmed.length === 0 && (
+              <p className="mt-1.5 text-small text-price">{t('errNoName')}</p>
+            )}
+          </div>
 
-          <div className="max-w-3xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Họ và tên</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mật khẩu</label>
-                <Link href="/profile/change-password" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <Key className="w-4 h-4" />
-                  Đổi mật khẩu
-                </Link>
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Địa chỉ giao hàng</label>
-                <Link href="/addresses" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                  <MapPin className="w-4 h-4 text-blue-500" />
-                  Quản lý địa chỉ giao hàng
-                </Link>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70"
-              >
-                {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
-              </button>
-            </div>
+          <div>
+            <label htmlFor="pf-email" className="mb-1.5 block text-small font-semibold text-ink">
+              {t('email')}
+            </label>
+            {/* readOnly chứ không disabled: ô disabled bị bỏ khỏi thứ tự tab nên
+                người dùng bàn phím lướt qua mà không biết email là gì. readOnly
+                vẫn focus và đọc được, chỉ không sửa được. */}
+            <input
+              id="pf-email"
+              type="email"
+              value={authUser?.email || ''}
+              readOnly
+              aria-describedby="pf-email-note"
+              className={`${field} cursor-not-allowed bg-surface-sunken text-ink-muted`}
+            />
+            <p id="pf-email-note" className="mt-1.5 text-small text-ink-muted">
+              {t('emailLocked')}
+            </p>
           </div>
         </div>
-      </div>
+
+        <div className="mt-7 flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={!canSave}
+            className="rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-ink/16 disabled:text-ink-faint"
+          >
+            {saving ? t('saving') : tc('save')}
+          </button>
+          {!dirty && <span className="text-small text-ink-faint">{t('noChange')}</span>}
+        </div>
+      </form>
     </div>
   );
 }

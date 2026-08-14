@@ -5,6 +5,10 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // src/lib cũng chứa tên lớp: lib/order-status.ts giữ bản đồ sắc thái ->
+    // lớp CSS. Thiếu dòng này thì Tailwind không thấy chúng và mọi nhãn trạng
+    // thái đơn hàng ra trong suốt, không báo lỗi gì.
+    "./src/lib/**/*.{js,ts}",
   ],
   theme: {
     extend: {
@@ -38,6 +42,10 @@ const config: Config = {
           page: "oklch(var(--surface-page) / <alpha-value>)",
           card: "oklch(var(--surface-card) / <alpha-value>)",
           sunken: "oklch(var(--surface-sunken) / <alpha-value>)",
+        },
+        chrome: {
+          DEFAULT: "oklch(var(--chrome) / <alpha-value>)",
+          soft: "oklch(var(--chrome-soft) / <alpha-value>)",
         },
         ink: {
           DEFAULT: "oklch(var(--ink) / <alpha-value>)",
@@ -127,9 +135,13 @@ const config: Config = {
         // Ba mức bo của Zoldify, đặt theo VAI TRÒ chứ không theo cỡ, để không
         // còn cảnh mỗi trang tự chọn rounded-lg hay rounded-xl cho cùng một loại
         // phần tử.
-        control: "10px",
-        card: "14px",
-        modal: "16px",
+        //
+        // Hạ từ 10/14/16 xuống 4/4/8 ngày 2026-08-08. Bo góc lớn cộng với
+        // rounded-full ở ô tìm kiếm và chip là ngôn ngữ "app thân thiện"; sàn
+        // này đọc đúng hơn ở dạng SỔ KÊ — hairline, góc gần vuông, cột thẳng.
+        control: "4px",
+        card: "4px",
+        modal: "8px",
       },
       // Semantic layering scale. Use these names instead of ad-hoc z-[9999].
       zIndex: {
