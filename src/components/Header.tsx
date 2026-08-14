@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
-  Package, ClipboardList, LogOut, Search, ShoppingCart, Shield, Menu,
+  Package, ClipboardList, LogOut, Search, ShoppingCart, Menu,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -217,17 +217,6 @@ export default function Header() {
                       </Link>
                     ))}
                   </div>
-                  {user?.role === 'admin' && (
-                    <div className="border-b border-ink/8 py-1.5">
-                      <Link
-                        href="/admin"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-[13px] text-ink transition-colors hover:bg-surface-sunken"
-                      >
-                        <Shield className="h-[18px] w-[18px] text-ink-muted" aria-hidden="true" /> Quản trị
-                      </Link>
-                    </div>
-                  )}
                   <button
                     type="button"
                     onClick={() => { setIsUserMenuOpen(false); logout(); }}

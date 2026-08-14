@@ -3,7 +3,7 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function BackButton({ href = '/admin', label = 'Quay lại' }: { href?: string; label?: string }) {
+export default function BackButton({ href = '/', label = 'Quay lại' }: { href?: string; label?: string }) {
   return (
     <Link
       href={href}
