@@ -22,14 +22,28 @@ const EN: Record<string, string> = {
   'nau-an': 'Kitchen & Cooking',
 };
 
-type CatLike = { slug?: string | null; name?: string | null };
+type CatLike = {
+  slug?: string | null;
+  name?: string | null;
+  name_en?: string | null;
+};
 
-/** Hook trả về hàm map một danh mục -> tên hiển thị đúng ngôn ngữ đang chọn. */
+/**
+ * Hook trả về hàm map một danh mục -> tên hiển thị đúng ngôn ngữ đang chọn.
+ *
+ * Thứ tự ưu tiên ở chế độ EN:
+ *   1. name_en từ DB — danh mục mới được backend tự dịch (Workers AI) lúc tạo.
+ *   2. bảng tĩnh EN theo slug — cho 9 danh mục có sẵn từ trước.
+ *   3. tên tiếng Việt (fallback cuối).
+ */
 export function useCategoryName(): (cat: CatLike) => string {
   const locale = useLocale();
   return (cat) => {
     const fallback = String(cat?.name || cat?.slug || '');
-    if (locale === 'en' && cat?.slug && EN[cat.slug]) return EN[cat.slug];
+    if (locale === 'en') {
+      if (cat?.name_en) return cat.name_en;
+      if (cat?.slug && EN[cat.slug]) return EN[cat.slug];
+    }
     return fallback;
   };
 }
