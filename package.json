@@ -11,7 +11,8 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('node_modules/.cache',{recursive:true,force:true});console.log('Cache cleared')\"",
     "clean:dev": "npm run clean && next dev -p 3001",
-    "gen:api": "node node_modules/openapi-typescript/bin/cli.js ../Zoldify_Backend/openapi.json -o src/api/schema.d.ts"
+    "gen:api": "node node_modules/openapi-typescript/bin/cli.js ../Zoldify_Backend/openapi.json -o src/api/schema.d.ts",
+    "check:shared": "node scripts/check-shared.mjs"
   },
   "dependencies": {
     "axios": "^1.6.8",
