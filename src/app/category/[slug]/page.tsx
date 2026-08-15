@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ChevronRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
+import { useCategoryName } from '@/lib/categoryI18n';
 import { productService } from '@/services/product.service';
 import { ItemTile } from '@/components/home/ItemTile';
 import { EmptyState } from '@/components/EmptyState';
@@ -40,6 +41,7 @@ const BANDS = [
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const t = useTranslations('category');
+  const catName = useCategoryName();
   const tBands = useTranslations('priceBands');
   const tc = useTranslations('common');
   const [category, setCategory] = useState<any>(null);
@@ -89,7 +91,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
           <span className="truncate text-ink" aria-current="page">
-            {category?.name || params.slug}
+            {category ? catName(category) : params.slug}
           </span>
         </nav>
 
@@ -139,7 +141,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
           <div className="min-w-0 flex-1">
             <div className="rounded-card bg-surface-card p-5">
-              <h1 className="text-h2 text-ink">{category?.name || params.slug}</h1>
+              <h1 className="text-h2 text-ink">{category ? catName(category) : params.slug}</h1>
               {state === 'ready' && (
                 <p className="mt-1 text-small tabular-nums text-ink-muted">
                   {band > 0
