@@ -1,0 +1,61 @@
+name: Deploy Frontend
+
+# nhánh deploy-prod -> PRODUCTION (zoldify.com)
+# nhánh staging     -> STAGING   (staging.zoldify.com)
+# Nhánh này = main (code của cả nhóm) + file deploy. KHÔNG đụng main.
+# Frontend build chung trong web compose trên VPS (service `frontend`).
+
+on:
+  push:
+    branches:
+      - deploy-prod
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_ORIGIN: https://api.zoldify.com
+      - run: npm run lint --if-present
+        continue-on-error: true
+
+  deploy:
+    name: Deploy to VPS
+    needs: gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            REF='${{ github.ref_name }}'
+            if [ "$REF" = "staging" ]; then
+              SRC=/opt/staging/zoldify-frontend; WEB=/opt/staging/zoldify-web
+            else
+              SRC=/opt/zoldify-frontend; WEB=/opt/zoldify-web
+            fi
+            cd "$SRC"
+            git fetch origin "$REF"
+            git checkout -f -B "$REF" "origin/$REF"
+            cd "$WEB"
+            docker compose up -d --build frontend
+            docker image prune -f || true
+            echo "Deployed frontend $REF"

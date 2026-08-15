@@ -6,6 +6,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Gói runtime tối giản cho Docker: chỉ .next/standalone + static, bỏ node_modules dev.
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
