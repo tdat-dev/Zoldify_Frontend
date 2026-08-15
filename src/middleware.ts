@@ -12,7 +12,6 @@ import { API_URL } from '@/lib/config';
  * BỐN LỐI LUÔN MỞ:
  *  - /maintenance — không thì chuyển hướng vòng tròn vô tận.
  *  - /login       — admin phải đăng nhập được để vào tắt công tắc.
- *  - /admin/*     — chính là chỗ có công tắc.
  *  - tệp tĩnh, _next, ảnh — trang bảo trì cũng cần CSS và logo của nó.
  *
  * NHỚ TẠM 15 GIÂY: middleware chạy trước MỌI request trang. Gọi backend mỗi lần
@@ -20,7 +19,7 @@ import { API_URL } from '@/lib/config';
  * thường — tức là trả giá suốt ngày cho một tính năng dùng vài lần một năm.
  */
 const ALLOW_EXACT = ['/maintenance', '/login'];
-const ALLOW_PREFIX = ['/admin', '/_next', '/media', '/images', '/favicon'];
+const ALLOW_PREFIX = ['/_next', '/media', '/images', '/favicon'];
 
 let cache: { maintenance: boolean; expiresAt: number } = { maintenance: false, expiresAt: 0 };
 
