@@ -12,7 +12,8 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
 import type { CreateOrderDto } from '@/api';
 import { useRouter, useSearchParams } from 'next/navigation';
-import AddressPicker from '@/components/AddressPicker';
+import GhnAddressPicker from '@/components/GhnAddressPicker';
+import type { ShippingQuote } from '@/services/order.service';
 import { formatPrice } from '@/lib/format';
 
 export default function CheckoutPage() {
@@ -39,9 +40,14 @@ export default function CheckoutPage() {
     shipping_address: '',
     province: '',
     district: '',
+    ghn_district_id: 0,
+    ghn_ward_code: '',
   });
 
-  const SHIPPING_FEE: number = 0;
+  // Phí ship do server tính theo từng người bán (from = pickup người bán).
+  const [quote, setQuote] = useState<ShippingQuote | null>(null);
+  const [quoting, setQuoting] = useState(false);
+  const shippingFee = quote?.total ?? 0;
   const selectedIds = (searchParams.get('ids') || '').split(',').filter(Boolean).map(Number);
 
   useEffect(() => {
@@ -76,7 +82,37 @@ export default function CheckoutPage() {
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const grandTotal = subtotal + SHIPPING_FEE;
+  const grandTotal = subtotal + shippingFee;
+
+  // Báo giá phí ship khi đã có địa chỉ nhận chuẩn GHN + có món trong giỏ.
+  useEffect(() => {
+    const { ghn_district_id, ghn_ward_code } = addressInfo;
+    if (!ghn_district_id || !ghn_ward_code || cartItems.length === 0) {
+      setQuote(null);
+      return;
+    }
+    let cancelled = false;
+    setQuoting(true);
+    orderService
+      .shippingQuote({
+        to_district_id: ghn_district_id,
+        to_ward_code: ghn_ward_code,
+        cart_item_ids: cartItems.map((it) => it.id),
+      })
+      .then((res) => {
+        if (!cancelled) setQuote(res.data?.data ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setQuote(null);
+      })
+      .finally(() => {
+        if (!cancelled) setQuoting(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressInfo.ghn_district_id, addressInfo.ghn_ward_code, cartItems.length]);
   // Cùng luật với giỏ hàng và với orders.service phía backend: một đơn, một
   // loại tiền. Xem chú thích ở cart/page.tsx.
   const cur = cartItems[0]?.currency;
@@ -100,6 +136,8 @@ export default function CheckoutPage() {
         shipping_address: addressInfo.shipping_address,
         province: addressInfo.province,
         district: addressInfo.district,
+        ghn_district_id: addressInfo.ghn_district_id || undefined,
+        ghn_ward_code: addressInfo.ghn_ward_code || undefined,
         note,
         payment_method: paymentMethod,
         cart_item_ids: cartItems.map((it) => it.id),
@@ -236,7 +274,7 @@ export default function CheckoutPage() {
               <h2 id="sec-ship" className="mb-4 flex items-center gap-2 text-h3 text-ink">
                 <MapPin className="h-5 w-5 text-brand" aria-hidden="true" /> {t('shipTo')}
               </h2>
-              <AddressPicker onSelect={setAddressInfo} />
+              <GhnAddressPicker onSelect={setAddressInfo} />
             </section>
 
             <section aria-labelledby="sec-note" className="rounded-card bg-surface-card p-5">
@@ -306,9 +344,42 @@ export default function CheckoutPage() {
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-body text-ink-muted">{t('shippingFee')}</dt>
                   <dd className="text-body text-ink">
-                    {SHIPPING_FEE === 0 ? t('free') : formatPrice(SHIPPING_FEE, cur)}
+                    {quoting
+                      ? t('shippingCalc')
+                      : shippingFee === 0
+                        ? t('free')
+                        : formatPrice(shippingFee, cur)}
                   </dd>
                 </div>
+
+                {/* Phí ship tách theo từng người bán — mỗi shop tự gửi từ địa
+                    chỉ của mình nên phí tính riêng. */}
+                {quote && quote.items.length > 1 && (
+                  <div className="mt-1 rounded-control bg-surface-sunken px-3 py-2">
+                    <p className="mb-1 text-caption font-semibold text-ink-muted">
+                      {t('shippingByShop')}
+                    </p>
+                    <ul className="flex flex-col gap-1">
+                      {quote.items.map((it) => (
+                        <li
+                          key={it.seller_id}
+                          className="flex items-baseline justify-between gap-3 text-caption"
+                        >
+                          <span className="min-w-0 truncate text-ink-muted">{it.seller_name}</span>
+                          <span className="shrink-0 tabular-nums text-ink">
+                            {it.fee === 0 ? t('free') : formatPrice(it.fee, cur)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {quote && quote.items.some((it) => !it.has_pickup) && (
+                  <p className="text-caption text-state-pending-fg">
+                    {t('pickupMissingNote')}
+                  </p>
+                )}
               </dl>
 
               <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-ink/10 pt-4">
