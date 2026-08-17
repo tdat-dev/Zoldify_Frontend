@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useCategoryName } from '@/lib/categoryI18n';
 
 /**
  * Lưới danh mục dạng ô — khuôn lấy từ khối "CATEGORIES" của shopee.vn (xem
@@ -14,6 +15,7 @@ import { useTranslations } from 'next-intl';
  */
 export function CategoryTiles({ categories }: { categories: any[] }) {
   const t = useTranslations('home');
+  const catName = useCategoryName();
   return (
     // h-full: cột bên phải cao theo ảnh flat-lay, không phải theo số danh mục.
     // Thiếu h-full thì thẻ trắng dừng ở chiều cao tự nhiên và để lộ một mảng nền
@@ -55,12 +57,12 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
                     />
                   ) : (
                     <span className="text-[19px] font-bold text-brand" aria-hidden="true">
-                      {String(cat.name || '?').trim().charAt(0).toUpperCase()}
+                      {String(catName(cat) || '?').trim().charAt(0).toUpperCase()}
                     </span>
                   )}
                 </span>
                 <span className="clamp-2 text-caption font-normal leading-tight text-ink">
-                  {cat.name}
+                  {catName(cat)}
                 </span>
                 {Number.isFinite(count) && count > 0 && (
                   <span className="text-caption font-normal tabular-nums text-ink-faint">
