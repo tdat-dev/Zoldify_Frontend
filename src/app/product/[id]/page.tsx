@@ -41,6 +41,7 @@ export default function ProductDetailPage() {
   // Bản trước không có cờ này nên nút "Mua ngay" vẫn bấm được trên món stock = 0.
   const stockLeft = Number(product?.stock ?? 0);
   const soldOut = !Number.isFinite(stockLeft) || stockLeft <= 0;
+  const isBanned = product?.status === 'banned';
 
   useEffect(() => {
     if (params.id) fetchData();
@@ -90,6 +91,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) { router.push('/login'); return; }
+    if (isBanned) return;
     setAddingCart(true);
     try {
       await cartService.add(Number(params.id), quantity);
@@ -105,6 +107,7 @@ export default function ProductDetailPage() {
 
   const handleBuyNow = async () => {
     if (!isAuthenticated) { router.push('/login'); return; }
+    if (isBanned) return;
     setAddingCart(true);
     try {
       const res = await cartService.add(Number(params.id), quantity);
@@ -124,6 +127,7 @@ export default function ProductDetailPage() {
 
   const handleChatWithShop = async () => {
     if (!isAuthenticated) { router.push('/login'); return; }
+    if (isBanned) return;
     if (!product?.seller?.id) {
       toast(t('shopNotFound'), 'error');
       return;
@@ -237,6 +241,14 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="md:col-span-7 space-y-6">
+              {isBanned && (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-control flex flex-col items-center justify-center text-center">
+                  <CheckCircle className="w-8 h-8 mb-2 text-red-500" aria-hidden="true" />
+                  <span className="font-semibold text-lg mb-1">Sản phẩm này đã bị khóa</span>
+                  <span className="text-sm">Do vi phạm chính sách của chúng tôi, bạn không thể thực hiện bất kỳ giao dịch nào với sản phẩm này.</span>
+                </div>
+              )}
+
               <h1 className="text-2xl font-medium text-ink leading-snug">{product.name}</h1>
 
               <div className="rounded-control bg-surface-sunken p-4">
@@ -302,7 +314,11 @@ export default function ProductDetailPage() {
               {/* Hết hàng thì KHÔNG dựng nút mua. Bản trước vẫn cho bấm "Mua ngay"
                   trên món stock = 0, người mua đi hết luồng rồi mới vỡ ở giỏ. */}
               <div className="flex flex-wrap gap-3 pt-4">
-                {isOwnProduct ? (
+                {isBanned ? (
+                   <p className="flex flex-1 items-center justify-center rounded-control bg-red-100 px-6 py-3 text-body font-medium text-red-700 cursor-not-allowed">
+                     Sản phẩm bị khóa
+                   </p>
+                ) : isOwnProduct ? (
                   <p className="flex flex-1 items-center justify-center gap-2 rounded-control bg-state-pending-bg px-6 py-3 text-body font-medium text-state-pending-fg">
                     {t('yourListing')}{' '}
                     <Link href={`/product/${product.id}/edit`} className="underline">
