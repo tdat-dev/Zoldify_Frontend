@@ -7,6 +7,9 @@ import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
+import { useRouter } from 'next/navigation';
+import { cartService } from '@/services/cart.service';
+import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -37,6 +40,8 @@ export default function UserOrdersPage() {
   const { toast, confirm } = useToast();
   const t = useTranslations('orders');
   const tc = useTranslations('common');
+  const router = useRouter();
+  const { refreshCartCount } = useCart();
 
   const [status, setStatus] = useState<string>('all');
   const [orders, setOrders] = useState<any[]>([]);
@@ -93,6 +98,37 @@ export default function UserOrdersPage() {
       fetchOrders();
     } catch (err: any) {
       toast(err.response?.data?.message || t('cancelFailed'), 'error');
+    }
+  };
+
+  const handleBuyAgain = async (order: any) => {
+    const items = order.items || [];
+    if (items.length === 0) return;
+    
+    const validItems = items.filter((item: any) => 
+      item.product?.id && 
+      item.product?.status === 'active' && 
+      item.product?.stock > 0
+    );
+    
+    if (validItems.length === 0) {
+      toast(t('buyAgainNoValidProducts'), 'error');
+      return;
+    }
+
+    try {
+      const results = await Promise.all(validItems.map((item: any) => cartService.add(item.product.id, 1)));
+      const cartIds = results.map((res: any) => res.data?.data?.id).filter(Boolean);
+      
+      refreshCartCount();
+      
+      if (cartIds.length > 0) {
+        router.push(`/checkout?ids=${cartIds.join(',')}`);
+      } else {
+        router.push('/cart');
+      }
+    } catch (err: any) {
+      toast(err.response?.data?.message || t('buyAgainFailed'), 'error');
     }
   };
 
@@ -263,6 +299,15 @@ export default function UserOrdersPage() {
                       className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                     >
                       {t('confirmReceived')}
+                    </button>
+                  )}
+                  {(order.status === 'delivered' || order.status === 'cancelled' || order.status === 'refunded') && (
+                    <button
+                      type="button"
+                      onClick={() => handleBuyAgain(order)}
+                      className="rounded-control border border-brand px-4 py-2 text-small font-semibold text-brand transition-colors hover:bg-brand/5"
+                    >
+                      {t('buyAgain')}
                     </button>
                   )}
                   <Link

@@ -237,6 +237,11 @@ export default function ProductDetailPage() {
                 ) : (
                   <Package className="w-20 h-20 text-ink-muted" />
                 )}
+                {soldOut && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-surface-card/80 text-2xl font-bold text-ink">
+                    {t('soldOut')}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -279,7 +284,7 @@ export default function ProductDetailPage() {
                 <div className="flex items-center gap-3">
                   <span className="w-32 shrink-0 text-ink-muted">{t('stock')}</span>
                   {soldOut ? (
-                    <span className="text-body font-semibold text-ink">{t('soldOut')}</span>
+                    <span className="text-body font-semibold text-ink/40">{t('soldOut')}</span>
                   ) : stockLeft > 1 ? (
                     <>
                       <div className="flex items-center rounded-control border border-ink/16">
@@ -311,8 +316,7 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              {/* Hết hàng thì KHÔNG dựng nút mua. Bản trước vẫn cho bấm "Mua ngay"
-                  trên món stock = 0, người mua đi hết luồng rồi mới vỡ ở giỏ. */}
+              {/* Hết hàng thì khóa nút mua lại thay vì ẩn đi */}
               <div className="flex flex-wrap gap-3 pt-4">
                 {isBanned ? (
                    <p className="flex flex-1 items-center justify-center rounded-control bg-red-100 px-6 py-3 text-body font-medium text-red-700 cursor-not-allowed">
@@ -325,17 +329,16 @@ export default function ProductDetailPage() {
                       {t('editListing')}
                     </Link>
                   </p>
-                ) : soldOut ? (
-                  <p className="flex flex-1 items-center justify-center rounded-control bg-surface-sunken px-6 py-3 text-body font-medium text-ink-muted">
-                    {t('soldOutLong')}
-                  </p>
                 ) : (
                   <>
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      disabled={addingCart}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-control border border-brand px-6 py-3 text-body font-semibold text-brand transition-colors hover:bg-brand-tint disabled:opacity-70"
+                      disabled={addingCart || soldOut}
+                      className={`flex flex-1 items-center justify-center gap-2 rounded-control border px-6 py-3 text-body font-semibold transition-colors
+                        ${soldOut 
+                          ? 'border-ink/20 text-ink/40 cursor-not-allowed bg-surface-sunken' 
+                          : 'border-brand text-brand hover:bg-brand-tint disabled:opacity-70'}`}
                     >
                       {addingCart ? (
                         t('adding')
@@ -348,7 +351,11 @@ export default function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleBuyNow}
-                      className="flex-1 rounded-control bg-brand px-8 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark"
+                      disabled={addingCart || soldOut}
+                      className={`flex-1 rounded-control px-8 py-3 text-body font-semibold transition-colors
+                        ${soldOut 
+                          ? 'bg-ink/10 text-ink/40 cursor-not-allowed' 
+                          : 'bg-brand text-white hover:bg-brand-dark'}`}
                     >
                       Mua ngay
                     </button>
