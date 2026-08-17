@@ -972,6 +972,28 @@
     "maintenanceContact": "Cần hỗ trợ thì liên hệ:",
     "loadingPage": "Đang tải trang"
   },
+  "shopPickup": {
+    "title": "Địa chỉ lấy hàng",
+    "lead": "Nơi shipper tới lấy hàng của bạn. Mọi đơn đều gửi đi từ đây, nên điền đúng để tính đúng phí ship.",
+    "name": "Tên người gửi",
+    "namePlaceholder": "Tên bạn hoặc tên shop",
+    "phone": "Số điện thoại",
+    "phonePlaceholder": "090...",
+    "province": "Tỉnh/Thành phố",
+    "district": "Quận/Huyện",
+    "ward": "Phường/Xã",
+    "address": "Địa chỉ cụ thể",
+    "addressPlaceholder": "Số nhà, tên đường",
+    "choose": "Chọn",
+    "save": "Lưu địa chỉ",
+    "saving": "Đang lưu...",
+    "saved": "Đã lưu địa chỉ lấy hàng",
+    "saveFailed": "Lưu chưa được, thử lại giúp mình nhé",
+    "loadFailed": "Không tải được thông tin shop",
+    "noShop": "Bạn chưa có shop. Tạo shop trước rồi quay lại khai địa chỉ lấy hàng.",
+    "createShop": "Tạo shop",
+    "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé"
+  },
   "meta": {
     "title": "Zoldify — Chợ đồ cũ",
     "description": "Mua bán đồ cũ còn dùng tốt. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.",

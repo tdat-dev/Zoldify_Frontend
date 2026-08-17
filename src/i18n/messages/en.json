@@ -972,6 +972,28 @@
     "maintenanceContact": "Need help? Get in touch:",
     "loadingPage": "Loading"
   },
+  "shopPickup": {
+    "title": "Pickup address",
+    "lead": "Where the courier collects your parcels. Every order ships from here, so get it right to price shipping correctly.",
+    "name": "Sender name",
+    "namePlaceholder": "Your name or shop name",
+    "phone": "Phone number",
+    "phonePlaceholder": "090...",
+    "province": "Province / City",
+    "district": "District",
+    "ward": "Ward",
+    "address": "Street address",
+    "addressPlaceholder": "House number, street",
+    "choose": "Select",
+    "save": "Save address",
+    "saving": "Saving...",
+    "saved": "Pickup address saved",
+    "saveFailed": "Could not save, please try again",
+    "loadFailed": "Could not load your shop",
+    "noShop": "You don't have a shop yet. Create one, then set your pickup address.",
+    "createShop": "Create shop",
+    "required": "Please fill name, phone, address and province / district / ward"
+  },
   "meta": {
     "title": "Zoldify — Buy and sell used things",
     "description": "Buy and sell second-hand things that still work. Listing is free, see it in person, pay on delivery.",
