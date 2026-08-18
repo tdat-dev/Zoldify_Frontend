@@ -36,9 +36,9 @@ export function QuickLinks() {
               href={href}
               className="group flex w-[92px] flex-col items-center gap-1.5 rounded-control px-1 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
             >
-              <span className="relative h-16 w-16 overflow-hidden" aria-hidden="true">
+              <span className="relative h-16 w-16 overflow-hidden rounded-control" aria-hidden="true">
                 <Image
-                  src="/media/quick-links-zoldify.webp"
+                  src="/media/quick-links-zoldify-badges.webp"
                   alt=""
                   width={768}
                   height={512}
