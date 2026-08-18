@@ -44,6 +44,12 @@ export const orderService = {
   updateStatus(id: number, data: { status: string }) {
     return http.patch<ApiResponse<Order>>(`/orders/${id}/status`, data);
   },
+  /** Người mua xác nhận đã nhận hàng của MỘT người bán trong đơn (giải ngân). */
+  confirmReceived(id: number, sellerId: number) {
+    return http.patch<ApiResponse<unknown>>(
+      `/orders/${id}/shipments/${sellerId}/received`,
+    );
+  },
   cancel(id: number) {
     return http.patch<ApiResponse<Order>>(`/orders/${id}/cancel`);
   },

@@ -457,7 +457,18 @@
     "notFound": "Không tìm thấy đơn này.",
     "notFoundHint": "Có thể đơn thuộc tài khoản khác, hoặc đường dẫn bị sai.",
     "loadFailed": "Không tải được đơn này.",
-    "backToOrders": "Về danh sách đơn"
+    "backToOrders": "Về danh sách đơn",
+    "shipmentsTitle": "Vận đơn theo người bán",
+    "trackingLabel": "Mã vận đơn",
+    "shipStatus_created": "Đang giao",
+    "shipStatus_delivered": "Đã giao — chờ bạn xác nhận",
+    "shipStatus_received": "Đã nhận",
+    "shipStatus_failed": "Chưa gửi được",
+    "confirmReceived": "Đã nhận hàng",
+    "confirming": "Đang xác nhận…",
+    "confirmReceivedHint": "Bấm khi bạn đã nhận và ưng hàng của người bán này — tiền sẽ được chuyển cho họ.",
+    "autoReceivedNote": "Tự xác nhận sau thời gian chờ",
+    "confirmFailed": "Chưa xác nhận được. Thử lại giúp mình."
   },
   "addresses": {
     "title": "Địa chỉ giao hàng",

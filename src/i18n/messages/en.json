@@ -457,7 +457,18 @@
     "notFound": "That order isn't here.",
     "notFoundHint": "It may belong to another account, or the link is wrong.",
     "loadFailed": "Could not load this order.",
-    "backToOrders": "Back to my orders"
+    "backToOrders": "Back to my orders",
+    "shipmentsTitle": "Shipments by seller",
+    "trackingLabel": "Tracking code",
+    "shipStatus_created": "On the way",
+    "shipStatus_delivered": "Delivered — please confirm",
+    "shipStatus_received": "Received",
+    "shipStatus_failed": "Not shipped yet",
+    "confirmReceived": "I've received it",
+    "confirming": "Confirming…",
+    "confirmReceivedHint": "Tap once you've received and are happy with this seller's items — funds will be released to them.",
+    "autoReceivedNote": "Auto-confirmed after the waiting period",
+    "confirmFailed": "Couldn't confirm. Please try again."
   },
   "addresses": {
     "title": "Delivery addresses",
