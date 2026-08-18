@@ -42,6 +42,15 @@ export default function ProductDetailPage() {
   const stockLeft = Number(product?.stock ?? 0);
   const soldOut = !Number.isFinite(stockLeft) || stockLeft <= 0;
 
+  // Mở một món (id đổi) thì kéo trang về đầu. Trang này render spinner ngắn rồi
+  // mới phình ra bằng dữ liệu client-fetch, nên cơ chế cuộn-lên-đầu của Next
+  // chạy trên bản spinner rồi thôi. Bấm từ một trang danh sách đang cuộn sâu,
+  // trình duyệt giữ nguyên vị trí cuộn cũ — mà trang chi tiết thường thấp hơn
+  // nên kẹp xuống tận cuối. Ép về (0,0) cho chắc.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [params.id]);
+
   useEffect(() => {
     if (params.id) fetchData();
   }, [params.id]);
