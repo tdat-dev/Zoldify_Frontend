@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ChevronRight } from 'lucide-react';
 import { categoryService } from '@/services/category.service';
 import { useCategoryName } from '@/lib/categoryI18n';
 import { productService } from '@/services/product.service';
+import { useAuth } from '@/context/AuthContext';
 import { ItemTile } from '@/components/home/ItemTile';
 import { EmptyState } from '@/components/EmptyState';
 
@@ -44,11 +45,38 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
   const catName = useCategoryName();
   const tBands = useTranslations('priceBands');
   const tc = useTranslations('common');
+  const { isAuthenticated, authReady } = useAuth();
   const [category, setCategory] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [meta, setMeta] = useState<any>({ current: 1, pages: 1, total: 0 });
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [sort, setSort] = useState('newest');
   const [band, setBand] = useState(0);
+  // Cuộn-để-tải, giống /search: spinner chân trang + ô mồi vô hình ở cuối.
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  // Lấy MỘT trang hàng của danh mục. `append` để nối trang kế vào cuối thay vì
+  // thay cả lưới. Tách khỏi việc lấy thông tin danh mục để trang 2+ không phải
+  // gọi lại getBySlug.
+  const fetchProducts = useCallback(
+    (catId: number, page: number, append: boolean) => {
+      const b = BANDS[band];
+      return productService
+        .getAll(page, 24, {
+          category_id: catId,
+          sort: sort || undefined,
+          ...(b.min !== undefined ? { price_min: b.min } : {}),
+          ...(b.max !== undefined ? { price_max: b.max } : {}),
+        })
+        .then((res) => {
+          const result = res.data?.data?.result || [];
+          setProducts((prev) => (append ? [...prev, ...result] : result));
+          setMeta(res.data?.data?.meta || { current: 1, pages: 1, total: 0 });
+        });
+    },
+    [sort, band],
+  );
 
   const load = useCallback(() => {
     setState('loading');
@@ -57,31 +85,46 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
       .then((res) => {
         const cat = res.data?.data || res.data;
         setCategory(cat);
-        const b = BANDS[band];
-        return productService.getAll(1, 24, {
-          category_id: cat.id,
-          sort: sort || undefined,
-          ...(b.min !== undefined ? { price_min: b.min } : {}),
-          ...(b.max !== undefined ? { price_max: b.max } : {}),
-        });
+        return fetchProducts(cat.id, 1, false);
       })
-      .then((res) => {
-        setProducts(res.data?.data?.result || []);
-        setState('ready');
-      })
+      .then(() => setState('ready'))
       .catch(() => setState('error'));
-  }, [params.slug, sort, band]);
+  }, [params.slug, fetchProducts]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Kéo tới cuối -> nối trang kế. Khách chưa đăng nhập bị chặn ở trang đầu.
+  const loadMore = useCallback(() => {
+    if (!isAuthenticated) return;
+    if (loadingMore || state === 'loading' || !category) return;
+    const cur = meta.current || 1;
+    const pages = meta.pages || 1;
+    if (cur >= pages) return;
+    setLoadingMore(true);
+    fetchProducts(category.id, cur + 1, true).finally(() => setLoadingMore(false));
+  }, [isAuthenticated, loadingMore, state, category, meta, fetchProducts]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadMore]);
 
   const filterItem =
     'block w-full rounded-control px-2.5 py-1.5 text-left text-small transition-colors hover:bg-surface-sunken';
 
   return (
     <div className="min-h-screen bg-surface-page pb-16">
-      <div className="mx-auto max-w-[1500px] px-3 py-3">
+      <div className="w-full px-4 py-3 lg:px-6">
         <nav
           aria-label={t('breadcrumbLabel')}
           className="mb-3 flex items-center gap-1 text-small text-ink-muted"
@@ -146,10 +189,10 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 <p className="mt-1 text-small tabular-nums text-ink-muted">
                   {band > 0
                     ? t('countInBand', {
-                        count: products.length,
+                        count: meta.total ?? 0,
                         band: tBands(BANDS[band].key).toLowerCase(),
                       })
-                    : t('count', { count: products.length })}
+                    : t('count', { count: meta.total ?? 0 })}
                 </p>
               )}
             </div>
@@ -206,7 +249,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 </div>
               ) : (
                 <div className="rounded-card bg-surface-card p-4">
-                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                     {products.map((item) => (
                       <li key={item.id}>
                         <ItemTile item={item} size="md" />
@@ -216,6 +259,38 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 </div>
               )}
             </div>
+
+            {state === 'ready' && products.length > 0 && (
+              <div className="mt-6 flex flex-col items-center gap-3">
+                {(meta.current || 1) < (meta.pages || 1) ? (
+                  isAuthenticated ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        className="rounded-control border border-ink/16 bg-surface-card px-6 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60"
+                      >
+                        {loadingMore ? t('loadingMore') : t('loadMore')}
+                      </button>
+                      <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+                    </>
+                  ) : authReady ? (
+                    <div className="w-full rounded-card border border-hairline bg-surface-card px-6 py-6 text-center">
+                      <p className="text-small text-ink-muted">{t('loginToSeeMoreHint')}</p>
+                      <Link
+                        href="/login"
+                        className="mt-3 inline-block rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                      >
+                        {t('loginToSeeMore')}
+                      </Link>
+                    </div>
+                  ) : null
+                ) : (
+                  <p className="text-small text-ink-faint">{t('endReached')}</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
