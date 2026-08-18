@@ -42,7 +42,7 @@ export function ItemTile({
         )}
         {soldOut && (
           <span className="absolute inset-0 flex items-center justify-center bg-surface-card/80 text-small font-bold text-ink">
-            {t('soldOut')}
+            {t('sold')}
           </span>
         )}
       </div>

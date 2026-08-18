@@ -157,11 +157,7 @@
     "confirmReceived": "Đã nhận hàng",
     "confirmReceivedAsk": "Xác nhận bạn đã nhận được hàng? Tiền sẽ được chuyển cho người bán.",
     "confirmReceivedDone": "Cảm ơn bạn. Đơn đã hoàn tất.",
-    "confirmReceivedFailed": "Chưa xác nhận được.",
-    "buyAgain": "Mua lại",
-    "buyAgainSuccess": "Đã thêm vào giỏ hàng",
-    "buyAgainFailed": "Thêm vào giỏ hàng thất bại",
-    "buyAgainNoValidProducts": "Sản phẩm không còn tồn tại"
+    "confirmReceivedFailed": "Chưa xác nhận được."
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",
@@ -744,8 +740,7 @@
     "sellPanelTitle": "Bán đồ bạn không dùng nữa",
     "sellPanelLead": "Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người cần sẽ tìm thấy.",
     "sellPanelCta": "Đăng bán đồ cũ",
-    "sellPanelAlt": "Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp.",
-    "soldOut": "Hết hàng"
+    "sellPanelAlt": "Đồ cũ còn dùng tốt xếp thành hàng: máy ảnh phim, tai nghe, sách, áo denim, đèn bàn, mũ bảo hiểm xe đạp."
   },
   "payment": {
     "working": "Đang xử lý",

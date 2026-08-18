@@ -23,12 +23,6 @@ export const SETTING_KEYS = {
    *   - trang này (bật/tắt)
    */
   maintenanceMode: 'maintenance_mode',
-  /** Thông tin liên hệ — hiển thị trên footer trang chính. */
-  contactEmail: 'contact_email',
-  contactPhone: 'contact_phone',
-  contactAddress: 'contact_address',
-  contactFacebook: 'contact_facebook',
-  contactZalo: 'contact_zalo',
 } as const;
 
 export const settingService = {

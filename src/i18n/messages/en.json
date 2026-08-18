@@ -157,11 +157,7 @@
     "confirmReceived": "I got it",
     "confirmReceivedAsk": "Confirm you received the item? The seller will be paid.",
     "confirmReceivedDone": "Thanks. The order is complete.",
-    "confirmReceivedFailed": "Could not confirm.",
-    "buyAgain": "Buy again",
-    "buyAgainSuccess": "Added to cart",
-    "buyAgainFailed": "Failed to add to cart",
-    "buyAgainNoValidProducts": "Products no longer exist"
+    "confirmReceivedFailed": "Could not confirm."
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -744,8 +740,7 @@
     "sellPanelTitle": "Sell what you no longer use",
     "sellPanelLead": "Things still in good shape that you don't need any more. List it once and the person looking for it will find it.",
     "sellPanelCta": "List an item",
-    "sellPanelAlt": "Used items in good condition laid out in a row: a film camera, headphones, books, a denim jacket, a desk lamp, a bike helmet.",
-    "soldOut": "Out of stock"
+    "sellPanelAlt": "Used items in good condition laid out in a row: a film camera, headphones, books, a denim jacket, a desk lamp, a bike helmet."
   },
   "payment": {
     "working": "Working on it",
