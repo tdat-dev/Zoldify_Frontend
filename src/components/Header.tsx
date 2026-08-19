@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
-  Package, ClipboardList, LogOut, Search, ShoppingCart,
+  ClipboardList, LogOut, Search, ShoppingCart, CheckCheck, CreditCard,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -46,15 +46,29 @@ const PRICE_SCOPES = [
   { value: '1000000-', key: 'over1m' },
 ] as const;
 
+/** Bản đồ icon theo loại thông báo — popup chuông là trung tâm thông báo duy
+ *  nhất (không còn trang riêng). */
+const NOTI_ICONS: Record<string, any> = {
+  order_status: ShoppingBag,
+  message: MessageSquare,
+  payment: CreditCard,
+  system: Bell,
+};
+
 export default function Header() {
   const t = useTranslations('header');
   const tc = useTranslations('common');
   const tBands = useTranslations('priceBands');
+  const tn = useTranslations('notifications');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [unreadNotis, setUnreadNotis] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [priceScope, setPriceScope] = useState('');
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+  const [notiList, setNotiList] = useState<any[]>([]);
+  const [notiState, setNotiState] = useState<'loading' | 'ready' | 'error'>('loading');
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const notiMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -89,6 +103,9 @@ export default function Header() {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
       }
+      if (notiMenuRef.current && !notiMenuRef.current.contains(event.target as Node)) {
+        setIsNotiOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -107,6 +124,57 @@ export default function Header() {
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
+  // Tải danh sách mỗi lần mở popup — badge đã đếm sẵn, nhưng nội dung thì phải
+  // mới. Popup LÀ toàn bộ trung tâm thông báo (không còn trang riêng), nên lấy
+  // rộng tay hơn rồi để vùng cuộn lo phần dài.
+  const fetchNotiList = async () => {
+    setNotiState('loading');
+    try {
+      const res = await notificationService.getAll(1, 20);
+      setNotiList(res.data?.data?.result || []);
+      setNotiState('ready');
+    } catch {
+      setNotiState('error');
+    }
+  };
+
+  const toggleNoti = () => {
+    setIsUserMenuOpen(false);
+    setIsNotiOpen((v) => {
+      if (!v) fetchNotiList();
+      return !v;
+    });
+  };
+
+  // Đánh dấu đã đọc lạc quan: cập nhật UI + badge ngay, lỗi mạng thì lặng lẽ
+  // bỏ qua — popup là bề mặt duy nhất nên không có nơi nào khác để thử lại.
+  const markNotiRead = async (id: number) => {
+    setNotiList((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+    setUnreadNotis((c) => Math.max(0, c - 1));
+    try { await notificationService.markAsRead(id); } catch {}
+  };
+
+  const markAllNotiRead = async () => {
+    setNotiList((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setUnreadNotis(0);
+    try { await notificationService.markAllAsRead(); } catch {}
+  };
+
+  const onNotiClick = (n: any) => {
+    if (!n.is_read) markNotiRead(n.id);
+    setIsNotiOpen(false);
+    if (n.data?.order_id) router.push(`/profile/orders/${n.data.order_id}`);
+    else if (n.data?.conversation_id) router.push('/chat');
+  };
+
+  const formatNotiTime = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    if (diff < 60_000) return tn('justNow');
+    if (diff < 3_600_000) return tn('minutesAgo', { count: Math.floor(diff / 60_000) });
+    if (diff < 86_400_000) return tn('hoursAgo', { count: Math.floor(diff / 3_600_000) });
+    return new Date(dateStr).toLocaleDateString();
+  };
+
   const badge = (n: number) => (
     <span
       aria-hidden="true"
@@ -122,11 +190,11 @@ export default function Header() {
   /* Ô tìm kiếm: một hộp, tầm tiền nằm BÊN TRONG bên trái, kính lúp bên phải.
      Không nút vuông đặc màu ở đuôi — đó là chi tiết Amazon/eBay rõ nhất. */
   const searchBox =
-    'flex h-11 w-full items-center rounded-control border border-ink/16 bg-surface-card transition-colors focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/20';
+    'flex h-11 w-full items-center rounded-control border border-transparent bg-surface-sunken/70 transition-all duration-200 hover:bg-surface-sunken focus-within:border-brand focus-within:bg-surface-card focus-within:shadow-sm focus-within:ring-2 focus-within:ring-brand/20';
 
   return (
-    <header className="sticky top-0 z-sticky w-full border-b border-ink/10 bg-surface-card">
-      <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
+    <header className="sticky top-0 z-sticky w-full border-b border-ink/10 bg-surface-card/85 backdrop-blur-md supports-[backdrop-filter]:bg-surface-card/75">
+      <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
         <Link
           href="/"
           aria-label={t('home')}
@@ -148,18 +216,26 @@ export default function Header() {
             {t('browseByPrice')}
           </label>
           <div className={searchBox}>
-            <select
-              id="price-scope"
-              value={priceScope}
-              onChange={(e) => setPriceScope(e.target.value)}
-              className="h-full shrink-0 cursor-pointer rounded-l-control border-r border-ink/12 bg-transparent pl-3 pr-2 text-small text-ink-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40"
-            >
-              {PRICE_SCOPES.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {tBands(s.key)}
-                </option>
-              ))}
-            </select>
+            {/* Chevron tùy biến thay mũi tên select mặc định — chi tiết nhỏ
+                nhưng là thứ tố cáo "form thô" rõ nhất trên một thanh search. */}
+            <div className="relative flex h-full shrink-0 items-center border-r border-ink/12">
+              <select
+                id="price-scope"
+                value={priceScope}
+                onChange={(e) => setPriceScope(e.target.value)}
+                className="h-full cursor-pointer appearance-none rounded-l-control bg-transparent pl-3.5 pr-8 text-small font-medium text-ink-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40"
+              >
+                {PRICE_SCOPES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {tBands(s.key)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                className="pointer-events-none absolute right-2.5 h-3.5 w-3.5 text-ink-faint"
+                aria-hidden="true"
+              />
+            </div>
             <input
               id="site-search"
               type="search"
@@ -173,7 +249,7 @@ export default function Header() {
             <button
               type="submit"
               aria-label={tc('search')}
-              className="mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+              className="mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/5 hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
             >
               <Search className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
@@ -185,20 +261,101 @@ export default function Header() {
               C2C, không phải một lối phụ giấu trong menu. */}
           <Link
             href="/product/create"
-            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-control bg-brand px-3 text-small font-semibold text-white transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 md:px-4"
+            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-control bg-brand px-3 text-small font-semibold text-white shadow-sm transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 md:px-4"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">{t('sellShort')}</span>
           </Link>
 
-          <Link
-            href="/notifications"
-            aria-label={unreadNotis > 0 ? t('notificationsUnread', { count: unreadNotis }) : t('notifications')}
-            className={iconBtn}
-          >
-            <Bell className="h-5 w-5" aria-hidden="true" />
-            {unreadNotis > 0 && badge(unreadNotis)}
-          </Link>
+          {isAuthenticated ? (
+            <div className="relative" ref={notiMenuRef}>
+              <button
+                type="button"
+                onClick={toggleNoti}
+                aria-expanded={isNotiOpen}
+                aria-label={unreadNotis > 0 ? t('notificationsUnread', { count: unreadNotis }) : t('notifications')}
+                className={iconBtn}
+              >
+                <Bell className="h-5 w-5" aria-hidden="true" />
+                {unreadNotis > 0 && badge(unreadNotis)}
+              </button>
+
+              {isNotiOpen && (
+                <div className="absolute right-0 top-full z-dropdown mt-1 w-[calc(100vw-1.5rem)] max-w-[380px] overflow-hidden rounded-control border border-ink/12 bg-surface-card shadow-float">
+                  <div className="flex items-center justify-between gap-3 border-b border-ink/10 px-4 py-3">
+                    <p className="text-small font-semibold text-ink">{tn('title')}</p>
+                    <button
+                      type="button"
+                      onClick={markAllNotiRead}
+                      disabled={!notiList.some((n) => !n.is_read)}
+                      className="inline-flex items-center gap-1.5 text-caption font-semibold text-brand transition-colors hover:text-brand-dark disabled:cursor-not-allowed disabled:text-ink-faint"
+                    >
+                      <CheckCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                      {tn('markAll')}
+                    </button>
+                  </div>
+
+                  <div className="max-h-[min(70vh,420px)] overflow-y-auto">
+                    {notiState === 'loading' ? (
+                      <p className="px-4 py-10 text-center text-small text-ink-muted">{tc('loading')}</p>
+                    ) : notiState === 'error' ? (
+                      <div className="px-4 py-8 text-center">
+                        <p className="text-small font-medium text-ink">{tn('loadFailed')}</p>
+                        <button
+                          type="button"
+                          onClick={fetchNotiList}
+                          className="mt-3 rounded-control bg-brand px-4 py-1.5 text-caption font-semibold text-white transition-colors hover:bg-brand-dark"
+                        >
+                          {tc('retry')}
+                        </button>
+                      </div>
+                    ) : notiList.length === 0 ? (
+                      <div className="px-4 py-10 text-center">
+                        <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-sunken text-ink-faint">
+                          <Bell className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <p className="text-small font-medium text-ink">{tn('empty')}</p>
+                        <p className="mx-auto mt-1 max-w-[30ch] text-caption text-ink-muted">{tn('emptyHint')}</p>
+                      </div>
+                    ) : (
+                      <ul className="divide-y divide-ink/10">
+                        {notiList.map((n) => {
+                          const Icon = NOTI_ICONS[n.type] || Bell;
+                          return (
+                            <li key={n.id}>
+                              <button
+                                type="button"
+                                onClick={() => onNotiClick(n)}
+                                className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-sunken ${n.is_read ? '' : 'bg-brand-tint/60'}`}
+                              >
+                                <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${n.is_read ? 'bg-surface-sunken text-ink-muted' : 'bg-surface-card text-brand'}`}>
+                                  <Icon className="h-4 w-4" aria-hidden="true" />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="flex items-baseline justify-between gap-2">
+                                    <span className={`truncate text-small ${n.is_read ? 'text-ink' : 'font-semibold text-ink'}`}>{n.title}</span>
+                                    {n.created_at && (
+                                      <span className="shrink-0 text-[11px] tabular-nums text-ink-faint">{formatNotiTime(n.created_at)}</span>
+                                    )}
+                                  </span>
+                                  <span className="clamp-2 mt-0.5 block text-caption text-ink-muted">{n.content}</span>
+                                </span>
+                                {!n.is_read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand" aria-hidden="true" />}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/login" aria-label={t('notifications')} className={iconBtn}>
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </Link>
+          )}
 
           {isAuthenticated ? (
             <div className="relative" ref={userMenuRef}>
@@ -242,7 +399,6 @@ export default function Header() {
                     </p>
                     {[
                       { href: '/product/create', icon: Plus, label: t('sell') },
-                      { href: '/profile/products', icon: Package, label: t('myProducts') },
                       { href: '/shop/orders', icon: ClipboardList, label: t('sellerOrders') },
                     ].map(({ href, icon: Icon, label }) => (
                       <Link
