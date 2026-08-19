@@ -248,7 +248,7 @@ export default function SearchPage() {
         <div className="flex flex-col gap-3 lg:flex-row">
           {/* Cột lọc. Dưới lg thu thành một khối mở ra được thay vì biến mất —
               bản trước ẩn hẳn ở mobile, nên trên điện thoại không lọc được gì. */}
-          <aside className="lg:w-[220px] lg:shrink-0">
+          <aside className="lg:sticky lg:top-[85px] lg:w-[220px] lg:shrink-0 lg:self-start">
             <div className="hidden rounded-card bg-surface-card p-4 lg:block">{filters}</div>
             <details className="rounded-card bg-surface-card p-4 lg:hidden">
               <summary className="cursor-pointer text-small font-semibold text-ink">

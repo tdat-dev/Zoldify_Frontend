@@ -96,7 +96,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         </nav>
 
         <div className="flex flex-col gap-3 lg:flex-row">
-          <aside className="lg:w-[220px] lg:shrink-0">
+          <aside className="lg:sticky lg:top-[85px] lg:w-[220px] lg:shrink-0 lg:self-start">
             <div className="rounded-card bg-surface-card p-4">
               <h2 className="mb-2 text-caption uppercase tracking-wide text-ink-faint">
                 {t('priceBand')}
