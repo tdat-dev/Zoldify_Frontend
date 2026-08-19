@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2, Search, X, Package, MapPin, Phone, User as UserIcon, Eye, CheckCircle2, XCircle, Truck, Clock, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -101,34 +101,68 @@ export default function ShopOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const [meta, setMeta] = useState({ current: 1, pageSize: 20, total: 0, pages: 0 });
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [confirmCancel, setConfirmCancel] = useState<Order | null>(null);
 
-  const fetchOrders = useCallback(async (p = 1) => {
-    setLoading(true);
+  // Nối thêm (`append`) thì KHÔNG bật `loading` — làm thế cả danh sách bị thay
+  // bằng khung chờ, người bán mất chỗ đang đọc. Trang kế dùng `loadingMore` ở
+  // chân danh sách thay vì che cả trang.
+  const fetchOrders = useCallback(async (p = 1, append = false) => {
+    if (!append) setLoading(true);
+    else setLoadingMore(true);
     try {
       const params: any = { as: 'seller', currentPage: p, limit: 20 };
       const tab = TABS.find((t) => t.key === activeTab);
       if (tab?.status) params.status = tab.status;
       const res = await http.get('/orders', { params });
       const data = res.data?.data || res.data;
-      setOrders(data?.result || []);
+      const result = data?.result || [];
+      setOrders((prev) => (append ? [...prev, ...result] : result));
       setMeta(data?.meta || { current: 1, pageSize: 20, total: 0, pages: 0 });
     } catch (err: any) {
       console.error(err);
-      toast(err.response?.data?.message || t('ordersLoadFailed'), 'error');
+      // Lỗi khi nối thêm thì giữ nguyên danh sách cũ, chỉ báo khi lần đầu hỏng.
+      if (!append) toast(err.response?.data?.message || t('ordersLoadFailed'), 'error');
     } finally {
-      setLoading(false);
+      if (!append) setLoading(false);
+      else setLoadingMore(false);
     }
   }, [activeTab, toast]);
 
+  // Đổi tab -> `fetchOrders` đổi định danh -> effect này reset về trang 1 và
+  // thay cả danh sách.
   useEffect(() => {
-    setPage(1);
-    fetchOrders(1);
+    fetchOrders(1, false);
   }, [fetchOrders]);
+
+  // Kéo tới cuối -> tải trang kế và NỐI vào. Chốt chặn: đang tải hoặc hết trang
+  // thì thôi. Trang hiện tại đọc từ `meta.current`, không giữ state trang riêng.
+  const loadMore = useCallback(() => {
+    if (loadingMore || loading) return;
+    const cur = meta.current || 1;
+    const pages = meta.pages || 1;
+    if (cur >= pages) return;
+    fetchOrders(cur + 1, true);
+  }, [loadingMore, loading, meta, fetchOrders]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    // rootMargin dương: kích hoạt TRƯỚC khi ô mồi vào khung, để trang kế về kịp
+    // trước lúc chạm đáy — cuộn không khựng.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadMore]);
 
   const handleConfirmShip = async (order: Order) => {
     const nextStatus = nextInFlow(order.status);
@@ -201,7 +235,7 @@ export default function ShopOrdersPage() {
             {TABS.map((t) => (
               <button
                 key={t.key}
-                onClick={() => { setActiveTab(t.key); setPage(1); }}
+                onClick={() => setActiveTab(t.key)}
                 className={`px-6 py-4 text-small font-medium whitespace-nowrap transition-colors ${
                   activeTab === t.key
                     ? 'text-brand border-b-2 border-brand bg-brand-tint/50'
@@ -335,33 +369,25 @@ export default function ShopOrdersPage() {
           )}
         </div>
 
-        {meta.pages > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
-            <button
-              onClick={() => { setPage(page - 1); fetchOrders(page - 1); }}
-              disabled={page === 1}
-              className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 bg-surface-card"
-            >
-              {t('prev')}
-            </button>
-            {Array.from({ length: meta.pages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => { setPage(p); fetchOrders(p); }}
-                className={`w-9 h-9 rounded-control text-small font-medium ${
-                  p === meta.current ? 'bg-brand text-white' : 'bg-surface-card text-ink-muted hover:bg-surface-sunken border'
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-            <button
-              onClick={() => { setPage(page + 1); fetchOrders(page + 1); }}
-              disabled={page === meta.pages}
-              className="px-3 py-1.5 border rounded-control text-small disabled:opacity-50 bg-surface-card"
-            >
-              Sau
-            </button>
+        {/* Cuộn vô hạn thay cho nút số trang: kéo tới đáy thì observer tự nối
+            trang kế; nút "Xem thêm" là lối bấm tay cho bàn phím / không observer. */}
+        {!loading && orders.length > 0 && (
+          <div className="mt-6 flex flex-col items-center gap-3">
+            {(meta.current || 1) < (meta.pages || 1) ? (
+              <>
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="rounded-control border border-ink/16 bg-surface-card px-6 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60"
+                >
+                  {loadingMore ? t('loadingMore') : t('loadMore')}
+                </button>
+                <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+              </>
+            ) : (
+              <p className="text-small text-ink-faint">{t('endReached')}</p>
+            )}
           </div>
         )}
       </div>
