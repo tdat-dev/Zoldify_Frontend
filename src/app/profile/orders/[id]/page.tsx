@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ChevronRight, Package, Check } from 'lucide-react';
+import { ChevronRight, Package, Check, Truck } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { formatPrice } from '@/lib/format';
@@ -39,6 +39,9 @@ export default function OrderDetailPage() {
 
   const [order, setOrder] = useState<any>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'error' | 'missing'>('loading');
+  // sellerId đang được xác nhận (để khoá đúng nút đó), và cờ lỗi chung.
+  const [confirming, setConfirming] = useState<number | null>(null);
+  const [confirmError, setConfirmError] = useState(false);
 
   const id = Number(params.id);
 
@@ -63,6 +66,22 @@ export default function OrderDetailPage() {
   useEffect(() => {
     if (allowed && Number.isFinite(id)) fetchOrder();
   }, [allowed, id, fetchOrder]);
+
+  const handleConfirmReceived = useCallback(
+    async (sellerId: number) => {
+      setConfirming(sellerId);
+      setConfirmError(false);
+      try {
+        await orderService.confirmReceived(id, sellerId);
+        await fetchOrder();
+      } catch {
+        setConfirmError(true);
+      } finally {
+        setConfirming(null);
+      }
+    },
+    [id, fetchOrder],
+  );
 
   const card = 'rounded-card bg-surface-card';
 
@@ -202,6 +221,68 @@ export default function OrderDetailPage() {
           </ul>
         </div>
       </div>
+
+      {Array.isArray(order.shipments) && order.shipments.length > 0 && (
+        <div className={`${card} px-6 py-5`}>
+          <h2 className="mb-4 text-small font-semibold text-ink">{t('shipmentsTitle')}</h2>
+          <ul className="flex flex-col gap-3">
+            {order.shipments.map((sh: any) => {
+              const st = String(sh.status);
+              const canConfirm = st === 'created' || st === 'delivered';
+              const isReceived = st === 'received';
+              const isFailed = st === 'failed';
+              return (
+                <li
+                  key={sh.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-control border border-ink/10 p-3"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 text-small font-semibold text-ink">
+                      <Truck className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
+                      <span className="truncate">{sh.seller?.full_name || '—'}</span>
+                    </div>
+                    {sh.tracking_code && (
+                      <p className="mt-0.5 text-caption tabular-nums text-ink-muted">
+                        {t('trackingLabel')}: {sh.tracking_code}
+                      </p>
+                    )}
+                    <p
+                      className={`mt-0.5 text-caption ${
+                        isReceived
+                          ? 'text-state-success-fg'
+                          : isFailed
+                            ? 'text-price'
+                            : 'text-ink-muted'
+                      }`}
+                    >
+                      {t(`shipStatus_${st}` as never)}
+                      {isReceived && sh.auto_received ? ` · ${t('autoReceivedNote')}` : ''}
+                    </p>
+                  </div>
+                  {canConfirm ? (
+                    <button
+                      type="button"
+                      onClick={() => handleConfirmReceived(sh.seller?.id)}
+                      disabled={confirming === sh.seller?.id}
+                      className="shrink-0 rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                    >
+                      {confirming === sh.seller?.id ? t('confirming') : t('confirmReceived')}
+                    </button>
+                  ) : isReceived ? (
+                    <span className="inline-flex shrink-0 items-center gap-1 text-small font-semibold text-state-success-fg">
+                      <Check className="h-4 w-4" aria-hidden="true" /> {t('shipStatus_received')}
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-3 text-caption text-ink-muted">{t('confirmReceivedHint')}</p>
+          {confirmError && (
+            <p className="mt-2 text-caption text-price">{t('confirmFailed')}</p>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <section className={`${card} p-6`}>

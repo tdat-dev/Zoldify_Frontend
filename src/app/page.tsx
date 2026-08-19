@@ -239,6 +239,7 @@ export default function HomePage() {
             title={t('newestTitle')}
             items={newest}
             href="/search?sort=newest"
+            gateAuth
           />
         )}
       </div>
