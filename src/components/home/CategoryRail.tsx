@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Grid3x3, Package } from 'lucide-react';
+import { useCategoryName } from '@/lib/categoryI18n';
 
 /**
  * Hàng danh mục kiểu "Shop by Category" của trang tham chiếu: các ô trắng bo
@@ -13,6 +14,7 @@ import { Grid3x3, Package } from 'lucide-react';
  */
 export function CategoryRail({ categories }: { categories: any[] }) {
   const t = useTranslations('home');
+  const catName = useCategoryName();
   const shown = categories.slice(0, 7);
 
   return (
@@ -33,7 +35,7 @@ export function CategoryRail({ categories }: { categories: any[] }) {
               )}
             </div>
             <span className="line-clamp-2 text-[12.5px] font-semibold leading-tight text-ink">
-              {cat.name}
+              {catName(cat)}
             </span>
             {Number.isFinite(count) && count > 0 && (
               <span className="text-[11px] text-ink-faint">{t('itemCount', { count })}</span>

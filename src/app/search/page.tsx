@@ -6,12 +6,14 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import { useCategoryName } from '@/lib/categoryI18n';
 import { ItemTile } from '@/components/home/ItemTile';
 import { EmptyState } from '@/components/EmptyState';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const t = useTranslations('search');
+  const catName = useCategoryName();
   const tc = useTranslations('common');
   const tBands = useTranslations('priceBands');
   const router = useRouter();
@@ -214,7 +216,7 @@ export default function SearchPage() {
                     : 'text-ink'
                 }`}
               >
-                {cat.name}
+                {catName(cat)}
               </Link>
             </li>
           ))}
@@ -246,7 +248,7 @@ export default function SearchPage() {
         <div className="flex flex-col gap-3 lg:flex-row">
           {/* Cột lọc. Dưới lg thu thành một khối mở ra được thay vì biến mất —
               bản trước ẩn hẳn ở mobile, nên trên điện thoại không lọc được gì. */}
-          <aside className="lg:w-[220px] lg:shrink-0">
+          <aside className="lg:sticky lg:top-[85px] lg:w-[220px] lg:shrink-0 lg:self-start">
             <div className="hidden rounded-card bg-surface-card p-4 lg:block">{filters}</div>
             <details className="rounded-card bg-surface-card p-4 lg:hidden">
               <summary className="cursor-pointer text-small font-semibold text-ink">
