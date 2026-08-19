@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import { useAuth } from '@/context/AuthContext';
 import { useCategoryName } from '@/lib/categoryI18n';
 import { ItemTile } from '@/components/home/ItemTile';
 import { EmptyState } from '@/components/EmptyState';
@@ -17,6 +18,7 @@ export default function SearchPage() {
   const tc = useTranslations('common');
   const tBands = useTranslations('priceBands');
   const router = useRouter();
+  const { isAuthenticated, authReady } = useAuth();
   const q = searchParams.get('q') || '';
 
   /**
@@ -42,7 +44,11 @@ export default function SearchPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const selectedCat = catFromUrl;
   const [sort, setSort] = useState(sortFromUrl);
-  const [currentPage, setCurrentPage] = useState(1);
+  // Cuộn-để-tải: `loadingMore` là spinner ở chân danh sách (khác `loadState`
+  // 'loading' vốn thay cả lưới bằng khung chờ). `sentinelRef` là ô mồi vô hình
+  // ở cuối, lọt vào tầm nhìn thì kéo trang kế.
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   // Sáu từ khoá MỒI, hiện ngay lúc mở trang rồi bị API ghi đè bằng tên sản phẩm
   // thật (xem setTrendingKeywords bên dưới). Vì là chữ do mình viết chứ không
   // phải dữ liệu, chúng phải đổi theo ngôn ngữ — "Sách" không giúp ai đang đọc
@@ -53,7 +59,7 @@ export default function SearchPage() {
   );
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
 
-  const fetchProducts = useCallback(async (page: number) => {
+  const fetchProducts = useCallback(async (page: number, append = false) => {
     const params: any = {};
     if (q) params.q = q;
     if (selectedCat) params.category_id = parseInt(selectedCat);
@@ -61,23 +67,61 @@ export default function SearchPage() {
     if (priceMin !== undefined) params.price_min = priceMin;
     if (priceMax !== undefined) params.price_max = priceMax;
 
-    setLoadState('loading');
+    // Nối thêm thì KHÔNG bật `loadState='loading'` — làm thế lưới đang có bị
+    // thay bằng khung chờ, người dùng mất chỗ đang đọc. Trang kế dùng spinner
+    // chân danh sách (`loadingMore`) thay vì che cả trang.
+    if (!append) setLoadState('loading');
     try {
       const res = await productService.getAll(page, 20, params);
-      setProducts(res.data?.data?.result || []);
+      const result = res.data?.data?.result || [];
+      setProducts((prev) => (append ? [...prev, ...result] : result));
       setMeta(res.data?.data?.meta || { current: 1, pages: 1, total: 0 });
       setLoadState('ready');
     } catch {
       // Trước đây hàm này không bắt lỗi, nên API hỏng lại hiện
-      // "Không tìm thấy sản phẩm nào phù hợp" — sai sự thật.
-      setProducts([]);
-      setLoadState('error');
+      // "Không tìm thấy sản phẩm nào phù hợp" — sai sự thật. Lỗi khi nối thêm
+      // thì giữ nguyên danh sách cũ, chỉ báo lỗi khi lần tải đầu hỏng.
+      if (!append) {
+        setProducts([]);
+        setLoadState('error');
+      }
     }
   }, [q, selectedCat, sort, priceMin, priceMax]);
 
+  // Đổi bộ lọc/từ khoá -> quay về trang 1 và thay cả danh sách. `fetchProducts`
+  // đổi định danh mỗi khi một tiêu chí đổi, nên effect này chính là chỗ reset.
   useEffect(() => {
-    fetchProducts(currentPage);
-  }, [fetchProducts, currentPage]);
+    fetchProducts(1, false);
+  }, [fetchProducts]);
+
+  // Kéo tới cuối -> tải trang kế và NỐI vào. Chốt chặn: đang tải, hết trang thì
+  // thôi. Đọc trang hiện tại từ `meta.current` chứ không giữ state trang riêng.
+  const loadMore = useCallback(() => {
+    // Khách chưa đăng nhập chỉ được trang đầu. Muốn xem tiếp thì đăng nhập —
+    // chặn ngay ở đây để cả nút bấm lẫn observer đều không kéo thêm được.
+    if (!isAuthenticated) return;
+    if (loadingMore || loadState === 'loading') return;
+    const cur = meta.current || 1;
+    const pages = meta.pages || 1;
+    if (cur >= pages) return;
+    setLoadingMore(true);
+    fetchProducts(cur + 1, true).finally(() => setLoadingMore(false));
+  }, [isAuthenticated, loadingMore, loadState, meta, fetchProducts]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    // rootMargin dương: kích hoạt TRƯỚC khi ô mồi thật sự vào khung, để trang
+    // kế về kịp trước lúc người dùng chạm đáy — cuộn không khựng.
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [loadMore]);
 
   useEffect(() => {
     categoryService.getAll().then((res) => {
@@ -105,20 +149,11 @@ export default function SearchPage() {
     setSort(sortFromUrl);
   }, [sortFromUrl]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [q, selectedCat, sort, priceMin, priceMax]);
-
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const keyword = formData.get('q') as string;
     router.push(`/search?q=${encodeURIComponent(keyword)}`);
-  };
-
-  const paginate = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   /** Dựng URL mới từ URL hiện tại, chỉ đổi những khoá được truyền vào. Giữ
@@ -147,21 +182,6 @@ export default function SearchPage() {
   );
 
   const hasFilter = !!q || !!selectedCat || activeBand >= 0 || !!sort;
-
-  /* Phân trang rút gọn. Bản trước render MỌI trang: 50 trang là 50 nút. */
-  const pageList = (): (number | 'gap')[] => {
-    const total = meta.pages || 1;
-    const cur = meta.current || 1;
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const out: (number | 'gap')[] = [1];
-    const from = Math.max(2, cur - 1);
-    const to = Math.min(total - 1, cur + 1);
-    if (from > 2) out.push('gap');
-    for (let i = from; i <= to; i++) out.push(i);
-    if (to < total - 1) out.push('gap');
-    out.push(total);
-    return out;
-  };
 
   const filterHead = 'mb-2 text-caption uppercase tracking-wide text-ink-faint';
   const filterItem =
@@ -244,7 +264,7 @@ export default function SearchPage() {
 
   return (
     <div className="min-h-screen bg-surface-page pb-16">
-      <div className="mx-auto max-w-[1500px] px-3 py-3">
+      <div className="w-full px-4 py-3 lg:px-6">
         <div className="flex flex-col gap-3 lg:flex-row">
           {/* Cột lọc. Dưới lg thu thành một khối mở ra được thay vì biến mất —
               bản trước ẩn hẳn ở mobile, nên trên điện thoại không lọc được gì. */}
@@ -292,7 +312,7 @@ export default function SearchPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => fetchProducts(currentPage)}
+                    onClick={() => fetchProducts(1, false)}
                     className="mt-5 rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                   >
                     {tc('retry')}
@@ -324,7 +344,7 @@ export default function SearchPage() {
                 </div>
               ) : (
                 <div className="rounded-card bg-surface-card p-4">
-                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                     {products.map((item) => (
                       <li key={item.id}>
                         <ItemTile item={item} size="md" />
@@ -335,30 +355,39 @@ export default function SearchPage() {
               )}
             </div>
 
-            {meta.pages > 1 && (
-              <nav aria-label={t('pagination')} className="mt-4 flex justify-center gap-1">
-                {pageList().map((p, i) =>
-                  p === 'gap' ? (
-                    <span key={`gap-${i}`} className="px-2 py-1.5 text-small text-ink-faint">
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={p}
-                      type="button"
-                      onClick={() => paginate(p)}
-                      aria-current={p === meta.current ? 'page' : undefined}
-                      className={`min-w-9 rounded-control px-3 py-1.5 text-small tabular-nums transition-colors ${
-                        p === meta.current
-                          ? 'bg-brand font-semibold text-white'
-                          : 'bg-surface-card text-ink hover:bg-surface-sunken'
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ),
+            {loadState === 'ready' && products.length > 0 && (
+              <div className="mt-6 flex flex-col items-center gap-3">
+                {(meta.current || 1) < (meta.pages || 1) ? (
+                  isAuthenticated ? (
+                    <>
+                      {/* Đã đăng nhập: nút bấm tay (cho bàn phím / không observer)
+                          và ô mồi để observer tự kéo trang kế khi cuộn. */}
+                      <button
+                        type="button"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        className="rounded-control border border-ink/16 bg-surface-card px-6 py-2.5 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:opacity-60"
+                      >
+                        {loadingMore ? t('loadingMore') : t('loadMore')}
+                      </button>
+                      <div ref={sentinelRef} aria-hidden="true" className="h-px w-full" />
+                    </>
+                  ) : authReady ? (
+                    // Khách: dừng ở trang đầu, mời đăng nhập để xem tiếp.
+                    <div className="w-full rounded-card border border-hairline bg-surface-card px-6 py-6 text-center">
+                      <p className="text-small text-ink-muted">{t('loginToSeeMoreHint')}</p>
+                      <Link
+                        href="/login"
+                        className="mt-3 inline-block rounded-control bg-brand px-6 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                      >
+                        {t('loginToSeeMore')}
+                      </Link>
+                    </div>
+                  ) : null
+                ) : (
+                  <p className="text-small text-ink-faint">{t('endReached')}</p>
                 )}
-              </nav>
+              </div>
             )}
           </div>
         </div>

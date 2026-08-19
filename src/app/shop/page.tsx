@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Package, UserPlus, UserCheck, Star, Store, Check, Plus, MessageCircle, UserMinus, Loader2, Edit, Trash2 } from 'lucide-react';
+import { Package, UserPlus, UserCheck, Star, Store, Check, Plus, MessageCircle, UserMinus, Loader2, Edit, Trash2, Truck } from 'lucide-react';
 import http from '@/lib/http';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -43,6 +43,7 @@ export default function ShopPage() {
   const { toast, confirm } = useToast();
   const t = useTranslations('shop');
   const tc = useTranslations('common');
+  const tp = useTranslations('shopPickup');
   const router = useRouter();
   const searchParams = useSearchParams();
   const targetSellerId = searchParams.get('seller');
@@ -270,9 +271,14 @@ export default function ShopPage() {
               </>
             )}
             {(!targetSellerId || (isAuthenticated && currentUser?.id === Number(targetSellerId))) && (
-              <Link href="/product/create" className="px-6 py-2 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors flex items-center gap-2">
-                <Plus className="w-4 h-4" /> {t('addItem')}
-              </Link>
+              <>
+                <Link href="/shop/settings" className="px-5 py-2 bg-surface-card border border-ink/16 text-ink font-medium rounded-sm hover:border-brand hover:text-brand transition-colors flex items-center gap-2">
+                  <Truck className="w-4 h-4" /> {tp('title')}
+                </Link>
+                <Link href="/product/create" className="px-6 py-2 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> {t('addItem')}
+                </Link>
+              </>
             )}
           </div>
         </div>
