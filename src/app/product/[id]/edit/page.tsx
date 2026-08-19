@@ -154,7 +154,7 @@ export default function EditProductPage() {
     try {
       await productService.remove(productId);
       toast(t('deletedOk'), 'success');
-      router.push('/profile/products');
+      router.push('/shop/orders?tab=listings');
     } catch (err: any) {
       const msg = err.response?.data?.message || t('errDelete');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');

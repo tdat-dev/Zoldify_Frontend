@@ -42,7 +42,7 @@ export function AccountNav() {
     {
       heading: t('groupSelling'),
       items: [
-        { href: '/profile/products', label: t('navListings'), Icon: Tag },
+        { href: '/shop/orders', label: t('navSelling'), Icon: Tag },
         { href: '/profile/wallet', label: t('navWallet'), Icon: Wallet },
       ],
     },

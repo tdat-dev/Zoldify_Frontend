@@ -4,8 +4,11 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Loader2, Search, X, Package, MapPin, Phone, User as UserIcon, Eye, CheckCircle2, XCircle, Truck, Clock, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter, useSearchParams } from 'next/navigation';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
+import { ListingsPanel } from '@/components/seller/ListingsPanel';
+import { AccountShell } from '@/components/account/AccountShell';
 import { formatPrice, imageUrl } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor, orderStatusTone, type OrderStatus } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
@@ -97,6 +100,13 @@ export default function ShopOrdersPage() {
   const tShort = useTranslations('orderStatusShort');
   const t = useTranslations('shop');
   const tc = useTranslations('common');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  // Tab cấp trên: "Đơn hàng" (đơn bán được) vs "Tin đã đăng" (sản phẩm). Đọc
+  // từ ?tab để link sâu (vd từ sidebar Hồ sơ) mở đúng tab.
+  const [topTab, setTopTab] = useState<'orders' | 'listings'>(
+    searchParams.get('tab') === 'listings' ? 'listings' : 'orders',
+  );
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
@@ -209,6 +219,15 @@ export default function ShopOrdersPage() {
     } catch { return d; }
   };
 
+  const switchTab = (tab: 'orders' | 'listings') => {
+    setTopTab(tab);
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    if (tab === 'orders') params.delete('tab');
+    else params.set('tab', tab);
+    const qs = params.toString();
+    router.replace(qs ? `/shop/orders?${qs}` : '/shop/orders', { scroll: false });
+  };
+
   const filteredOrders = search
     ? orders.filter((o) =>
         orderCode(o).toLowerCase().includes(search.toLowerCase()) ||
@@ -222,13 +241,45 @@ export default function ShopOrdersPage() {
   const getImageSrc = imageUrl;
 
   return (
-    <div className="bg-surface-page min-h-screen pb-20 md:pb-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <>
+    {/* Bọc trong AccountShell để giữ sidebar khu tài khoản — bấm "Đơn bán của
+        tôi" từ sidebar không còn mất thanh bên trái, vẫn nhảy mục khác được.
+        Sidebar cố định + tab ngang trong mục là chuẩn account hub (NN/g). */}
+    <AccountShell>
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-ink">{t('ordersTitle')}</h1>
-          <p className="text-ink-muted text-small mt-1">{loading ? tc('loading') : t('ordersCount', { count: meta.total })}</p>
+          <h1 className="text-2xl font-bold text-ink">{t('hubTitle')}</h1>
+          {topTab === 'orders' && (
+            <p className="text-ink-muted text-small mt-1">{loading ? tc('loading') : t('ordersCount', { count: meta.total })}</p>
+          )}
         </div>
 
+        {/* Tab cấp trên: Đơn hàng | Tin đã đăng. Dáng chip đặc để phân biệt rõ
+            với hàng tab lọc trạng thái (gạch chân) nằm bên trong thẻ đơn. */}
+        <div className="mb-4 inline-flex gap-1 rounded-control bg-surface-sunken p-1">
+          {([
+            { key: 'orders' as const, label: t('tabOrders') },
+            { key: 'listings' as const, label: t('tabListings') },
+          ]).map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => switchTab(tab.key)}
+              aria-pressed={topTab === tab.key}
+              className={`rounded-control px-4 py-2 text-small font-semibold transition-colors ${
+                topTab === tab.key
+                  ? 'bg-surface-card text-brand shadow-sm'
+                  : 'text-ink-muted hover:text-ink'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {topTab === 'listings' ? (
+          <ListingsPanel />
+        ) : (
+        <>
         <div className="bg-surface-card rounded-control border border-ink/10 overflow-hidden">
           {/* Tabs */}
           <div className="flex border-b border-ink/10 overflow-x-auto">
@@ -390,7 +441,9 @@ export default function ShopOrdersPage() {
             )}
           </div>
         )}
-      </div>
+        </>
+        )}
+    </AccountShell>
 
       {/* Order Detail Modal */}
       {viewingOrder && (
@@ -542,6 +595,6 @@ export default function ShopOrdersPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
