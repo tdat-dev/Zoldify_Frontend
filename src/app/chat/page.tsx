@@ -263,11 +263,11 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="bg-surface-sunken min-h-screen pb-20 md:pb-10 flex flex-col">
-      <div className="max-w-[1000px] w-full mx-auto px-4 flex-1 flex flex-col pt-6">
-        <div className="bg-surface-card rounded-sm flex overflow-hidden h-[calc(100vh-180px)] md:h-[600px] border border-ink/10">
+    <div className="bg-surface-sunken min-h-screen pb-20 md:pb-6 flex flex-col">
+      <div className="max-w-[1400px] w-full mx-auto px-2 md:px-4 flex-1 flex flex-col pt-4 md:pt-6">
+        <div className="bg-surface-card rounded-lg flex overflow-hidden h-[calc(100vh-180px)] md:h-[calc(100vh-150px)] shadow-sm border border-ink/10">
           {/* Sidebar */}
-          <div className={`w-full md:w-1/3 border-r border-ink/10 flex flex-col ${showSidebar ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`w-full md:w-80 lg:w-96 flex-shrink-0 border-r border-ink/10 flex flex-col ${showSidebar ? 'flex' : 'hidden md:flex'}`}>
             <div className="p-4 border-b border-ink/10 bg-surface-page">
               <h3 className="font-bold text-ink">{t('conversations')}</h3>
             </div>
@@ -311,7 +311,7 @@ export default function ChatPage() {
           </div>
 
           {/* Chat Area */}
-          <div className={`w-full md:w-2/3 flex flex-col bg-surface-sunken relative ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
+          <div className={`w-full md:flex-1 min-w-0 flex flex-col bg-surface-sunken relative ${!showSidebar ? 'flex' : 'hidden md:flex'}`}>
             {activeConv ? (
               (() => {
                 const headerStatus = getOnlineStatus(activeConv.partner_last_seen, activeConv.partner_online);
@@ -346,7 +346,7 @@ export default function ChatPage() {
                     const isMe = msg.sender?.id === currentUser?.id;
                     return (
                       <div key={msg.id || idx} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} group`}>
-                        <div className={`flex max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
+                        <div className={`flex max-w-[80%] md:max-w-[70%] lg:max-w-[620px] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
                           {!isMe && (
                             <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover mb-1 flex-shrink-0" alt="" />
                           )}
