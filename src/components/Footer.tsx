@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Mail, Bell, Home, Search, Plus, MessageSquare, User } from 'lucide-react';
+import { Mail, Home, Search, Plus, MessageSquare, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function Footer() {
@@ -51,10 +51,6 @@ export default function Footer() {
                 <li className="flex items-center gap-3">
                   <MessageSquare className="w-4 h-4 text-ink" aria-hidden="true" />
                   <Link href="/chat" className="inline-block py-1 hover:text-brand transition-colors">{t('chatSeller')}</Link>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Bell className="w-4 h-4 text-ink" aria-hidden="true" />
-                  <Link href="/notifications" className="inline-block py-1 hover:text-brand transition-colors">{t('notifications')}</Link>
                 </li>
               </ul>
             </div>
