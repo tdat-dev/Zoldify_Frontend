@@ -4,7 +4,7 @@
  * Chỉ khai một biến môi trường là gốc của backend, rồi suy ra hai đường
  * dẫn con — vì REST và WebSocket đi hai lối khác nhau:
  *
- *  - REST     đi qua global prefix + version  ->  /api/v1/...
+ *  - REST     đi thẳng vào các route Nest      ->  /products, /orders, ...
  *  - Socket.IO KHÔNG đi qua prefix (Nest không áp prefix cho gateway),
  *              nên nó nằm thẳng ở gốc  ->  /chat
  *
@@ -12,10 +12,10 @@
  * trường lúc build cho production.
  */
 export const API_ORIGIN =
-  process.env.NEXT_PUBLIC_API_ORIGIN ?? 'http://localhost:3000';
+  process.env.NEXT_PUBLIC_API_ORIGIN ?? "http://localhost:3000";
 
 /** Gốc cho mọi request REST. Service chỉ cần viết '/products', '/orders'. */
-export const API_URL = `${API_ORIGIN}/api/v1`;
+export const API_URL = API_ORIGIN;
 
 /** Namespace chat của Socket.IO gateway bên backend. */
 export const SOCKET_URL = `${API_ORIGIN}/chat`;
