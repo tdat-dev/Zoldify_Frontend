@@ -185,22 +185,24 @@ export default function Header() {
   );
 
   const iconBtn =
-    'relative flex h-10 w-10 items-center justify-center rounded-control text-ink transition-colors hover:bg-surface-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40';
+    'relative flex h-10 w-10 items-center justify-center rounded-control text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50';
 
   /* Ô tìm kiếm: một hộp, tầm tiền nằm BÊN TRONG bên trái, kính lúp bên phải.
      Không nút vuông đặc màu ở đuôi — đó là chi tiết Amazon/eBay rõ nhất. */
   const searchBox =
-    'flex h-11 w-full items-center rounded-control border border-transparent bg-surface-sunken/70 transition-all duration-200 hover:bg-surface-sunken focus-within:border-brand focus-within:bg-surface-card focus-within:shadow-sm focus-within:ring-2 focus-within:ring-brand/20';
+    'flex h-11 w-full items-center rounded-control border border-transparent bg-white transition-all duration-200 focus-within:ring-2 focus-within:ring-white/60';
 
   return (
-    <header className="sticky top-0 z-sticky w-full border-b border-ink/10 bg-surface-card/85 backdrop-blur-md supports-[backdrop-filter]:bg-surface-card/75">
+    <header className="sticky top-0 z-sticky w-full bg-brand shadow-sm">
       <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
         <Link
           href="/"
           aria-label={t('home')}
           className="flex shrink-0 items-center rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
         >
-          <img src="/images/logo.webp" alt="Zoldify" className="h-8 w-auto" decoding="async" />
+          {/* Logo gốc là gradient xanh -> chìm trên nền brand; brightness-0 invert
+              biến nó thành wordmark TRẮNG đặc, đọc rõ trên header xanh. */}
+          <img src="/images/logo.webp" alt="Zoldify" className="h-8 w-auto brightness-0 invert" decoding="async" />
         </Link>
 
         {/* Ô tìm kiếm: chiếm hết phần giữa ở desktop, xuống hàng riêng ở mobile. */}
@@ -261,7 +263,7 @@ export default function Header() {
               C2C, không phải một lối phụ giấu trong menu. */}
           <Link
             href="/product/create"
-            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-control bg-brand px-3 text-small font-semibold text-white shadow-sm transition-colors hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 md:px-4"
+            className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-control bg-white px-3 text-small font-semibold text-brand shadow-sm transition-colors hover:bg-brand-tint focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 md:px-4"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">{t('sellShort')}</span>
@@ -367,7 +369,7 @@ export default function Header() {
                 className={`${iconBtn} w-auto gap-1 px-2`}
               >
                 <User className="h-5 w-5" aria-hidden="true" />
-                <ChevronDown className="hidden h-3.5 w-3.5 text-ink-muted lg:block" aria-hidden="true" />
+                <ChevronDown className="hidden h-3.5 w-3.5 text-white/70 lg:block" aria-hidden="true" />
               </button>
 
               {isUserMenuOpen && (
