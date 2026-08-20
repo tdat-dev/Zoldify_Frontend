@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Camera, Loader2 } from 'lucide-react';
 import http from '@/lib/http';
+import { uploadService } from '@/services/upload.service';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 
@@ -33,6 +35,33 @@ export default function ProfilePage() {
 
   const [fullName, setFullName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const avatarSrc =
+    authUser?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.full_name || 'U')}&background=0D8ABC&color=fff`;
+
+  const handleAvatarPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // reset để chọn lại đúng tệp vừa chọn vẫn kích hoạt onChange
+    if (!file || !authUser) return;
+    if (!file.type.startsWith('image/')) return toast(t('avatarNotImage'), 'error');
+    if (file.size > 5 * 1024 * 1024) return toast(t('avatarTooBig'), 'error');
+    setUploadingAvatar(true);
+    try {
+      const up = await uploadService.upload(file, 'avatars');
+      const url = up.data?.data?.url || up.data?.url;
+      if (!url) throw new Error('no url');
+      const res = await http.patch('/auth/profile', { avatar: url });
+      updateUser(res.data.data);
+      toast(t('avatarUpdated'), 'success');
+    } catch (err: any) {
+      toast(err.response?.data?.message || t('avatarFailed'), 'error');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   // authUser đến sau lần render đầu (context đọc token rồi mới gọi API), nên
   // useState(authUser?.full_name) chỉ chạy một lần và giữ nguyên chuỗi rỗng.
@@ -72,6 +101,37 @@ export default function ProfilePage() {
 
       <form onSubmit={handleSubmit} className="max-w-xl px-6 py-6">
         <div className="flex flex-col gap-5">
+          {/* Ảnh đại diện — upload ngay khi chọn, không gộp vào nút Lưu tên. */}
+          <div className="flex items-center gap-4">
+            <div className="relative shrink-0">
+              <img src={avatarSrc} alt="" className="h-16 w-16 rounded-full object-cover ring-1 ring-ink/10" />
+              {uploadingAvatar && (
+                <span className="absolute inset-0 flex items-center justify-center rounded-full bg-ink/40">
+                  <Loader2 className="h-5 w-5 animate-spin text-white" aria-hidden="true" />
+                </span>
+              )}
+            </div>
+            <div className="min-w-0">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="inline-flex items-center gap-2 rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken disabled:cursor-not-allowed disabled:text-ink-faint"
+              >
+                <Camera className="h-4 w-4" aria-hidden="true" />
+                {t('avatarChange')}
+              </button>
+              <p className="mt-1.5 text-caption text-ink-muted">{t('avatarHint')}</p>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={handleAvatarPick}
+            />
+          </div>
+
           <div>
             <label htmlFor="pf-name" className="mb-1.5 block text-small font-semibold text-ink">
               {t('fullName')}

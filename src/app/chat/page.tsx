@@ -359,7 +359,7 @@ export default function ChatPage() {
                         <div className={`flex max-w-[80%] md:max-w-[70%] lg:max-w-[620px] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
                           {!isMe &&
                             (lastInGroup ? (
-                              <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
+                              <img loading="lazy" decoding="async" src={activeConv.partner_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
                             ) : (
                               <span className="w-8 flex-shrink-0" aria-hidden="true" />
                             ))}
