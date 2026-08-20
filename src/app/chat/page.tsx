@@ -319,7 +319,7 @@ export default function ChatPage() {
               <>
                 <div className="px-3 md:px-6 py-3 md:py-4 bg-surface-card border-b border-ink/10 flex items-center justify-between shadow-[0_2px_4px_rgba(0,0,0,0.02)] z-10">
                   <div className="flex items-center gap-2 md:gap-4">
-                    <button onClick={() => setShowSidebar(true)} className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-sunken text-ink-muted transition-colors">
+                    <button onClick={() => setShowSidebar(true)} className="md:hidden w-9 h-9 flex items-center justify-center rounded-control hover:bg-surface-sunken text-ink-muted transition-colors">
                       <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div className="relative">
@@ -333,30 +333,45 @@ export default function ChatPage() {
                   </div>
                 </div>
 
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface-sunken relative">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 md:p-6 bg-surface-sunken relative">
                   {showJumpButton && (
                     <button
                       onClick={scrollToBottom}
-                      className="sticky bottom-3 left-1/2 -translate-x-1/2 z-20 bg-brand hover:bg-brand-dark text-white text-caption font-medium px-4 py-2 rounded-full shadow-lg flex items-center gap-1.5 transition-all"
+                      className="sticky bottom-3 left-1/2 -translate-x-1/2 z-20 bg-brand hover:bg-brand-dark text-white text-caption font-medium px-4 py-2 rounded-control shadow-lg flex items-center gap-1.5 transition-all"
                     >
                       {unseenCount > 0 ? t('newMessagesCount', { count: unseenCount }) : t('newMessages')}
                     </button>
                   )}
                   {messages.map((msg: any, idx: number) => {
                     const isMe = msg.sender?.id === currentUser?.id;
+                    // Gom tin theo người gửi: avatar hiện MỘT lần ở đáy nhóm,
+                    // khoảng cách trong nhóm sát lại, giữa hai nhóm mới giãn ra —
+                    // thay cho việc lặp avatar và giãn đều mọi tin (rối + trống).
+                    const prev = messages[idx - 1];
+                    const next = messages[idx + 1];
+                    const firstInGroup = !prev || prev.sender?.id !== msg.sender?.id;
+                    const lastInGroup = !next || next.sender?.id !== msg.sender?.id;
                     return (
-                      <div key={msg.id || idx} className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} group`}>
+                      <div
+                        key={msg.id || idx}
+                        className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} group ${firstInGroup ? 'mt-4' : 'mt-0.5'}`}
+                      >
                         <div className={`flex max-w-[80%] md:max-w-[70%] lg:max-w-[620px] ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                          {!isMe && (
-                            <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover mb-1 flex-shrink-0" alt="" />
-                          )}
+                          {!isMe &&
+                            (lastInGroup ? (
+                              <img loading="lazy" decoding="async" src={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConv.partner_name || 'U')}&background=0D8ABC&color=fff`} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
+                            ) : (
+                              <span className="w-8 flex-shrink-0" aria-hidden="true" />
+                            ))}
                           <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                            <div className={`relative px-4 py-2.5 text-[15px] leading-relaxed break-words font-normal ${isMe ? 'bg-brand text-white rounded-2xl rounded-tr-sm' : 'bg-surface-card border border-ink/10 text-ink rounded-2xl rounded-tl-sm'}`}>
+                            <div className={`px-3.5 py-2 text-[15px] leading-relaxed break-words font-normal rounded-card ${isMe ? 'bg-brand text-white' : 'bg-surface-card border border-ink/10 text-ink'}`}>
                               {msg.content || msg.text}
                             </div>
-                            <span className="text-[10px] text-ink-muted mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">
-                              {msg.created_at ? formatTime(msg.created_at) : ''}
-                            </span>
+                            {lastInGroup && (
+                              <span className="text-[10px] text-ink-muted mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">
+                                {msg.created_at ? formatTime(msg.created_at) : ''}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -373,14 +388,14 @@ export default function ChatPage() {
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="w-full bg-surface-sunken text-ink border-none rounded-full py-2.5 px-5 focus:ring-2 focus:ring-brand/20 focus:bg-surface-card transition-all outline-none placeholder:text-ink-faint"
+                        className="w-full bg-surface-sunken text-ink border border-transparent rounded-control py-2.5 px-4 focus:border-brand focus:ring-2 focus:ring-brand/20 focus:bg-surface-card transition-all outline-none placeholder:text-ink-faint"
                         placeholder={t('placeholder')}
                       />
                     </div>
                     <button
                       onClick={handleSend}
                       disabled={!text.trim() || sending}
-                      className="p-3 bg-brand text-white rounded-full hover:bg-brand-dark flex items-center justify-center w-11 h-11 disabled:opacity-50"
+                      className="p-3 bg-brand text-white rounded-control hover:bg-brand-dark flex items-center justify-center w-11 h-11 shrink-0 disabled:opacity-50 transition-colors"
                     >
                       {sending ? <Loader className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-1" />}
                     </button>
