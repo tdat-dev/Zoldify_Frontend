@@ -363,13 +363,16 @@ export default function ChatPage() {
                             ) : (
                               <span className="w-8 flex-shrink-0" aria-hidden="true" />
                             ))}
-                          <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                          <div className={`relative flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                             <div className={`px-3.5 py-2 text-[15px] leading-relaxed break-words font-normal rounded-card ${isMe ? 'bg-brand text-white' : 'bg-surface-card border border-ink/10 text-ink'}`}>
                               {msg.content || msg.text}
                             </div>
-                            {lastInGroup && (
-                              <span className="text-[10px] text-ink-muted mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity select-none">
-                                {msg.created_at ? formatTime(msg.created_at) : ''}
+                            {/* Timestamp absolute: KHÔNG chiếm chiều cao, nên cột
+                                chỉ cao bằng bong bóng và avatar (items-end) canh
+                                đúng đáy bong bóng thay vì tụt xuống dưới. */}
+                            {lastInGroup && msg.created_at && (
+                              <span className={`pointer-events-none absolute top-full mt-0.5 whitespace-nowrap text-[10px] text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity select-none ${isMe ? 'right-1' : 'left-1'}`}>
+                                {formatTime(msg.created_at)}
                               </span>
                             )}
                           </div>
