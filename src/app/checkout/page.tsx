@@ -130,7 +130,18 @@ export default function CheckoutPage() {
   const cur = cartItems[0]?.currency;
   const mixedCurrency = cartItems.some((i: any) => (i.currency || 'VND') !== (cur || 'VND'));
 
+  // Đủ ba cấp địa chỉ GHN. Thiếu quận/phường thì backend không tính được phí
+  // và đơn đi với phí ship 0đ, tức là ai cũng lấy được "miễn phí giao hàng"
+  // chỉ bằng cách bỏ trống hai ô đó.
+  const areaComplete =
+    !!addressInfo.province && !!addressInfo.ghn_district_id && !!addressInfo.ghn_ward_code;
+  const [showAreaError, setShowAreaError] = useState(false);
+
   const handleOrder = async () => {
+    if (!areaComplete) {
+      setShowAreaError(true);
+      return;
+    }
     if (!addressInfo.receiver_name || !addressInfo.receiver_phone || !addressInfo.shipping_address) {
       toast(t('errAddress'), 'error');
       return;
@@ -318,6 +329,11 @@ export default function CheckoutPage() {
                 <MapPin className="h-5 w-5 text-brand" aria-hidden="true" /> {t('shipTo')}
               </h2>
               <GhnAddressPicker onSelect={setAddressInfo} />
+              {showAreaError && !areaComplete && (
+                <p role="alert" className="mt-3 text-small text-state-danger-fg">
+                  {t('errAddressArea')}
+                </p>
+              )}
             </section>
 
             <section aria-labelledby="sec-note" className="rounded-card bg-surface-card p-5">
@@ -389,7 +405,9 @@ export default function CheckoutPage() {
                   <dd className="text-body text-ink">
                     {quoting
                       ? t('shippingCalc')
-                      : shippingFee === 0
+                      : !areaComplete
+                        ? t('shippingPending')
+                        : shippingFee === 0
                         ? t('free')
                         : formatPrice(shippingFee, cur)}
                   </dd>
