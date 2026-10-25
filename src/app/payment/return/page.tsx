@@ -22,6 +22,8 @@ function ReturnContent() {
   const isTopup = searchParams.get('topup') === '1';
   const status = searchParams.get('status'); // PAID, CANCELLED
   const code = searchParams.get('code');
+  // PayOS gắn mã giao dịch của nó vào returnUrl; nạp ví chỉ có mã này để tra.
+  const payosOrderCode = searchParams.get('orderCode');
 
   const [phase, setPhase] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const [msgKey, setMsgKey] = useState<string>('verifying');
@@ -39,13 +41,50 @@ function ReturnContent() {
       return;
     }
 
-    // Nạp ví: thông báo thành công và chuyển về trang ví
+    // Nạp ví: HỎI backend tiền đã vào chưa rồi mới báo thành công. Bản trước
+    // chờ cứng 3 giây rồi luôn báo "Nạp ví thành công", kể cả khi returnUrl
+    // không mang trạng thái nào hay webhook chưa về: người dùng mở ví thấy
+    // số dư y nguyên ngay sau khi được báo xong.
     if (isTopup) {
-      // Chờ vài giây cho webhook xử lý xong
-      await new Promise((r) => setTimeout(r, 3000));
-      setPhase('success');
-      setMsgKey('topupDone');
-      setTimeout(() => router.push('/profile/wallet'), 2500);
+      if (!payosOrderCode) {
+        setPhase('failed');
+        setMsgKey('topupUnverified');
+        return;
+      }
+      let topupAttempts = 0;
+      const maxTopupAttempts = 10;
+      const pollTopup = async () => {
+        try {
+          const res = await payosService.getPaymentStatus(payosOrderCode);
+          const st = res.data?.data?.paymentStatus;
+          if (st === 'success') {
+            setPhase('success');
+            setMsgKey('topupDone');
+            setTries(null);
+            setTimeout(() => router.push('/profile/wallet'), 2500);
+            return;
+          }
+          if (st === 'failed') {
+            setPhase('failed');
+            setMsgKey('cancelled');
+            setTries(null);
+            return;
+          }
+        } catch (err) {
+          console.error('Poll error:', err);
+        }
+        topupAttempts++;
+        if (topupAttempts < maxTopupAttempts) {
+          setMsgKey('verifyingCount');
+          setTries({ n: topupAttempts, max: maxTopupAttempts });
+          setTimeout(pollTopup, 3000);
+        } else {
+          setPhase('failed');
+          setMsgKey('topupUnverified');
+          setTries(null);
+        }
+      };
+      pollTopup();
       return;
     }
 

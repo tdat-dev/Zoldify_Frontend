@@ -804,6 +804,7 @@
     "verifyingCount": "Confirming your payment… ({n}/{max})",
     "cancelled": "The payment was cancelled.",
     "topupDone": "Money added. Taking you back to your wallet…",
+    "topupUnverified": "We couldn't confirm the top-up yet. Check your balance on the wallet page; it usually lands within a few minutes.",
     "noOrderId": "No order reference found.",
     "paid": "Payment went through.",
     "noConfirm": "We haven't heard back from the payment system. Check your orders to see where it stands.",

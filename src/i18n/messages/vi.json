@@ -804,6 +804,7 @@
     "verifyingCount": "Đang xác nhận thanh toán… ({n}/{max})",
     "cancelled": "Thanh toán đã bị huỷ.",
     "topupDone": "Nạp ví thành công. Đang chuyển về trang ví…",
+    "topupUnverified": "Chưa xác nhận được giao dịch nạp ví. Xem số dư trong trang ví, tiền thường vào sau ít phút.",
     "noOrderId": "Không tìm thấy mã đơn hàng.",
     "paid": "Thanh toán thành công.",
     "noConfirm": "Chưa nhận được xác nhận từ hệ thống. Kiểm tra lại trong mục đơn hàng của bạn.",
