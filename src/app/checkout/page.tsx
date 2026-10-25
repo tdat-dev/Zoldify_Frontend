@@ -66,7 +66,9 @@ export default function CheckoutPage() {
       .catch(() => setWalletBalance(null));
   }, [allowed]);
 
-  const fetchCart = async () => {
+  // Trả về danh sách vừa nạp (null nếu hỏng) để luồng đặt hàng đọc được
+  // ngay, không phải chờ state cập nhật.
+  const fetchCart = async (): Promise<any[] | null> => {
     setLoadFailed(false);
     try {
       const res = await cartService.getAll();
@@ -84,10 +86,12 @@ export default function CheckoutPage() {
         mapped = mapped.filter((it: any) => selectedIds.includes(it.id));
       }
       setCartItems(mapped);
+      return mapped;
     } catch {
       // Bản trước chỉ console.error rồi để mảng rỗng, nên API hỏng lại hiện
       // "chưa chọn món nào" — nói sai sự thật ngay ở bước cuối của luồng mua.
       setLoadFailed(true);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -136,6 +140,8 @@ export default function CheckoutPage() {
   const areaComplete =
     !!addressInfo.province && !!addressInfo.ghn_district_id && !!addressInfo.ghn_ward_code;
   const [showAreaError, setShowAreaError] = useState(false);
+  // POST /orders hết giờ chờ mà không có response: đơn có thể đã được tạo.
+  const [lostResponse, setLostResponse] = useState(false);
 
   const handleOrder = async () => {
     if (!areaComplete) {
@@ -238,6 +244,23 @@ export default function CheckoutPage() {
       refreshCartCount();
       router.push('/cart/success');
     } catch (err: any) {
+      if (!err.response) {
+        // Hết giờ chờ hoặc rớt mạng: KHÔNG biết đơn đã được tạo hay chưa.
+        // Backend xoá các dòng giỏ trong cùng transaction tạo đơn, nên nạp lại
+        // giỏ là cách trả lời: món còn thì đơn chưa có, đặt lại an toàn; món
+        // mất thì đơn đã có. Bản trước để người mua bấm lại ngay và nhận
+        // "Giỏ hàng trống, không thể tạo đơn hàng", không hiểu chuyện gì.
+        const submittedIds = cartItems.map((it) => it.id);
+        const fresh = await fetchCart();
+        refreshCartCount();
+        if (fresh && fresh.some((it: any) => submittedIds.includes(it.id))) {
+          toast(t('errNetwork'), 'error');
+        } else {
+          setLostResponse(true);
+          if (!fresh) toast(t('lostResponse'), 'error');
+        }
+        return;
+      }
       const msg = err.response?.data?.message || t('errSubmit');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
@@ -279,7 +302,8 @@ export default function CheckoutPage() {
   }
 
   const soldOutItems = cartItems.filter((i) => i.stock <= 0);
-  const canOrder = cartItems.length > 0 && soldOutItems.length === 0 && !submitting;
+  const canOrder =
+    cartItems.length > 0 && soldOutItems.length === 0 && !submitting && !lostResponse;
 
   const payOption = (
     value: CreateOrderDto['payment_method'],
@@ -335,6 +359,18 @@ export default function CheckoutPage() {
                 trên màn hình. Vết của một lần tách chuỗi bỏ dở. */}
             {t('soldOutWarning', { count: soldOutItems.length })}
           </p>
+        )}
+
+        {lostResponse && (
+          <div
+            role="alert"
+            className="mt-4 rounded-control border border-state-pending-fg/30 bg-state-pending-bg px-4 py-3 text-body text-state-pending-fg"
+          >
+            {t('lostResponse')}{' '}
+            <Link href="/profile/orders" className="font-semibold underline">
+              {t('lostResponseLink')}
+            </Link>
+          </div>
         )}
 
         <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-12">
