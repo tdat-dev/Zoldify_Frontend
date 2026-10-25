@@ -93,9 +93,12 @@ export default function UserOrdersPage() {
     if (!(await confirm(t('cancelAsk')))) return;
     try {
       await orderService.cancel(id);
-      fetchOrders();
     } catch (err: any) {
       toast(err.response?.data?.message || t('cancelFailed'), 'error');
+    } finally {
+      // Nạp lại cả khi lỗi: 400/409 nghĩa là đơn đã đổi trạng thái ở nơi khác
+      // (người bán vừa xác nhận, vừa thanh toán xong...), danh sách đang cũ.
+      fetchOrders();
     }
   };
 

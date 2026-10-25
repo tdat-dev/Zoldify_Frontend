@@ -77,11 +77,13 @@ export default function OrderDetailPage() {
       setConfirmError(false);
       try {
         await orderService.confirmReceived(id, sellerId);
-        await fetchOrder();
       } catch {
         setConfirmError(true);
       } finally {
         setConfirming(null);
+        // Nạp lại cả khi lỗi: 409 nghĩa là vận đơn đã đổi trạng thái (tự xác
+        // nhận sau thời gian chờ, hoặc đã bấm ở máy khác).
+        await fetchOrder();
       }
     },
     [id, fetchOrder],

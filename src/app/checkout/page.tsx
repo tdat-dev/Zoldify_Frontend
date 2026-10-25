@@ -263,6 +263,12 @@ export default function CheckoutPage() {
       }
       const msg = err.response?.data?.message || t('errSubmit');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
+      // 400/409 thường là món vừa bị người khác mua hết hoặc giá vừa đổi. Nạp
+      // lại giỏ để màn hình nói đúng (cảnh báo hết hàng, giá mới) trước khi
+      // người mua bấm lại.
+      if (err.response.status === 400 || err.response.status === 409) {
+        fetchCart();
+      }
     } finally {
       setSubmitting(false);
     }

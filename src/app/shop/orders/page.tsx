@@ -174,6 +174,22 @@ export default function ShopOrdersPage() {
     return () => io.disconnect();
   }, [loadMore]);
 
+  // Nạp lại ĐÚNG một đơn sau mỗi thao tác, kể cả khi lỗi. 409 nghĩa là đơn
+  // vừa đổi trạng thái ở nơi khác (người mua huỷ, thanh toán xong...), nên
+  // dòng đang hiện đã cũ. Không nạp lại cả danh sách: làm thế cả trang bị
+  // thay bằng khung chờ và người bán mất chỗ đang cuộn.
+  const refreshOrder = useCallback(async (id: number) => {
+    try {
+      const res = await http.get(`/orders/${id}`);
+      const fresh = res.data?.data || res.data;
+      if (fresh?.status) {
+        setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: fresh.status } : o)));
+      }
+    } catch {
+      // Không nạp được thì giữ dòng như cũ; lần tải trang sau sẽ đúng.
+    }
+  }, []);
+
   const handleConfirmShip = async (order: Order) => {
     const nextStatus = nextInFlow(order.status);
     if (!nextStatus) return;
@@ -189,6 +205,7 @@ export default function ShopOrdersPage() {
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setActionLoading(null);
+      refreshOrder(order.id);
     }
   };
 
@@ -208,6 +225,7 @@ export default function ShopOrdersPage() {
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setActionLoading(null);
+      refreshOrder(order.id);
     }
   };
 
