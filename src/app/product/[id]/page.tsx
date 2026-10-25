@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
@@ -43,6 +43,11 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
   const [addingCart, setAddingCart] = useState(false);
+  const [buying, setBuying] = useState(false);
+  // Khoá chung cho "Thêm vào giỏ" và "Mua ngay". Phải là ref: hai cú bấm liền
+  // nhau lọt qua trước khi state kịp vẽ nút disabled, và mỗi cú cộng thêm một
+  // lần số lượng vào giỏ.
+  const cartBusyRef = useRef(false);
   const [eligibleOrderId, setEligibleOrderId] = useState<number | null>(null);
   const [myReview, setMyReview] = useState<any>(null);
   const [newRating, setNewRating] = useState(5);
@@ -145,6 +150,8 @@ export default function ProductDetailPage() {
       router.push("/login");
       return;
     }
+    if (cartBusyRef.current) return;
+    cartBusyRef.current = true;
     setAddingCart(true);
     try {
       await cartService.add(Number(params.id), quantity);
@@ -153,6 +160,7 @@ export default function ProductDetailPage() {
     } catch (err: any) {
       toast(err.response?.data?.message || t("addToCartFailed"), "error");
     } finally {
+      cartBusyRef.current = false;
       setAddingCart(false);
     }
   };
@@ -162,7 +170,9 @@ export default function ProductDetailPage() {
       router.push("/login");
       return;
     }
-    setAddingCart(true);
+    if (cartBusyRef.current) return;
+    cartBusyRef.current = true;
+    setBuying(true);
     try {
       const res = await cartService.add(Number(params.id), quantity);
       refreshCartCount();
@@ -175,7 +185,8 @@ export default function ProductDetailPage() {
     } catch (err: any) {
       toast(err.response?.data?.message || t("buyNowFailed"), "error");
     } finally {
-      setAddingCart(false);
+      cartBusyRef.current = false;
+      setBuying(false);
     }
   };
 
@@ -468,7 +479,7 @@ export default function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleAddToCart}
-                      disabled={addingCart}
+                      disabled={addingCart || buying}
                       className="flex flex-1 items-center justify-center gap-2 rounded-control border border-brand px-6 py-3 text-body font-semibold text-brand transition-colors hover:bg-brand-tint disabled:opacity-70"
                     >
                       {addingCart ? (
@@ -483,9 +494,10 @@ export default function ProductDetailPage() {
                     <button
                       type="button"
                       onClick={handleBuyNow}
-                      className="flex-1 rounded-control bg-brand px-8 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark"
+                      disabled={addingCart || buying}
+                      className="flex-1 rounded-control bg-brand px-8 py-3 text-body font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-70"
                     >
-                      Mua ngay
+                      {buying ? t("buying") : t("buyNow")}
                     </button>
                   </>
                 )}

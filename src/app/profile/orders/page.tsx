@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
@@ -42,6 +42,21 @@ export default function UserOrdersPage() {
   const [status, setStatus] = useState<string>('all');
   const [orders, setOrders] = useState<any[]>([]);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
+  // Thao tác đang chạy, dạng "cancel:12" / "received:12". Ref là khoá thật
+  // (hai cú bấm liền nhau lọt qua trước khi state kịp vẽ nút disabled, và
+  // mỗi cú mở một hộp xác nhận rồi gửi một request); state chỉ để vẽ nút.
+  const busyRef = useRef<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const begin = (key: string) => {
+    if (busyRef.current) return false;
+    busyRef.current = key;
+    setBusy(key);
+    return true;
+  };
+  const end = () => {
+    busyRef.current = null;
+    setBusy(null);
+  };
 
   const fetchOrders = useCallback(async () => {
     setState('loading');
@@ -70,7 +85,11 @@ export default function UserOrdersPage() {
    * hoàn tất. Chỉ lộ ra khi chạy trọn vòng mua–bán.
    */
   const handleConfirmReceived = async (id: number) => {
-    if (!(await confirm(t('confirmReceivedAsk')))) return;
+    if (!begin(`received:${id}`)) return;
+    if (!(await confirm(t('confirmReceivedAsk')))) {
+      end();
+      return;
+    }
     try {
       await orderService.updateStatus(id, { status: 'delivered' });
       toast(t('confirmReceivedDone'), 'success');
@@ -85,12 +104,17 @@ export default function UserOrdersPage() {
       toast(Array.isArray(msg) ? msg[0] : msg || t('confirmReceivedFailed'), msg ? 'info' : 'error');
     } finally {
       // Nạp lại trong mọi trường hợp: trạng thái có thể đã đổi kể cả khi lỗi.
+      end();
       fetchOrders();
     }
   };
 
   const handleCancel = async (id: number) => {
-    if (!(await confirm(t('cancelAsk')))) return;
+    if (!begin(`cancel:${id}`)) return;
+    if (!(await confirm(t('cancelAsk')))) {
+      end();
+      return;
+    }
     try {
       await orderService.cancel(id);
     } catch (err: any) {
@@ -98,6 +122,7 @@ export default function UserOrdersPage() {
     } finally {
       // Nạp lại cả khi lỗi: 400/409 nghĩa là đơn đã đổi trạng thái ở nơi khác
       // (người bán vừa xác nhận, vừa thanh toán xong...), danh sách đang cũ.
+      end();
       fetchOrders();
     }
   };
@@ -267,18 +292,20 @@ export default function UserOrdersPage() {
                     <button
                       type="button"
                       onClick={() => handleCancel(order.id)}
-                      className="rounded-control border border-price/40 px-4 py-2 text-small font-semibold text-price transition-colors hover:bg-price-bg"
+                      disabled={busy !== null}
+                      className="rounded-control border border-price/40 px-4 py-2 text-small font-semibold text-price transition-colors hover:bg-price-bg disabled:opacity-60"
                     >
-                      {t('cancel')}
+                      {busy === `cancel:${order.id}` ? t('cancelling') : t('cancel')}
                     </button>
                   )}
                   {nextStatusFor(order.status, 'buyer') === 'delivered' && (
                     <button
                       type="button"
                       onClick={() => handleConfirmReceived(order.id)}
-                      className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+                      disabled={busy !== null}
+                      className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
                     >
-                      {t('confirmReceived')}
+                      {busy === `received:${order.id}` ? t('confirmingReceived') : t('confirmReceived')}
                     </button>
                   )}
                   <Link
