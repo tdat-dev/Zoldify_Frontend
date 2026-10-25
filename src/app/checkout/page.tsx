@@ -178,17 +178,32 @@ export default function CheckoutPage() {
       if (paymentMethod === 'payos') {
         if (!orderId) {
           toast(t('errNoCode'), 'error');
-          setSubmitting(false);
+          refreshCartCount();
+          router.push('/profile/orders');
           return;
         }
-        const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
-        const checkoutUrl = payosRes.data?.data?.checkoutUrl;
-        if (!checkoutUrl) {
-          toast(t('errNoPayLink'), 'error');
-          setSubmitting(false);
-          return;
+        // Tạo link hỏng KHÔNG được rơi xuống catch chung bên dưới: lúc này đơn
+        // đã có và giỏ đã bị xoá, ở lại trang này chỉ còn nút "Đặt hàng" bấm ra
+        // "Giỏ hàng trống". Đưa người mua tới trang đơn, ở đó có "Thanh toán
+        // ngay" gọi lại đúng create-link này.
+        let checkoutUrl: string | undefined;
+        let linkReason: string | undefined;
+        try {
+          const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
+          checkoutUrl = payosRes.data?.data?.checkoutUrl;
+        } catch (linkErr: any) {
+          const m = linkErr.response?.data?.message;
+          linkReason = Array.isArray(m) ? m[0] : m;
         }
         refreshCartCount();
+        if (!checkoutUrl) {
+          toast(
+            t('createdUnpaid', { id: orderId, reason: linkReason || t('errNoPayLink') }),
+            'error',
+          );
+          router.push(`/profile/orders/${orderId}`);
+          return;
+        }
         // Redirect sang PayOS
         window.location.href = checkoutUrl;
         return;

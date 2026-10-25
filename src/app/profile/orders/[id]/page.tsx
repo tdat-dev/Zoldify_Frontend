@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { ChevronRight, Package, Check, Truck } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
 import { formatPrice } from '@/lib/format';
 import { ORDER_FLOW, flowIndex } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -35,6 +36,7 @@ export default function OrderDetailPage() {
   const { allowed } = useRequireAuth();
   const params = useParams();
   const t = useTranslations('orderDetail');
+  const tOrders = useTranslations('orders');
   const tc = useTranslations('common');
 
   const [order, setOrder] = useState<any>(null);
@@ -62,6 +64,8 @@ export default function OrderDetailPage() {
       setState(err?.response?.status === 404 ? 'missing' : 'error');
     }
   }, [id]);
+
+  const { pay, payingId } = usePayOrder(fetchOrder);
 
   useEffect(() => {
     if (allowed && Number.isFinite(id)) fetchOrder();
@@ -316,6 +320,19 @@ export default function OrderDetailPage() {
               </div>
             )}
           </dl>
+          {canPayOrder(order) && (
+            <div className="mt-4 border-t border-ink/10 pt-4">
+              <p className="text-small text-state-pending-fg">{t('unpaidNote')}</p>
+              <button
+                type="button"
+                onClick={() => pay(order)}
+                disabled={payingId !== null}
+                className="mt-3 w-full rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              >
+                {payingId === order.id ? tOrders('paying') : tOrders('payNow')}
+              </button>
+            </div>
+          )}
         </section>
       </div>
     </div>

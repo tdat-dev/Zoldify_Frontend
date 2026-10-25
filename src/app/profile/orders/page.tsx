@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor } from '@/lib/order-status';
@@ -52,6 +53,8 @@ export default function UserOrdersPage() {
       setState('error');
     }
   }, [status]);
+
+  const { pay, payingId } = usePayOrder(fetchOrders);
 
   useEffect(() => {
     if (allowed) fetchOrders();
@@ -245,6 +248,16 @@ export default function UserOrdersPage() {
                 )}
 
                 <div className="mt-4 flex flex-wrap justify-end gap-2">
+                  {canPayOrder(order) && (
+                    <button
+                      type="button"
+                      onClick={() => pay(order)}
+                      disabled={payingId !== null}
+                      className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                    >
+                      {payingId === order.id ? t('paying') : t('payNow')}
+                    </button>
+                  )}
                   {/* Huỷ được khi người bán chưa bắt tay vào chuẩn bị hàng.
                       Từ `processing` trở đi thì huỷ phải qua người bán. */}
                   {(order.status === 'pending' || order.status === 'confirmed') && (

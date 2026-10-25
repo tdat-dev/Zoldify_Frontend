@@ -138,7 +138,7 @@ function ReturnContent() {
             <div className="flex flex-col gap-3">
               {orderId && !isTopup && (
                 <Link
-                  href={`/checkout?ids=${orderId}`}
+                  href={`/profile/orders/${orderId}`}
                   className="rounded-control bg-brand px-5 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
                 >
                   {t('tryAgain')}
