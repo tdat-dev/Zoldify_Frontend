@@ -2,10 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MapPin, Store, Loader2, Truck } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { shopService } from '@/services/shop.service';
 import {
@@ -42,8 +41,10 @@ const EMPTY: PickupForm = {
 export default function ShopPickupSettingsPage() {
   const t = useTranslations('shopPickup');
   const tc = useTranslations('common');
-  const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  // Chờ authReady như các trang khác. Đọc thẳng isAuthenticated thì lần render
+  // đầu sau khi tải lại trang (chưa đọc xong storage) luôn là false, và người
+  // đang đăng nhập bị đá về /login.
+  const { allowed } = useRequireAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -57,10 +58,7 @@ export default function ShopPickupSettingsPage() {
   const [wards, setWards] = useState<GhnWard[]>([]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
+    if (!allowed) return;
     (async () => {
       try {
         const [shopRes, provinceList] = await Promise.all([
@@ -113,7 +111,7 @@ export default function ShopPickupSettingsPage() {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [allowed]);
 
   const onProvinceChange = async (id: number) => {
     const name = provinces.find((p) => p.ProvinceID === id)?.ProvinceName || '';
