@@ -86,6 +86,24 @@ export function updateStoredUser(user: StoredUser) {
   }
 }
 
+/**
+ * Thay token mà KHÔNG đổi chỗ lưu, giống updateStoredUser.
+ *
+ * Đổi mật khẩu làm backend tăng token_version: mọi token cũ, kể cả token của
+ * chính phiên đang đổi, đều chết. Backend trả kèm token mới cho phiên này;
+ * không ghi nó lại thì request kế tiếp nhận 401 và người dùng bị đá ra
+ * /login ngay sau khi đổi mật khẩu thành công.
+ */
+export function updateStoredToken(token: string) {
+  if (typeof window === 'undefined') return;
+  for (const store of stores()) {
+    if (store.getItem(TOKEN_KEY)) {
+      store.setItem(TOKEN_KEY, token);
+      return;
+    }
+  }
+}
+
 export function clearSession() {
   if (typeof window === 'undefined') return;
   for (const store of stores()) {

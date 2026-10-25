@@ -5,6 +5,7 @@ import http from '@/lib/http';
 import {
   clearSession,
   readSession,
+  updateStoredToken,
   updateStoredUser,
   writeSession,
   type StoredUser,
@@ -23,6 +24,8 @@ interface AuthContextType {
   register: (full_name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: IUser) => void;
+  /** Thay token của phiên hiện tại (vd backend cấp token mới sau khi đổi mật khẩu). */
+  updateToken: (token: string) => void;
   isAuthenticated: boolean;
   /**
    * false cho tới khi đã đọc xong localStorage.
@@ -78,6 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updateStoredUser(userData);
   };
 
+  const updateToken = (newToken: string) => {
+    updateStoredToken(newToken);
+    setToken(newToken);
+  };
+
   // KHÔNG `if (loading) return null`.
   //
   // Dòng đó từng làm CẢ SITE không server-render lấy một thẻ nào: trên server
@@ -97,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateUser,
+        updateToken,
         isAuthenticated: !!token,
         authReady: !loading,
       }}
