@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
 import { ConditionPicker } from '@/components/ConditionPicker';
 import { toSlug } from '@/lib/slug';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 /**
  * Đăng bán một món đồ cũ.
@@ -32,6 +33,9 @@ import { toSlug } from '@/lib/slug';
  * `used` và `refurbished` — hai giá trị backend không hề biết.
  */
 export default function CreateProductPage() {
+  // Đăng tin cần đăng nhập. Không có cổng này thì khách điền cả biểu mẫu, tải
+  // ảnh lên rồi mới bị 401 đá về /login và mất hết.
+  useRequireAuth();
   const t = useTranslations('sell');
   const tc = useTranslations('common');
   const router = useRouter();

@@ -8,6 +8,7 @@ import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
 import { uploadService } from '@/services/upload.service';
 import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { ConditionPicker } from '@/components/ConditionPicker';
 import { normalizeCondition, type ConditionValue } from '@/lib/product-condition';
@@ -34,6 +35,10 @@ export default function EditProductPage() {
   const router = useRouter();
   const productId = Number(params?.id);
   const { user } = useAuth();
+  // Chờ biết chắc đã đăng nhập rồi mới nạp: kiểm "tin này có phải của bạn"
+  // bên dưới cần `user`, mà trước authReady thì user luôn null và phép kiểm
+  // bị bỏ qua im lặng.
+  const { allowed } = useRequireAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('sell');
@@ -57,7 +62,7 @@ export default function EditProductPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!productId) return;
+    if (!productId || !allowed) return;
     Promise.all([
       productService.getOne(productId),
       categoryService.getAll().catch(() => ({ data: { data: { result: [] } } })),
@@ -88,7 +93,7 @@ export default function EditProductPage() {
     // user cố tình không nằm trong mảng phụ thuộc: nạp lại toàn bộ form khi
     // context auth vừa tỉnh sẽ xoá mất những gì người dùng đang gõ dở.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
+  }, [productId, allowed]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
