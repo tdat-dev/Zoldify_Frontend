@@ -7,6 +7,7 @@ import { MapPin, Truck, QrCode, Loader, CreditCard, Package } from 'lucide-react
 import { cartService } from '@/services/cart.service';
 import { orderService } from '@/services/order.service';
 import { payosService } from '@/services/payos.service';
+import { paymentService } from '@/services/payment.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
@@ -49,9 +50,20 @@ export default function CheckoutPage() {
   const [quoting, setQuoting] = useState(false);
   const shippingFee = quote?.total ?? 0;
   const selectedIds = (searchParams.get('ids') || '').split(',').filter(Boolean).map(Number);
+  // Số dư ví để hiện ngay trên lựa chọn "Ví Zoldify". null = chưa biết (API
+  // hỏng thì thôi không hiện, không chặn đặt hàng vì backend vẫn tự kiểm).
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (allowed) fetchCart();
+  }, [allowed]);
+
+  useEffect(() => {
+    if (!allowed) return;
+    paymentService
+      .getBalance()
+      .then((res) => setWalletBalance(Number(res.data?.data?.balance ?? 0)))
+      .catch(() => setWalletBalance(null));
   }, [allowed]);
 
   const fetchCart = async () => {
@@ -127,6 +139,12 @@ export default function CheckoutPage() {
       toast(t('errNoItems'), 'error');
       return;
     }
+    // Biết chắc ví không đủ thì đừng tạo đơn: tạo xong mới trừ hụt là để lại
+    // một đơn treo chưa trả mà kho đã bị giữ.
+    if (paymentMethod === 'wallet' && walletBalance !== null && walletBalance < grandTotal) {
+      toast(t('walletShort'), 'error');
+      return;
+    }
     setSubmitting(true);
     try {
       // Bước 1: Tạo order trước (PENDING)
@@ -165,7 +183,32 @@ export default function CheckoutPage() {
         return;
       }
 
-      // COD / Wallet → success page
+      // Bước 2 (ví): POST /orders chỉ TẠO đơn, không trừ đồng nào. Tiền chỉ rời
+      // ví ở POST /payments. Bản trước bỏ qua bước này nên mọi đơn "trả bằng
+      // ví" đều nằm ở trạng thái chưa thanh toán mà người mua vẫn thấy "Đặt
+      // hàng xong".
+      if (paymentMethod === 'wallet') {
+        if (!orderId) {
+          toast(t('errNoCode'), 'error');
+          refreshCartCount();
+          router.push('/profile/orders');
+          return;
+        }
+        try {
+          await paymentService.create({ order_id: orderId, payment_method: 'wallet' });
+        } catch (payErr: any) {
+          // Đơn ĐÃ có (giỏ đã bị xoá phía backend), chỉ chưa trả. Đưa người mua
+          // tới trang đơn để trả lại, đừng báo "đặt xong".
+          const m = payErr.response?.data?.message;
+          const reason = (Array.isArray(m) ? m[0] : m) || t('walletNotCharged');
+          toast(t('createdUnpaid', { id: orderId, reason }), 'error');
+          refreshCartCount();
+          router.push(`/profile/orders/${orderId}`);
+          return;
+        }
+      }
+
+      // COD / Wallet đã trừ → success page
       refreshCartCount();
       router.push('/cart/success');
     } catch (err: any) {
@@ -391,7 +434,14 @@ export default function CheckoutPage() {
                 <legend className="mb-3 text-small font-semibold text-ink">{t('payWith')}</legend>
                 <div className="flex flex-col gap-2">
                   {payOption('cod', t('cod'), t('codHint'), Truck)}
-                  {payOption('wallet', t('wallet'), t('walletHint'), QrCode)}
+                  {payOption(
+                    'wallet',
+                    t('wallet'),
+                    walletBalance !== null
+                      ? `${t('walletHint')} · ${t('walletBalance', { amount: formatPrice(walletBalance) })}`
+                      : t('walletHint'),
+                    QrCode,
+                  )}
                   {payOption(
                     'payos',
                     t('card'),
@@ -399,6 +449,11 @@ export default function CheckoutPage() {
                     CreditCard,
                   )}
                 </div>
+                {paymentMethod === 'wallet' && walletBalance !== null && walletBalance < grandTotal && (
+                  <p role="alert" className="mt-2 text-caption text-state-danger-fg">
+                    {t('walletShort')}
+                  </p>
+                )}
               </fieldset>
 
               <button
