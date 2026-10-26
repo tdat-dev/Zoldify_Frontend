@@ -32,6 +32,13 @@ import { formatPrice } from '@/lib/format';
  *
  * Thêm: cảnh báo khi số lượng trong giỏ vượt quá tồn kho hiện tại — món đồ cũ
  * có thể đã được người khác mua mất kể từ lúc bỏ vào giỏ.
+ *
+ * MỘT CON SỐ CHO CẢ Ô SỐ LƯỢNG LẪN THÀNH TIỀN (26/10). Ảnh chụp giỏ: ô số lượng
+ * hiện 7, dòng ghi "Chỉ còn 4 cái, giỏ đang để 7", thành tiền 80.000đ (4 x
+ * 20.000). Trang hiện số trong giỏ nhưng tính tiền theo `min(số trong giỏ, kho)`,
+ * nên người mua thấy một số và trả theo số khác. Nay số lượng được hạ về kho
+ * NGAY LÚC TẢI giỏ (backend làm, hoặc clampOverStock làm nếu backend còn cũ),
+ * rồi ô số lượng, thành tiền và tạm tính đều dùng đúng `item.quantity`.
  */
 export default function CartPage() {
   const t = useTranslations('cart');
@@ -46,7 +53,7 @@ export default function CartPage() {
     setState('loading');
     try {
       const res = await cartService.getAll();
-      setCartItems(
+      const items =
         res.data?.data?.result?.map((item: any) => ({
           id: item.id,
           name: item.product?.name || t('removedItem'),
@@ -55,13 +62,15 @@ export default function CartPage() {
           // nào không liệt kê ở đây thì phần còn lại của trang không thấy — và
           // `cur` bên dưới sẽ lặng lẽ là undefined, rơi về VND cho mọi thứ.
           currency: item.product?.currency,
-          quantity: item.quantity,
+          quantity: Number(item.quantity),
           stock: Number(item.product?.stock ?? 0),
           image: item.product?.image || null,
           selected: Number(item.product?.stock ?? 0) > 0,
           product_id: item.product?.id,
-        })) || [],
-      );
+          // Backend hạ dòng vượt kho xuống bằng kho khi đọc giỏ và gửi kèm số cũ.
+          adjustedFrom: item.quantity_adjusted_from ?? null,
+        })) || [];
+      setCartItems(await clampOverStock(items));
       setState('ready');
     } catch {
       setState('error');
@@ -84,8 +93,12 @@ export default function CartPage() {
     const newQty = Math.max(1, Math.min(item.stock, item.quantity + delta));
     if (newQty === item.quantity) return;
     try {
-      await cartService.update(id, newQty);
-      setCartItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: newQty } : i)));
+      const res = await cartService.update(id, newQty);
+      // Lấy số backend thật sự ghi, không phải số mình định gửi.
+      const saved = Number(res.data?.data?.quantity) || newQty;
+      setCartItems((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, quantity: saved, adjustedFrom: null } : i)),
+      );
       refreshCartCount();
     } catch {
       toast(t('quantityFailed'), 'error');
@@ -105,7 +118,7 @@ export default function CartPage() {
   };
 
   const buyable = cartItems.filter((i) => i.selected && i.stock > 0);
-  const grandTotal = buyable.reduce((acc, i) => acc + i.price * Math.min(i.quantity, i.stock), 0);
+  const grandTotal = buyable.reduce((acc, i) => acc + i.price * i.quantity, 0);
 
   // Tiền tệ của giỏ, lấy từ món đầu tiên đang chọn. `mixedCurrency` báo trước
   // điều mà backend sẽ TỪ CHỐI khi đặt đơn (orders.service kiểm cùng luật):
@@ -199,7 +212,7 @@ export default function CartPage() {
               <ul>
                 {cartItems.map((item) => {
                   const gone = item.stock <= 0;
-                  const overStock = !gone && item.quantity > item.stock;
+                  const adjusted = !gone && item.adjustedFrom != null;
                   return (
                     <li
                       key={item.id}
@@ -240,9 +253,9 @@ export default function CartPage() {
                               <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
                               {t('soldOut')}
                             </p>
-                          ) : overStock ? (
-                            <p className="mt-1 text-small text-state-pending-fg">
-                              {t('stockShort', { stock: item.stock, quantity: item.quantity })}
+                          ) : adjusted ? (
+                            <p role="status" className="mt-1 text-small text-state-pending-fg">
+                              {t('stockAdjusted', { stock: item.stock, from: item.adjustedFrom })}
                             </p>
                           ) : item.stock > 1 ? (
                             <p className="mt-1 text-small text-ink-muted">
@@ -252,7 +265,7 @@ export default function CartPage() {
 
                           {/* Ở mobile, giá nằm ngay dưới tên thay vì thành một cột. */}
                           <p className="mt-2 text-body font-bold tabular-nums text-price md:hidden">
-                            {formatPrice(item.price * Math.min(item.quantity, item.stock || 1), item.currency)}
+                            {formatPrice(gone ? item.price : item.price * item.quantity, item.currency)}
                           </p>
                         </div>
                       </div>
@@ -294,7 +307,7 @@ export default function CartPage() {
                       </div>
 
                       <span className="hidden w-[120px] shrink-0 text-right text-body font-bold tabular-nums text-price md:block">
-                        {gone ? '—' : formatPrice(item.price * Math.min(item.quantity, item.stock), item.currency)}
+                        {gone ? '—' : formatPrice(item.price * item.quantity, item.currency)}
                       </span>
 
                       <button
@@ -373,5 +386,32 @@ export default function CartPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Lưới an toàn cho backend CŨ (chưa tự hạ dòng vượt kho khi đọc giỏ).
+ *
+ * Dòng có số lượng lớn hơn kho mà kho vẫn > 0: gọi endpoint đổi số lượng đúng
+ * MỘT lần với số = kho, rồi dùng số backend trả về. Gọi hỏng thì vẫn hiện và
+ * tính theo số kho: thà lệch với database một nhịp (bước đặt hàng sẽ kiểm lại
+ * kho dưới khoá) còn hơn ô số lượng một đằng, tiền một nẻo.
+ *
+ * Dòng hết hàng (kho 0) để nguyên: trang đánh dấu "đã bán" và loại khỏi tổng.
+ */
+async function clampOverStock(items: any[]): Promise<any[]> {
+  return Promise.all(
+    items.map(async (item) => {
+      if (!(item.stock > 0 && item.quantity > item.stock)) return item;
+      let quantity = item.stock;
+      try {
+        const res = await cartService.update(item.id, item.stock);
+        const saved = Number(res.data?.data?.quantity);
+        if (saved > 0 && saved <= item.stock) quantity = saved;
+      } catch {
+        // Giữ số kho, xem chú thích ở trên.
+      }
+      return { ...item, quantity, adjustedFrom: item.adjustedFrom ?? item.quantity };
+    }),
   );
 }

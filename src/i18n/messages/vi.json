@@ -275,7 +275,7 @@
     "colQuantity": "Số lượng",
     "colTotal": "Thành tiền",
     "soldOut": "Đã bán mất rồi",
-    "stockShort": "Chỉ còn {stock} cái, giỏ đang để {quantity}",
+    "stockAdjusted": "Kho chỉ còn {stock}, đã giảm từ {from} xuống {stock}",
     "stockLeft": "còn {stock} cái",
     "onlyOne": "1 cái",
     "decrease": "Bớt một",

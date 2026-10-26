@@ -275,7 +275,7 @@
     "colQuantity": "Quantity",
     "colTotal": "Total",
     "soldOut": "Already sold",
-    "stockShort": "Only {stock} left, your cart has {quantity}",
+    "stockAdjusted": "Only {stock} left in stock, reduced from {from} to {stock}",
     "stockLeft": "{stock} left",
     "onlyOne": "1 item",
     "decrease": "One fewer",
