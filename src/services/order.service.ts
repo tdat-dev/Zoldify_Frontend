@@ -23,8 +23,15 @@ export interface ShippingQuote {
 }
 
 export const orderService = {
-  create(data: CreateOrderDto) {
-    return http.post<ApiResponse<Order>>('/orders', data);
+  /**
+   * `idempotencyKey`: cùng một khoá cho mọi lần gửi lại của CÙNG một lần bấm
+   * "Đặt hàng". Mạng rớt sau khi server đã tạo đơn mà gửi lại thì backend trả
+   * đúng đơn cũ, không tạo đơn thứ hai.
+   */
+  create(data: CreateOrderDto, idempotencyKey?: string) {
+    return http.post<ApiResponse<Order>>('/orders', data, {
+      headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
+    });
   },
   shippingQuote(data: {
     to_district_id: number;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MapPin, Truck, QrCode, Loader, CreditCard, Package } from 'lucide-react';
@@ -34,6 +34,10 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Một khoá cho cả phiên thanh toán này. Lần trước lỗi mà chưa tạo đơn thì
+  // backend xử lý như mới; lần trước đã tạo đơn (chỉ mất phản hồi) thì gửi lại
+  // nhận về đúng đơn đó.
+  const idempotencyKey = useRef(taoKhoaChongTrung());
   const [note, setNote] = useState('');
   const [addressInfo, setAddressInfo] = useState({
     receiver_name: '',
@@ -176,7 +180,7 @@ export default function CheckoutPage() {
         note,
         payment_method: paymentMethod,
         cart_item_ids: cartItems.map((it) => it.id),
-      });
+      }, idempotencyKey.current);
       const order = orderRes.data?.data || orderRes.data;
       const orderId = order?.id;
 
@@ -552,4 +556,11 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
+}
+
+function taoKhoaChongTrung(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
 }
