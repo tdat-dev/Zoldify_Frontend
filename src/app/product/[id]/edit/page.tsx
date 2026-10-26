@@ -56,6 +56,10 @@ export default function EditProductPage() {
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState(1);
+  // Số tồn kho lúc mở form. Chỉ gửi `stock` khi người bán đổi nó, kèm
+  // `expected_stock` là số này: trong lúc form mở mà có người mua thì backend
+  // trả 409 thay vì ghi đè, làm món vừa bán quay lại kho.
+  const [loadedStock, setLoadedStock] = useState(1);
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>('good');
   const [images, setImages] = useState<string[]>([]);
@@ -75,6 +79,7 @@ export default function EditProductPage() {
         setBrand(p.brand || '');
         setPrice(String(p.price ?? ''));
         setStock(p.stock ?? 1);
+        setLoadedStock(p.stock ?? 1);
         setCategoryId(p.category?.id ? String(p.category.id) : '');
         setCondition(normalizeCondition(p.condition));
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
@@ -138,7 +143,7 @@ export default function EditProductPage() {
         description: description.trim() || undefined,
         brand: brand.trim() || undefined,
         price: Number(price),
-        stock,
+        ...(stock !== loadedStock ? { stock, expected_stock: loadedStock } : {}),
         category_id: Number(categoryId),
         condition,
         image: images[0],
@@ -147,6 +152,17 @@ export default function EditProductPage() {
       toast(t('savedOk'), 'success');
       router.push(`/product/${productId}`);
     } catch (err: any) {
+      if (err.response?.status === 409 && stock !== loadedStock) {
+        // Kho đổi dưới tay: nạp số mới để người bán quyết lại, không đoán hộ.
+        const fresh: any = await productService.getOne(productId).catch(() => null);
+        const live = fresh?.data?.data?.stock ?? fresh?.data?.stock;
+        if (typeof live === 'number') {
+          setStock(live);
+          setLoadedStock(live);
+        }
+        toast(t('errStockChanged'), 'error');
+        return;
+      }
       const msg = err.response?.data?.message || t('errUpdate');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {

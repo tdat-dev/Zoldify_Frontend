@@ -114,6 +114,7 @@
     "errBadPrice": "Nhập giá lớn hơn 0.",
     "errCreate": "Chưa đăng được tin. Thử lại giúp mình.",
     "errUpdate": "Chưa lưu được thay đổi. Thử lại giúp mình.",
+    "errStockChanged": "Tồn kho vừa thay đổi (có thể vừa có người mua). Mình đã nạp lại số mới, bạn kiểm tra rồi lưu lại nhé.",
     "errLoad": "Không tải được tin này."
   },
   "orderStatus": {

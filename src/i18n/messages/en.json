@@ -114,6 +114,7 @@
     "errBadPrice": "Enter a price above 0.",
     "errCreate": "Could not publish the listing. Please try again.",
     "errUpdate": "Could not save your changes. Please try again.",
+    "errStockChanged": "Stock changed while you were editing (someone may have just bought one). We loaded the new number, check it and save again.",
     "errLoad": "Could not load this listing."
   },
   "orderStatus": {
