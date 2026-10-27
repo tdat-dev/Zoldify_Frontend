@@ -174,9 +174,18 @@ export default function ProductDetailPage() {
     cartBusyRef.current = true;
     setBuying(true);
     try {
-      const res = await cartService.add(Number(params.id), quantity);
+      // "Mua ngay" là mua ĐÚNG số đang chọn. POST /cart cộng dồn vào dòng giỏ
+      // sẵn có: giỏ đang có 2 mà bấm mua ngay 1 thì sang thanh toán thành 3,
+      // hoặc bị từ chối vì vượt kho. Món đã có trong giỏ thì đặt lại số lượng.
+      const cart = await cartService.getAll(1, 100);
+      const existing = (cart.data?.data?.result ?? []).find(
+        (it: any) => Number(it.product?.id) === Number(params.id),
+      );
+      const res = existing
+        ? await cartService.update(existing.id, quantity)
+        : await cartService.add(Number(params.id), quantity);
       refreshCartCount();
-      const newCartId = res.data?.data?.id;
+      const newCartId = existing?.id ?? res.data?.data?.id;
       if (newCartId) {
         router.push(`/checkout?ids=${newCartId}`);
       } else {
