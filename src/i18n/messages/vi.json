@@ -794,6 +794,8 @@
     "bandOver": "Trên {min}",
     "newestTitle": "Mới đăng gần đây",
     "newestLoginMore": "Đăng nhập để xem hết",
+    "loadingMore": "Đang tải thêm…",
+    "loadMoreRetry": "Không tải được, thử lại",
     "sellPanelTitle": "Bán đồ bạn không dùng nữa",
     "sellPanelLead": "Đồ dùng còn tốt nhưng không cần nữa, máy móc đổi đời mới. Đăng một lần, người cần sẽ tìm thấy.",
     "sellPanelCta": "Đăng bán đồ cũ",

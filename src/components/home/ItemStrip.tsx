@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
@@ -37,6 +38,9 @@ export function ItemStrip({
   href,
   linkText,
   gateAuth = false,
+  hasMore = false,
+  loadMore = 'idle',
+  onLoadMore,
 }: {
   id: string;
   title: string;
@@ -46,6 +50,10 @@ export function ItemStrip({
   linkText?: string;
   /** Bật cổng đăng nhập: khách chỉ thấy hàng đầu, đăng nhập mới thấy hết. */
   gateAuth?: boolean;
+  /** Còn trang sau không; có `onLoadMore` thì cuộn gần đáy tự tải tiếp. */
+  hasMore?: boolean;
+  loadMore?: 'idle' | 'loading' | 'error';
+  onLoadMore?: () => void;
 }) {
   const t = useTranslations('home');
   const { isAuthenticated, authReady } = useAuth();
@@ -54,6 +62,24 @@ export function ItemStrip({
   // lưới rồi thu lại. Người đã đăng nhập chỉ thoáng một hàng trước khi mở hết.
   const collapsed = gateAuth && !isAuthenticated;
   const showLoginCta = gateAuth && authReady && !isAuthenticated;
+  const canLoadMore = !collapsed && hasMore && !!onLoadMore;
+
+  // Mốc ẩn dưới lưới: lọt vào cách mép dưới màn 600px thì tải trang sau, để
+  // người lướt không phải chạm đáy rồi chờ. Lỗi thì dừng, chờ bấm "Thử lại"
+  // thay vì gọi lại liên tục.
+  const sentinel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || !canLoadMore || loadMore !== 'idle') return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) onLoadMore?.();
+      },
+      { rootMargin: '0px 0px 600px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [canLoadMore, loadMore, onLoadMore]);
 
   return (
     <section aria-labelledby={id} className="rounded-card bg-surface-card p-5">
@@ -75,6 +101,24 @@ export function ItemStrip({
           </li>
         ))}
       </ul>
+
+      {canLoadMore && (
+        <div ref={sentinel} className="mt-5 flex justify-center">
+          {loadMore === 'error' ? (
+            <button
+              type="button"
+              onClick={onLoadMore}
+              className="text-small font-semibold text-brand hover:text-brand-dark hover:underline"
+            >
+              {t('loadMoreRetry')}
+            </button>
+          ) : (
+            <span className="text-small text-ink-muted" aria-live="polite">
+              {loadMore === 'loading' ? t('loadingMore') : ' '}
+            </span>
+          )}
+        </div>
+      )}
 
       {showLoginCta && (
         <div className="mt-5 flex justify-center border-t border-hairline pt-4">

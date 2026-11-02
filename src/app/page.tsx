@@ -53,6 +53,13 @@ const BANDS = [
  * nguồn bằng văn bản nên tên lớp ghép động không sinh ra CSS nào — cùng cái bẫy
  * đã làm chết 21 lớp bo màu và suýt làm chết nhóm state-* hôm nay.
  */
+/**
+ * Mỗi lượt tải bao nhiêu món "Mới đăng gần đây". 24 chia hết cho 2, 3, 4 và 6
+ * cột của lưới (ItemStrip): trước đây lấy cố định 16 món, màn 6 cột còn hàng
+ * cuối 4 ô trống 2 chỗ, rồi hết luôn không tải thêm (02/11).
+ */
+const NEWEST_PAGE = 24;
+
 const XL_COLS: Record<number, string> = {
   1: 'xl:grid-cols-1',
   2: 'xl:grid-cols-2',
@@ -81,6 +88,9 @@ export default function HomePage() {
 
   const [newest, setNewest] = useState<any[]>([]);
   const [newestState, setNewestState] = useState<LoadState>('loading');
+  const [newestPage, setNewestPage] = useState(1);
+  const [newestHasMore, setNewestHasMore] = useState(false);
+  const [newestMore, setNewestMore] = useState<'idle' | 'loading' | 'error'>('idle');
 
   const [bandItems, setBandItems] = useState<Record<string, any[]>>({});
   const [bandState, setBandState] = useState<LoadState>('loading');
@@ -99,13 +109,38 @@ export default function HomePage() {
   const loadNewest = useCallback(() => {
     setNewestState('loading');
     productService
-      .getAll(1, 16, { sort: 'newest' })
+      .getAll(1, NEWEST_PAGE, { sort: 'newest' })
       .then((res) => {
-        setNewest(res.data?.data?.result || []);
+        const page = res.data?.data;
+        setNewest(page?.result || []);
+        setNewestPage(1);
+        setNewestHasMore((page?.meta?.pages ?? 1) > 1);
         setNewestState('ready');
       })
       .catch(() => setNewestState('error'));
   }, []);
+
+  // Trang sau nối vào cuối. Sắp theo mới nhất mà có món mới đăng chen vào thì
+  // trang sau lặp lại vài món của trang trước, nên lọc trùng theo id.
+  const loadMoreNewest = useCallback(() => {
+    if (newestMore === 'loading') return;
+    setNewestMore('loading');
+    const next = newestPage + 1;
+    productService
+      .getAll(next, NEWEST_PAGE, { sort: 'newest' })
+      .then((res) => {
+        const page = res.data?.data;
+        const rows = page?.result || [];
+        setNewest((prev) => {
+          const seen = new Set(prev.map((p) => p.id));
+          return [...prev, ...rows.filter((p) => !seen.has(p.id))];
+        });
+        setNewestPage(next);
+        setNewestHasMore(rows.length > 0 && next < (page?.meta?.pages ?? next));
+        setNewestMore('idle');
+      })
+      .catch(() => setNewestMore('error'));
+  }, [newestMore, newestPage]);
 
   const loadBands = useCallback(() => {
     setBandState('loading');
@@ -240,6 +275,9 @@ export default function HomePage() {
             items={newest}
             href="/search?sort=newest"
             gateAuth
+            hasMore={newestHasMore}
+            loadMore={newestMore}
+            onLoadMore={loadMoreNewest}
           />
         )}
       </div>

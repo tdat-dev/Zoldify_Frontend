@@ -794,6 +794,8 @@
     "bandOver": "Over {min}",
     "newestTitle": "Just listed",
     "newestLoginMore": "Log in to see them all",
+    "loadingMore": "Loading more…",
+    "loadMoreRetry": "Couldn't load, try again",
     "sellPanelTitle": "Sell what you no longer use",
     "sellPanelLead": "Things still in good shape that you don't need any more. List it once and the person looking for it will find it.",
     "sellPanelCta": "List an item",
