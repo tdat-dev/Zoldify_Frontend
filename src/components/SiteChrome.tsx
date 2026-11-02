@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -30,6 +30,37 @@ const ROUTE_AUTH = ['/login', '/register', '/forgot-password', '/reset-password'
 const ROUTE_BARE = ['/maintenance'];
 
 /**
+ * Sang trang mới thì về đầu trang.
+ *
+ * Next chỉ cuộn tới đầu đoạn trang mới khi nó render lần đầu. Phần lớn trang
+ * ở đây là client-fetch: lần render đầu chỉ là một dòng "Đang tải..." thấp,
+ * nên Next coi như đã thấy rồi và giữ nguyên vị trí cuộn cũ. Bấm giỏ hàng từ
+ * trang chủ đang cuộn sâu thì trình duyệt kẹp xuống tận cuối, chỉ thấy footer
+ * và một khoảng trống (02/11). Trước đây chỉ trang chi tiết sản phẩm tự vá
+ * riêng; nay làm một chỗ cho mọi trang.
+ *
+ * Bấm Back/Forward thì KHÔNG cuộn: trình duyệt đang trả người dùng về đúng chỗ
+ * cũ, kéo lên đầu là phá việc đó.
+ */
+function useScrollTopOnNavigate(pathname: string) {
+  const fromHistory = useRef(false);
+  useEffect(() => {
+    const onPop = () => {
+      fromHistory.current = true;
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  useEffect(() => {
+    if (fromHistory.current) {
+      fromHistory.current = false;
+      return;
+    }
+    if (!window.location.hash) window.scrollTo(0, 0);
+  }, [pathname]);
+}
+
+/**
  * `announce` được TRUYỀN VÀO chứ không import.
  *
  * AnnounceBar là server component `async` (nó gọi getTranslations của
@@ -53,6 +84,7 @@ export function SiteChrome({
 }) {
   const pathname = usePathname();
   const isAuth = ROUTE_AUTH.includes(pathname);
+  useScrollTopOnNavigate(pathname);
 
   if (ROUTE_BARE.includes(pathname)) {
     return (
