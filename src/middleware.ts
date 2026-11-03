@@ -23,11 +23,19 @@ const ALLOW_PREFIX = ['/_next', '/media', '/images', '/favicon'];
 
 let cache: { maintenance: boolean; expiresAt: number } = { maintenance: false, expiresAt: 0 };
 
-async function isMaintenanceOn(): Promise<boolean> {
-  const now = Date.now();
-  if (now < cache.expiresAt) return cache.maintenance;
+/**
+ * MỘT lượt hỏi backend cho mỗi lần hết hạn, dù bao nhiêu trang đang chờ.
+ *
+ * Bản trước chỉ có biến `cache`, nên lúc cache vừa hết hạn mà nhiều người mở
+ * trang cùng lúc thì MỖI request tự gọi backend (cache chỉ được ghi sau khi
+ * lượt gọi đầu xong). Mọi lượt gọi đó đi từ máy chủ web, tức là cùng MỘT IP
+ * (VPS) trong mắt ThrottlerGuard, giới hạn 10 request/giây. Đo trên staging
+ * 03/11: 100 lượt tải trang song song sinh 43 lượt gọi /settings/public, 31
+ * lượt bị 429. Giữ chung một promise thì 100 lượt tải trang = 1 lượt gọi.
+ */
+let dangHoi: Promise<boolean> | null = null;
 
-  let maintenance = false;
+async function hoiBackend(): Promise<boolean> {
   try {
     const res = await fetch(`${API_URL}/settings/public`, {
       // Next mặc định cache fetch trong middleware; ở đây cần số liệu thật,
@@ -35,17 +43,37 @@ async function isMaintenanceOn(): Promise<boolean> {
       cache: 'no-store',
       signal: AbortSignal.timeout(2000),
     });
+    // 429, 5xx: GIỮ giá trị cũ. Bản trước đọc thẳng body lỗi, không thấy
+    // maintenance_mode nên coi là "tắt" và nhớ luôn 15 giây: đang bảo trì mà
+    // một lượt 429 là cả site mở lại cho mọi người (đo bằng backend giả có
+    // giới hạn 10/s: 80/100 trang lọt qua, rồi 30/30 trang kế tiếp cũng lọt).
+    if (!res.ok) return cache.maintenance;
     const json = await res.json();
-    maintenance = (json?.data?.maintenance_mode ?? json?.maintenance_mode) === 'true';
+    return (json?.data?.maintenance_mode ?? json?.maintenance_mode) === 'true';
   } catch {
     // Backend chết hoặc quá hạn 2 giây thì KHÔNG đóng site. Nếu backend chết
     // thật thì các trang sẽ tự báo lỗi tải dữ liệu, còn đá mọi người sang
     // "đang bảo trì" là nói sai nguyên nhân — và tệ hơn, nó che mất sự cố.
-    maintenance = cache.maintenance;
+    return cache.maintenance;
   }
+}
 
-  cache = { maintenance, expiresAt: now + 15_000 };
-  return maintenance;
+async function isMaintenanceOn(): Promise<boolean> {
+  if (Date.now() < cache.expiresAt) return cache.maintenance;
+
+  if (!dangHoi) {
+    dangHoi = hoiBackend()
+      .then((maintenance) => {
+        // Hỏng cũng nhớ 15 giây: backend đang 429 hay đang chết thì hỏi dồn
+        // chỉ làm nặng thêm.
+        cache = { maintenance, expiresAt: Date.now() + 15_000 };
+        return maintenance;
+      })
+      .finally(() => {
+        dangHoi = null;
+      });
+  }
+  return dangHoi;
 }
 
 export async function middleware(req: NextRequest) {
