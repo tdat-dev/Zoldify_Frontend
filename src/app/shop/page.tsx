@@ -139,10 +139,13 @@ export default function ShopPage() {
     }
     setToggling(true);
     try {
-      const res = await followService.toggle(sid);
+      // Gửi đúng ý người bấm, không nhờ server lật (Q5/Q6): trang còn trạng thái
+      // cũ thì bấm bỏ theo dõi vẫn ra bỏ theo dõi. Vì vậy cũng không tự cộng trừ
+      // số đếm: server có thể đã ở sẵn trạng thái đó, đọc lại số thật.
+      const res = await (isFollowing ? followService.unfollow(sid) : followService.follow(sid));
       const followed = res.data?.data?.followed;
       setIsFollowing(!!followed);
-      setFollowerCount((c) => c + (followed ? 1 : -1));
+      followService.count(sid).then((c) => setFollowerCount(c.data?.data?.follower ?? 0)).catch(() => {});
       toast(followed ? t('followed') : t('unfollowed'), 'success');
     } catch (err: any) {
       toast(err.response?.data?.message || t('followFailed'), 'error');
