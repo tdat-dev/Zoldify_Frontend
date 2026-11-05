@@ -11,6 +11,10 @@ RUN npm ci
 COPY . .
 ARG NEXT_PUBLIC_API_ORIGIN=https://api.zoldify.com
 ENV NEXT_PUBLIC_API_ORIGIN=$NEXT_PUBLIC_API_ORIGIN
+# Thiếu biến này thì og:image, twitter:image và canonical trỏ về localhost:3001.
+# Staging để mặc định cũng được: canonical về prod giữ Google khỏi index staging.
+ARG NEXT_PUBLIC_SITE_URL=https://zoldify.com
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NODE_OPTIONS=--max-old-space-size=1536
 RUN npm run build
 

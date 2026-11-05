@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { AnnounceBar } from "@/components/AnnounceBar";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/context/AuthContext";
 import { FirebaseConfigProvider } from "@/context/FirebaseConfigContext";
 import { readFirebaseConfig } from "@/lib/firebase-config";
@@ -45,9 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
   const title = t("title");
   const description = t("description");
+  // Do middleware đặt. Trang bảo trì đi qua rewrite nên không có, và cũng không
+  // cần: nó không phải trang để index.
+  const canonical = headers().get("x-canonical-path");
 
   return {
     metadataBase: new URL(SITE_URL),
+    ...(canonical ? { alternates: { canonical } } : {}),
     title: {
       default: title,
       // Trang con đặt title riêng sẽ tự nối đuôi thương hiệu, không phải lặp tay.
@@ -110,6 +116,7 @@ export default async function RootLayout({
             </AuthProvider>
           </FirebaseConfigProvider>
         </NextIntlClientProvider>
+        <GoogleAnalytics id={process.env.GA_MEASUREMENT_ID} />
       </body>
     </html>
   );

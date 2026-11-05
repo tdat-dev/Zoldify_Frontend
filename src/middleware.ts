@@ -24,6 +24,24 @@ const ALLOW_PREFIX = ['/_next', '/media', '/images', '/favicon'];
 let cache: { maintenance: boolean; expiresAt: number } = { maintenance: false, expiresAt: 0 };
 
 /**
+ * Đưa đường dẫn chuẩn xuống layout để dựng thẻ canonical: server component
+ * không đọc được URL đang xem, chỉ đọc được header.
+ *
+ * Bỏ query để URL có utm_, sort hay bộ lọc gộp về một trang. Riêng /shop giữ
+ * `seller`: đó là thứ phân biệt từng shop, bỏ đi thì mọi shop thành một trang.
+ */
+function diTiep(req: NextRequest) {
+  const { pathname, searchParams } = req.nextUrl;
+  const seller = pathname === '/shop' ? searchParams.get('seller') : null;
+  const headers = new Headers(req.headers);
+  headers.set(
+    'x-canonical-path',
+    seller ? `${pathname}?seller=${encodeURIComponent(seller)}` : pathname,
+  );
+  return NextResponse.next({ request: { headers } });
+}
+
+/**
  * MỘT lượt hỏi backend cho mỗi lần hết hạn, dù bao nhiêu trang đang chờ.
  *
  * Bản trước chỉ có biến `cache`, nên lúc cache vừa hết hạn mà nhiều người mở
@@ -79,10 +97,10 @@ async function isMaintenanceOn(): Promise<boolean> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (ALLOW_EXACT.includes(pathname)) return NextResponse.next();
-  if (ALLOW_PREFIX.some((p) => pathname.startsWith(p))) return NextResponse.next();
+  if (ALLOW_EXACT.includes(pathname)) return diTiep(req);
+  if (ALLOW_PREFIX.some((p) => pathname.startsWith(p))) return diTiep(req);
 
-  if (!(await isMaintenanceOn())) return NextResponse.next();
+  if (!(await isMaintenanceOn())) return diTiep(req);
 
   const url = req.nextUrl.clone();
   url.pathname = '/maintenance';
