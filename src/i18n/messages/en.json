@@ -677,6 +677,7 @@
     "payos": "Local ATM card, international card and QR via PayOS",
     "contact": "Contact",
     "chatSeller": "Message a seller",
+    "androidApp": "Get the Android app",
     "notifications": "My notifications",
     "rights": "© {year} Zoldify. All rights reserved.",
     "region": "Country & region: Vietnam",

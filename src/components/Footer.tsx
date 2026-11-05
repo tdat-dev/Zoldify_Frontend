@@ -6,6 +6,11 @@ import { useTranslations } from 'next-intl';
 import { Mail, Home, Search, Plus, MessageSquare, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
+// `latest` trỏ tới bản phát hành mới nhất, nên ra bản app mới không phải sửa web.
+// Mỗi bản phát hành phải có file tên đúng `Zoldify.apk`, không link này hỏng.
+const LINK_APP_ANDROID =
+  'https://github.com/tdat-dev/Zoldify_Mobile/releases/latest/download/Zoldify.apk';
+
 export default function Footer() {
   const t = useTranslations('footer');
   const pathname = usePathname();
@@ -25,6 +30,7 @@ export default function Footer() {
                 <li><Link href="/profile/orders" className="inline-block py-1 hover:text-brand transition-colors">{t('myOrders')}</Link></li>
                 <li><Link href="/shop/orders" className="inline-block py-1 hover:text-brand transition-colors">{t('mySales')}</Link></li>
                 <li><Link href="/profile/wallet" className="inline-block py-1 hover:text-brand transition-colors">{t('wallet')}</Link></li>
+                <li><a href={LINK_APP_ANDROID} className="inline-block py-1 hover:text-brand transition-colors">{t('androidApp')}</a></li>
               </ul>
             </div>
 
