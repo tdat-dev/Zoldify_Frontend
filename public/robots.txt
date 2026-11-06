@@ -12,13 +12,21 @@ Disallow: /profile/
 Disallow: /wallet
 Disallow: /chat
 Disallow: /addresses/
+Disallow: /product/create
+Disallow: /product/*/edit
+Disallow: /shop/orders
+Disallow: /shop/settings
 
 # Không index các trang API
 Disallow: /api/
+
+# Tham số theo dõi tạo URL trùng. KHÔNG chặn /search và sort=: trang đó có
+# noindex, chặn ở đây thì Google không đọc được thẻ noindex nữa.
+Disallow: /*?*utm_
 
 # Không index các file hệ thống
 Disallow: /*.json$
 Disallow: /*.php$
 
-# Sitemap location (Production)
-Sitemap: https://zoldify.com/sitemap.xml
+# Sitemap do API phục vụ, khai báo ở đây là cách chuẩn để dùng sitemap khác host.
+Sitemap: https://api.zoldify.com/sitemap.xml
