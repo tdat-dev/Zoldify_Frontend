@@ -323,7 +323,7 @@ export default function CreateProductPage() {
               value={conditionNote}
               onChange={setConditionNote}
               required={condition !== 'new'}
-              error={fieldErrors.conditionNote}
+              error={condition !== 'new' ? fieldErrors.conditionNote : undefined}
             />
           </section>
 
