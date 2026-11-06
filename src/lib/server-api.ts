@@ -20,13 +20,22 @@ export type ApiResult<T> =
 
 const TIMEOUT_MS = 3000;
 
+/**
+ * Đi thẳng tới API trong mạng Docker khi có API_INTERNAL_ORIGIN. VPS ra Internet
+ * qua WARP: gọi URL công khai mất 3,5 đến 4,4 giây, vượt TIMEOUT_MS, còn trong
+ * mạng nội bộ chỉ vài mili giây. Đọc lúc chạy nên không nhúng vào bản build.
+ */
+const SERVER_API_URL = process.env.API_INTERNAL_ORIGIN
+  ? `${process.env.API_INTERNAL_ORIGIN}/api/v1`
+  : API_URL;
+
 async function apiGet<T>(
   path: string,
   revalidate = 60,
   notFoundStatuses = [404],
 ): Promise<ApiResult<T>> {
   try {
-    const res = await fetch(`${API_URL}${path}`, {
+    const res = await fetch(`${SERVER_API_URL}${path}`, {
       next: { revalidate },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
