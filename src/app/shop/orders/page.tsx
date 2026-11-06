@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
 import { ListingsPanel } from '@/components/seller/ListingsPanel';
+import { ShipmentPanel, thieuVanDon } from '@/components/seller/ShipmentPanel';
 import { AccountShell } from '@/components/account/AccountShell';
 import { formatPrice, imageUrl } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor, orderStatusTone, type OrderStatus } from '@/lib/order-status';
@@ -185,8 +186,10 @@ export default function ShopOrdersPage() {
       if (fresh?.status) {
         setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: fresh.status } : o)));
       }
+      return fresh;
     } catch {
       // Không nạp được thì giữ dòng như cũ; lần tải trang sau sẽ đúng.
+      return null;
     }
   }, []);
 
@@ -194,8 +197,10 @@ export default function ShopOrdersPage() {
     const nextStatus = nextInFlow(order.status);
     if (!nextStatus) return;
     setActionLoading(order.id);
+    let daChuyen = false;
     try {
       await http.patch(`/orders/${order.id}/status`, { status: nextStatus });
+      daChuyen = true;
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: nextStatus } : o))
       );
@@ -205,7 +210,16 @@ export default function ShopOrdersPage() {
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
       setActionLoading(null);
-      refreshOrder(order.id);
+      const fresh = await refreshOrder(order.id);
+      // Hai bước này tạo vận đơn, và GHN từ chối không chặn việc chuyển bước.
+      // Không báo thì người bán tưởng xong, gói hàng rồi chờ GHN tới lấy mãi.
+      if (
+        daChuyen &&
+        (nextStatus === 'confirmed' || nextStatus === 'processing') &&
+        thieuVanDon(fresh)
+      ) {
+        toast(t('shipmentWarn'), 'error');
+      }
     }
   };
 
@@ -489,6 +503,12 @@ export default function ShopOrdersPage() {
                   <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
                 </div>
               </div>
+
+              <ShipmentPanel
+                key={viewingOrder.id}
+                orderId={viewingOrder.id}
+                onChanged={() => refreshOrder(viewingOrder.id)}
+              />
 
               <div className="bg-surface-page rounded-control p-4">
                 <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
