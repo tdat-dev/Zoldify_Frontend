@@ -115,7 +115,12 @@
     "errCreate": "Chưa đăng được tin. Thử lại giúp mình.",
     "errUpdate": "Chưa lưu được thay đổi. Thử lại giúp mình.",
     "errStockChanged": "Tồn kho vừa thay đổi (có thể vừa có người mua). Mình đã nạp lại số mới, bạn kiểm tra rồi lưu lại nhé.",
-    "errLoad": "Không tải được tin này."
+    "errLoad": "Không tải được tin này.",
+    "nameHint": "Ghi hãng, đời máy, dung lượng hoặc màu. Ví dụ: iPhone 13 128GB xanh.",
+    "conditionNote": "Mô tả tình trạng thật",
+    "conditionNoteHint": "Xước ở đâu, pin còn bao nhiêu, thiếu phụ kiện gì. Người mua đọc kỹ chỗ này.",
+    "conditionNotePlaceholder": "Xước nhẹ ở góc trái, pin 84%, còn hộp và sạc.",
+    "errNoConditionNote": "Kể rõ tình trạng món đồ để người mua yên tâm."
   },
   "orderStatus": {
     "pending": "Chờ người bán xác nhận",
@@ -664,7 +669,8 @@
     "loginToReviewRest": "để đánh giá và xem lịch sử mua.",
     "noReviews": "Chưa có đánh giá nào.",
     "anonUser": "Người dùng",
-    "quantity": "Số lượng"
+    "quantity": "Số lượng",
+    "location": "Khu vực"
   },
   "footer": {
     "buyAndSell": "Mua và bán",

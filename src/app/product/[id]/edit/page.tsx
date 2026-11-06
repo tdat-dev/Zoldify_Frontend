@@ -11,6 +11,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { ConditionPicker } from '@/components/ConditionPicker';
+import { ConditionNoteField } from '@/components/ConditionNoteField';
 import { normalizeCondition, type ConditionValue } from '@/lib/product-condition';
 
 /**
@@ -62,6 +63,7 @@ export default function EditProductPage() {
   const [loadedStock, setLoadedStock] = useState(1);
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>('good');
+  const [conditionNote, setConditionNote] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -82,6 +84,7 @@ export default function EditProductPage() {
         setLoadedStock(p.stock ?? 1);
         setCategoryId(p.category?.id ? String(p.category.id) : '');
         setCondition(normalizeCondition(p.condition));
+        setConditionNote(p.condition_note || '');
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
         setCategories(catRes.data?.data?.result || []);
 
@@ -146,6 +149,7 @@ export default function EditProductPage() {
         ...(stock !== loadedStock ? { stock, expected_stock: loadedStock } : {}),
         category_id: Number(categoryId),
         condition,
+        condition_note: conditionNote.trim(),
         image: images[0],
         images,
       } as any);
@@ -349,6 +353,7 @@ export default function EditProductPage() {
             <div className="mt-4">
               <ConditionPicker value={condition} onChange={setCondition} />
             </div>
+            <ConditionNoteField value={conditionNote} onChange={setConditionNote} />
           </section>
 
           {/* ---------- Giá & còn mấy cái ---------- */}

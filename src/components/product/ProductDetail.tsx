@@ -406,6 +406,25 @@ export function ProductDetail({
                   <ConditionBadge value={product.condition} />
                 </div>
 
+                {product.condition_note && (
+                  <p className="whitespace-pre-line text-small text-ink">
+                    {product.condition_note}
+                  </p>
+                )}
+
+                {product.province_name && (
+                  <div className="flex items-center gap-3">
+                    <span className="w-32 shrink-0 text-ink-muted">
+                      {t("location")}
+                    </span>
+                    <span className="text-ink">
+                      {[product.district_name, product.province_name]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  </div>
+                )}
+
                 {/* Bộ tăng giảm số lượng CHỈ hiện khi thật sự có nhiều hơn một
                     cái. Đồ cũ gần như luôn stock = 1; bày ra một cái +/- cho món
                     độc nhất là ngôn ngữ của sàn hàng mới, không phải của sàn này. */}

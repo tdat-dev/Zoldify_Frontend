@@ -9,6 +9,7 @@ import { categoryService } from '@/services/category.service';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
 import { ConditionPicker } from '@/components/ConditionPicker';
+import { ConditionNoteField } from '@/components/ConditionNoteField';
 import { toSlug } from '@/lib/slug';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 
@@ -48,6 +49,7 @@ export default function CreateProductPage() {
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>(DEFAULT_CONDITION);
+  const [conditionNote, setConditionNote] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
@@ -93,6 +95,9 @@ export default function CreateProductPage() {
     if (images.length === 0) next.images = t('errNoPhoto');
     if (!name.trim()) next.name = t('errNoName');
     if (!categoryId) next.category = t('errNoCategory');
+    if (condition !== 'new' && !conditionNote.trim()) {
+      next.conditionNote = t('errNoConditionNote');
+    }
     const p = Number(price);
     if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = t('errBadPrice');
     setFieldErrors(next);
@@ -105,7 +110,7 @@ export default function CreateProductPage() {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       // Đưa con trỏ tới trường hỏng đầu tiên thay vì để người dùng tự đi tìm.
-      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      const first = ['images', 'name', 'category', 'conditionNote', 'price'].find((k) => errs[k]);
       document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
@@ -120,6 +125,7 @@ export default function CreateProductPage() {
         description: description.trim() || undefined,
         brand: brand.trim() || undefined,
         condition,
+        condition_note: conditionNote.trim() || undefined,
         category_id: Number(categoryId),
         stock: manyCopies ? stock : 1,
         is_freeship: freeship,
@@ -243,9 +249,13 @@ export default function CreateProductPage() {
                   aria-describedby={fieldErrors.name ? 'err-name' : undefined}
                   className={control}
                 />
-                {fieldErrors.name && (
+                {fieldErrors.name ? (
                   <p id="err-name" className={errText}>
                     {fieldErrors.name}
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-caption font-normal text-ink-muted">
+                    {t('nameHint')}
                   </p>
                 )}
               </div>
@@ -309,6 +319,12 @@ export default function CreateProductPage() {
             <div className="mt-4">
               <ConditionPicker value={condition} onChange={setCondition} />
             </div>
+            <ConditionNoteField
+              value={conditionNote}
+              onChange={setConditionNote}
+              required={condition !== 'new'}
+              error={fieldErrors.conditionNote}
+            />
           </section>
 
           {/* ---------- Giá & giao hàng ---------- */}

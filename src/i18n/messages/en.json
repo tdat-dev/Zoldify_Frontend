@@ -115,7 +115,12 @@
     "errCreate": "Could not publish the listing. Please try again.",
     "errUpdate": "Could not save your changes. Please try again.",
     "errStockChanged": "Stock changed while you were editing (someone may have just bought one). We loaded the new number, check it and save again.",
-    "errLoad": "Could not load this listing."
+    "errLoad": "Could not load this listing.",
+    "nameHint": "Include brand, model, capacity or color. Example: iPhone 13 128GB blue.",
+    "conditionNote": "Describe the real condition",
+    "conditionNoteHint": "Where it is scratched, battery health, what is missing. Buyers read this closely.",
+    "conditionNotePlaceholder": "Light scratch on the left corner, battery 84%, box and charger included.",
+    "errNoConditionNote": "Describe the condition so buyers know what they are getting."
   },
   "orderStatus": {
     "pending": "Waiting for the seller",
@@ -664,7 +669,8 @@
     "loginToReviewRest": "to review and see your purchase history.",
     "noReviews": "No reviews yet.",
     "anonUser": "A user",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "location": "Location"
   },
   "footer": {
     "buyAndSell": "Buy and sell",
