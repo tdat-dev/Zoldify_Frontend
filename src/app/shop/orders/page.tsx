@@ -479,7 +479,7 @@ export default function ShopOrdersPage() {
 
       {/* Order Detail Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setViewingOrder(null)}>
+        <div className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center p-4" onClick={() => setViewingOrder(null)}>
           <div
             className="bg-surface-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
@@ -608,7 +608,7 @@ export default function ShopOrdersPage() {
 
       {/* Cancel Confirm Modal */}
       {confirmCancel && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setConfirmCancel(null)}>
+        <div className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center p-4" onClick={() => setConfirmCancel(null)}>
           <div className="bg-surface-card rounded-2xl shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start gap-4 mb-5">
               <div className="w-12 h-12 rounded-full bg-state-danger-bg flex items-center justify-center flex-shrink-0">
