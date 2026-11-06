@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { productPath } from '@/lib/public-urls';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Package, Plus, Pencil, Eye, Trash2, Minus } from 'lucide-react';
@@ -159,7 +160,7 @@ export function ListingsPanel() {
                           )}
                         </span>
                         <Link
-                          href={`/product/${product.id}`}
+                          href={productPath(product)}
                           className="clamp-2 max-w-[26ch] text-small text-ink hover:text-brand"
                         >
                           {product.name}
@@ -193,7 +194,7 @@ export function ListingsPanel() {
                     <td className="px-6 py-3">
                       <div className="flex items-center justify-end gap-1">
                         <Link
-                          href={`/product/${product.id}`}
+                          href={productPath(product)}
                           aria-label={`${t('view')} — ${product.name}`}
                           className="rounded-control p-2 text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink"
                         >

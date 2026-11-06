@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
+import { productPath } from '@/lib/public-urls';
 
 /**
  * Ô hàng nhỏ: ảnh vuông, tên cắt gọn, giá.
@@ -24,7 +25,7 @@ export function ItemTile({
 
   return (
     <Link
-      href={`/product/${item.id}`}
+      href={productPath(item)}
       className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50"
     >
       <div className="relative aspect-square overflow-hidden rounded-control bg-surface-sunken">

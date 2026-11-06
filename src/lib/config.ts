@@ -14,6 +14,9 @@
 export const API_ORIGIN =
   process.env.NEXT_PUBLIC_API_ORIGIN ?? 'http://localhost:3000';
 
+/** Gốc của web, để dựng URL tuyệt đối cho thẻ chia sẻ, canonical và JSON-LD. */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
+
 /** Gốc cho mọi request REST. Service chỉ cần viết '/products', '/orders'. */
 export const API_URL = `${API_ORIGIN}/api/v1`;
 

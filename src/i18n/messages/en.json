@@ -663,7 +663,8 @@
     "loginToReview": "Sign in",
     "loginToReviewRest": "to review and see your purchase history.",
     "noReviews": "No reviews yet.",
-    "anonUser": "A user"
+    "anonUser": "A user",
+    "quantity": "Quantity"
   },
   "footer": {
     "buyAndSell": "Buy and sell",
@@ -861,8 +862,17 @@
     "required": "Please fill name, phone, address and province / district / ward"
   },
   "meta": {
-    "title": "Zoldify — Buy and sell used things",
+    "title": "Zoldify: Buy and sell used things",
     "description": "Buy and sell second-hand things that still work. Listing is free, see it in person, pay on delivery.",
     "skipToContent": "Skip to main content"
+  },
+  "seo": {
+    "home": "Buy and sell used things that still work",
+    "productTitle": "{name} ({condition}) for {price}",
+    "productDesc": "Buy {name}, condition {condition}, for {price} on Zoldify. See it in person, pay on delivery.",
+    "categoryTitle": "Used {name} at good prices",
+    "categoryDesc": "Buy and sell used {name} that still work on Zoldify. Listing is free, see it in person, pay on delivery.",
+    "shopTitle": "{name}, {count} items for sale",
+    "shopDesc": "See {count} items for sale from {name} on Zoldify."
   }
 }

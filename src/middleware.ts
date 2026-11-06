@@ -27,17 +27,11 @@ let cache: { maintenance: boolean; expiresAt: number } = { maintenance: false, e
  * Đưa đường dẫn chuẩn xuống layout để dựng thẻ canonical: server component
  * không đọc được URL đang xem, chỉ đọc được header.
  *
- * Bỏ query để URL có utm_, sort hay bộ lọc gộp về một trang. Riêng /shop giữ
- * `seller`: đó là thứ phân biệt từng shop, bỏ đi thì mọi shop thành một trang.
+ * Bỏ query để URL có utm_, sort hay bộ lọc gộp về một trang.
  */
 function diTiep(req: NextRequest) {
-  const { pathname, searchParams } = req.nextUrl;
-  const seller = pathname === '/shop' ? searchParams.get('seller') : null;
   const headers = new Headers(req.headers);
-  headers.set(
-    'x-canonical-path',
-    seller ? `${pathname}?seller=${encodeURIComponent(seller)}` : pathname,
-  );
+  headers.set('x-canonical-path', req.nextUrl.pathname);
   return NextResponse.next({ request: { headers } });
 }
 

@@ -7,6 +7,7 @@ import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
 import { AnnounceBar } from "@/components/AnnounceBar";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { SITE_URL } from "@/lib/config";
 import { AuthProvider } from "@/context/AuthContext";
 import { FirebaseConfigProvider } from "@/context/FirebaseConfigContext";
 import { readFirebaseConfig } from "@/lib/firebase-config";
@@ -35,7 +36,6 @@ const beVietnamPro = Be_Vietnam_Pro({
  * metadataBase để Next dựng URL tuyệt đối cho ảnh: trình thu thập của mạng xã
  * hội không hiểu đường dẫn tương đối.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
 
 /**
  * generateMetadata thay cho hằng `metadata`: tiêu đề và mô tả phải theo ngôn
@@ -57,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: {
       default: title,
       // Trang con đặt title riêng sẽ tự nối đuôi thương hiệu, không phải lặp tay.
-      template: "%s — Zoldify",
+      template: "%s | Zoldify",
     },
     description,
     openGraph: {

@@ -8,6 +8,9 @@ const nextConfig = {
   reactStrictMode: true,
   // Gói runtime tối giản cho Docker: chỉ .next/standalone + static, bỏ node_modules dev.
   output: 'standalone',
+  // Dữ liệu SSR cache trong bộ nhớ, không ghi ra đĩa: mỗi món hàng một file cache
+  // sẽ ăn dần đĩa VPS, mà cache này mất khi khởi động lại cũng không sao.
+  experimental: { isrFlushToDisk: false },
   images: {
     remotePatterns: [
       {

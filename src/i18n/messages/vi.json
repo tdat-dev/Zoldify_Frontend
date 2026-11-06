@@ -663,7 +663,8 @@
     "loginToReview": "Đăng nhập",
     "loginToReviewRest": "để đánh giá và xem lịch sử mua.",
     "noReviews": "Chưa có đánh giá nào.",
-    "anonUser": "Người dùng"
+    "anonUser": "Người dùng",
+    "quantity": "Số lượng"
   },
   "footer": {
     "buyAndSell": "Mua và bán",
@@ -861,8 +862,17 @@
     "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé"
   },
   "meta": {
-    "title": "Zoldify — Chợ đồ cũ",
+    "title": "Zoldify: Chợ mua bán đồ cũ còn dùng tốt",
     "description": "Mua bán đồ cũ còn dùng tốt. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.",
     "skipToContent": "Tới nội dung chính"
+  },
+  "seo": {
+    "home": "Chợ mua bán đồ cũ còn dùng tốt",
+    "productTitle": "{name} ({condition}) giá {price}",
+    "productDesc": "Mua {name}, tình trạng {condition}, giá {price} trên Zoldify. Xem tận nơi, trả khi nhận hàng.",
+    "categoryTitle": "{name} cũ giá tốt",
+    "categoryDesc": "Mua bán {name} cũ còn dùng tốt trên Zoldify. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.",
+    "shopTitle": "{name}, {count} món đang bán",
+    "shopDesc": "Xem {count} món đang bán của {name} trên Zoldify."
   }
 }
