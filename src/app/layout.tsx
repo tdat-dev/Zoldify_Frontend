@@ -54,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(SITE_URL),
     // Google hiện biểu tượng này cạnh kết quả tìm kiếm. Trước đây /favicon.ico trả 404.
-    icons: { icon: "/images/icon.png" },
+    icons: { icon: "/images/favicon.png" },
     ...(canonical ? { alternates: { canonical } } : {}),
     title: {
       default: title,
