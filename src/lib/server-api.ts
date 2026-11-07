@@ -61,12 +61,18 @@ export const getCategoryBySlug = cache((slug: string) =>
 /**
  * Route gốc hứng mọi đường dẫn lạ, kể cả bot dò `/wp-admin`. Hỏi API từng đường
  * dẫn thì bot tiêu hết xô 10 lượt/giây của cả VPS và trang thật bị 429, nên đối
- * chiếu với danh sách đã cache trước. API lỗi thì coi là có, để trang tự xử lý.
+ * chiếu với danh sách đã cache trước. API lỗi thì dùng danh sách đọc được gần nhất:
+ * Next không cache phản hồi lỗi, nên coi là có thì đúng lúc API 429 bot lại gọi tiếp
+ * và trang rác trả 200. Chỉ khi chưa đọc được lần nào mới để trang tự xử lý.
  */
+let lastCategorySlugs: Set<string> | null = null;
+
 export const isKnownCategory = cache(async (slug: string) => {
   const list = await apiGet<Page>('/categories?pageSize=100', 300);
-  if (list.status !== 'ok') return true;
-  return list.data.result.some((c) => c.slug === slug);
+  if (list.status === 'ok') {
+    lastCategorySlugs = new Set(list.data.result.map((c) => c.slug));
+  }
+  return lastCategorySlugs ? lastCategorySlugs.has(slug) : true;
 });
 
 export const getCategoryProducts = cache((categoryId: number) =>
