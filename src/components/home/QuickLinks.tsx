@@ -38,7 +38,7 @@ export function QuickLinks() {
             >
               <span className="relative h-16 w-16 overflow-hidden rounded-control" aria-hidden="true">
                 <Image
-                  src="/media/quick-links-zoldify-cutouts.png"
+                  src="/media/quick-links-zoldify-cutouts.webp"
                   alt=""
                   width={768}
                   height={512}
