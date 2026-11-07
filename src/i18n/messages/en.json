@@ -898,5 +898,14 @@
     "categoryDesc": "Buy and sell used {name} that still work on Zoldify. Listing is free, see it in person, pay on delivery.",
     "shopTitle": "{name}, {count} items for sale",
     "shopDesc": "See {count} items for sale from {name} on Zoldify."
+  },
+  "landing": {
+    "browseMore": "Browse by brand, price, area",
+    "atPlace": "In {place}",
+    "brandTitle": "Used {label} {category}",
+    "priceTitle": "Used {category} {label}",
+    "locationTitle": "Used {category} in {label}",
+    "summary": "{count} listings, from {min} to {max}.",
+    "description": "{title}: {count} listings on Zoldify, from {min} to {max}. See it in person, pay on delivery."
   }
 }

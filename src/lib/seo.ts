@@ -127,6 +127,28 @@ export function categoryJsonLd(category: any, products: any[], homeLabel: string
   };
 }
 
+export function landingJsonLd(page: any, heading: string, homeLabel: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      breadcrumbList([
+        { name: homeLabel, path: '/' },
+        { name: page.category.name, path: `/category/${page.category.slug}` },
+        { name: page.facet.label },
+      ]),
+      {
+        '@type': 'ItemList',
+        name: heading,
+        itemListElement: page.items.map((p: any, i: number) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: absoluteUrl(productPath(p)),
+        })),
+      },
+    ],
+  };
+}
+
 export function homeJsonLd() {
   const url = absoluteUrl('/');
   return {

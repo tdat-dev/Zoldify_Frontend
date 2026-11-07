@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { LandingLinks } from '@/components/category/LandingLinks';
 import { JsonLd } from '@/components/JsonLd';
 import { ProductDetail } from '@/components/product/ProductDetail';
 import { formatPrice } from '@/lib/format';
 import { normalizeCondition } from '@/lib/product-condition';
 import { parseProductId, productPath } from '@/lib/public-urls';
 import { isProductIndexable, productJsonLd } from '@/lib/seo';
-import { getProduct } from '@/lib/server-api';
+import { getLandingFacets, getProduct } from '@/lib/server-api';
 
 type Props = { params: { id: string } };
 
@@ -56,6 +57,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductPage({ params }: Props) {
   const { id, product } = await resolveProduct(params.id);
   const t = await getTranslations('product');
+  const landing = product?.category?.slug
+    ? await getLandingFacets(product.category.slug)
+    : null;
 
   return (
     <>
@@ -63,6 +67,15 @@ export default async function ProductPage({ params }: Props) {
         <JsonLd data={productJsonLd(product, t('home'))} />
       )}
       <ProductDetail productId={id} initialProduct={product} />
+      {landing?.status === 'ok' && (
+        <div className="mx-auto max-w-[1200px] bg-surface-page px-4 pb-24 md:pb-10">
+          <LandingLinks
+            categorySlug={product.category.slug}
+            facets={landing.data.facets}
+            limit={10}
+          />
+        </div>
+      )}
     </>
   );
 }

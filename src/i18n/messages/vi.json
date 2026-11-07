@@ -898,5 +898,14 @@
     "categoryDesc": "Mua bán {name} cũ còn dùng tốt trên Zoldify. Đăng tin miễn phí, xem tận nơi, trả khi nhận hàng.",
     "shopTitle": "{name}, {count} món đang bán",
     "shopDesc": "Xem {count} món đang bán của {name} trên Zoldify."
+  },
+  "landing": {
+    "browseMore": "Xem theo hãng, tầm giá, khu vực",
+    "atPlace": "Tại {place}",
+    "brandTitle": "{category} {label} cũ giá tốt",
+    "priceTitle": "{category} cũ {label}",
+    "locationTitle": "{category} cũ tại {label}",
+    "summary": "{count} tin đang bán, giá từ {min} đến {max}.",
+    "description": "{title}: {count} tin đang bán trên Zoldify, giá từ {min} đến {max}. Xem tận nơi, trả khi nhận hàng."
   }
 }

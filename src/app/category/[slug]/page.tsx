@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { CategoryView } from '@/components/category/CategoryView';
+import { LandingLinks } from '@/components/category/LandingLinks';
 import { JsonLd } from '@/components/JsonLd';
 import { categoryJsonLd } from '@/lib/seo';
-import { getCategoryBySlug, getCategoryProducts } from '@/lib/server-api';
+import { getCategoryBySlug, getCategoryProducts, getLandingFacets } from '@/lib/server-api';
 
 type Props = { params: { slug: string } };
 
@@ -34,6 +35,7 @@ export default async function CategoryPage({ params }: Props) {
   const category = await resolveCategory(params.slug);
   const products = category ? await getCategoryProducts(category.id) : null;
   const page = products?.status === 'ok' ? products.data : null;
+  const landing = await getLandingFacets(params.slug);
   const t = await getTranslations('category');
 
   return (
@@ -47,6 +49,11 @@ export default async function CategoryPage({ params }: Props) {
         initialProducts={page?.result ?? null}
         initialMeta={page?.meta ?? null}
       />
+      {landing.status === 'ok' && (
+        <div className="bg-surface-page px-4 pb-6 lg:px-6">
+          <LandingLinks categorySlug={params.slug} facets={landing.data.facets} />
+        </div>
+      )}
     </>
   );
 }

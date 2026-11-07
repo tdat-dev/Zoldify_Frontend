@@ -71,6 +71,17 @@ export const getShopProducts = cache((sellerId: number) =>
   apiGet<Page>(`/shop/${sellerId}/products`),
 );
 
+export const getLandingFacets = cache((slug: string) =>
+  apiGet<any>(`/landing/${encodeURIComponent(slug)}`, 300),
+);
+
+export const getLandingPage = cache((slug: string, facet: string) =>
+  apiGet<any>(
+    `/landing/${encodeURIComponent(slug)}/${encodeURIComponent(facet)}`,
+    300,
+  ),
+);
+
 /** Dữ liệu trang chủ. Phần nào lỗi thì để null, client tự tải phần đó. */
 export async function getHomeData() {
   const [categories, newest, ...bands] = await Promise.all([
