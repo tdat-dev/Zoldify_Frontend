@@ -120,7 +120,10 @@
     "conditionNote": "Describe the real condition",
     "conditionNoteHint": "Where it is scratched, battery health, what is missing. Buyers read this closely.",
     "conditionNotePlaceholder": "Light scratch on the left corner, battery 84%, box and charger included.",
-    "errNoConditionNote": "Describe the condition so buyers know what they are getting."
+    "errNoConditionNote": "Describe the condition so buyers know what they are getting.",
+    "dupRestore": "Restore the old listing",
+    "dupEdit": "Edit the old listing",
+    "categoryLocked": "The category cannot change after posting. If it is a different item, post a new listing."
   },
   "orderStatus": {
     "pending": "Waiting for the seller",

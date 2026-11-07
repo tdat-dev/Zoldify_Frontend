@@ -120,7 +120,10 @@
     "conditionNote": "Mô tả tình trạng thật",
     "conditionNoteHint": "Xước ở đâu, pin còn bao nhiêu, thiếu phụ kiện gì. Người mua đọc kỹ chỗ này.",
     "conditionNotePlaceholder": "Xước nhẹ ở góc trái, pin 84%, còn hộp và sạc.",
-    "errNoConditionNote": "Kể rõ tình trạng món đồ để người mua yên tâm."
+    "errNoConditionNote": "Kể rõ tình trạng món đồ để người mua yên tâm.",
+    "dupRestore": "Khôi phục tin cũ",
+    "dupEdit": "Sửa tin cũ",
+    "categoryLocked": "Không đổi được danh mục sau khi đăng. Nếu là món khác, hãy đăng tin mới."
   },
   "orderStatus": {
     "pending": "Chờ người bán xác nhận",

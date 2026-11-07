@@ -309,9 +309,10 @@ export default function EditProductPage() {
                     id="field-category"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
+                    disabled
                     aria-invalid={!!fieldErrors.category}
-                    aria-describedby={fieldErrors.category ? 'err-category' : undefined}
-                    className={control}
+                    aria-describedby="hint-category"
+                    className={`${control} disabled:bg-surface-sunken disabled:text-ink-muted`}
                   >
                     <option value="">{t('categoryPlaceholder')}</option>
                     {categories.map((c) => (
@@ -320,6 +321,9 @@ export default function EditProductPage() {
                       </option>
                     ))}
                   </select>
+                  <p id="hint-category" className="mt-1.5 text-caption font-normal text-ink-muted">
+                    {t('categoryLocked')}
+                  </p>
                   {fieldErrors.category && (
                     <p id="err-category" className={errText}>
                       {fieldErrors.category}

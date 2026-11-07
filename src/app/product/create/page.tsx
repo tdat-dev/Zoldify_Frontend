@@ -6,6 +6,7 @@ import { Camera, X, Loader2, Info } from 'lucide-react';
 import { uploadService } from '@/services/upload.service';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
 import { ConditionPicker } from '@/components/ConditionPicker';
@@ -61,6 +62,9 @@ export default function CreateProductPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  // Tin cũ trùng với món đang đăng, do backend báo kèm lỗi 409.
+  const [trung, setTrung] = useState<{ id: number; daXoa: boolean } | null>(null);
+  const [restoring, setRestoring] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -107,6 +111,7 @@ export default function CreateProductPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setTrung(null);
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       // Đưa con trỏ tới trường hỏng đầu tiên thay vì để người dùng tự đi tìm.
@@ -132,10 +137,24 @@ export default function CreateProductPage() {
         slug: toSlug(name),
       } as any)
       .then((res) => router.push(`/product/${res.data.data.id}`))
-      .catch((err) =>
-        setError(err.response?.data?.message || t('errCreate')),
-      )
+      .catch((err) => {
+        const data = err.response?.data;
+        setError(data?.message || t('errCreate'));
+        if (data?.existing_product_id) {
+          setTrung({ id: data.existing_product_id, daXoa: !!data.da_xoa });
+        }
+      })
       .finally(() => setSubmitting(false));
+  };
+
+  const handleRestore = () => {
+    if (!trung) return;
+    setRestoring(true);
+    productService
+      .restore(trung.id)
+      .then(() => router.push(`/product/${trung.id}`))
+      .catch((err) => setError(err.response?.data?.message || t('errCreate')))
+      .finally(() => setRestoring(false));
   };
 
   const label = 'mb-1.5 block text-small font-semibold text-ink';
@@ -158,6 +177,28 @@ export default function CreateProductPage() {
           >
             {error}
           </p>
+        )}
+
+        {trung && (
+          <div className="mt-3">
+            {trung.daXoa ? (
+              <button
+                type="button"
+                onClick={handleRestore}
+                disabled={restoring}
+                className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              >
+                {t('dupRestore')}
+              </button>
+            ) : (
+              <Link
+                href={`/product/${trung.id}/edit`}
+                className="inline-block rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {t('dupEdit')}
+              </Link>
+            )}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-3">
