@@ -4,13 +4,19 @@
 User-agent: *
 Allow: /
 
-# Không index các trang private/admin
+# Không index các trang private/admin.
+# Luật robots khớp theo tiền tố, mà món hàng nằm ngay gốc URL: viết "/cart" sẽ chặn
+# oan /cartier-dong-ho-i5. Vì vậy các trang này khai khớp chính xác bằng dấu $.
 Disallow: /admin/
-Disallow: /cart
-Disallow: /checkout
+Disallow: /cart$
+Disallow: /cart/
+Disallow: /checkout$
+Disallow: /checkout/
 Disallow: /profile/
-Disallow: /wallet
-Disallow: /chat
+Disallow: /wallet$
+Disallow: /wallet/
+Disallow: /chat$
+Disallow: /chat/
 Disallow: /addresses/
 Disallow: /product/create
 Disallow: /product/*/edit
