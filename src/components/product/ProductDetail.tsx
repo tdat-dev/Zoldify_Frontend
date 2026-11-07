@@ -29,6 +29,7 @@ import { useToast } from "@/components/Toast";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { formatPrice } from "@/lib/format";
 import { shopPath } from "@/lib/public-urls";
+import { imageUrl } from "@/lib/image-url";
 
 /**
  * Phần tương tác của trang món hàng. `initialProduct` do server lấy để HTML có sẵn
@@ -366,9 +367,10 @@ export function ProductDetail({
               <div className="relative w-full aspect-square bg-surface-sunken rounded-control overflow-hidden border border-ink/10 flex items-center justify-center">
                 {product.image ? (
                   <img
-                    src={product.image}
+                    src={imageUrl(product.image, 800)}
                     className="w-full h-full object-contain"
                     alt={product.name}
+                    fetchPriority="high"
                   />
                 ) : (
                   <Package className="w-20 h-20 text-ink-muted" />

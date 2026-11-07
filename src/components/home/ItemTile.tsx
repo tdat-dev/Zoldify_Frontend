@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Package } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import { productPath } from '@/lib/public-urls';
+import { imageUrl } from '@/lib/image-url';
 
 /**
  * Ô hàng nhỏ: ảnh vuông, tên cắt gọn, giá.
@@ -31,9 +32,10 @@ export function ItemTile({
       <div className="relative aspect-square overflow-hidden rounded-control bg-surface-sunken">
         {item.image ? (
           <img
-            src={item.image}
+            src={imageUrl(item.image, 400)}
             alt=""
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
           />
         ) : (

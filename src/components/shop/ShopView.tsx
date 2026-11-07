@@ -14,6 +14,7 @@ import { chatService } from '@/services/chat.service';
 import { productService } from '@/services/product.service';
 import { formatPrice } from '@/lib/format';
 import StockControl from '@/components/StockControl';
+import { imageUrl } from '@/lib/image-url';
 
 interface ShopInfo {
   id: number;
@@ -317,7 +318,7 @@ export function ShopView({
                   {/* Image */}
                   <div className="relative pt-[100%] overflow-hidden bg-surface-sunken">
                     {item.image ? (
-                      <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img loading="lazy" decoding="async" src={imageUrl(item.image, 400)} alt={item.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <Package className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-ink-faint w-12 h-12" />
                     )}

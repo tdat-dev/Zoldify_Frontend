@@ -214,6 +214,7 @@ export function HomeView({ initial, heading }: { initial: HomeInitial; heading: 
               alt={t('sellPanelAlt')}
               width={1000}
               height={667}
+              fetchPriority="high"
               className="aspect-[3/2] w-full object-cover"
             />
             <div className="flex flex-1 flex-col justify-between gap-4 p-5">

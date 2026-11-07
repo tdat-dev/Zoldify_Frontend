@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useCategoryName } from '@/lib/categoryI18n';
+import { imageUrl } from '@/lib/image-url';
 
 /**
  * Lưới danh mục dạng ô — khuôn lấy từ khối "CATEGORIES" của shopee.vn (xem
@@ -62,7 +63,7 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
                 >
                   {cat.image ? (
                     <img
-                      src={cat.image}
+                      src={imageUrl(cat.image, 400)}
                       alt=""
                       loading="lazy"
                       className="h-full w-full object-cover"
