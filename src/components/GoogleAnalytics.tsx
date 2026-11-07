@@ -7,6 +7,11 @@ import Script from "next/script";
  *
  * Không cần tự gửi page_view khi đổi route: GA4 bật sẵn đo theo lịch sử trình
  * duyệt trong Enhanced Measurement.
+ *
+ * `lazyOnload`: gtag.js nặng khoảng 175 KB, tải sớm thì tranh luồng chính với trang.
+ * Đo Lighthouse mobile trên prod 07/11: trang sản phẩm 47 điểm, chặn gtag thì 73, thời
+ * gian chặn luồng chính 840 ms xuống 260 ms. Đánh đổi là mất số liệu của người rời
+ * trang trước khi tải xong.
  */
 export function GoogleAnalytics({ id }: { id?: string }) {
   if (!id) return null;
@@ -15,9 +20,9 @@ export function GoogleAnalytics({ id }: { id?: string }) {
     <>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`}
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
-      <Script id="ga-init" strategy="afterInteractive">
+      <Script id="ga-init" strategy="lazyOnload">
         {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',${JSON.stringify(id)});`}
       </Script>
     </>
