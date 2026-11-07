@@ -98,7 +98,7 @@ export function productJsonLd(p: any, homeLabel: string) {
       breadcrumbList([
         { name: homeLabel, path: '/' },
         ...(p.category?.slug
-          ? [{ name: p.category.name, path: `/category/${p.category.slug}` }]
+          ? [{ name: p.category.name, path: `/${p.category.slug}` }]
           : []),
         { name: p.name },
       ]),
@@ -133,7 +133,7 @@ export function landingJsonLd(page: any, heading: string, homeLabel: string) {
     '@graph': [
       breadcrumbList([
         { name: homeLabel, path: '/' },
-        { name: page.category.name, path: `/category/${page.category.slug}` },
+        { name: page.category.name, path: `/${page.category.slug}` },
         { name: page.facet.label },
       ]),
       {

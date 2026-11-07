@@ -8,7 +8,7 @@ import { ItemTile } from '@/components/home/ItemTile';
 import { JsonLd } from '@/components/JsonLd';
 import { formatPrice } from '@/lib/format';
 import { landingJsonLd } from '@/lib/seo';
-import { getLandingPage } from '@/lib/server-api';
+import { getLandingPage, isKnownCategory } from '@/lib/server-api';
 
 type Props = { params: { slug: string; facet: string } };
 
@@ -18,6 +18,7 @@ type Props = { params: { slug: string; facet: string } };
  * phải lỗi. Chỉ hiện tin thật, không có bộ lọc client: đây là trang để vào từ Google.
  */
 async function resolvePage(params: Props['params']) {
+  if (!(await isKnownCategory(params.slug))) notFound();
   const result = await getLandingPage(params.slug, params.facet);
   if (result.status === 'ok') return result.data;
   // API lỗi cũng là 404: trang này không có đường lùi về client, trả 200 rỗng thì
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `/category/${page.category.slug}/${page.facet.slug}` },
+    alternates: { canonical: `/${page.category.slug}/${page.facet.slug}` },
     openGraph: { type: 'website', siteName: 'Zoldify', title, description },
   };
 }
@@ -72,7 +73,7 @@ export default async function LandingPage({ params }: Props) {
             {tc('breadcrumbHome')}
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />
-          <Link href={`/category/${page.category.slug}`} className="shrink-0 hover:text-brand">
+          <Link href={`/${page.category.slug}`} className="shrink-0 hover:text-brand">
             {page.category.name}
           </Link>
           <ChevronRight className="h-3.5 w-3.5 text-ink-faint" aria-hidden="true" />

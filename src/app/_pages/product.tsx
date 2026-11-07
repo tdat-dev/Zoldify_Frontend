@@ -10,14 +10,12 @@ import { parseProductId, productPath } from '@/lib/public-urls';
 import { isProductIndexable, productJsonLd } from '@/lib/seo';
 import { getLandingFacets, getProduct } from '@/lib/server-api';
 
-type Props = { params: { id: string } };
-
 /**
  * Đừng thêm loading.tsx ở app/ hay ở đây: có nó thì Next gửi mã 200 trước khi
  * trang chạy xong, nên 404 thành soft 404 và chuyển hướng thành 200. Đã đo:
  * /product/99999999 trả 200 khi còn app/loading.tsx.
  */
-async function resolveProduct(segment: string) {
+async function resolveProduct(segment: string, currentPath: string) {
   const id = parseProductId(segment);
   if (!id) notFound();
 
@@ -26,12 +24,12 @@ async function resolveProduct(segment: string) {
   if (result.status === 'error') return { id, product: null };
 
   const path = productPath(result.data);
-  if (segment !== path.split('/').pop()) permanentRedirect(path);
+  if (currentPath !== path) permanentRedirect(path);
   return { id, product: result.data };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { product } = await resolveProduct(params.id);
+export async function productMetadata(segment: string, currentPath: string): Promise<Metadata> {
+  const { product } = await resolveProduct(segment, currentPath);
   if (!product) return {};
 
   const [t, tc] = await Promise.all([getTranslations('seo'), getTranslations('condition')]);
@@ -54,8 +52,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductPage({ params }: Props) {
-  const { id, product } = await resolveProduct(params.id);
+/** Dùng chung cho route gốc và `/product/[id]`: URL cũ chuyển một bước về URL chuẩn. */
+export async function ProductScreen({
+  segment,
+  currentPath,
+}: {
+  segment: string;
+  currentPath: string;
+}) {
+  const { id, product } = await resolveProduct(segment, currentPath);
   const t = await getTranslations('product');
   const landing = product?.category?.slug
     ? await getLandingFacets(product.category.slug)

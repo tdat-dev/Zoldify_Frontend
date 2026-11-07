@@ -350,7 +350,7 @@ export function ProductDetail({
           {product.category?.slug && (
             <>
               <Link
-                href={`/category/${product.category.slug}`}
+                href={`/${product.category.slug}`}
                 className="shrink-0 hover:text-brand"
               >
                 {product.category.name}

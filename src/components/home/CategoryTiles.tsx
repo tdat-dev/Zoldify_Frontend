@@ -45,7 +45,7 @@ export function CategoryTiles({ categories }: { categories: any[] }) {
           return (
             <li key={cat.id} className="border-b border-r border-ink/10">
               <Link
-                href={`/category/${cat.slug || cat.id}`}
+                href={`/${cat.slug || cat.id}`}
                 className="flex h-full flex-col items-center justify-center gap-2 bg-surface-card px-2 py-4 text-center transition-colors hover:bg-surface-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/50"
               >
                 {/* Ảnh danh mục trộn kiểu: cái là hình cắt nền trong suốt, cái

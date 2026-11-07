@@ -28,7 +28,7 @@ export async function LandingLinks({
         {facets.slice(0, limit).map((f) => (
           <li key={f.slug}>
             <Link
-              href={`/category/${categorySlug}/${f.slug}`}
+              href={`/${categorySlug}/${f.slug}`}
               className="inline-block rounded-control border border-ink/16 px-3 py-1.5 text-small text-ink transition-colors hover:border-brand hover:text-brand"
             >
               {f.type === 'location' ? t('atPlace', { place: f.label }) : f.label}{' '}

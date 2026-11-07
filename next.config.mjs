@@ -19,6 +19,15 @@ const nextConfig = {
       },
     ],
   },
+  // Danh mục và trang đích đã lên gốc URL. Khai ở đây để URL cũ chuyển ngay, không
+  // tốn lượt render. Món hàng không làm được vậy: URL cũ chỉ có ID, phải hỏi API
+  // mới biết tên, nên nằm ở app/product/[id].
+  async redirects() {
+    return [
+      { source: '/category/:slug', destination: '/:slug', permanent: true },
+      { source: '/category/:slug/:facet', destination: '/:slug/:facet', permanent: true },
+    ];
+  },
   // Ảnh /media dùng chung cho cả app mobile (expo-image đặt crossOrigin nên
   // BẮT BUỘC có CORS, nếu không trình duyệt chặn ảnh chéo origin). Mở CORS cho
   // riêng /media — chỉ là ảnh tĩnh công khai nên "*" an toàn.

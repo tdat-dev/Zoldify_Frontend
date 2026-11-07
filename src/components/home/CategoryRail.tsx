@@ -24,7 +24,7 @@ export function CategoryRail({ categories }: { categories: any[] }) {
         return (
           <Link
             key={cat.id}
-            href={`/category/${cat.slug || cat.id}`}
+            href={`/${cat.slug || cat.id}`}
             className="flex w-[112px] shrink-0 snap-start flex-col items-center gap-2.5 rounded-xl border border-ink/8 bg-surface-card px-2 py-4 text-center transition-colors hover:border-brand/40 sm:w-auto"
           >
             {/* Có ảnh → đĩa TRẮNG + hairline để nền vuông của ảnh chụp không

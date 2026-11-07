@@ -58,6 +58,17 @@ export const getCategoryBySlug = cache((slug: string) =>
   apiGet<any>(`/categories/slug/${encodeURIComponent(slug)}`, 300),
 );
 
+/**
+ * Route gốc hứng mọi đường dẫn lạ, kể cả bot dò `/wp-admin`. Hỏi API từng đường
+ * dẫn thì bot tiêu hết xô 10 lượt/giây của cả VPS và trang thật bị 429, nên đối
+ * chiếu với danh sách đã cache trước. API lỗi thì coi là có, để trang tự xử lý.
+ */
+export const isKnownCategory = cache(async (slug: string) => {
+  const list = await apiGet<Page>('/categories?pageSize=100', 300);
+  if (list.status !== 'ok') return true;
+  return list.data.result.some((c) => c.slug === slug);
+});
+
 export const getCategoryProducts = cache((categoryId: number) =>
   apiGet<Page>(`/products?current=1&pageSize=24&sort=newest&category_id=${categoryId}`),
 );
