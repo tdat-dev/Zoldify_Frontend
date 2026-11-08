@@ -12,6 +12,15 @@ import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { ConditionPicker } from '@/components/ConditionPicker';
 import { ConditionNoteField } from '@/components/ConditionNoteField';
+import { ConditionDetailsFields } from '@/components/ConditionDetailsFields';
+import {
+  EMPTY_DURABILITY,
+  fromForm,
+  hasBattery,
+  toForm,
+  type DurabilityError,
+  type DurabilityForm,
+} from '@/lib/condition-details';
 import { normalizeCondition, type ConditionValue } from '@/lib/product-condition';
 
 /**
@@ -64,6 +73,8 @@ export default function EditProductPage() {
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>('good');
   const [conditionNote, setConditionNote] = useState('');
+  const [durability, setDurability] = useState<DurabilityForm>(EMPTY_DURABILITY);
+  const [durabilityErrors, setDurabilityErrors] = useState<DurabilityError[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -85,6 +96,7 @@ export default function EditProductPage() {
         setCategoryId(p.category?.id ? String(p.category.id) : '');
         setCondition(normalizeCondition(p.condition));
         setConditionNote(p.condition_note || '');
+        setDurability(toForm(p.condition_details));
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
         setCategories(catRes.data?.data?.result || []);
 
@@ -124,6 +136,10 @@ export default function EditProductPage() {
     }
   };
 
+  const withBattery = hasBattery(
+    categories.find((c: any) => String(c.id) === categoryId)?.slug,
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
@@ -132,9 +148,12 @@ export default function EditProductPage() {
     if (!categoryId) errs.category = t('errNoCategory');
     const p = Number(price);
     if (!price.trim() || !Number.isFinite(p) || p <= 0) errs.price = t('errBadPrice');
+    const doBen = fromForm(durability, withBattery);
+    setDurabilityErrors(doBen.errors);
+    for (const k of doBen.errors) errs[k] = k;
     setFieldErrors(errs);
     if (Object.keys(errs).length > 0) {
-      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      const first = ['images', 'name', 'category', 'battery', 'usedMonths', 'warrantyMonths', 'defects', 'accessories', 'price'].find((k) => errs[k]);
       document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
@@ -150,6 +169,8 @@ export default function EditProductPage() {
         category_id: Number(categoryId),
         condition,
         condition_note: conditionNote.trim(),
+        // null chứ không bỏ trường: người bán xoá hết ô thì thẻ phải mất theo.
+        condition_details: doBen.details,
         image: images[0],
         images,
       } as any);
@@ -358,6 +379,12 @@ export default function EditProductPage() {
               <ConditionPicker value={condition} onChange={setCondition} />
             </div>
             <ConditionNoteField value={conditionNote} onChange={setConditionNote} />
+            <ConditionDetailsFields
+              value={durability}
+              onChange={setDurability}
+              withBattery={withBattery}
+              errors={durabilityErrors}
+            />
           </section>
 
           {/* ---------- Giá & còn mấy cái ---------- */}

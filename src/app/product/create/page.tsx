@@ -11,6 +11,14 @@ import { useTranslations } from 'next-intl';
 import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
 import { ConditionPicker } from '@/components/ConditionPicker';
 import { ConditionNoteField } from '@/components/ConditionNoteField';
+import { ConditionDetailsFields } from '@/components/ConditionDetailsFields';
+import {
+  EMPTY_DURABILITY,
+  fromForm,
+  hasBattery,
+  type DurabilityError,
+  type DurabilityForm,
+} from '@/lib/condition-details';
 import { toSlug } from '@/lib/slug';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 
@@ -51,6 +59,8 @@ export default function CreateProductPage() {
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>(DEFAULT_CONDITION);
   const [conditionNote, setConditionNote] = useState('');
+  const [durability, setDurability] = useState<DurabilityForm>(EMPTY_DURABILITY);
+  const [durabilityErrors, setDurabilityErrors] = useState<DurabilityError[]>([]);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
@@ -94,6 +104,12 @@ export default function CreateProductPage() {
     }
   };
 
+  // Ô pin theo danh mục đang chọn; đổi sang danh mục không pin thì số đã gõ bị
+  // bỏ qua lúc gửi chứ không xoá, chọn nhầm rồi chọn lại không mất.
+  const withBattery = hasBattery(
+    categories.find((c) => String(c.id) === categoryId)?.slug,
+  );
+
   const validate = () => {
     const next: Record<string, string> = {};
     if (images.length === 0) next.images = t('errNoPhoto');
@@ -104,6 +120,9 @@ export default function CreateProductPage() {
     }
     const p = Number(price);
     if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = t('errBadPrice');
+    const loiDoBen = fromForm(durability, withBattery).errors;
+    setDurabilityErrors(loiDoBen);
+    for (const k of loiDoBen) next[k] = k;
     setFieldErrors(next);
     return next;
   };
@@ -115,7 +134,9 @@ export default function CreateProductPage() {
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       // Đưa con trỏ tới trường hỏng đầu tiên thay vì để người dùng tự đi tìm.
-      const first = ['images', 'name', 'category', 'conditionNote', 'price'].find((k) => errs[k]);
+      const first = ['images', 'name', 'category', 'conditionNote', 'battery', 'usedMonths', 'warrantyMonths', 'defects', 'accessories', 'price'].find(
+        (k) => errs[k],
+      );
       document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
@@ -131,6 +152,7 @@ export default function CreateProductPage() {
         brand: brand.trim() || undefined,
         condition,
         condition_note: conditionNote.trim() || undefined,
+        condition_details: fromForm(durability, withBattery).details ?? undefined,
         category_id: Number(categoryId),
         stock: manyCopies ? stock : 1,
         is_freeship: freeship,
@@ -365,6 +387,12 @@ export default function CreateProductPage() {
               onChange={setConditionNote}
               required={condition !== 'new'}
               error={condition !== 'new' ? fieldErrors.conditionNote : undefined}
+            />
+            <ConditionDetailsFields
+              value={durability}
+              onChange={setDurability}
+              withBattery={withBattery}
+              errors={durabilityErrors}
             />
           </section>
 
