@@ -21,9 +21,13 @@ async function resolvePage(params: Props['params']) {
   if (!(await isKnownCategory(params.slug))) notFound();
   const result = await getLandingPage(params.slug, params.facet);
   if (result.status === 'ok') return result.data;
-  // API lỗi cũng là 404: trang này không có đường lùi về client, trả 200 rỗng thì
-  // Google nhận một trang mỏng. Google sẽ quay lại thử sau.
-  notFound();
+  if (result.status === 'not_found') notFound();
+  // API lỗi (429, 5xx, quá hạn) thì ném lỗi để Next trả 500, không trả 404. Mỗi lần
+  // deploy backend, cả 3 bản API khởi động lại cùng lúc và Caddy trả 502 chừng 5 giây:
+  // ngày 08/11 có 5 trang đích `nau-an` thành 404 đúng lúc đó. 404 làm Google tưởng
+  // trang đã bị xoá, còn 5xx thì Google hiểu là lỗi tạm và quay lại sau. Không trả 200
+  // rỗng vì trang này không có đường lùi về client, Google sẽ nhận một trang mỏng.
+  throw new Error(`API trang đích lỗi: ${params.slug}/${params.facet}`);
 }
 
 async function headingOf(page: any) {
