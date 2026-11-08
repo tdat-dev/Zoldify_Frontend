@@ -27,6 +27,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/components/Toast";
 import { ConditionBadge } from "@/components/ConditionBadge";
+import { DurabilityTable } from "@/components/product/DurabilityTable";
 import { formatPrice } from "@/lib/format";
 import { shopPath } from "@/lib/public-urls";
 import { imageUrl } from "@/lib/image-url";
@@ -426,6 +427,8 @@ export function ProductDetail({
                     </span>
                   </div>
                 )}
+
+                <DurabilityTable details={product.condition_details} />
 
                 {/* Bộ tăng giảm số lượng CHỈ hiện khi thật sự có nhiều hơn một
                     cái. Đồ cũ gần như luôn stock = 1; bày ra một cái +/- cho món
