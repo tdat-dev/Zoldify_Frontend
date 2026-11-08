@@ -61,14 +61,18 @@
     "over1m": "Trên 1tr"
   },
   "condition": {
-    "new": "Mới, chưa dùng",
-    "newHint": "Còn nguyên seal hoặc mua về chưa dùng lần nào.",
-    "like_new": "Như mới",
-    "like_newHint": "Dùng vài lần, nhìn kỹ cũng khó thấy vết.",
-    "good": "Còn tốt",
-    "goodHint": "Có vết xước nhẹ do dùng, mọi thứ chạy bình thường.",
-    "fair": "Cũ, dùng được",
-    "fairHint": "Xước nhiều, sờn góc hoặc thiếu phụ kiện. Vẫn dùng được."
+    "new": "Mới 100%",
+    "newHint": "Còn seal hoặc mua về chưa dùng lần nào.",
+    "like_new": "Như mới 99%",
+    "like_newHint": "Dùng vài lần, soi kỹ cũng khó thấy vết. Còn đủ phụ kiện.",
+    "good": "Tốt 95%",
+    "goodHint": "Có vết xước nhẹ khi nhìn gần. Mọi chức năng chạy bình thường.",
+    "fair": "Khá 85–90%",
+    "fairHint": "Xước thấy rõ, có thể sờn góc. Chức năng vẫn ổn.",
+    "used": "Cũ 70–80%",
+    "usedHint": "Xước nhiều, cấn móp hoặc thiếu phụ kiện. Vẫn dùng được.",
+    "refurbished": "Tân trang",
+    "refurbishedHint": "Đã sửa hoặc thay linh kiện rồi làm mới. Ghi rõ đã thay gì ở phần độ bền."
   },
   "sell": {
     "titleCreate": "Đăng bán một món",

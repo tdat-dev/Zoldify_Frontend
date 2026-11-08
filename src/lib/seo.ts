@@ -76,10 +76,11 @@ export function productJsonLd(p: any, homeLabel: string) {
           url,
           price: Number(p.price),
           priceCurrency: p.currency || 'VND',
-          itemCondition:
-            normalizeCondition(p.condition) === 'new'
-              ? 'https://schema.org/NewCondition'
-              : 'https://schema.org/UsedCondition',
+          itemCondition: `https://schema.org/${
+            { new: 'NewCondition', refurbished: 'RefurbishedCondition' }[
+              normalizeCondition(p.condition) as 'new' | 'refurbished'
+            ] ?? 'UsedCondition'
+          }`,
           availability: `https://schema.org/${productAvailability(p)}`,
           ...(p.seller?.full_name
             ? { seller: { '@type': 'Person', name: p.seller.full_name } }

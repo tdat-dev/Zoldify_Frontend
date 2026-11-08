@@ -61,14 +61,18 @@
     "over1m": "Over 1M"
   },
   "condition": {
-    "new": "New, never used",
-    "newHint": "Still sealed, or bought and never used.",
-    "like_new": "Like new",
-    "like_newHint": "Used a few times. Hard to spot any wear.",
-    "good": "Good",
-    "goodHint": "Light scratches from use. Everything works.",
-    "fair": "Fair",
-    "fairHint": "Visible scratches, worn corners or missing parts. Still works."
+    "new": "New (100%)",
+    "newHint": "Still sealed, or never used since purchase.",
+    "like_new": "Like new (99%)",
+    "like_newHint": "Used a few times, marks are hard to spot. All accessories included.",
+    "good": "Good (95%)",
+    "goodHint": "Light scratches up close. Everything works.",
+    "fair": "Fair (85–90%)",
+    "fairHint": "Visible scratches, maybe worn corners. Works fine.",
+    "used": "Used (70–80%)",
+    "usedHint": "Heavy scratches, dents or missing accessories. Still usable.",
+    "refurbished": "Refurbished",
+    "refurbishedHint": "Repaired or parts replaced, then restored. Say what was replaced in the durability part."
   },
   "sell": {
     "titleCreate": "List an item",
