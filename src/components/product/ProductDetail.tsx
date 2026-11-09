@@ -428,8 +428,6 @@ export function ProductDetail({
                   </div>
                 )}
 
-                <DurabilityTable details={product.condition_details} />
-
                 {/* Bộ tăng giảm số lượng CHỈ hiện khi thật sự có nhiều hơn một
                     cái. Đồ cũ gần như luôn stock = 1; bày ra một cái +/- cho món
                     độc nhất là ngôn ngữ của sàn hàng mới, không phải của sàn này. */}
@@ -482,6 +480,10 @@ export function ProductDetail({
                     <span className="text-body text-ink">{t("onlyOne")}</span>
                   )}
                 </div>
+
+                {/* Sau dòng Còn hàng: chen giữa Khu vực và Còn hàng thì dòng Còn
+                    hàng trông như thuộc thẻ Độ bền. */}
+                <DurabilityTable details={product.condition_details} />
               </div>
 
               {/* Hết hàng thì KHÔNG dựng nút mua. Bản trước vẫn cho bấm "Mua ngay"

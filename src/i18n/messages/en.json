@@ -93,6 +93,7 @@
     "accessories": "Included accessories",
     "accessoriesPlaceholder": "Box, charging cable, case",
     "accessoriesHint": "Separate with commas.",
+    "accessoriesShort": "Accessories",
     "errList": "Up to {items} items, {chars} characters each.",
     "repaired": "Ever repaired",
     "repairedNo": "Never repaired",

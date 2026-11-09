@@ -93,6 +93,7 @@
     "accessories": "Phụ kiện kèm theo",
     "accessoriesPlaceholder": "Hộp, cáp sạc, ốp lưng",
     "accessoriesHint": "Ngăn cách bằng dấu phẩy.",
+    "accessoriesShort": "Phụ kiện",
     "errList": "Tối đa {items} mục, mỗi mục {chars} ký tự.",
     "repaired": "Đã từng sửa chưa",
     "repairedNo": "Chưa sửa",
