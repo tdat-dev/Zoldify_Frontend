@@ -2,13 +2,10 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, Send, X } from 'lucide-react';
-import { assistantService, type AssistantMessage, type AssistantProduct } from '@/services/assistant.service';
+import { Loader2, RotateCcw, Send, X } from 'lucide-react';
+import { assistantService } from '@/services/assistant.service';
 import { AssistantProductCard } from './AssistantProductCard';
-
-interface Turn extends AssistantMessage {
-  products?: AssistantProduct[];
-}
+import { useAssistantHistory } from './useAssistantHistory';
 
 /** Backend nhận tối đa 6 tin; giữ 6 tin cuối là đủ cho câu nối tiếp. */
 const HISTORY_LIMIT = 6;
@@ -16,11 +13,12 @@ const HISTORY_LIMIT = 6;
 /**
  * Khung hội thoại. Mỗi lượt gửi cả lịch sử ngắn để trợ lý hiểu câu nối tiếp
  * ("rẻ hơn nữa", "ở Hà Nội thì sao"); thẻ món chỉ hiện ở lượt trả lời, không
- * gửi ngược lên server.
+ * gửi ngược lên server. Lịch sử lưu trong trình duyệt (useAssistantHistory) để
+ * mở lại vẫn xem được.
  */
 export function AssistantPanel({ onClose }: { onClose: () => void }) {
   const t = useTranslations('assistant');
-  const [turns, setTurns] = useState<Turn[]>([{ role: 'assistant', content: t('greeting') }]);
+  const { turns, setTurns, reset } = useAssistantHistory(t('greeting'));
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -40,11 +38,16 @@ export function AssistantPanel({ onClose }: { onClose: () => void }) {
     setTurns(next);
     setText('');
     setLoading(true);
+    const started = performance.now();
     try {
       // Bỏ lời chào mở đầu: nó không phải câu trả lời cho câu hỏi nào.
-      const history = next.slice(1).slice(-HISTORY_LIMIT).map(({ role, content: c }) => ({ role, content: c }));
+      const history = next
+        .filter((x) => !x.greeting)
+        .slice(-HISTORY_LIMIT)
+        .map(({ role, content: c }) => ({ role, content: c }));
       const res = await assistantService.ask(history);
-      setTurns((cur) => [...cur, { role: 'assistant', content: res.reply, products: res.products }]);
+      const ms = Math.round(performance.now() - started);
+      setTurns((cur) => [...cur, { role: 'assistant', content: res.reply, products: res.products, ms }]);
     } catch (err: any) {
       const msg = err.response?.status === 429 ? t('tooFast') : t('failed');
       setTurns((cur) => [...cur, { role: 'assistant', content: msg }]);
@@ -71,9 +74,21 @@ export function AssistantPanel({ onClose }: { onClose: () => void }) {
           <h2 className="text-body font-semibold">{t('title')}</h2>
           <p className="text-caption opacity-90">{t('subtitle')}</p>
         </div>
-        <button type="button" onClick={onClose} aria-label={t('close')} className="rounded-control p-1 hover:bg-white/15">
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={reset}
+            disabled={loading || turns.length <= 1}
+            aria-label={t('newChat')}
+            title={t('newChat')}
+            className="rounded-control p-1 hover:bg-white/15 disabled:opacity-40"
+          >
+            <RotateCcw className="h-5 w-5" />
+          </button>
+          <button type="button" onClick={onClose} aria-label={t('close')} className="rounded-control p-1 hover:bg-white/15">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 space-y-3 overflow-y-auto px-3 py-3" aria-live="polite">
@@ -86,6 +101,11 @@ export function AssistantPanel({ onClose }: { onClose: () => void }) {
             >
               {turn.content}
             </p>
+            {turn.ms !== undefined && (
+              <p className="mt-1 text-caption text-ink-faint">
+                {t('took', { seconds: (turn.ms / 1000).toLocaleString('vi-VN', { maximumFractionDigits: 1 }) })}
+              </p>
+            )}
             {turn.products && turn.products.length > 0 && (
               <ul className="mt-2 space-y-2">
                 {turn.products.map((p) => (
