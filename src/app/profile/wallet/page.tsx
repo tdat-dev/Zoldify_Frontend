@@ -89,7 +89,7 @@ export default function WalletPage() {
     setState('loading');
     const [balanceRes, txRes, wdRes] = await Promise.allSettled([
       paymentService.getBalance(),
-      paymentService.getAll(1, 20),
+      paymentService.getWalletHistory(1, 20),
       withdrawalService.getMine(1, 20),
     ]);
     // Số dư hỏng là hỏng thật sự: không có nó thì cả trang vô nghĩa. Lịch sử
@@ -504,9 +504,9 @@ export default function WalletPage() {
         ) : (
           <ul className="divide-y divide-ink/10">
             {transactions.map((tx: any) => {
-              const flow = moneyFlow(tx.type);
-              const key = moneyLabelKey(tx.type);
               const amount = Number(tx.amount || 0);
+              const flow = moneyFlow(tx.type, amount);
+              const key = moneyLabelKey(tx.type);
               return (
                 <li key={tx.id} className="flex items-center justify-between gap-4 px-6 py-4">
                   <div className="flex min-w-0 items-center gap-3">
@@ -551,7 +551,7 @@ export default function WalletPage() {
                     }`}
                   >
                     {flow === 'in' ? '+' : flow === 'out' ? '−' : ''}
-                    {formatPrice(amount)}
+                    {formatPrice(Math.abs(amount))}
                   </span>
                 </li>
               );
