@@ -9,6 +9,10 @@ import { ChevronRight, Package, Check, Truck } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import {
+  ChangePaymentMethod,
+  canChangePaymentMethod,
+} from '@/components/orders/ChangePaymentMethod';
 import { formatPrice } from '@/lib/format';
 import { ORDER_FLOW, flowIndex } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -341,6 +345,16 @@ export default function OrderDetailPage() {
               >
                 {payingId === order.id ? tOrders('paying') : tOrders('payNow')}
               </button>
+            </div>
+          )}
+          {canChangePaymentMethod(order) && (
+            <div className="mt-3">
+              <ChangePaymentMethod
+                order={order}
+                onChanged={fetchOrder}
+                onPay={pay}
+                className="w-full"
+              />
             </div>
           )}
         </section>

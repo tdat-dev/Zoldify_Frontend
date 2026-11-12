@@ -210,7 +210,16 @@
     "confirmingReceived": "Confirming…",
     "confirmReceivedAsk": "Confirm you received the item? The seller will be paid.",
     "confirmReceivedDone": "Thanks. The order is complete.",
-    "confirmReceivedFailed": "Could not confirm."
+    "confirmReceivedFailed": "Could not confirm.",
+    "changeMethod": "Change payment",
+    "changeMethodTitle": "Pay another way",
+    "methodCurrent": "(current)",
+    "methodKeep": "Keep",
+    "methodSaving": "Saving...",
+    "methodSaveCod": "Switch to cash on delivery",
+    "methodSavePay": "Switch and pay",
+    "methodChangedCod": "Switched to cash on delivery. The seller will confirm your order.",
+    "methodChangeFailed": "Could not change the payment method. Reload the order and try again."
   },
   "auth": {
     "loginTitle": "Welcome back",

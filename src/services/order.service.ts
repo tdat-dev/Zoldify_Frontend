@@ -60,6 +60,12 @@ export const orderService = {
   cancel(id: number) {
     return http.patch<ApiResponse<Order>>(`/orders/${id}/cancel`);
   },
+  /** Đổi cách trả cho đơn còn chờ xác nhận và chưa trả. */
+  changePaymentMethod(id: number, payment_method: 'cod' | 'wallet' | 'payos') {
+    return http.patch<ApiResponse<Order>>(`/orders/${id}/payment-method`, {
+      payment_method,
+    });
+  },
   remove(id: number) {
     return http.delete<ApiResponse<unknown>>(`/orders/${id}`);
   },

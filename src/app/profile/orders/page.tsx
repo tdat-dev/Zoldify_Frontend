@@ -8,6 +8,7 @@ import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import { ChangePaymentMethod } from '@/components/orders/ChangePaymentMethod';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor } from '@/lib/order-status';
@@ -289,6 +290,7 @@ export default function UserOrdersPage() {
                       {payingId === order.id ? t('paying') : t('payNow')}
                     </button>
                   )}
+                  <ChangePaymentMethod order={order} onChanged={fetchOrders} onPay={pay} />
                   {/* Huỷ được khi người bán chưa bắt tay vào chuẩn bị hàng.
                       Từ `processing` trở đi thì huỷ phải qua người bán. */}
                   {(order.status === 'pending' || order.status === 'confirmed') && (
