@@ -216,11 +216,13 @@ export default function OrderDetailPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-small text-ink">{item.product_name}</span>
                   <span className="block text-caption tabular-nums text-ink-muted">
-                    {formatPrice(item.price_at_purchase, cur)} × {item.quantity}
+                    {formatPrice(item.price ?? item.price_at_purchase, cur)} × {item.quantity}
                   </span>
                 </span>
                 <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
-                  {formatPrice(Number(item.price_at_purchase || 0) * Number(item.quantity || 0), cur)}
+                  {/* API trả `price` (order_items.price); `price_at_purchase` chưa từng có trong
+                      response nên trang này luôn hiện 0 đ. */}
+                  {formatPrice(Number(item.price ?? item.price_at_purchase ?? 0) * Number(item.quantity || 0), cur)}
                 </span>
               </li>
             ))}
