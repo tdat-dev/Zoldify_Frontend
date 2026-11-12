@@ -213,8 +213,13 @@ export function ShopView({
         <div className="text-center">
           <Store className="w-16 h-16 text-ink-faint mx-auto mb-4" />
           <p className="text-ink-muted mb-4">{error}</p>
-          <Link href="/product/create" className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark">
-            {t('sellNow')}
+          {/* Chưa có shop thì phải qua Cài đặt shop trước: Đăng tin đòi địa chỉ
+              lấy hàng, nên dẫn thẳng sang đó là vòng lặp không lối ra. */}
+          <Link
+            href={targetSellerId ? '/product/create' : '/shop/settings'}
+            className="px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark"
+          >
+            {targetSellerId ? t('sellNow') : t('openShop')}
           </Link>
         </div>
       </div>

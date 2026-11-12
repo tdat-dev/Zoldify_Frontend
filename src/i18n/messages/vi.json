@@ -776,7 +776,7 @@
     "shipmentWarn": "Đơn đã chuyển bước nhưng chưa có vận đơn. Mở Chi tiết để tạo lại.",
     "shopOf": "Shop của #{id}",
     "myShop": "Shop của tôi",
-    "noShop": "Bạn chưa có shop. Đăng một món là shop tự mở.",
+    "noShop": "Bạn chưa có shop. Khai địa chỉ lấy hàng là shop được mở, rồi đăng tin.",
     "loadFailed": "Không tải được thông tin shop.",
     "cannotFollowSelf": "Bạn không theo dõi chính mình được.",
     "followed": "Đã theo dõi shop.",
@@ -836,7 +836,8 @@
     "cancelTitle": "Huỷ đơn hàng",
     "cancelAsk": "Huỷ đơn {code}?",
     "refundNote": "Khách {name} sẽ được hoàn tiền.",
-    "no": "Không"
+    "no": "Không",
+    "openShop": "Mở shop"
   },
   "home": {
     "quickLinksLabel": "Lối tắt",
@@ -922,9 +923,10 @@
     "saved": "Đã lưu địa chỉ lấy hàng",
     "saveFailed": "Lưu chưa được, thử lại giúp mình nhé",
     "loadFailed": "Không tải được thông tin shop",
-    "noShop": "Bạn chưa có shop. Tạo shop trước rồi quay lại khai địa chỉ lấy hàng.",
-    "createShop": "Tạo shop",
-    "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé"
+    "noShop": "Bạn chưa có shop. Điền địa chỉ lấy hàng bên dưới rồi bấm Mở shop: shipper sẽ tới đây lấy hàng của bạn.",
+    "createShop": "Mở shop",
+    "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé",
+    "createdShop": "Đã mở shop và lưu địa chỉ lấy hàng. Giờ bạn đăng tin được rồi."
   },
   "meta": {
     "title": "Zoldify: Chợ mua bán đồ cũ còn dùng tốt",

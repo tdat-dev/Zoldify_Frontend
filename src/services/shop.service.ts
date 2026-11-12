@@ -17,6 +17,11 @@ export const shopService = {
   getMyShop() {
     return http.get('/shop/me');
   },
+  /** Mở shop. Web trước đây không có đường gọi này: người bán mới bị kẹt giữa
+   *  "tạo shop trước" ở Cài đặt shop và "khai địa chỉ lấy hàng trước" ở Đăng tin. */
+  create(data: ShopPickup & { name: string; slug: string }) {
+    return http.post('/shop', data);
+  },
   update(data: Record<string, unknown>) {
     return http.patch('/shop', data);
   },
