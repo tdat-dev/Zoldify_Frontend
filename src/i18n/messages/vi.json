@@ -981,6 +981,11 @@
     "example2": "Máy ảnh Canon cũ ở HCM",
     "example3": "Giày chạy bộ như mới",
     "newChat": "Cuộc trò chuyện mới",
-    "took": "Tìm trong {seconds} giây"
+    "took": "Tìm trong {seconds} giây",
+    "verdictGood": "Giá tốt",
+    "verdictFair": "Giá ngang mặt bằng",
+    "verdictHigh": "Giá cao hơn mặt bằng",
+    "overBudget": "Vượt ngân sách",
+    "aiNote": "AI nhận xét"
   }
 }
