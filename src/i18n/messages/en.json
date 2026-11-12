@@ -986,6 +986,7 @@
     "verdictFair": "Typical price",
     "verdictHigh": "Above typical price",
     "overBudget": "Over budget",
-    "aiNote": "AI review"
+    "aiNote": "AI review",
+    "aiReviewing": "AI is reviewing this item..."
   }
 }

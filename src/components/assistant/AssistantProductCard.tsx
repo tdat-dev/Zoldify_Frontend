@@ -92,6 +92,12 @@ export function AssistantProductCard({ product, onNavigate }: { product: Assista
             )}
           </span>
         )}
+        {product.ai_pending && (
+          <p className="mt-1 inline-flex items-center gap-1 text-caption text-ink-faint" aria-live="polite">
+            <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+            {t('aiReviewing')}
+          </p>
+        )}
         {product.note && (
           <p className="mt-1 text-caption text-ink-muted">
             {product.ai_note && (
