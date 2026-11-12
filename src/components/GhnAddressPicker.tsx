@@ -68,7 +68,10 @@ export default function GhnAddressPicker({ onSelect }: Props) {
       try {
         const res = await addressService.getAll();
         const list: any[] = res.data?.data?.result ?? res.data?.data ?? [];
-        const saved = list.find((a) => a.is_default && a.ghn_province_id && a.ghn_district_id && a.ghn_ward_code);
+        // Ưu tiên địa chỉ mặc định; chưa đặt mặc định thì lấy địa chỉ đầu tiên đủ mã GHN
+        // (người chỉ lưu một địa chỉ thường không bấm "đặt làm mặc định").
+        const complete = list.filter((a) => a.ghn_province_id && a.ghn_district_id && a.ghn_ward_code);
+        const saved = complete.find((a) => a.is_default) ?? complete[0];
         if (!saved) return;
         const province = provinces.find((p) => p.ProvinceID === Number(saved.ghn_province_id));
         if (!province) return;
