@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE } from '@/lib/date-format';
 import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -37,6 +38,7 @@ export default function UserOrdersPage() {
   const { allowed } = useRequireAuth();
   const { toast, confirm } = useToast();
   const t = useTranslations('orders');
+  const fmt = useFormatter();
   const tc = useTranslations('common');
 
   const [status, setStatus] = useState<string>('all');
@@ -234,7 +236,7 @@ export default function UserOrdersPage() {
                         dateTime={order.created_at}
                         className="text-small tabular-nums text-ink-faint"
                       >
-                        {new Date(order.created_at).toLocaleDateString()}
+                        {fmt.dateTime(new Date(order.created_at), DATE)}
                       </time>
                     )}
                     <OrderStatusBadge status={order.status} />

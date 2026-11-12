@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE_TIME } from '@/lib/date-format';
 import { ArrowDownLeft, ArrowUpRight, Plus, CreditCard, Banknote, Lock } from 'lucide-react';
 import { paymentService } from '@/services/payment.service';
 import { payosService } from '@/services/payos.service';
@@ -60,6 +61,7 @@ export default function WalletPage() {
   const { allowed } = useRequireAuth();
   const { toast } = useToast();
   const t = useTranslations('wallet');
+  const fmt = useFormatter();
   const tc = useTranslations('common');
   const tw = useTranslations('withdrawalStatus');
 
@@ -473,7 +475,7 @@ export default function WalletPage() {
                       dateTime={w.created_at}
                       className="mt-0.5 block text-caption tabular-nums text-ink-faint"
                     >
-                      {new Date(w.created_at).toLocaleString()}
+                      {fmt.dateTime(new Date(w.created_at), DATE_TIME)}
                     </time>
                   )}
                   {isHoldingMoney(w.status) && (
@@ -540,7 +542,7 @@ export default function WalletPage() {
                           dateTime={tx.created_at}
                           className="block text-caption tabular-nums text-ink-faint"
                         >
-                          {new Date(tx.created_at).toLocaleString()}
+                          {fmt.dateTime(new Date(tx.created_at), DATE_TIME)}
                         </time>
                       )}
                     </span>
