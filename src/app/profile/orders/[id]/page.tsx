@@ -119,8 +119,12 @@ export default function OrderDetailPage() {
   // nên người bán sửa tin sau này cũng không đổi được hoá đơn cũ.
   const cur = order.currency;
   const shippingFee = Number(order.shipping_fee || 0);
-  const total = Number(order.total_amount || 0);
-  const subTotal = total - shippingFee;
+  // Backend: total_amount là TIỀN HÀNG, final_amount = tiền hàng + ship - giảm giá
+  // (số đã trừ ví hoặc thu qua PayOS). Bản cũ coi total_amount đã gồm ship nên
+  // tiền hàng hiện thiếu đúng bằng phí ship và tổng hiện thiếu phí ship.
+  const subTotal = Number(order.total_amount || 0);
+  const discount = Number(order.discount_amount || 0);
+  const total = Number(order.final_amount || 0) || subTotal + shippingFee - discount;
   const current = flowIndex(order.status);
   const offFlow = current === -1;
 
