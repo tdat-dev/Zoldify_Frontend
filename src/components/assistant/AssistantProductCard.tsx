@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Loader2, Package } from 'lucide-react';
+import { Loader2, Package, Sparkles } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
@@ -12,6 +12,13 @@ import { cartService } from '@/services/cart.service';
 import type { AssistantProduct } from '@/services/assistant.service';
 import { formatPrice } from '@/lib/format';
 import { imageUrl } from '@/lib/image-url';
+
+/** Màu nhãn giá: dùng chung bảng màu trạng thái như ConditionBadge. */
+const VERDICT_STYLE = {
+  good: { key: 'verdictGood', cls: 'bg-state-success-bg text-state-success-fg' },
+  fair: { key: 'verdictFair', cls: 'bg-state-neutral-bg text-state-neutral-fg' },
+  high: { key: 'verdictHigh', cls: 'bg-state-pending-bg text-state-pending-fg' },
+} as const;
 
 /**
  * Thẻ món trong khung trợ lý. "Mua ngay" làm đúng như nút cùng tên ở trang chi
@@ -55,6 +62,7 @@ export function AssistantProductCard({ product, onNavigate }: { product: Assista
   };
 
   const src = product.image ? imageUrl(product.image, 400) : null;
+  const verdict = product.verdict ? VERDICT_STYLE[product.verdict] : null;
   return (
     <li className="flex gap-3 rounded-card border border-ink/10 bg-surface-card p-2">
       <Link href={`/product/${product.id}`} onClick={onNavigate} className="h-16 w-16 shrink-0 overflow-hidden rounded-control bg-surface-sunken">
@@ -72,6 +80,29 @@ export function AssistantProductCard({ product, onNavigate }: { product: Assista
         <span className="truncate text-caption text-ink-muted">
           {[product.condition ? tc(product.condition as any) : null, product.province_name].filter(Boolean).join(' · ')}
         </span>
+        {(verdict || product.over_budget) && (
+          <span className="mt-1 flex flex-wrap gap-1">
+            {verdict && (
+              <span className={`rounded-control px-1.5 py-0.5 text-caption font-medium ${verdict.cls}`}>{t(verdict.key)}</span>
+            )}
+            {product.over_budget && (
+              <span className="rounded-control bg-state-danger-bg px-1.5 py-0.5 text-caption font-medium text-state-danger-fg">
+                {t('overBudget')}
+              </span>
+            )}
+          </span>
+        )}
+        {product.note && (
+          <p className="mt-1 text-caption text-ink-muted">
+            {product.ai_note && (
+              <span className="mr-1 inline-flex items-center gap-0.5 font-medium text-brand">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                {t('aiNote')}:
+              </span>
+            )}
+            {product.note}
+          </p>
+        )}
       </div>
       <button
         type="button"

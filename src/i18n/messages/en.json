@@ -981,6 +981,11 @@
     "example2": "Used Canon camera in HCMC",
     "example3": "Like-new running shoes",
     "newChat": "New chat",
-    "took": "Found in {seconds} s"
+    "took": "Found in {seconds} s",
+    "verdictGood": "Good price",
+    "verdictFair": "Typical price",
+    "verdictHigh": "Above typical price",
+    "overBudget": "Over budget",
+    "aiNote": "AI review"
   }
 }
