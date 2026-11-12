@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { Loader2, Search, X, Package, MapPin, Phone, User as UserIcon, Eye, CheckCircle2, XCircle, Truck, Clock, ChevronDown } from 'lucide-react';
+import { Loader2, Search, Package, Eye, CheckCircle2, XCircle, Truck, Clock, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import http from '@/lib/http';
@@ -13,50 +13,9 @@ import { AccountShell } from '@/components/account/AccountShell';
 import { formatPrice, imageUrl } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor, orderStatusTone, type OrderStatus } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
+import { SellerOrderDetail } from '@/components/seller/SellerOrderDetail';
+import { formatDate, orderCode, type Order } from '@/components/seller/seller-order';
 
-interface OrderItem {
-  id: number;
-  product_name: string;
-  product_image?: string;
-  price: number | string;
-  quantity: number;
-  subtotal: number | string;
-  product?: { id: number; name: string; image?: string; seller_id?: number };
-}
-
-/**
- * Ten truong PHAI khop backend: API tra ve `order_code` va `discount_amount`,
- * khong phai `code` va `discount`. Frontend khai sai ten nen ca hai luon
- * undefined:
- *
- *  - Cot "Ma DH" o bang quan tri hien rong vinh vien.
- *  - O tim kiem cua trang don nguoi ban goi `orderCode(o).toLowerCase()` tren
- *    undefined -> nem TypeError ngay ky tu dau tien.
- *
- * Giu ca hai ten va doc theo thu tu uu tien, de neu backend doi lai thi khong vo.
- */
-interface Order {
-  id: number;
-  order_code?: string;
-  code?: string;
-  total_amount: number | string;
-  shipping_fee: number | string;
-  discount_amount?: number | string;
-  discount?: number | string;
-  final_amount: number | string;
-  status: OrderStatus;
-  payment_method: string;
-  tracking_code?: string;
-  receiver_name: string;
-  receiver_phone: string;
-  shipping_address: string;
-  province?: string;
-  district?: string;
-  note?: string;
-  created_at: string;
-  user?: { id: number; full_name: string; email: string; phone_number?: string };
-  items: OrderItem[];
-}
 
 /**
  * Nhãn và màu lấy từ nguồn chung (src/lib/order-status.ts).
@@ -86,14 +45,6 @@ function nextInFlow(status: unknown): OrderStatus | null {
 }
 
 
-/** Ma don hien cho nguoi doc. Khong co ma thi dung so thu tu, khong de trong. */
-function orderCode(o: Order): string {
-  return o.order_code || o.code || `#${o.id}`;
-}
-
-function orderDiscount(o: Order): number {
-  return Number(o.discount_amount ?? o.discount ?? 0);
-}
 
 export default function ShopOrdersPage() {
   const { toast } = useToast();
@@ -245,11 +196,6 @@ export default function ShopOrdersPage() {
 
   const formatCurrency = (v: number | string, currency?: string) =>
     formatPrice(v, currency);
-  const formatDate = (d: string) => {
-    try {
-      return new Date(d).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-    } catch { return d; }
-  };
 
   const switchTab = (tab: 'orders' | 'listings') => {
     setTopTab(tab);
@@ -477,133 +423,12 @@ export default function ShopOrdersPage() {
         )}
     </AccountShell>
 
-      {/* Order Detail Modal */}
       {viewingOrder && (
-        <div className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center p-4" onClick={() => setViewingOrder(null)}>
-          <div
-            className="bg-surface-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-surface-card border-b px-6 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-ink">{t('orderDetail')}</h2>
-                <p className="text-small text-ink-muted font-mono">{orderCode(viewingOrder)}</p>
-              </div>
-              <button onClick={() => setViewingOrder(null)} className="p-1 hover:bg-surface-sunken rounded">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <span className={`px-3 py-1.5 rounded-full text-small font-medium ${TONE_CLASS[orderStatusTone(viewingOrder.status)]}`}>
-                  {tStatus(viewingOrder.status)}
-                </span>
-                <div className="text-right">
-                  <div className="text-caption text-ink-muted">{t('placedAt')}</div>
-                  <div className="text-small text-ink">{formatDate(viewingOrder.created_at)}</div>
-                </div>
-              </div>
-
-              <ShipmentPanel
-                key={viewingOrder.id}
-                orderId={viewingOrder.id}
-                onChanged={() => refreshOrder(viewingOrder.id)}
-              />
-
-              <div className="bg-surface-page rounded-control p-4">
-                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4" /> {t('customer')}
-                </h3>
-                <div className="text-small space-y-1">
-                  <div className="font-medium">{viewingOrder.user?.full_name || '—'}</div>
-                  <div className="text-caption text-ink-muted">{viewingOrder.user?.email || ''}</div>
-                </div>
-              </div>
-
-              <div className="bg-surface-page rounded-control p-4">
-                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> {t('shipTo')}
-                </h3>
-                <div className="space-y-2 text-small">
-                  <div className="flex items-start gap-2">
-                    <UserIcon className="w-4 h-4 text-ink-muted mt-0.5" />
-                    <div>
-                      <div className="font-medium">{viewingOrder.receiver_name}</div>
-                      <div className="text-caption text-ink-muted flex items-center gap-1">
-                        <Phone className="w-3 h-3" /> {viewingOrder.receiver_phone}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-ink-muted mt-0.5" />
-                    <div className="text-ink">
-                      {viewingOrder.shipping_address}
-                      {(viewingOrder.district || viewingOrder.province) && (
-                        <div className="text-caption text-ink-muted">
-                          {[viewingOrder.district, viewingOrder.province].filter(Boolean).join(', ')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {viewingOrder.note && (
-                    <div className="text-caption text-ink-muted italic border-l-2 border-ink/16 pl-2">
-                      {t('note', { note: viewingOrder.note })}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-small font-semibold text-ink mb-3 flex items-center gap-2">
-                  <Package className="w-4 h-4" /> {t('itemsIn', { count: viewingOrder.items?.length || 0 })}
-                </h3>
-                <div className="space-y-2">
-                  {viewingOrder.items?.map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 border rounded-control">
-                      <div className="w-14 h-14 rounded-control bg-surface-sunken overflow-hidden flex-shrink-0">
-                        {getImageSrc(item.product?.image || item.product_image) ? (
-                          <img
-                            src={getImageSrc(item.product?.image || item.product_image)!}
-                            alt={item.product_name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-ink-muted">
-                            <Package className="w-6 h-6" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-small font-medium text-ink line-clamp-1">{item.product_name}</div>
-                        <div className="text-caption text-ink-muted">SL: {item.quantity} × {formatCurrency(item.price)}</div>
-                      </div>
-                      <div className="text-small font-semibold text-ink">{formatCurrency(item.subtotal)}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t pt-4 space-y-2 text-small">
-                <div className="flex justify-between text-ink-muted">
-                  <span>{t('subtotal')}</span><span>{formatCurrency(viewingOrder.total_amount)}</span>
-                </div>
-                {Number(orderDiscount(viewingOrder)) > 0 && (
-                  <div className="flex justify-between text-ink-muted">
-                    <span>{t('discount')}</span><span className="text-state-success-fg">-{formatCurrency(orderDiscount(viewingOrder))}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-ink-muted">
-                  <span>{t('shippingFee')}</span>
-                  <span>{Number(viewingOrder.shipping_fee) > 0 ? formatCurrency(viewingOrder.shipping_fee) : t('free')}</span>
-                </div>
-                <div className="flex justify-between text-base font-bold text-ink pt-2 border-t">
-                  <span>{t('total')}</span>
-                  <span className="text-state-danger-fg">{formatCurrency(viewingOrder.final_amount)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SellerOrderDetail
+          order={viewingOrder}
+          onClose={() => setViewingOrder(null)}
+          onRefresh={() => refreshOrder(viewingOrder.id)}
+        />
       )}
 
       {/* Cancel Confirm Modal */}
