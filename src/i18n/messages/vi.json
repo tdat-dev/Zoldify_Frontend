@@ -950,5 +950,23 @@
     "locationTitle": "{category} cũ tại {label}",
     "summary": "{count} tin đang bán, giá từ {min} đến {max}.",
     "description": "{title}: {count} tin đang bán trên Zoldify, giá từ {min} đến {max}. Xem tận nơi, trả khi nhận hàng."
+  },
+  "assistant": {
+    "title": "Trợ lý mua hàng",
+    "subtitle": "Gõ một câu, mình tìm món giúp bạn",
+    "open": "Hỏi trợ lý",
+    "close": "Đóng",
+    "greeting": "Chào bạn! Bạn muốn mua gì? Gõ tên món, tầm giá và nơi nhận, ví dụ: nồi cơm điện Nhật dưới 600k ở HCM.",
+    "placeholder": "Bạn muốn tìm món gì?",
+    "send": "Gửi",
+    "thinking": "Đang tìm...",
+    "failed": "Trợ lý đang bận, bạn thử lại sau ít phút hoặc dùng ô tìm kiếm ở đầu trang.",
+    "tooFast": "Bạn hỏi hơi nhanh, đợi một chút rồi gửi lại nhé.",
+    "buyNow": "Mua ngay",
+    "buying": "Đang mở trang đặt hàng",
+    "buyFailed": "Chưa thêm được món này. Thử lại giúp mình.",
+    "example1": "Nồi cơm điện dưới 600k",
+    "example2": "Máy ảnh Canon cũ ở HCM",
+    "example3": "Giày chạy bộ như mới"
   }
 }
