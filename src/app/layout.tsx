@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
+import { AssistantLauncher } from '@/components/assistant/AssistantLauncher';
 import { AnnounceBar } from "@/components/AnnounceBar";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { SITE_URL } from "@/lib/config";
@@ -113,6 +114,8 @@ export default async function RootLayout({
                     là server component async, import thẳng vào SiteChrome sẽ
                     làm trắng mọi trang không-phải-auth. */}
                   <SiteChrome announce={<AnnounceBar />}>{children}</SiteChrome>
+                  {/* Trợ lý mua hàng: tự ẩn khi backend chưa bật (prod). */}
+                  <AssistantLauncher />
                 </ToastProvider>
               </CartProvider>
             </AuthProvider>

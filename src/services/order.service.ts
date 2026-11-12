@@ -27,8 +27,13 @@ export const orderService = {
    * `idempotencyKey`: cùng một khoá cho mọi lần gửi lại của CÙNG một lần bấm
    * "Đặt hàng". Mạng rớt sau khi server đã tạo đơn mà gửi lại thì backend trả
    * đúng đơn cũ, không tạo đơn thứ hai.
+   *
+   * `expected_subtotal`: tiền hàng trang thanh toán đang hiện. Giá đổi từ lúc
+   * người mua mở trang thì backend trả 409 thay vì tính giá mới mà không báo
+   * (test staging 12/11). Khai tay ở đây vì schema.d.ts đang lệch backend nhiều
+   * chỗ khác; sinh lại schema là một việc dọn riêng.
    */
-  create(data: CreateOrderDto, idempotencyKey?: string) {
+  create(data: CreateOrderDto & { expected_subtotal?: number }, idempotencyKey?: string) {
     return http.post<ApiResponse<Order>>('/orders', data, {
       headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
     });
@@ -59,6 +64,12 @@ export const orderService = {
   },
   cancel(id: number) {
     return http.patch<ApiResponse<Order>>(`/orders/${id}/cancel`);
+  },
+  /** Đổi cách trả cho đơn còn chờ xác nhận và chưa trả. */
+  changePaymentMethod(id: number, payment_method: 'cod' | 'wallet' | 'payos') {
+    return http.patch<ApiResponse<Order>>(`/orders/${id}/payment-method`, {
+      payment_method,
+    });
   },
   remove(id: number) {
     return http.delete<ApiResponse<unknown>>(`/orders/${id}`);

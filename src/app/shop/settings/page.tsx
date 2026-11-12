@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MapPin, Store, Loader2, Truck } from 'lucide-react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { shopService } from '@/services/shop.service';
+import { toSlug } from '@/lib/slug';
 import {
   ghnService,
   type GhnProvince,
@@ -45,6 +46,7 @@ export default function ShopPickupSettingsPage() {
   // đầu sau khi tải lại trang (chưa đọc xong storage) luôn là false, và người
   // đang đăng nhập bị đá về /login.
   const { allowed } = useRequireAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -104,8 +106,13 @@ export default function ShopPickupSettingsPage() {
           }));
         }
       } catch (err: any) {
-        if (err?.response?.status === 404) setNoShop(true);
-        else setError(t('loadFailed'));
+        if (err?.response?.status === 404) {
+          // Chưa có shop: vẫn cho khai địa chỉ ngay tại đây, bấm Lưu là mở shop.
+          // Danh mục tỉnh nạp riêng vì Promise.all ở trên đã hỏng theo /shop/me.
+          setNoShop(true);
+          setForm((f) => ({ ...f, pickup_name: user?.full_name || '' }));
+          setProvinces(await ghnService.getProvinces().catch(() => []));
+        } else setError(t('loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -159,18 +166,31 @@ export default function ShopPickupSettingsPage() {
       return;
     }
     setSaving(true);
+    const pickup = {
+      pickup_name: form.pickup_name.trim(),
+      pickup_phone: form.pickup_phone.trim(),
+      pickup_address: form.pickup_address.trim(),
+      pickup_province_name: form.pickup_province_name,
+      pickup_district_id: form.pickup_district_id,
+      pickup_district_name: form.pickup_district_name,
+      pickup_ward_code: form.pickup_ward_code,
+      pickup_ward_name: form.pickup_ward_name,
+    };
     try {
-      await shopService.updatePickup({
-        pickup_name: form.pickup_name.trim(),
-        pickup_phone: form.pickup_phone.trim(),
-        pickup_address: form.pickup_address.trim(),
-        pickup_province_name: form.pickup_province_name,
-        pickup_district_id: form.pickup_district_id,
-        pickup_district_name: form.pickup_district_name,
-        pickup_ward_code: form.pickup_ward_code,
-        pickup_ward_name: form.pickup_ward_name,
-      });
-      toast(t('saved'), 'success');
+      if (noShop) {
+        // Mỗi tài khoản chỉ một shop nên đuôi id người dùng làm slug không bao
+        // giờ trùng; chỉ lấy tên thì hai người cùng tên sẽ kẹt "Slug đã dùng".
+        await shopService.create({
+          name: pickup.pickup_name,
+          slug: `${toSlug(pickup.pickup_name) || 'shop'}-${user?.id ?? Date.now()}`,
+          ...pickup,
+        });
+        setNoShop(false);
+        toast(t('createdShop'), 'success');
+      } else {
+        await shopService.updatePickup(pickup);
+        toast(t('saved'), 'success');
+      }
     } catch (err: any) {
       const msg = err?.response?.data?.message || t('saveFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
@@ -184,23 +204,6 @@ export default function ShopPickupSettingsPage() {
       <div className="bg-surface-page min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2 text-ink-muted">
           <Loader2 className="w-4 h-4 animate-spin" /> {tc('loading')}
-        </div>
-      </div>
-    );
-  }
-
-  if (noShop) {
-    return (
-      <div className="bg-surface-page min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-sm">
-          <Store className="w-16 h-16 text-ink-faint mx-auto mb-4" />
-          <p className="text-ink-muted mb-4">{t('noShop')}</p>
-          <Link
-            href="/product/create"
-            className="inline-block px-6 py-2 bg-brand text-white rounded-sm hover:bg-brand-dark transition-colors"
-          >
-            {t('createShop')}
-          </Link>
         </div>
       </div>
     );
@@ -223,6 +226,12 @@ export default function ShopPickupSettingsPage() {
         </div>
 
         <div className="bg-surface-card rounded-sm p-5 md:p-6 space-y-4">
+          {noShop && (
+            <p className="flex items-start gap-2 text-small text-ink bg-brand-tint/40 rounded-sm px-3 py-2">
+              <Store className="w-4 h-4 mt-0.5 shrink-0 text-brand" aria-hidden="true" />
+              {t('noShop')}
+            </p>
+          )}
           {error && (
             <p className="text-small text-state-danger-fg bg-state-danger-bg rounded-lg px-3 py-2">
               {error}
@@ -346,7 +355,7 @@ export default function ShopPickupSettingsPage() {
               className="inline-flex items-center gap-2 px-6 py-2.5 bg-brand text-white font-medium rounded-sm hover:bg-brand-dark transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {saving ? t('saving') : t('save')}
+              {saving ? t('saving') : noShop ? t('createShop') : t('save')}
             </button>
           </div>
         </div>

@@ -56,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string, remember = true) => {
     const res = await http.post('/auth/login', { email, password });
-    const { access_token, user: userData } = res.data.data;
-    writeSession(access_token, userData, remember);
+    const { access_token, refresh_token, user: userData } = res.data.data;
+    writeSession(access_token, userData, remember, refresh_token);
     setToken(access_token);
     setUser(userData);
   };
@@ -66,7 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await http.post('/auth/register', { full_name, email, password });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Thu hồi phiên trên máy chủ TRƯỚC khi xoá ở máy. Bản cũ chỉ xoá ở máy, nên
+    // token vừa "đăng xuất" vẫn gọi được API (test staging 12/11, TK-06: GET
+    // /auth/profile vẫn 200). Lỗi mạng thì vẫn đăng xuất ở máy: người dùng đã
+    // bấm, không được giữ họ lại.
+    try {
+      await http.post('/auth/logout', {}, { timeout: 5000 });
+    } catch {
+      // bỏ qua, xem trên
+    }
     clearSession();
     setToken(null);
     setUser(null);

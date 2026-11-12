@@ -210,7 +210,16 @@
     "confirmingReceived": "Đang xác nhận…",
     "confirmReceivedAsk": "Xác nhận bạn đã nhận được hàng? Tiền sẽ được chuyển cho người bán.",
     "confirmReceivedDone": "Cảm ơn bạn. Đơn đã hoàn tất.",
-    "confirmReceivedFailed": "Chưa xác nhận được."
+    "confirmReceivedFailed": "Chưa xác nhận được.",
+    "changeMethod": "Đổi cách trả",
+    "changeMethodTitle": "Trả bằng cách khác",
+    "methodCurrent": "(đang chọn)",
+    "methodKeep": "Giữ nguyên",
+    "methodSaving": "Đang lưu...",
+    "methodSaveCod": "Đổi sang trả khi nhận hàng",
+    "methodSavePay": "Đổi và thanh toán",
+    "methodChangedCod": "Đã đổi sang trả khi nhận hàng. Người bán sẽ xác nhận đơn.",
+    "methodChangeFailed": "Chưa đổi được cách trả. Tải lại đơn rồi thử lại."
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",
@@ -776,7 +785,7 @@
     "shipmentWarn": "Đơn đã chuyển bước nhưng chưa có vận đơn. Mở Chi tiết để tạo lại.",
     "shopOf": "Shop của #{id}",
     "myShop": "Shop của tôi",
-    "noShop": "Bạn chưa có shop. Đăng một món là shop tự mở.",
+    "noShop": "Bạn chưa có shop. Khai địa chỉ lấy hàng là shop được mở, rồi đăng tin.",
     "loadFailed": "Không tải được thông tin shop.",
     "cannotFollowSelf": "Bạn không theo dõi chính mình được.",
     "followed": "Đã theo dõi shop.",
@@ -836,7 +845,11 @@
     "cancelTitle": "Huỷ đơn hàng",
     "cancelAsk": "Huỷ đơn {code}?",
     "refundNote": "Khách {name} sẽ được hoàn tiền.",
-    "no": "Không"
+    "no": "Không",
+    "openShop": "Mở shop",
+    "yourPart": "Phần của bạn: {amount}",
+    "yourSubtotal": "Tiền hàng của bạn",
+    "multiSellerNote": "Đơn này có hàng của người bán khác. Phí giao và tổng tiền tính riêng cho từng người bán, nên ở đây chỉ hiện phần của bạn."
   },
   "home": {
     "quickLinksLabel": "Lối tắt",
@@ -922,9 +935,10 @@
     "saved": "Đã lưu địa chỉ lấy hàng",
     "saveFailed": "Lưu chưa được, thử lại giúp mình nhé",
     "loadFailed": "Không tải được thông tin shop",
-    "noShop": "Bạn chưa có shop. Tạo shop trước rồi quay lại khai địa chỉ lấy hàng.",
-    "createShop": "Tạo shop",
-    "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé"
+    "noShop": "Bạn chưa có shop. Điền địa chỉ lấy hàng bên dưới rồi bấm Mở shop: shipper sẽ tới đây lấy hàng của bạn.",
+    "createShop": "Mở shop",
+    "required": "Điền đủ tên, số điện thoại, địa chỉ và tỉnh/quận/phường giúp mình nhé",
+    "createdShop": "Đã mở shop và lưu địa chỉ lấy hàng. Giờ bạn đăng tin được rồi."
   },
   "meta": {
     "title": "Zoldify: Chợ mua bán đồ cũ còn dùng tốt",
@@ -948,5 +962,30 @@
     "locationTitle": "{category} cũ tại {label}",
     "summary": "{count} tin đang bán, giá từ {min} đến {max}.",
     "description": "{title}: {count} tin đang bán trên Zoldify, giá từ {min} đến {max}. Xem tận nơi, trả khi nhận hàng."
+  },
+  "assistant": {
+    "title": "Trợ lý mua hàng",
+    "subtitle": "Gõ một câu, mình tìm món giúp bạn",
+    "open": "Hỏi trợ lý",
+    "close": "Đóng",
+    "greeting": "Chào bạn! Bạn muốn mua gì? Gõ tên món, tầm giá và nơi nhận, ví dụ: nồi cơm điện Nhật dưới 600k ở HCM.",
+    "placeholder": "Bạn muốn tìm món gì?",
+    "send": "Gửi",
+    "thinking": "Đang tìm...",
+    "failed": "Trợ lý đang bận, bạn thử lại sau ít phút hoặc dùng ô tìm kiếm ở đầu trang.",
+    "tooFast": "Bạn hỏi hơi nhanh, đợi một chút rồi gửi lại nhé.",
+    "buyNow": "Mua ngay",
+    "buying": "Đang mở trang đặt hàng",
+    "buyFailed": "Chưa thêm được món này. Thử lại giúp mình.",
+    "example1": "Nồi cơm điện dưới 600k",
+    "example2": "Máy ảnh Canon cũ ở HCM",
+    "example3": "Giày chạy bộ như mới",
+    "newChat": "Cuộc trò chuyện mới",
+    "took": "Tìm trong {seconds} giây",
+    "verdictGood": "Giá tốt",
+    "verdictFair": "Giá ngang mặt bằng",
+    "verdictHigh": "Giá cao hơn mặt bằng",
+    "overBudget": "Vượt ngân sách",
+    "aiNote": "AI nhận xét"
   }
 }

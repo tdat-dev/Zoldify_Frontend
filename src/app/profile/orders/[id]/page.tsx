@@ -3,11 +3,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE_TIME } from '@/lib/date-format';
 import { ChevronRight, Package, Check, Truck } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import {
+  ChangePaymentMethod,
+  canChangePaymentMethod,
+} from '@/components/orders/ChangePaymentMethod';
 import { formatPrice } from '@/lib/format';
 import { ORDER_FLOW, flowIndex } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -36,6 +41,7 @@ export default function OrderDetailPage() {
   const { allowed } = useRequireAuth();
   const params = useParams();
   const t = useTranslations('orderDetail');
+  const fmt = useFormatter();
   const tOrders = useTranslations('orders');
   const tc = useTranslations('common');
 
@@ -146,7 +152,7 @@ export default function OrderDetailPage() {
             <h1 className="text-h2 text-ink">{t('title', { id: order.id })}</h1>
             {order.created_at && (
               <p className="mt-1 text-small text-ink-muted">
-                {t('placedAt', { when: new Date(order.created_at).toLocaleString() })}
+                {t('placedAt', { when: fmt.dateTime(new Date(order.created_at), DATE_TIME) })}
               </p>
             )}
           </div>
@@ -339,6 +345,16 @@ export default function OrderDetailPage() {
               >
                 {payingId === order.id ? tOrders('paying') : tOrders('payNow')}
               </button>
+            </div>
+          )}
+          {canChangePaymentMethod(order) && (
+            <div className="mt-3">
+              <ChangePaymentMethod
+                order={order}
+                onChanged={fetchOrder}
+                onPay={pay}
+                className="w-full"
+              />
             </div>
           )}
         </section>

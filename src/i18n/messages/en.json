@@ -210,7 +210,16 @@
     "confirmingReceived": "Confirming…",
     "confirmReceivedAsk": "Confirm you received the item? The seller will be paid.",
     "confirmReceivedDone": "Thanks. The order is complete.",
-    "confirmReceivedFailed": "Could not confirm."
+    "confirmReceivedFailed": "Could not confirm.",
+    "changeMethod": "Change payment",
+    "changeMethodTitle": "Pay another way",
+    "methodCurrent": "(current)",
+    "methodKeep": "Keep",
+    "methodSaving": "Saving...",
+    "methodSaveCod": "Switch to cash on delivery",
+    "methodSavePay": "Switch and pay",
+    "methodChangedCod": "Switched to cash on delivery. The seller will confirm your order.",
+    "methodChangeFailed": "Could not change the payment method. Reload the order and try again."
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -776,7 +785,7 @@
     "shipmentWarn": "The order moved on but has no shipment. Open Details to create it.",
     "shopOf": "Shop #{id}",
     "myShop": "My shop",
-    "noShop": "You don't have a shop yet. List one item and it opens automatically.",
+    "noShop": "You don't have a shop yet. Set a pickup address to open it, then list items.",
     "loadFailed": "Could not load the shop.",
     "cannotFollowSelf": "You can't follow yourself.",
     "followed": "Following this shop.",
@@ -836,7 +845,11 @@
     "cancelTitle": "Cancel order",
     "cancelAsk": "Cancel order {code}?",
     "refundNote": "{name} will be refunded.",
-    "no": "No"
+    "no": "No",
+    "openShop": "Open shop",
+    "yourPart": "Your part: {amount}",
+    "yourSubtotal": "Your items",
+    "multiSellerNote": "This order also has items from other sellers. Shipping and totals are split per seller, so only your part is shown."
   },
   "home": {
     "quickLinksLabel": "Shortcuts",
@@ -922,9 +935,10 @@
     "saved": "Pickup address saved",
     "saveFailed": "Could not save, please try again",
     "loadFailed": "Could not load your shop",
-    "noShop": "You don't have a shop yet. Create one, then set your pickup address.",
-    "createShop": "Create shop",
-    "required": "Please fill name, phone, address and province / district / ward"
+    "noShop": "You don't have a shop yet. Fill in your pickup address below and press Open shop: the courier collects your items here.",
+    "createShop": "Open shop",
+    "required": "Please fill name, phone, address and province / district / ward",
+    "createdShop": "Shop opened and pickup address saved. You can list items now."
   },
   "meta": {
     "title": "Zoldify: Buy and sell used things",
@@ -948,5 +962,30 @@
     "locationTitle": "Used {category} in {label}",
     "summary": "{count} listings, from {min} to {max}.",
     "description": "{title}: {count} listings on Zoldify, from {min} to {max}. See it in person, pay on delivery."
+  },
+  "assistant": {
+    "title": "Shopping assistant",
+    "subtitle": "Type one line, we find it for you",
+    "open": "Ask assistant",
+    "close": "Close",
+    "greeting": "Hi! What are you looking for? Type the item, budget and city, e.g. Japanese rice cooker under 600k in HCMC.",
+    "placeholder": "What do you want to buy?",
+    "send": "Send",
+    "thinking": "Searching...",
+    "failed": "The assistant is busy. Try again in a few minutes or use the search bar.",
+    "tooFast": "You are typing a bit fast, wait a moment and send again.",
+    "buyNow": "Buy now",
+    "buying": "Opening checkout",
+    "buyFailed": "Could not add this item. Please try again.",
+    "example1": "Rice cooker under 600k",
+    "example2": "Used Canon camera in HCMC",
+    "example3": "Like-new running shoes",
+    "newChat": "New chat",
+    "took": "Found in {seconds} s",
+    "verdictGood": "Good price",
+    "verdictFair": "Typical price",
+    "verdictHigh": "Above typical price",
+    "overBudget": "Over budget",
+    "aiNote": "AI review"
   }
 }
