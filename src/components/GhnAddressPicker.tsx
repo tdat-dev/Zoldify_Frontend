@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   ghnService,
@@ -8,6 +8,7 @@ import {
   type GhnDistrict,
   type GhnWard,
 } from '@/services/ghn.service';
+import { addressService } from '@/services/address.service';
 
 export interface GhnAddressSelection {
   receiver_name: string;
@@ -54,6 +55,50 @@ export default function GhnAddressPicker({ onSelect }: Props) {
   useEffect(() => {
     ghnService.getProvinces().then(setProvinces).catch(() => setProvinces([]));
   }, []);
+
+  // Điền sẵn địa chỉ MẶC ĐỊNH đã lưu nếu nó có đủ mã GHN. Trước đây người mua
+  // phải chọn lại tỉnh, quận, phường mỗi lần đặt dù đã lưu địa chỉ (cẩm nang
+  // bảo vệ 12/11 ghi là lỗi đã biết), và nút Mua ngay của trợ lý mua hàng mở
+  // thẳng trang này. Địa chỉ cũ không có mã GHN thì để trống như cũ.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || provinces.length === 0) return;
+    prefilled.current = true;
+    (async () => {
+      try {
+        const res = await addressService.getAll();
+        const list: any[] = res.data?.data?.result ?? res.data?.data ?? [];
+        const saved = list.find((a) => a.is_default && a.ghn_province_id && a.ghn_district_id && a.ghn_ward_code);
+        if (!saved) return;
+        const province = provinces.find((p) => p.ProvinceID === Number(saved.ghn_province_id));
+        if (!province) return;
+        const ds = await ghnService.getDistricts(province.ProvinceID);
+        const district = ds.find((d) => d.DistrictID === Number(saved.ghn_district_id));
+        if (!district) return;
+        const ws = await ghnService.getWards(district.DistrictID);
+        const ward = ws.find((w) => w.WardCode === String(saved.ghn_ward_code));
+        if (!ward) return;
+        setDistricts(ds);
+        setWards(ws);
+        const next = {
+          receiver_name: saved.recipient_name ?? '',
+          receiver_phone: saved.phone_number ?? '',
+          street: saved.street ?? '',
+          province_id: province.ProvinceID,
+          province_name: province.ProvinceName,
+          district_id: district.DistrictID,
+          district_name: district.DistrictName,
+          ward_code: ward.WardCode,
+          ward_name: ward.WardName,
+        };
+        setForm(next);
+        emit(next);
+      } catch {
+        // Chưa đăng nhập hoặc lỗi mạng: để người mua tự nhập như trước.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinces]);
 
   const emit = (f: typeof form) => {
     const shipping_address = [f.street, f.ward_name, f.district_name, f.province_name]

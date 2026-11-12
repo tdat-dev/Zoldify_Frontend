@@ -950,5 +950,23 @@
     "locationTitle": "Used {category} in {label}",
     "summary": "{count} listings, from {min} to {max}.",
     "description": "{title}: {count} listings on Zoldify, from {min} to {max}. See it in person, pay on delivery."
+  },
+  "assistant": {
+    "title": "Shopping assistant",
+    "subtitle": "Type one line, we find it for you",
+    "open": "Ask assistant",
+    "close": "Close",
+    "greeting": "Hi! What are you looking for? Type the item, budget and city, e.g. Japanese rice cooker under 600k in HCMC.",
+    "placeholder": "What do you want to buy?",
+    "send": "Send",
+    "thinking": "Searching...",
+    "failed": "The assistant is busy. Try again in a few minutes or use the search bar.",
+    "tooFast": "You are typing a bit fast, wait a moment and send again.",
+    "buyNow": "Buy now",
+    "buying": "Opening checkout",
+    "buyFailed": "Could not add this item. Please try again.",
+    "example1": "Rice cooker under 600k",
+    "example2": "Used Canon camera in HCMC",
+    "example3": "Like-new running shoes"
   }
 }
