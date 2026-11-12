@@ -846,7 +846,10 @@
     "cancelAsk": "Cancel order {code}?",
     "refundNote": "{name} will be refunded.",
     "no": "No",
-    "openShop": "Open shop"
+    "openShop": "Open shop",
+    "yourPart": "Your part: {amount}",
+    "yourSubtotal": "Your items",
+    "multiSellerNote": "This order also has items from other sellers. Shipping and totals are split per seller, so only your part is shown."
   },
   "home": {
     "quickLinksLabel": "Shortcuts",
