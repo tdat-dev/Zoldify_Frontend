@@ -42,7 +42,11 @@ export function useAssistantHistory(greetingText: string) {
     } catch {
       // Dữ liệu hỏng hoặc trình duyệt chặn lưu trữ: bắt đầu cuộc mới.
     }
-    setTurns(saved.length ? saved : [greeting]);
+    // Trang tải lại giữa chừng thì câu AI đang chờ sẽ không bao giờ đến: tắt cờ chờ.
+    const settled = saved.map((x) =>
+      x.products ? { ...x, products: x.products.map((p) => ({ ...p, ai_pending: false })) } : x,
+    );
+    setTurns(settled.length ? settled : [greeting]);
     loadedKey.current = key;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
