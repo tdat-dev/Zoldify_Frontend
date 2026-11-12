@@ -2,11 +2,13 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE } from '@/lib/date-format';
 import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import { ChangePaymentMethod } from '@/components/orders/ChangePaymentMethod';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor } from '@/lib/order-status';
@@ -37,6 +39,7 @@ export default function UserOrdersPage() {
   const { allowed } = useRequireAuth();
   const { toast, confirm } = useToast();
   const t = useTranslations('orders');
+  const fmt = useFormatter();
   const tc = useTranslations('common');
 
   const [status, setStatus] = useState<string>('all');
@@ -234,7 +237,7 @@ export default function UserOrdersPage() {
                         dateTime={order.created_at}
                         className="text-small tabular-nums text-ink-faint"
                       >
-                        {new Date(order.created_at).toLocaleDateString()}
+                        {fmt.dateTime(new Date(order.created_at), DATE)}
                       </time>
                     )}
                     <OrderStatusBadge status={order.status} />
@@ -287,6 +290,7 @@ export default function UserOrdersPage() {
                       {payingId === order.id ? t('paying') : t('payNow')}
                     </button>
                   )}
+                  <ChangePaymentMethod order={order} onChanged={fetchOrders} onPay={pay} />
                   {/* Huỷ được khi người bán chưa bắt tay vào chuẩn bị hàng.
                       Từ `processing` trở đi thì huỷ phải qua người bán. */}
                   {(order.status === 'pending' || order.status === 'confirmed') && (

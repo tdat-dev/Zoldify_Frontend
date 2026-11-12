@@ -210,7 +210,16 @@
     "confirmingReceived": "Đang xác nhận…",
     "confirmReceivedAsk": "Xác nhận bạn đã nhận được hàng? Tiền sẽ được chuyển cho người bán.",
     "confirmReceivedDone": "Cảm ơn bạn. Đơn đã hoàn tất.",
-    "confirmReceivedFailed": "Chưa xác nhận được."
+    "confirmReceivedFailed": "Chưa xác nhận được.",
+    "changeMethod": "Đổi cách trả",
+    "changeMethodTitle": "Trả bằng cách khác",
+    "methodCurrent": "(đang chọn)",
+    "methodKeep": "Giữ nguyên",
+    "methodSaving": "Đang lưu...",
+    "methodSaveCod": "Đổi sang trả khi nhận hàng",
+    "methodSavePay": "Đổi và thanh toán",
+    "methodChangedCod": "Đã đổi sang trả khi nhận hàng. Người bán sẽ xác nhận đơn.",
+    "methodChangeFailed": "Chưa đổi được cách trả. Tải lại đơn rồi thử lại."
   },
   "auth": {
     "loginTitle": "Chào mừng trở lại",

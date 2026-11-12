@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE } from '@/lib/date-format';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
@@ -57,6 +58,7 @@ const NOTI_ICONS: Record<string, any> = {
 
 export default function Header() {
   const t = useTranslations('header');
+  const fmt = useFormatter();
   const tc = useTranslations('common');
   const tBands = useTranslations('priceBands');
   const tn = useTranslations('notifications');
@@ -172,7 +174,7 @@ export default function Header() {
     if (diff < 60_000) return tn('justNow');
     if (diff < 3_600_000) return tn('minutesAgo', { count: Math.floor(diff / 60_000) });
     if (diff < 86_400_000) return tn('hoursAgo', { count: Math.floor(diff / 3_600_000) });
-    return new Date(dateStr).toLocaleDateString();
+    return fmt.dateTime(new Date(dateStr), DATE);
   };
 
   const badge = (n: number) => (
