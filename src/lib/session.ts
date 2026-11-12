@@ -32,6 +32,7 @@ export interface StoredUser {
 
 const TOKEN_KEY = 'access_token';
 const USER_KEY = 'user';
+const REFRESH_KEY = 'refresh_token';
 
 /** Cả hai kho, đúng thứ tự ưu tiên khi đọc. */
 function stores(): Storage[] {
@@ -65,14 +66,33 @@ export function readToken(): string | null {
   return null;
 }
 
-export function writeSession(token: string, user: StoredUser, remember: boolean) {
+/** Refresh token của phiên, nằm cùng kho với access token. */
+export function readRefreshToken(): string | null {
+  for (const store of stores()) {
+    if (store.getItem(TOKEN_KEY)) return store.getItem(REFRESH_KEY);
+  }
+  return null;
+}
+
+/**
+ * `refreshToken` tuỳ chọn để nơi gọi cũ không vỡ, nhưng đăng nhập nào cũng nên
+ * truyền: thiếu nó thì access token hết hạn (24 giờ) là người dùng bị đá ra
+ * /login (test staging 12/11, TK-06).
+ */
+export function writeSession(
+  token: string,
+  user: StoredUser,
+  remember: boolean,
+  refreshToken?: string,
+) {
   if (typeof window === 'undefined') return;
   const target = remember ? window.localStorage : window.sessionStorage;
   const other = remember ? window.sessionStorage : window.localStorage;
-  other.removeItem(TOKEN_KEY);
-  other.removeItem(USER_KEY);
+  for (const key of [TOKEN_KEY, USER_KEY, REFRESH_KEY]) other.removeItem(key);
   target.setItem(TOKEN_KEY, token);
   target.setItem(USER_KEY, JSON.stringify(user));
+  if (refreshToken) target.setItem(REFRESH_KEY, refreshToken);
+  else target.removeItem(REFRESH_KEY);
 }
 
 /** Cập nhật hồ sơ mà KHÔNG đổi chỗ lưu — người dùng đã chọn nhớ hay không. */
@@ -94,11 +114,14 @@ export function updateStoredUser(user: StoredUser) {
  * không ghi nó lại thì request kế tiếp nhận 401 và người dùng bị đá ra
  * /login ngay sau khi đổi mật khẩu thành công.
  */
-export function updateStoredToken(token: string) {
+export function updateStoredToken(token: string, refreshToken?: string) {
   if (typeof window === 'undefined') return;
   for (const store of stores()) {
     if (store.getItem(TOKEN_KEY)) {
       store.setItem(TOKEN_KEY, token);
+      // Backend xoay refresh token mỗi lần làm mới; giữ cái cũ là lần sau gửi
+      // token đã dùng, bị coi là đánh cắp và thu hồi mọi phiên.
+      if (refreshToken) store.setItem(REFRESH_KEY, refreshToken);
       return;
     }
   }
@@ -109,5 +132,6 @@ export function clearSession() {
   for (const store of stores()) {
     store.removeItem(TOKEN_KEY);
     store.removeItem(USER_KEY);
+    store.removeItem(REFRESH_KEY);
   }
 }

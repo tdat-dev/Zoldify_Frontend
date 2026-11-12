@@ -62,10 +62,10 @@ export function GoogleButton({
       const result = await signInWithPopup(fb.auth, fb.googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await http.post('/auth/firebase', { idToken });
-      const { access_token, user } = res.data.data;
+      const { access_token, refresh_token, user } = res.data.data;
       // Đăng nhập bằng Google mặc định là ghi nhớ: người ta chọn nhà cung cấp
       // danh tính chính vì không muốn đăng nhập lại mỗi lần.
-      writeSession(access_token, user, true);
+      writeSession(access_token, user, true, refresh_token);
       window.location.href = '/';
     } catch (err: any) {
       // Người dùng tự đóng cửa sổ popup không phải là lỗi — đừng bắt họ đọc
