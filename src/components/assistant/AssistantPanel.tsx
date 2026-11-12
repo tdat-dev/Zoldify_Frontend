@@ -64,7 +64,7 @@ export function AssistantPanel({ onClose }: { onClose: () => void }) {
     <section
       role="dialog"
       aria-label={t('title')}
-      className="fixed bottom-20 right-4 z-50 flex h-[min(560px,calc(100vh-7rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-card border border-ink/16 bg-surface-page shadow-lg"
+      className="fixed bottom-24 right-4 z-50 flex h-[min(560px,calc(100vh-8rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden rounded-card border border-ink/16 bg-surface-page shadow-lg"
     >
       <header className="flex items-center justify-between border-b border-ink/10 bg-brand px-4 py-3 text-white">
         <div>
