@@ -846,7 +846,10 @@
     "cancelAsk": "Huỷ đơn {code}?",
     "refundNote": "Khách {name} sẽ được hoàn tiền.",
     "no": "Không",
-    "openShop": "Mở shop"
+    "openShop": "Mở shop",
+    "yourPart": "Phần của bạn: {amount}",
+    "yourSubtotal": "Tiền hàng của bạn",
+    "multiSellerNote": "Đơn này có hàng của người bán khác. Phí giao và tổng tiền tính riêng cho từng người bán, nên ở đây chỉ hiện phần của bạn."
   },
   "home": {
     "quickLinksLabel": "Lối tắt",

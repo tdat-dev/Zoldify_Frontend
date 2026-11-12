@@ -6,7 +6,14 @@ import { ShipmentPanel } from '@/components/seller/ShipmentPanel';
 import { formatPrice, imageUrl } from '@/lib/format';
 import { orderStatusTone } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
-import { formatDate, orderCode, orderDiscount, type Order } from './seller-order';
+import {
+  formatDate,
+  isMultiSeller,
+  orderCode,
+  orderDiscount,
+  sellerSubtotal,
+  type Order,
+} from './seller-order';
 
 /** Hộp chi tiết một đơn bán (tách khỏi app/shop/orders/page.tsx khi trang vượt 600 dòng). */
 export function SellerOrderDetail({
@@ -126,6 +133,17 @@ export function SellerOrderDetail({
               </div>
             </div>
     
+            {isMultiSeller(order) ? (
+              // Đơn có hàng của người bán khác: tổng, phí giao của đơn không phải
+              // tiền của riêng người này (test staging 12/11).
+              <div className="border-t pt-4 space-y-2 text-small">
+                <div className="flex justify-between text-base font-bold text-ink">
+                  <span>{t('yourSubtotal')}</span>
+                  <span className="text-state-danger-fg">{formatPrice(sellerSubtotal(order))}</span>
+                </div>
+                <p className="text-caption text-ink-muted">{t('multiSellerNote')}</p>
+              </div>
+            ) : (
             <div className="border-t pt-4 space-y-2 text-small">
               <div className="flex justify-between text-ink-muted">
                 <span>{t('subtotal')}</span><span>{formatPrice(order.total_amount)}</span>
@@ -144,6 +162,7 @@ export function SellerOrderDetail({
                 <span className="text-state-danger-fg">{formatPrice(order.final_amount)}</span>
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

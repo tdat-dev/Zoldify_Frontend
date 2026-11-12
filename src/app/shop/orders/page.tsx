@@ -14,7 +14,13 @@ import { formatPrice, imageUrl } from '@/lib/format';
 import { ORDER_STATUSES, nextStatusFor, orderStatusTone, type OrderStatus } from '@/lib/order-status';
 import { TONE_CLASS } from '@/lib/status-tone';
 import { SellerOrderDetail } from '@/components/seller/SellerOrderDetail';
-import { formatDate, orderCode, type Order } from '@/components/seller/seller-order';
+import {
+  formatDate,
+  isMultiSeller,
+  orderCode,
+  sellerSubtotal,
+  type Order,
+} from '@/components/seller/seller-order';
 
 
 /**
@@ -180,7 +186,8 @@ export default function ShopOrdersPage() {
     setConfirmCancel(null);
     setActionLoading(order.id);
     try {
-      await http.patch(`/orders/${order.id}/cancel`);
+      // Đường huỷ của NGƯỜI BÁN; /cancel là của người mua nên luôn bị từ chối.
+      await http.patch(`/orders/${order.id}/cancel-sale`);
       setOrders((prev) =>
         prev.map((o) => (o.id === order.id ? { ...o, status: 'cancelled' as OrderStatus } : o))
       );
@@ -329,7 +336,9 @@ export default function ShopOrdersPage() {
                         </span>
                       </div>
                       <div className="text-small font-bold text-state-danger-fg">
-                        {formatCurrency(order.final_amount)}
+                        {isMultiSeller(order)
+                          ? t('yourPart', { amount: formatCurrency(sellerSubtotal(order)) })
+                          : formatCurrency(order.final_amount)}
                       </div>
                     </div>
 
@@ -381,7 +390,7 @@ export default function ShopOrdersPage() {
                           {tShort(nextInFlow(order.status)!)}
                         </button>
                       )}
-                      {(order.status === 'pending' || order.status === 'confirmed') && (
+                      {(order.status === 'pending' || order.status === 'confirmed') && !isMultiSeller(order) && (
                         <button
                           onClick={() => setConfirmCancel(order)}
                           disabled={actionLoading === order.id}

@@ -42,6 +42,10 @@ export interface Order {
   created_at: string;
   user?: { id: number; full_name: string; email: string; phone_number?: string };
   items: OrderItem[];
+  /** Chỉ có ở GET /orders?as=seller: tiền hàng phần của người bán này. */
+  seller_total?: number | string;
+  /** Chỉ có ở GET /orders?as=seller: đơn còn hàng của người bán khác. */
+  multi_seller?: boolean;
 }
 
 /** Ma don hien cho nguoi doc. Khong co ma thi dung so thu tu, khong de trong. */
@@ -60,4 +64,23 @@ export function formatDate(d: string): string {
   } catch {
     return d;
   }
+}
+
+/**
+ * Tiền hàng phần của người bán đang xem. Backend trả `seller_total` ở danh sách;
+ * chi tiết đơn (GET /orders/:id) đã lọc món của người bán nên cộng từ món.
+ */
+export function sellerSubtotal(o: Order): number {
+  if (o.seller_total !== undefined) return Number(o.seller_total);
+  return (o.items ?? []).reduce((sum, i) => sum + Number(i.price) * Number(i.quantity), 0);
+}
+
+/**
+ * Đơn có hàng của người bán khác (test staging 12/11: người bán thấy cả món và
+ * tổng tiền của người kia). Người bán không tự huỷ được đơn như vậy, và phí giao,
+ * tổng cộng của đơn không phải tiền của riêng họ.
+ */
+export function isMultiSeller(o: Order): boolean {
+  if (o.multi_seller !== undefined) return o.multi_seller;
+  return sellerSubtotal(o) !== Number(o.total_amount);
 }
