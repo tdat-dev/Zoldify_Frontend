@@ -180,6 +180,7 @@ export default function CheckoutPage() {
         note,
         payment_method: paymentMethod,
         cart_item_ids: cartItems.map((it) => it.id),
+        expected_subtotal: subtotal,
       }, idempotencyKey.current);
       const order = orderRes.data?.data || orderRes.data;
       const orderId = order?.id;
