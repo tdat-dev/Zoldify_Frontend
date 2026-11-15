@@ -28,9 +28,10 @@ import { useCart } from "@/context/CartContext";
 import { useToast } from "@/components/Toast";
 import { ConditionBadge } from "@/components/ConditionBadge";
 import { formatPrice } from "@/lib/format";
+import { stageCartAdd } from "@/lib/pending-cart";
 
 export default function ProductDetailPage() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, authReady, user } = useAuth();
   const t = useTranslations("product");
   const tc = useTranslations("common");
   const { refreshCartCount } = useCart();
@@ -141,7 +142,19 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = async () => {
+    // Chưa đọc xong localStorage thì chưa biết khách đã đăng nhập hay chưa —
+    // đá nhầm người đang có phiên sang /login. Chờ một nhịp là đủ.
+    if (!authReady) return;
     if (!isAuthenticated) {
+      // Ghi lại cú bấm rồi mới đi đăng nhập: /login sẽ thực hiện nốt — xem
+      // lib/pending-cart.ts. Bản cũ chỉ `push('/login')` rồi bỏ món lại đây,
+      // nên đăng nhập xong khách về trang chủ với giỏ rỗng (M-01).
+      stageCartAdd({
+        productId: Number(params.id),
+        quantity,
+        mode: "add",
+        returnTo: `/product/${params.id}`,
+      });
       router.push("/login");
       return;
     }
@@ -158,7 +171,14 @@ export default function ProductDetailPage() {
   };
 
   const handleBuyNow = async () => {
+    if (!authReady) return;
     if (!isAuthenticated) {
+      stageCartAdd({
+        productId: Number(params.id),
+        quantity,
+        mode: "buy",
+        returnTo: `/product/${params.id}`,
+      });
       router.push("/login");
       return;
     }
