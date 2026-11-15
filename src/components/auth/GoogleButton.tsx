@@ -66,8 +66,16 @@ export function GoogleButton({
       const { access_token, refresh_token, user } = res.data.data;
       // Đăng nhập bằng Google mặc định là ghi nhớ: người ta chọn nhà cung cấp
       // danh tính chính vì không muốn đăng nhập lại mỗi lần.
-      writeSession(access_token, user, true);
-      window.location.href = '/';
+      writeSession(access_token, user, true, refresh_token);
+      // Thêm giỏ trước khi đi tiếp, dùng chung một chỗ với form đăng nhập —
+      // xem lib/pending-cart.ts. Bản cũ cứng `href = '/'`, nên khách bấm
+      // "Thêm vào giỏ" rồi đăng nhập Google về tới trang chủ với giỏ rỗng.
+      //
+      // Dòng này từng bị mất ở commit "resolve merge conflicts" (669d9ec):
+      // xung đột được giải bằng cách lấy `href = '/'`, và `refresh_token` rơi
+      // khỏi writeSession luôn. Đó là lý do bản deploy 15/11 vẫn hỏng đúng
+      // đường Google dù form email đã chạy đúng.
+      window.location.href = await resumeCartAddAfterLogin();
     } catch (err: any) {
       // Người dùng tự đóng cửa sổ popup không phải là lỗi — đừng bắt họ đọc
       // một dòng đỏ vì đã đổi ý.
