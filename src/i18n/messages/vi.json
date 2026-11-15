@@ -986,6 +986,7 @@
     "verdictFair": "Giá ngang mặt bằng",
     "verdictHigh": "Giá cao hơn mặt bằng",
     "overBudget": "Vượt ngân sách",
-    "aiNote": "AI nhận xét"
+    "aiNote": "AI nhận xét",
+    "aiReviewing": "AI đang xem món này..."
   }
 }

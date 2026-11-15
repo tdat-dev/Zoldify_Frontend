@@ -15,6 +15,7 @@ import {
   authSubmit,
 } from '@/components/auth/AuthShell';
 import { GoogleButton } from '@/components/auth/GoogleButton';
+import { resumeCartAddAfterLogin } from '@/lib/pending-cart';
 
 /**
  * Đăng nhập.
@@ -72,7 +73,7 @@ export default function LoginPage() {
       // Nạp lại cả trang chứ không router.push: Header, giỏ hàng và thông báo
       // đều đọc phiên lúc mount, đẩy route sẽ để chúng ở trạng thái chưa đăng
       // nhập cho tới lần điều hướng sau.
-      window.location.href = '/';
+      window.location.href = await resumeCartAddAfterLogin();
     } catch (err: any) {
       const msg = err.response?.data?.message || t('loginFailed');
       setError(Array.isArray(msg) ? msg[0] : msg);

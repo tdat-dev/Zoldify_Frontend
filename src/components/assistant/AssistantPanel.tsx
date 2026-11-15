@@ -48,6 +48,26 @@ export function AssistantPanel({ onClose }: { onClose: () => void }) {
       const res = await assistantService.ask(history);
       const ms = Math.round(performance.now() - started);
       setTurns((cur) => [...cur, { role: 'assistant', content: res.reply, products: res.products, ms }]);
+      // Món đã hiện; câu nhận xét AI đến sau, không giữ người mua chờ.
+      if (res.review_id) {
+        const ids = new Set(res.products.map((p) => p.id));
+        void assistantService.review(res.review_id).then((notes) =>
+          setTurns((cur) =>
+            cur.map((turn) =>
+              turn.products?.some((p) => p.ai_pending && ids.has(p.id))
+                ? {
+                    ...turn,
+                    products: turn.products.map((p) =>
+                      ids.has(p.id) && p.ai_pending
+                        ? { ...p, ai_pending: false, ...(notes[p.id] ? { note: notes[p.id], ai_note: true } : {}) }
+                        : p,
+                    ),
+                  }
+                : turn,
+            ),
+          ),
+        );
+      }
     } catch (err: any) {
       const msg = err.response?.status === 429 ? t('tooFast') : t('failed');
       setTurns((cur) => [...cur, { role: 'assistant', content: msg }]);

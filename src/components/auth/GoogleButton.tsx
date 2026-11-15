@@ -7,6 +7,7 @@ import http from '@/lib/http';
 import { getFirebaseAuth } from '@/lib/firebase';
 import { useFirebaseConfig } from '@/context/FirebaseConfigContext';
 import { writeSession } from '@/lib/session';
+import { resumeCartAddAfterLogin } from '@/lib/pending-cart';
 import { authSecondary } from './AuthShell';
 
 /**
@@ -65,7 +66,7 @@ export function GoogleButton({
       const { access_token, refresh_token, user } = res.data.data;
       // Đăng nhập bằng Google mặc định là ghi nhớ: người ta chọn nhà cung cấp
       // danh tính chính vì không muốn đăng nhập lại mỗi lần.
-      writeSession(access_token, user, true, refresh_token);
+      writeSession(access_token, user, true);
       window.location.href = '/';
     } catch (err: any) {
       // Người dùng tự đóng cửa sổ popup không phải là lỗi — đừng bắt họ đọc
