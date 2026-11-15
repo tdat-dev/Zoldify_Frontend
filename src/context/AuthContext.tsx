@@ -5,6 +5,7 @@ import http from '@/lib/http';
 import {
   clearSession,
   readSession,
+  updateStoredToken,
   updateStoredUser,
   writeSession,
   type StoredUser,
@@ -23,6 +24,8 @@ interface AuthContextType {
   register: (full_name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateUser: (userData: IUser) => void;
+  /** Thay token của phiên hiện tại (vd backend cấp token mới sau khi đổi mật khẩu). */
+  updateToken: (token: string) => void;
   isAuthenticated: boolean;
   /**
    * false cho tới khi đã đọc xong localStorage.
@@ -53,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string, remember = true) => {
     const res = await http.post('/auth/login', { email, password });
-    const { access_token, user: userData } = res.data.data;
-    writeSession(access_token, userData, remember);
+    const { access_token, refresh_token, user: userData } = res.data.data;
+    writeSession(access_token, userData, remember, refresh_token);
     setToken(access_token);
     setUser(userData);
   };
@@ -63,7 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await http.post('/auth/register', { full_name, email, password });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Thu hồi phiên trên máy chủ TRƯỚC khi xoá ở máy. Bản cũ chỉ xoá ở máy, nên
+    // token vừa "đăng xuất" vẫn gọi được API (test staging 12/11, TK-06: GET
+    // /auth/profile vẫn 200). Lỗi mạng thì vẫn đăng xuất ở máy: người dùng đã
+    // bấm, không được giữ họ lại.
+    try {
+      await http.post('/auth/logout', {}, { timeout: 5000 });
+    } catch {
+      // bỏ qua, xem trên
+    }
     clearSession();
     setToken(null);
     setUser(null);
@@ -76,6 +88,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // ai đăng nhập không-ghi-nhớ, sau khi sửa hồ sơ, sẽ để lại dấu vết tài khoản
     // trên máy — đúng thứ họ vừa từ chối.
     updateStoredUser(userData);
+  };
+
+  const updateToken = (newToken: string) => {
+    updateStoredToken(newToken);
+    setToken(newToken);
   };
 
   // KHÔNG `if (loading) return null`.
@@ -97,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateUser,
+        updateToken,
         isAuthenticated: !!token,
         authReady: !loading,
       }}

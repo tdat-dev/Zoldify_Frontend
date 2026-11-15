@@ -58,4 +58,6 @@ jobs:
             cd "$WEB"
             docker compose up -d --build frontend
             docker image prune -f || true
+            # Giữ 4 GB cache mới nhất: build vẫn nhanh mà không đầy đĩa VPS 40 GB.
+            docker builder prune -a -f --keep-storage 4GB || true
             echo "Deployed frontend $REF"

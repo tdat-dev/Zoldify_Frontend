@@ -3,7 +3,7 @@
  * tin, và mọi chỗ hiển thị sau này.
  *
  * Giá trị lấy từ DTO backend (`Zoldify_Backend/src/catalog/products/dto/
- * create-product.dto.ts`): `new | like_new | good | fair`.
+ * create-product.dto.ts`): `new | like_new | good | fair | used | refurbished`.
  *
  * Vì sao tách ra file riêng: trước đây trang đăng bán và trang sửa tin mỗi trang
  * tự khai một danh sách, và cả hai đều sai theo kiểu khác nhau — trang đăng bán
@@ -11,7 +11,19 @@
  * `like_new` thì select không có mục đó nên lưu lại là GHI ĐÈ MẤT tình trạng
  * thật. Hai bản sao thì sớm muộn cũng lệch nhau.
  */
-export const CONDITION_VALUES = ['new', 'like_new', 'good', 'fair'] as const;
+/**
+ * Sáu mức, mỗi mức một con số để người mua so được giữa hai tin: Mới 100%, Như
+ * mới 99%, Tốt 95%, Khá 85–90%, Cũ 70–80%, Tân trang. Bản 06/11 có bốn mức và
+ * ép `used`/`refurbished` về mức mặc định; nay hai mức đó có thật ở cả backend.
+ */
+export const CONDITION_VALUES = [
+  'new',
+  'like_new',
+  'good',
+  'fair',
+  'used',
+  'refurbished',
+] as const;
 export type ConditionValue = (typeof CONDITION_VALUES)[number];
 
 /** Mặc định khi đăng tin mới. Đồ cũ nên mặc định là "còn tốt", không phải "mới". */

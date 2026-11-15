@@ -43,4 +43,7 @@ export const productService = {
   remove(id: number) {
     return http.delete<ApiResponse<unknown>>(`/products/${id}`);
   },
+  restore(id: number) {
+    return http.post<ApiResponse<Product>>(`/products/${id}/restore`);
+  },
 };

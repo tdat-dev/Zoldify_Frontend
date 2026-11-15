@@ -8,8 +8,19 @@ import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
 import { uploadService } from '@/services/upload.service';
 import { useAuth } from '@/context/AuthContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useToast } from '@/components/Toast';
 import { ConditionPicker } from '@/components/ConditionPicker';
+import { ConditionNoteField } from '@/components/ConditionNoteField';
+import { ConditionDetailsFields } from '@/components/ConditionDetailsFields';
+import {
+  EMPTY_DURABILITY,
+  fromForm,
+  hasBattery,
+  toForm,
+  type DurabilityError,
+  type DurabilityForm,
+} from '@/lib/condition-details';
 import { normalizeCondition, type ConditionValue } from '@/lib/product-condition';
 
 /**
@@ -34,6 +45,10 @@ export default function EditProductPage() {
   const router = useRouter();
   const productId = Number(params?.id);
   const { user } = useAuth();
+  // Chờ biết chắc đã đăng nhập rồi mới nạp: kiểm "tin này có phải của bạn"
+  // bên dưới cần `user`, mà trước authReady thì user luôn null và phép kiểm
+  // bị bỏ qua im lặng.
+  const { allowed } = useRequireAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useTranslations('sell');
@@ -51,13 +66,20 @@ export default function EditProductPage() {
   const [brand, setBrand] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState(1);
+  // Số tồn kho lúc mở form. Chỉ gửi `stock` khi người bán đổi nó, kèm
+  // `expected_stock` là số này: trong lúc form mở mà có người mua thì backend
+  // trả 409 thay vì ghi đè, làm món vừa bán quay lại kho.
+  const [loadedStock, setLoadedStock] = useState(1);
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>('good');
+  const [conditionNote, setConditionNote] = useState('');
+  const [durability, setDurability] = useState<DurabilityForm>(EMPTY_DURABILITY);
+  const [durabilityErrors, setDurabilityErrors] = useState<DurabilityError[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!productId) return;
+    if (!productId || !allowed) return;
     Promise.all([
       productService.getOne(productId),
       categoryService.getAll().catch(() => ({ data: { data: { result: [] } } })),
@@ -70,8 +92,11 @@ export default function EditProductPage() {
         setBrand(p.brand || '');
         setPrice(String(p.price ?? ''));
         setStock(p.stock ?? 1);
+        setLoadedStock(p.stock ?? 1);
         setCategoryId(p.category?.id ? String(p.category.id) : '');
         setCondition(normalizeCondition(p.condition));
+        setConditionNote(p.condition_note || '');
+        setDurability(toForm(p.condition_details));
         setImages(p.images?.length ? p.images : p.image ? [p.image] : []);
         setCategories(catRes.data?.data?.result || []);
 
@@ -88,7 +113,7 @@ export default function EditProductPage() {
     // user cố tình không nằm trong mảng phụ thuộc: nạp lại toàn bộ form khi
     // context auth vừa tỉnh sẽ xoá mất những gì người dùng đang gõ dở.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
+  }, [productId, allowed]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -111,6 +136,10 @@ export default function EditProductPage() {
     }
   };
 
+  const withBattery = hasBattery(
+    categories.find((c: any) => String(c.id) === categoryId)?.slug,
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
@@ -119,9 +148,12 @@ export default function EditProductPage() {
     if (!categoryId) errs.category = t('errNoCategory');
     const p = Number(price);
     if (!price.trim() || !Number.isFinite(p) || p <= 0) errs.price = t('errBadPrice');
+    const doBen = fromForm(durability, withBattery);
+    setDurabilityErrors(doBen.errors);
+    for (const k of doBen.errors) errs[k] = k;
     setFieldErrors(errs);
     if (Object.keys(errs).length > 0) {
-      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      const first = ['images', 'name', 'category', 'battery', 'usedMonths', 'warrantyMonths', 'defects', 'accessories', 'price'].find((k) => errs[k]);
       document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
@@ -133,15 +165,29 @@ export default function EditProductPage() {
         description: description.trim() || undefined,
         brand: brand.trim() || undefined,
         price: Number(price),
-        stock,
+        ...(stock !== loadedStock ? { stock, expected_stock: loadedStock } : {}),
         category_id: Number(categoryId),
         condition,
+        condition_note: conditionNote.trim(),
+        // null chứ không bỏ trường: người bán xoá hết ô thì thẻ phải mất theo.
+        condition_details: doBen.details,
         image: images[0],
         images,
       } as any);
       toast(t('savedOk'), 'success');
       router.push(`/product/${productId}`);
     } catch (err: any) {
+      if (err.response?.status === 409 && stock !== loadedStock) {
+        // Kho đổi dưới tay: nạp số mới để người bán quyết lại, không đoán hộ.
+        const fresh: any = await productService.getOne(productId).catch(() => null);
+        const live = fresh?.data?.data?.stock ?? fresh?.data?.stock;
+        if (typeof live === 'number') {
+          setStock(live);
+          setLoadedStock(live);
+        }
+        toast(t('errStockChanged'), 'error');
+        return;
+      }
       const msg = err.response?.data?.message || t('errUpdate');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
     } finally {
@@ -154,7 +200,7 @@ export default function EditProductPage() {
     try {
       await productService.remove(productId);
       toast(t('deletedOk'), 'success');
-      router.push('/profile/products');
+      router.push('/shop/orders?tab=listings');
     } catch (err: any) {
       const msg = err.response?.data?.message || t('errDelete');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
@@ -284,9 +330,10 @@ export default function EditProductPage() {
                     id="field-category"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
+                    disabled
                     aria-invalid={!!fieldErrors.category}
-                    aria-describedby={fieldErrors.category ? 'err-category' : undefined}
-                    className={control}
+                    aria-describedby="hint-category"
+                    className={`${control} disabled:bg-surface-sunken disabled:text-ink-muted`}
                   >
                     <option value="">{t('categoryPlaceholder')}</option>
                     {categories.map((c) => (
@@ -295,6 +342,9 @@ export default function EditProductPage() {
                       </option>
                     ))}
                   </select>
+                  <p id="hint-category" className="mt-1.5 text-caption font-normal text-ink-muted">
+                    {t('categoryLocked')}
+                  </p>
                   {fieldErrors.category && (
                     <p id="err-category" className={errText}>
                       {fieldErrors.category}
@@ -328,6 +378,13 @@ export default function EditProductPage() {
             <div className="mt-4">
               <ConditionPicker value={condition} onChange={setCondition} />
             </div>
+            <ConditionNoteField value={conditionNote} onChange={setConditionNote} />
+            <ConditionDetailsFields
+              value={durability}
+              onChange={setDurability}
+              withBattery={withBattery}
+              errors={durabilityErrors}
+            />
           </section>
 
           {/* ---------- Giá & còn mấy cái ---------- */}

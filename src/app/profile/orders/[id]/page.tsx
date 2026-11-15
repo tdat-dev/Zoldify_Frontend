@@ -3,10 +3,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useFormatter, useTranslations } from 'next-intl';
+import { DATE_TIME } from '@/lib/date-format';
 import { ChevronRight, Package, Check, Truck } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import {
+  ChangePaymentMethod,
+  canChangePaymentMethod,
+} from '@/components/orders/ChangePaymentMethod';
 import { formatPrice } from '@/lib/format';
 import { ORDER_FLOW, flowIndex } from '@/lib/order-status';
 import { OrderStatusBadge } from '@/components/OrderStatusBadge';
@@ -35,6 +41,8 @@ export default function OrderDetailPage() {
   const { allowed } = useRequireAuth();
   const params = useParams();
   const t = useTranslations('orderDetail');
+  const fmt = useFormatter();
+  const tOrders = useTranslations('orders');
   const tc = useTranslations('common');
 
   const [order, setOrder] = useState<any>(null);
@@ -63,6 +71,8 @@ export default function OrderDetailPage() {
     }
   }, [id]);
 
+  const { pay, payingId } = usePayOrder(fetchOrder);
+
   useEffect(() => {
     if (allowed && Number.isFinite(id)) fetchOrder();
   }, [allowed, id, fetchOrder]);
@@ -73,11 +83,13 @@ export default function OrderDetailPage() {
       setConfirmError(false);
       try {
         await orderService.confirmReceived(id, sellerId);
-        await fetchOrder();
       } catch {
         setConfirmError(true);
       } finally {
         setConfirming(null);
+        // Nạp lại cả khi lỗi: 409 nghĩa là vận đơn đã đổi trạng thái (tự xác
+        // nhận sau thời gian chờ, hoặc đã bấm ở máy khác).
+        await fetchOrder();
       }
     },
     [id, fetchOrder],
@@ -113,8 +125,12 @@ export default function OrderDetailPage() {
   // nên người bán sửa tin sau này cũng không đổi được hoá đơn cũ.
   const cur = order.currency;
   const shippingFee = Number(order.shipping_fee || 0);
-  const total = Number(order.total_amount || 0);
-  const subTotal = total - shippingFee;
+  // Backend: total_amount là TIỀN HÀNG, final_amount = tiền hàng + ship - giảm giá
+  // (số đã trừ ví hoặc thu qua PayOS). Bản cũ coi total_amount đã gồm ship nên
+  // tiền hàng hiện thiếu đúng bằng phí ship và tổng hiện thiếu phí ship.
+  const subTotal = Number(order.total_amount || 0);
+  const discount = Number(order.discount_amount || 0);
+  const total = Number(order.final_amount || 0) || subTotal + shippingFee - discount;
   const current = flowIndex(order.status);
   const offFlow = current === -1;
 
@@ -136,7 +152,7 @@ export default function OrderDetailPage() {
             <h1 className="text-h2 text-ink">{t('title', { id: order.id })}</h1>
             {order.created_at && (
               <p className="mt-1 text-small text-ink-muted">
-                {t('placedAt', { when: new Date(order.created_at).toLocaleString() })}
+                {t('placedAt', { when: fmt.dateTime(new Date(order.created_at), DATE_TIME) })}
               </p>
             )}
           </div>
@@ -210,11 +226,13 @@ export default function OrderDetailPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-small text-ink">{item.product_name}</span>
                   <span className="block text-caption tabular-nums text-ink-muted">
-                    {formatPrice(item.price_at_purchase, cur)} × {item.quantity}
+                    {formatPrice(item.price ?? item.price_at_purchase, cur)} × {item.quantity}
                   </span>
                 </span>
                 <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
-                  {formatPrice(Number(item.price_at_purchase || 0) * Number(item.quantity || 0), cur)}
+                  {/* API trả `price` (order_items.price); `price_at_purchase` chưa từng có trong
+                      response nên trang này luôn hiện 0 đ. */}
+                  {formatPrice(Number(item.price ?? item.price_at_purchase ?? 0) * Number(item.quantity || 0), cur)}
                 </span>
               </li>
             ))}
@@ -316,6 +334,29 @@ export default function OrderDetailPage() {
               </div>
             )}
           </dl>
+          {canPayOrder(order) && (
+            <div className="mt-4 border-t border-ink/10 pt-4">
+              <p className="text-small text-state-pending-fg">{t('unpaidNote')}</p>
+              <button
+                type="button"
+                onClick={() => pay(order)}
+                disabled={payingId !== null}
+                className="mt-3 w-full rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              >
+                {payingId === order.id ? tOrders('paying') : tOrders('payNow')}
+              </button>
+            </div>
+          )}
+          {canChangePaymentMethod(order) && (
+            <div className="mt-3">
+              <ChangePaymentMethod
+                order={order}
+                onChanged={fetchOrder}
+                onPay={pay}
+                className="w-full"
+              />
+            </div>
+          )}
         </section>
       </div>
     </div>

@@ -70,11 +70,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password, remember);
-      // Đăng nhập xong phải làm nốt cú bấm còn treo, nếu có: khách vừa bấm
-      // "Thêm vào giỏ" trước khi bị đá sang đây. resumeCartAddAfterLogin trả
-      // về '/cart' khi đã thêm, 'trang sản phẩm' khi thêm thất bại, và '/' khi
-      // không có gì treo.
-      //
       // Nạp lại cả trang chứ không router.push: Header, giỏ hàng và thông báo
       // đều đọc phiên lúc mount, đẩy route sẽ để chúng ở trạng thái chưa đăng
       // nhập cho tới lần điều hướng sau.

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MapPin, Truck, QrCode, Loader, CreditCard, Package } from 'lucide-react';
 import { cartService } from '@/services/cart.service';
 import { orderService } from '@/services/order.service';
 import { payosService } from '@/services/payos.service';
+import { paymentService } from '@/services/payment.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
@@ -33,6 +34,10 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Một khoá cho cả phiên thanh toán này. Lần trước lỗi mà chưa tạo đơn thì
+  // backend xử lý như mới; lần trước đã tạo đơn (chỉ mất phản hồi) thì gửi lại
+  // nhận về đúng đơn đó.
+  const idempotencyKey = useRef(taoKhoaChongTrung());
   const [note, setNote] = useState('');
   const [addressInfo, setAddressInfo] = useState({
     receiver_name: '',
@@ -49,12 +54,25 @@ export default function CheckoutPage() {
   const [quoting, setQuoting] = useState(false);
   const shippingFee = quote?.total ?? 0;
   const selectedIds = (searchParams.get('ids') || '').split(',').filter(Boolean).map(Number);
+  // Số dư ví để hiện ngay trên lựa chọn "Ví Zoldify". null = chưa biết (API
+  // hỏng thì thôi không hiện, không chặn đặt hàng vì backend vẫn tự kiểm).
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (allowed) fetchCart();
   }, [allowed]);
 
-  const fetchCart = async () => {
+  useEffect(() => {
+    if (!allowed) return;
+    paymentService
+      .getBalance()
+      .then((res) => setWalletBalance(Number(res.data?.data?.balance ?? 0)))
+      .catch(() => setWalletBalance(null));
+  }, [allowed]);
+
+  // Trả về danh sách vừa nạp (null nếu hỏng) để luồng đặt hàng đọc được
+  // ngay, không phải chờ state cập nhật.
+  const fetchCart = async (): Promise<any[] | null> => {
     setLoadFailed(false);
     try {
       const res = await cartService.getAll();
@@ -72,10 +90,12 @@ export default function CheckoutPage() {
         mapped = mapped.filter((it: any) => selectedIds.includes(it.id));
       }
       setCartItems(mapped);
+      return mapped;
     } catch {
       // Bản trước chỉ console.error rồi để mảng rỗng, nên API hỏng lại hiện
       // "chưa chọn món nào" — nói sai sự thật ngay ở bước cuối của luồng mua.
       setLoadFailed(true);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -118,13 +138,32 @@ export default function CheckoutPage() {
   const cur = cartItems[0]?.currency;
   const mixedCurrency = cartItems.some((i: any) => (i.currency || 'VND') !== (cur || 'VND'));
 
+  // Đủ ba cấp địa chỉ GHN. Thiếu quận/phường thì backend không tính được phí
+  // và đơn đi với phí ship 0đ, tức là ai cũng lấy được "miễn phí giao hàng"
+  // chỉ bằng cách bỏ trống hai ô đó.
+  const areaComplete =
+    !!addressInfo.province && !!addressInfo.ghn_district_id && !!addressInfo.ghn_ward_code;
+  const [showAreaError, setShowAreaError] = useState(false);
+  // POST /orders hết giờ chờ mà không có response: đơn có thể đã được tạo.
+  const [lostResponse, setLostResponse] = useState(false);
+
   const handleOrder = async () => {
+    if (!areaComplete) {
+      setShowAreaError(true);
+      return;
+    }
     if (!addressInfo.receiver_name || !addressInfo.receiver_phone || !addressInfo.shipping_address) {
       toast(t('errAddress'), 'error');
       return;
     }
     if (cartItems.length === 0) {
       toast(t('errNoItems'), 'error');
+      return;
+    }
+    // Biết chắc ví không đủ thì đừng tạo đơn: tạo xong mới trừ hụt là để lại
+    // một đơn treo chưa trả mà kho đã bị giữ.
+    if (paymentMethod === 'wallet' && walletBalance !== null && walletBalance < grandTotal) {
+      toast(t('walletShort'), 'error');
       return;
     }
     setSubmitting(true);
@@ -141,7 +180,8 @@ export default function CheckoutPage() {
         note,
         payment_method: paymentMethod,
         cart_item_ids: cartItems.map((it) => it.id),
-      });
+        expected_subtotal: subtotal,
+      }, idempotencyKey.current);
       const order = orderRes.data?.data || orderRes.data;
       const orderId = order?.id;
 
@@ -149,28 +189,91 @@ export default function CheckoutPage() {
       if (paymentMethod === 'payos') {
         if (!orderId) {
           toast(t('errNoCode'), 'error');
-          setSubmitting(false);
+          refreshCartCount();
+          router.push('/profile/orders');
           return;
         }
-        const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
-        const checkoutUrl = payosRes.data?.data?.checkoutUrl;
-        if (!checkoutUrl) {
-          toast(t('errNoPayLink'), 'error');
-          setSubmitting(false);
-          return;
+        // Tạo link hỏng KHÔNG được rơi xuống catch chung bên dưới: lúc này đơn
+        // đã có và giỏ đã bị xoá, ở lại trang này chỉ còn nút "Đặt hàng" bấm ra
+        // "Giỏ hàng trống". Đưa người mua tới trang đơn, ở đó có "Thanh toán
+        // ngay" gọi lại đúng create-link này.
+        let checkoutUrl: string | undefined;
+        let linkReason: string | undefined;
+        try {
+          const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
+          checkoutUrl = payosRes.data?.data?.checkoutUrl;
+        } catch (linkErr: any) {
+          const m = linkErr.response?.data?.message;
+          linkReason = Array.isArray(m) ? m[0] : m;
         }
         refreshCartCount();
+        if (!checkoutUrl) {
+          toast(
+            t('createdUnpaid', { id: orderId, reason: linkReason || t('errNoPayLink') }),
+            'error',
+          );
+          router.push(`/profile/orders/${orderId}`);
+          return;
+        }
         // Redirect sang PayOS
         window.location.href = checkoutUrl;
         return;
       }
 
-      // COD / Wallet → success page
+      // Bước 2 (ví): POST /orders chỉ TẠO đơn, không trừ đồng nào. Tiền chỉ rời
+      // ví ở POST /payments. Bản trước bỏ qua bước này nên mọi đơn "trả bằng
+      // ví" đều nằm ở trạng thái chưa thanh toán mà người mua vẫn thấy "Đặt
+      // hàng xong".
+      if (paymentMethod === 'wallet') {
+        if (!orderId) {
+          toast(t('errNoCode'), 'error');
+          refreshCartCount();
+          router.push('/profile/orders');
+          return;
+        }
+        try {
+          await paymentService.create({ order_id: orderId, payment_method: 'wallet' });
+        } catch (payErr: any) {
+          // Đơn ĐÃ có (giỏ đã bị xoá phía backend), chỉ chưa trả. Đưa người mua
+          // tới trang đơn để trả lại, đừng báo "đặt xong".
+          const m = payErr.response?.data?.message;
+          const reason = (Array.isArray(m) ? m[0] : m) || t('walletNotCharged');
+          toast(t('createdUnpaid', { id: orderId, reason }), 'error');
+          refreshCartCount();
+          router.push(`/profile/orders/${orderId}`);
+          return;
+        }
+      }
+
+      // COD / Wallet đã trừ → success page
       refreshCartCount();
       router.push('/cart/success');
     } catch (err: any) {
+      if (!err.response) {
+        // Hết giờ chờ hoặc rớt mạng: KHÔNG biết đơn đã được tạo hay chưa.
+        // Backend xoá các dòng giỏ trong cùng transaction tạo đơn, nên nạp lại
+        // giỏ là cách trả lời: món còn thì đơn chưa có, đặt lại an toàn; món
+        // mất thì đơn đã có. Bản trước để người mua bấm lại ngay và nhận
+        // "Giỏ hàng trống, không thể tạo đơn hàng", không hiểu chuyện gì.
+        const submittedIds = cartItems.map((it) => it.id);
+        const fresh = await fetchCart();
+        refreshCartCount();
+        if (fresh && fresh.some((it: any) => submittedIds.includes(it.id))) {
+          toast(t('errNetwork'), 'error');
+        } else {
+          setLostResponse(true);
+          if (!fresh) toast(t('lostResponse'), 'error');
+        }
+        return;
+      }
       const msg = err.response?.data?.message || t('errSubmit');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
+      // 400/409 thường là món vừa bị người khác mua hết hoặc giá vừa đổi. Nạp
+      // lại giỏ để màn hình nói đúng (cảnh báo hết hàng, giá mới) trước khi
+      // người mua bấm lại.
+      if (err.response.status === 400 || err.response.status === 409) {
+        fetchCart();
+      }
     } finally {
       setSubmitting(false);
     }
@@ -210,7 +313,8 @@ export default function CheckoutPage() {
   }
 
   const soldOutItems = cartItems.filter((i) => i.stock <= 0);
-  const canOrder = cartItems.length > 0 && soldOutItems.length === 0 && !submitting;
+  const canOrder =
+    cartItems.length > 0 && soldOutItems.length === 0 && !submitting && !lostResponse;
 
   const payOption = (
     value: CreateOrderDto['payment_method'],
@@ -268,6 +372,18 @@ export default function CheckoutPage() {
           </p>
         )}
 
+        {lostResponse && (
+          <div
+            role="alert"
+            className="mt-4 rounded-control border border-state-pending-fg/30 bg-state-pending-bg px-4 py-3 text-body text-state-pending-fg"
+          >
+            {t('lostResponse')}{' '}
+            <Link href="/profile/orders" className="font-semibold underline">
+              {t('lostResponseLink')}
+            </Link>
+          </div>
+        )}
+
         <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-12">
           <div className="flex flex-col gap-3 lg:col-span-8">
             <section aria-labelledby="sec-ship" className="rounded-card bg-surface-card p-5">
@@ -275,6 +391,11 @@ export default function CheckoutPage() {
                 <MapPin className="h-5 w-5 text-brand" aria-hidden="true" /> {t('shipTo')}
               </h2>
               <GhnAddressPicker onSelect={setAddressInfo} />
+              {showAreaError && !areaComplete && (
+                <p role="alert" className="mt-3 text-small text-state-danger-fg">
+                  {t('errAddressArea')}
+                </p>
+              )}
             </section>
 
             <section aria-labelledby="sec-note" className="rounded-card bg-surface-card p-5">
@@ -346,7 +467,9 @@ export default function CheckoutPage() {
                   <dd className="text-body text-ink">
                     {quoting
                       ? t('shippingCalc')
-                      : shippingFee === 0
+                      : !areaComplete
+                        ? t('shippingPending')
+                        : shippingFee === 0
                         ? t('free')
                         : formatPrice(shippingFee, cur)}
                   </dd>
@@ -391,7 +514,14 @@ export default function CheckoutPage() {
                 <legend className="mb-3 text-small font-semibold text-ink">{t('payWith')}</legend>
                 <div className="flex flex-col gap-2">
                   {payOption('cod', t('cod'), t('codHint'), Truck)}
-                  {payOption('wallet', t('wallet'), t('walletHint'), QrCode)}
+                  {payOption(
+                    'wallet',
+                    t('wallet'),
+                    walletBalance !== null
+                      ? `${t('walletHint')} · ${t('walletBalance', { amount: formatPrice(walletBalance) })}`
+                      : t('walletHint'),
+                    QrCode,
+                  )}
                   {payOption(
                     'payos',
                     t('card'),
@@ -399,6 +529,11 @@ export default function CheckoutPage() {
                     CreditCard,
                   )}
                 </div>
+                {paymentMethod === 'wallet' && walletBalance !== null && walletBalance < grandTotal && (
+                  <p role="alert" className="mt-2 text-caption text-state-danger-fg">
+                    {t('walletShort')}
+                  </p>
+                )}
               </fieldset>
 
               <button
@@ -422,4 +557,11 @@ export default function CheckoutPage() {
       </div>
     </div>
   );
+}
+
+function taoKhoaChongTrung(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
 }

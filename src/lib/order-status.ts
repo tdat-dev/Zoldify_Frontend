@@ -83,7 +83,9 @@ export function flowIndex(raw: unknown): number {
 export type OrderRole = 'buyer' | 'seller';
 
 const CAN_SET: Record<OrderRole, readonly OrderStatus[]> = {
-  seller: ['confirmed', 'processing', 'shipping'],
+  // Không có `shipping`: trạng thái đó đến từ theo dõi GHN, backend chỉ cho admin
+  // đặt. Để ở đây thì đơn Đang chuẩn bị hiện nút "Đang giao", bấm vào ăn 403.
+  seller: ['confirmed', 'processing'],
   buyer: ['delivered'],
 };
 

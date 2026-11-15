@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Eye, EyeOff } from 'lucide-react';
 import http from '@/lib/http';
 import { useToast } from '@/components/Toast';
+import { useAuth } from '@/context/AuthContext';
 
 /**
  * Đổi mật khẩu.
@@ -24,6 +25,7 @@ import { useToast } from '@/components/Toast';
  */
 export default function ChangePasswordPage() {
   const { toast } = useToast();
+  const { updateToken } = useAuth();
   const t = useTranslations('account');
 
   const [oldPassword, setOldPassword] = useState('');
@@ -51,7 +53,11 @@ export default function ChangePasswordPage() {
     setError(null);
     setSaving(true);
     try {
-      await http.post('/auth/change-password', { oldPassword, newPassword });
+      const res = await http.post('/auth/change-password', { oldPassword, newPassword });
+      // Backend tăng token_version nên token đang dùng đã chết; lưu token mới
+      // nó trả về, nếu không request kế tiếp ăn 401 và người dùng bị đăng xuất.
+      const newToken = res.data?.data?.access_token;
+      if (newToken) updateToken(newToken);
       toast(t('pwDone'), 'success');
       setOldPassword('');
       setNewPassword('');

@@ -19,7 +19,6 @@ const LINKS = [
   { href: '/profile/orders', key: 'myOrders' },
   { href: '/shop/orders', key: 'sellerOrders' },
   { href: '/chat', key: 'messages' },
-  { href: '/notifications', key: 'notifications' },
 ] as const;
 
 export async function AnnounceBar() {

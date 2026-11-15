@@ -1,14 +1,14 @@
 /**
  * Ý định thêm giỏ của KHÁCH CHƯA ĐĂNG NHẬP — giữ lại qua bước đăng nhập.
  *
- * Lỗi cũ (M-01): khách bấm "Thêm vào giỏ", bị đá sang /login, đăng nhập Google
- * xong thì về trang chủ và món biến mất. Không có gì hỏng trong giỏ — chỉ là
- * KHÔNG AI GỌI API THÊM GIỎ. Cú bấm đầu tiên bị vứt bỏ ngay lúc chuyển trang:
+ * Lỗi M-01: khách bấm "Thêm vào giỏ", bị đá sang /login, đăng nhập xong thì về
+ * trang chủ và món biến mất. Không có gì hỏng trong giỏ — chỉ là KHÔNG AI GỌI
+ * API THÊM GIỎ. Cú bấm đầu tiên bị vứt bỏ ngay lúc chuyển trang:
  * `handleAddToCart` chỉ `router.push('/login')` rồi `return`, không lưu lại
  * món/số lượng, còn GoogleButton thì cứng `window.location.href = '/'`.
  *
- * Nay cú bấm được GHI LẠI trước khi rời trang, tài khoản đăng nhập xong thì
- * đọc lại và thực hiện nốt. Hai điểm cố ý:
+ * Nay cú bấm được GHI LẠI trước khi rời trang, đăng nhập xong thì đọc lại và
+ * thực hiện nốt. Hai điểm cố ý:
  *
  * - `sessionStorage` chứ không `localStorage`: ý định thuộc về TAB đang mở.
  *   Đăng nhập Google là popup nên vẫn đúng tab đó và ý định sống sót qua cả
@@ -49,7 +49,7 @@ function storage(): Storage | null {
   }
 }
 
-/** Đường dẫn nội bộ hợp lệ. `/login?next=https://...` là lỗ hổng open-redirect. */
+/** Đường dẫn nội bộ hợp lệ. `?next=https://...` là lỗ hổng open-redirect. */
 function isInternalPath(value: unknown): value is string {
   return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//');
 }
@@ -133,11 +133,9 @@ export async function resumeCartAddAfterLogin(): Promise<string> {
   if (!pending) return '/';
 
   try {
-    const res = await cartService.add(pending.productId, pending.quantity);
-    const cartId = Number(res.data?.data?.id);
-
+    const cartId = await addWithoutMultiplying(pending);
     if (pending.mode === 'buy') {
-      return Number.isFinite(cartId) && cartId > 0 ? `/checkout?ids=${cartId}` : '/cart';
+      return cartId > 0 ? `/checkout?ids=${cartId}` : '/cart';
     }
     // Sang thẳng giỏ: món vừa thêm nằm ngay đó, khách thấy kết quả của cú bấm
     // chứ không phải một cú nhảy về trang chủ rồi tự đoán xem đã thêm chưa.
@@ -148,4 +146,25 @@ export async function resumeCartAddAfterLogin(): Promise<string> {
     // giải thích, và tốt hơn nuốt lỗi rồi về trang chủ.
     return pending.returnTo;
   }
+}
+
+/**
+ * "Mua ngay" là mua ĐÚNG số đang chọn, nên phải làm y hệt nút gốc: món đã có
+ * trong giỏ thì ĐẶT LẠI số lượng, không cộng dồn. `POST /cart` cộng dồn: giỏ
+ * đang có 2 mà bấm mua ngay 1 sẽ thành 3 (hoặc bị từ chối vì vượt kho).
+ */
+async function addWithoutMultiplying(pending: PendingCartAdd): Promise<number> {
+  if (pending.mode !== 'buy') {
+    const res = await cartService.add(pending.productId, pending.quantity);
+    return Number(res.data?.data?.id) || 0;
+  }
+
+  const cart = await cartService.getAll(1, 100);
+  const existing = (cart.data?.data?.result ?? []).find(
+    (it: any) => Number(it.product?.id) === pending.productId,
+  );
+  const res = existing
+    ? await cartService.update(existing.id, pending.quantity)
+    : await cartService.add(pending.productId, pending.quantity);
+  return Number(existing?.id ?? res.data?.data?.id) || 0;
 }

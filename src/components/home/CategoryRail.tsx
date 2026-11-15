@@ -24,10 +24,19 @@ export function CategoryRail({ categories }: { categories: any[] }) {
         return (
           <Link
             key={cat.id}
-            href={`/category/${cat.slug || cat.id}`}
+            href={`/${cat.slug || cat.id}`}
             className="flex w-[112px] shrink-0 snap-start flex-col items-center gap-2.5 rounded-xl border border-ink/8 bg-surface-card px-2 py-4 text-center transition-colors hover:border-brand/40 sm:w-auto"
           >
-            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg bg-surface-sunken">
+            {/* Có ảnh → đĩa TRẮNG + hairline để nền vuông của ảnh chụp không
+                đâm vào đĩa xám (xem CategoryTiles). Không ảnh → giữ nền xám
+                cho icon fallback. */}
+            <div
+              className={
+                cat.image
+                  ? 'flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg bg-white ring-1 ring-ink/10'
+                  : 'flex h-14 w-14 items-center justify-center overflow-hidden rounded-lg bg-surface-sunken'
+              }
+            >
               {cat.image ? (
                 <img src={cat.image} alt="" loading="lazy" className="h-full w-full object-cover" />
               ) : (

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { SiteChrome } from "@/components/SiteChrome";
+import { AssistantLauncher } from '@/components/assistant/AssistantLauncher';
 import { AnnounceBar } from "@/components/AnnounceBar";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { SITE_URL } from "@/lib/config";
 import { AuthProvider } from "@/context/AuthContext";
 import { FirebaseConfigProvider } from "@/context/FirebaseConfigContext";
 import { readFirebaseConfig } from "@/lib/firebase-config";
@@ -33,7 +37,6 @@ const beVietnamPro = Be_Vietnam_Pro({
  * metadataBase để Next dựng URL tuyệt đối cho ảnh: trình thu thập của mạng xã
  * hội không hiểu đường dẫn tương đối.
  */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
 
 /**
  * generateMetadata thay cho hằng `metadata`: tiêu đề và mô tả phải theo ngôn
@@ -45,13 +48,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
   const title = t("title");
   const description = t("description");
+  // Do middleware đặt. Trang bảo trì đi qua rewrite nên không có, và cũng không
+  // cần: nó không phải trang để index.
+  const canonical = headers().get("x-canonical-path");
 
   return {
     metadataBase: new URL(SITE_URL),
+    // Google hiện biểu tượng này cạnh kết quả tìm kiếm. Trước đây /favicon.ico trả 404.
+    icons: { icon: "/images/favicon.png" },
+    ...(canonical ? { alternates: { canonical } } : {}),
     title: {
       default: title,
       // Trang con đặt title riêng sẽ tự nối đuôi thương hiệu, không phải lặp tay.
-      template: "%s — Zoldify",
+      template: "%s | Zoldify",
     },
     description,
     openGraph: {
@@ -105,11 +114,14 @@ export default async function RootLayout({
                     là server component async, import thẳng vào SiteChrome sẽ
                     làm trắng mọi trang không-phải-auth. */}
                   <SiteChrome announce={<AnnounceBar />}>{children}</SiteChrome>
+                  {/* Trợ lý mua hàng: tự ẩn khi backend chưa bật (prod). */}
+                  <AssistantLauncher />
                 </ToastProvider>
               </CartProvider>
             </AuthProvider>
           </FirebaseConfigProvider>
         </NextIntlClientProvider>
+        <GoogleAnalytics id={process.env.GA_MEASUREMENT_ID} />
       </body>
     </html>
   );

@@ -6,10 +6,21 @@ import { Camera, X, Loader2, Info } from 'lucide-react';
 import { uploadService } from '@/services/upload.service';
 import { productService } from '@/services/product.service';
 import { categoryService } from '@/services/category.service';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_CONDITION, type ConditionValue } from '@/lib/product-condition';
 import { ConditionPicker } from '@/components/ConditionPicker';
+import { ConditionNoteField } from '@/components/ConditionNoteField';
+import { ConditionDetailsFields } from '@/components/ConditionDetailsFields';
+import {
+  EMPTY_DURABILITY,
+  fromForm,
+  hasBattery,
+  type DurabilityError,
+  type DurabilityForm,
+} from '@/lib/condition-details';
 import { toSlug } from '@/lib/slug';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 
 /**
  * Đăng bán một món đồ cũ.
@@ -32,6 +43,9 @@ import { toSlug } from '@/lib/slug';
  * `used` và `refurbished` — hai giá trị backend không hề biết.
  */
 export default function CreateProductPage() {
+  // Đăng tin cần đăng nhập. Không có cổng này thì khách điền cả biểu mẫu, tải
+  // ảnh lên rồi mới bị 401 đá về /login và mất hết.
+  useRequireAuth();
   const t = useTranslations('sell');
   const tc = useTranslations('common');
   const router = useRouter();
@@ -44,6 +58,9 @@ export default function CreateProductPage() {
   const [name, setName] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [condition, setCondition] = useState<ConditionValue>(DEFAULT_CONDITION);
+  const [conditionNote, setConditionNote] = useState('');
+  const [durability, setDurability] = useState<DurabilityForm>(EMPTY_DURABILITY);
+  const [durabilityErrors, setDurabilityErrors] = useState<DurabilityError[]>([]);
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
@@ -55,6 +72,9 @@ export default function CreateProductPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  // Tin cũ trùng với món đang đăng, do backend báo kèm lỗi 409.
+  const [trung, setTrung] = useState<{ id: number; daXoa: boolean } | null>(null);
+  const [restoring, setRestoring] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -84,13 +104,25 @@ export default function CreateProductPage() {
     }
   };
 
+  // Ô pin theo danh mục đang chọn; đổi sang danh mục không pin thì số đã gõ bị
+  // bỏ qua lúc gửi chứ không xoá, chọn nhầm rồi chọn lại không mất.
+  const withBattery = hasBattery(
+    categories.find((c) => String(c.id) === categoryId)?.slug,
+  );
+
   const validate = () => {
     const next: Record<string, string> = {};
     if (images.length === 0) next.images = t('errNoPhoto');
     if (!name.trim()) next.name = t('errNoName');
     if (!categoryId) next.category = t('errNoCategory');
+    if (condition !== 'new' && !conditionNote.trim()) {
+      next.conditionNote = t('errNoConditionNote');
+    }
     const p = Number(price);
     if (!price.trim() || !Number.isFinite(p) || p <= 0) next.price = t('errBadPrice');
+    const loiDoBen = fromForm(durability, withBattery).errors;
+    setDurabilityErrors(loiDoBen);
+    for (const k of loiDoBen) next[k] = k;
     setFieldErrors(next);
     return next;
   };
@@ -98,10 +130,13 @@ export default function CreateProductPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setTrung(null);
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       // Đưa con trỏ tới trường hỏng đầu tiên thay vì để người dùng tự đi tìm.
-      const first = ['images', 'name', 'category', 'price'].find((k) => errs[k]);
+      const first = ['images', 'name', 'category', 'conditionNote', 'battery', 'usedMonths', 'warrantyMonths', 'defects', 'accessories', 'price'].find(
+        (k) => errs[k],
+      );
       document.getElementById(first === 'images' ? 'add-photo' : `field-${first}`)?.focus();
       return;
     }
@@ -116,16 +151,32 @@ export default function CreateProductPage() {
         description: description.trim() || undefined,
         brand: brand.trim() || undefined,
         condition,
+        condition_note: conditionNote.trim() || undefined,
+        condition_details: fromForm(durability, withBattery).details ?? undefined,
         category_id: Number(categoryId),
         stock: manyCopies ? stock : 1,
         is_freeship: freeship,
         slug: toSlug(name),
       } as any)
       .then((res) => router.push(`/product/${res.data.data.id}`))
-      .catch((err) =>
-        setError(err.response?.data?.message || t('errCreate')),
-      )
+      .catch((err) => {
+        const data = err.response?.data;
+        setError(data?.message || t('errCreate'));
+        if (data?.existing_product_id) {
+          setTrung({ id: data.existing_product_id, daXoa: !!data.da_xoa });
+        }
+      })
       .finally(() => setSubmitting(false));
+  };
+
+  const handleRestore = () => {
+    if (!trung) return;
+    setRestoring(true);
+    productService
+      .restore(trung.id)
+      .then(() => router.push(`/product/${trung.id}`))
+      .catch((err) => setError(err.response?.data?.message || t('errCreate')))
+      .finally(() => setRestoring(false));
   };
 
   const label = 'mb-1.5 block text-small font-semibold text-ink';
@@ -148,6 +199,28 @@ export default function CreateProductPage() {
           >
             {error}
           </p>
+        )}
+
+        {trung && (
+          <div className="mt-3">
+            {trung.daXoa ? (
+              <button
+                type="button"
+                onClick={handleRestore}
+                disabled={restoring}
+                className="rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+              >
+                {t('dupRestore')}
+              </button>
+            ) : (
+              <Link
+                href={`/product/${trung.id}/edit`}
+                className="inline-block rounded-control bg-brand px-4 py-2 text-small font-semibold text-white transition-colors hover:bg-brand-dark"
+              >
+                {t('dupEdit')}
+              </Link>
+            )}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-3">
@@ -239,9 +312,13 @@ export default function CreateProductPage() {
                   aria-describedby={fieldErrors.name ? 'err-name' : undefined}
                   className={control}
                 />
-                {fieldErrors.name && (
+                {fieldErrors.name ? (
                   <p id="err-name" className={errText}>
                     {fieldErrors.name}
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-caption font-normal text-ink-muted">
+                    {t('nameHint')}
                   </p>
                 )}
               </div>
@@ -305,6 +382,18 @@ export default function CreateProductPage() {
             <div className="mt-4">
               <ConditionPicker value={condition} onChange={setCondition} />
             </div>
+            <ConditionNoteField
+              value={conditionNote}
+              onChange={setConditionNote}
+              required={condition !== 'new'}
+              error={condition !== 'new' ? fieldErrors.conditionNote : undefined}
+            />
+            <ConditionDetailsFields
+              value={durability}
+              onChange={setDurability}
+              withBattery={withBattery}
+              errors={durabilityErrors}
+            />
           </section>
 
           {/* ---------- Giá & giao hàng ---------- */}

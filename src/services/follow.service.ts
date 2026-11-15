@@ -1,8 +1,11 @@
 import http from '@/lib/http';
 
 export const followService = {
-  toggle(sellerId: number) {
-    return http.post('/follows/toggle', { following_id: sellerId });
+  follow(sellerId: number) {
+    return http.put(`/follows/${sellerId}`);
+  },
+  unfollow(sellerId: number) {
+    return http.delete(`/follows/${sellerId}`);
   },
   check(sellerId: number) {
     return http.get(`/follows/check/${sellerId}`);
