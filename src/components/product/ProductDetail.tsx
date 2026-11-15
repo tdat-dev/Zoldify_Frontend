@@ -31,6 +31,7 @@ import { DurabilityTable } from "@/components/product/DurabilityTable";
 import { formatPrice } from "@/lib/format";
 import { shopPath } from "@/lib/public-urls";
 import { imageUrl } from "@/lib/image-url";
+import { stageCartAdd } from "@/lib/pending-cart";
 
 /**
  * Phần tương tác của trang món hàng. `initialProduct` do server lấy để HTML có sẵn
@@ -46,7 +47,7 @@ export function ProductDetail({
   productId: number;
   initialProduct: any | null;
 }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, authReady, user } = useAuth();
   const t = useTranslations("product");
   const tc = useTranslations("common");
   const { refreshCartCount } = useCart();
@@ -130,8 +131,27 @@ export function ProductDetail({
     }
   };
 
+  /** Trang đang đứng, để quay lại nếu thêm giỏ thất bại. Slug nằm trong URL
+   *  (`/ten-mon-i123`) nên chép nguyên đường dẫn thay vì tự dựng lại. */
+  const currentPath = () =>
+    typeof window === "undefined"
+      ? `/product/${productId}`
+      : window.location.pathname + window.location.search;
+
   const handleAddToCart = async () => {
+    // Chưa đọc xong localStorage thì chưa biết khách đã đăng nhập hay chưa —
+    // đá nhầm người đang có phiên sang /login. Chờ một nhịp là đủ.
+    if (!authReady) return;
     if (!isAuthenticated) {
+      // Ghi lại cú bấm rồi mới đi đăng nhập: /login sẽ thực hiện nốt — xem
+      // lib/pending-cart.ts. Bản cũ chỉ `push('/login')` rồi bỏ món lại đây,
+      // nên đăng nhập xong khách về trang chủ với giỏ rỗng (M-01).
+      stageCartAdd({
+        productId,
+        quantity,
+        mode: "add",
+        returnTo: currentPath(),
+      });
       router.push("/login");
       return;
     }
@@ -151,7 +171,14 @@ export function ProductDetail({
   };
 
   const handleBuyNow = async () => {
+    if (!authReady) return;
     if (!isAuthenticated) {
+      stageCartAdd({
+        productId,
+        quantity,
+        mode: "buy",
+        returnTo: currentPath(),
+      });
       router.push("/login");
       return;
     }
