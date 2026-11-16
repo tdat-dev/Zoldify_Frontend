@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { User, Key, MapPin, Package, Tag, Wallet } from 'lucide-react';
+import { User, Key, MapPin, Package, Tag, Wallet, Store } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 /**
@@ -43,6 +43,7 @@ export function AccountNav() {
       heading: t('groupSelling'),
       items: [
         { href: '/shop/orders', label: t('navSelling'), Icon: Tag },
+        { href: '/shop/settings', label: t('navShopSettings'), Icon: Store },
         { href: '/profile/wallet', label: t('navWallet'), Icon: Wallet },
       ],
     },

@@ -7,7 +7,7 @@ import { DATE } from '@/lib/date-format';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Bell, ChevronDown, User, Key, MessageSquare, Wallet, ShoppingBag, Plus,
-  ClipboardList, LogOut, Search, ShoppingCart, CheckCheck, CreditCard,
+  ClipboardList, Store, LogOut, Search, ShoppingCart, CheckCheck, CreditCard,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
@@ -404,6 +404,7 @@ export default function Header() {
                     {[
                       { href: '/product/create', icon: Plus, label: t('sell') },
                       { href: '/shop/orders', icon: ClipboardList, label: t('sellerOrders') },
+                      { href: '/shop/settings', icon: Store, label: t('shopSettings') },
                     ].map(({ href, icon: Icon, label }) => (
                       <Link
                         key={href}

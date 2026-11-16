@@ -44,7 +44,8 @@
     "admin": "Quản trị",
     "sellShort": "Đăng bán",
     "you": "bạn",
-    "sellingGroup": "Bán hàng"
+    "sellingGroup": "Bán hàng",
+    "shopSettings": "Cài đặt shop"
   },
   "utilityBar": {
     "sellWithUs": "Bán hàng cùng Zoldify",
@@ -161,7 +162,11 @@
     "errNoConditionNote": "Kể rõ tình trạng món đồ để người mua yên tâm.",
     "dupRestore": "Khôi phục tin cũ",
     "dupEdit": "Sửa tin cũ",
-    "categoryLocked": "Không đổi được danh mục sau khi đăng. Nếu là món khác, hãy đăng tin mới."
+    "categoryLocked": "Không đổi được danh mục sau khi đăng. Nếu là món khác, hãy đăng tin mới.",
+    "pickupGateChecking": "Đang kiểm địa chỉ lấy hàng",
+    "pickupGateTitle": "Khai địa chỉ lấy hàng trước khi đăng bán",
+    "pickupGateBody": "Shipper sẽ tới địa chỉ này lấy hàng mỗi khi có người mua, nên cần có nó trước khi đăng tin. Chỉ mất khoảng một phút, lưu xong bạn quay lại đây đăng tin luôn.",
+    "pickupGateCta": "Mở Cài đặt shop"
   },
   "orderStatus": {
     "pending": "Chờ người bán xác nhận",
@@ -582,7 +587,8 @@
     "pwErrShort": "Mật khẩu mới phải có ít nhất 6 ký tự.",
     "pwErrSame": "Mật khẩu mới trùng với mật khẩu cũ.",
     "pwErrMismatch": "Hai lần nhập mật khẩu mới không giống nhau.",
-    "pwErrFailed": "Chưa đổi được mật khẩu."
+    "pwErrFailed": "Chưa đổi được mật khẩu.",
+    "navShopSettings": "Cài đặt shop"
   },
   "locale": {
     "label": "Ngôn ngữ",
