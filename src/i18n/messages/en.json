@@ -44,7 +44,8 @@
     "admin": "Admin",
     "sellShort": "Sell",
     "you": "there",
-    "sellingGroup": "Selling"
+    "sellingGroup": "Selling",
+    "shopSettings": "Shop settings"
   },
   "utilityBar": {
     "sellWithUs": "Sell on Zoldify",
@@ -161,7 +162,11 @@
     "errNoConditionNote": "Describe the condition so buyers know what they are getting.",
     "dupRestore": "Restore the old listing",
     "dupEdit": "Edit the old listing",
-    "categoryLocked": "The category cannot change after posting. If it is a different item, post a new listing."
+    "categoryLocked": "The category cannot change after posting. If it is a different item, post a new listing.",
+    "pickupGateChecking": "Checking your pickup address",
+    "pickupGateTitle": "Add a pickup address before you sell",
+    "pickupGateBody": "The courier collects from this address whenever someone buys, so you need one before listing. It takes about a minute, and you come straight back here after saving.",
+    "pickupGateCta": "Open shop settings"
   },
   "orderStatus": {
     "pending": "Waiting for the seller",
@@ -582,7 +587,8 @@
     "pwErrShort": "The new password must be at least 6 characters.",
     "pwErrSame": "The new password is the same as the current one.",
     "pwErrMismatch": "The two new passwords don't match.",
-    "pwErrFailed": "Could not change the password."
+    "pwErrFailed": "Could not change the password.",
+    "navShopSettings": "Shop settings"
   },
   "locale": {
     "label": "Language",
