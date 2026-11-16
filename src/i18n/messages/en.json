@@ -166,7 +166,20 @@
     "pickupGateChecking": "Checking your pickup address",
     "pickupGateTitle": "Add a pickup address before you sell",
     "pickupGateBody": "The courier collects from this address whenever someone buys, so you need one before listing. It takes about a minute, and you come straight back here after saving.",
-    "pickupGateCta": "Open shop settings"
+    "pickupGateCta": "Open shop settings",
+    "errNotYours": "You can't edit someone else's listing.",
+    "savedOk": "Changes saved.",
+    "deletedOk": "Listing deleted.",
+    "errDelete": "Couldn't delete the listing. Please try again.",
+    "stockZeroHint": "Set it to 0 once everything has sold. The listing stays up but shows as sold.",
+    "deleteTitle": "Delete this listing",
+    "deleteLead": "The listing comes off the marketplace and can't be restored. If it simply sold out, set the quantity to 0 instead of deleting.",
+    "deleteAsk": "Delete <name></name> for good?",
+    "thisListing": "this listing",
+    "deleting": "Deleting…",
+    "deleteConfirm": "Delete for good",
+    "deleteKeep": "No, keep it",
+    "deleteButton": "Delete listing"
   },
   "orderStatus": {
     "pending": "Waiting for the seller",

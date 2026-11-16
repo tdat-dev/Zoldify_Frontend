@@ -166,7 +166,20 @@
     "pickupGateChecking": "Đang kiểm địa chỉ lấy hàng",
     "pickupGateTitle": "Khai địa chỉ lấy hàng trước khi đăng bán",
     "pickupGateBody": "Shipper sẽ tới địa chỉ này lấy hàng mỗi khi có người mua, nên cần có nó trước khi đăng tin. Chỉ mất khoảng một phút, lưu xong bạn quay lại đây đăng tin luôn.",
-    "pickupGateCta": "Mở Cài đặt shop"
+    "pickupGateCta": "Mở Cài đặt shop",
+    "errNotYours": "Bạn không sửa được tin của người khác.",
+    "savedOk": "Đã lưu thay đổi.",
+    "deletedOk": "Đã xoá tin.",
+    "errDelete": "Chưa xoá được tin. Thử lại giúp mình.",
+    "stockZeroHint": "Đặt về 0 khi đã bán xong. Tin vẫn còn nhưng hiện là đã bán.",
+    "deleteTitle": "Xoá tin này",
+    "deleteLead": "Tin bị gỡ khỏi sàn và không lấy lại được. Nếu chỉ vì đã bán xong thì đặt số lượng về 0, đừng xoá.",
+    "deleteAsk": "Xoá hẳn <name></name>?",
+    "thisListing": "tin này",
+    "deleting": "Đang xoá…",
+    "deleteConfirm": "Xoá hẳn",
+    "deleteKeep": "Thôi, giữ lại",
+    "deleteButton": "Xoá tin"
   },
   "orderStatus": {
     "pending": "Chờ người bán xác nhận",
