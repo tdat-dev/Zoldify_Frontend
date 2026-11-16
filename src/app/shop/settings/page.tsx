@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MapPin, Store, Loader2, Truck } from 'lucide-react';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
@@ -8,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/Toast';
 import { shopService } from '@/services/shop.service';
 import { toSlug } from '@/lib/slug';
+import { safeNextPath } from '@/lib/shop-pickup';
 import {
   ghnService,
   type GhnProvince,
@@ -48,6 +50,7 @@ export default function ShopPickupSettingsPage() {
   const { allowed } = useRequireAuth();
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [noShop, setNoShop] = useState(false);
@@ -191,6 +194,10 @@ export default function ShopPickupSettingsPage() {
         await shopService.updatePickup(pickup);
         toast(t('saved'), 'success');
       }
+      // Đến từ trang đăng tin (?next=/product/create) thì đưa về đó luôn. Đọc
+      // window.location thay vì useSearchParams để trang khỏi cần bọc Suspense.
+      const next = safeNextPath(new URLSearchParams(window.location.search).get('next'));
+      if (next) router.push(next);
     } catch (err: any) {
       const msg = err?.response?.data?.message || t('saveFailed');
       toast(Array.isArray(msg) ? msg[0] : msg, 'error');
