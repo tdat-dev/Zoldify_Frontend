@@ -209,34 +209,53 @@ export default function OrderDetailPage() {
         <div className="px-6 py-5">
           <h2 className="mb-4 text-small font-semibold text-ink">{t('itemsTitle')}</h2>
           <ul className="flex flex-col gap-4">
-            {items.map((item: any, idx: number) => (
-              <li key={idx} className="flex items-start gap-3">
-                <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
-                  {item.product_image ? (
-                    <img
-                      src={item.product_image}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
-                  )}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-small text-ink">{item.product_name}</span>
-                  <span className="block text-caption tabular-nums text-ink-muted">
-                    {formatPrice(item.price ?? item.price_at_purchase, cur)} × {item.quantity}
+            {items.map((item: any, idx: number) => {
+              const productId = item.product_id ?? item.product?.id;
+              const productContent = (
+                <>
+                  <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
+                    {item.product_image ? (
+                      <img
+                        src={item.product_image}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
+                      />
+                    ) : (
+                      <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
+                    )}
                   </span>
-                </span>
-                <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
-                  {/* API trả `price` (order_items.price); `price_at_purchase` chưa từng có trong
-                      response nên trang này luôn hiện 0 đ. */}
-                  {formatPrice(Number(item.price ?? item.price_at_purchase ?? 0) * Number(item.quantity || 0), cur)}
-                </span>
-              </li>
-            ))}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-small text-ink transition-colors group-hover:text-brand">
+                      {item.product_name}
+                    </span>
+                    <span className="block text-caption tabular-nums text-ink-muted">
+                      {formatPrice(item.price ?? item.price_at_purchase, cur)} × {item.quantity}
+                    </span>
+                  </span>
+                </>
+              );
+              return (
+                <li key={idx} className="flex items-start gap-3">
+                  {productId ? (
+                    <Link
+                      href={`/product/${productId}`}
+                      className="group flex min-w-0 flex-1 items-start gap-3"
+                    >
+                      {productContent}
+                    </Link>
+                  ) : (
+                    <div className="flex min-w-0 flex-1 items-start gap-3">{productContent}</div>
+                  )}
+                  <span className="shrink-0 text-small font-semibold tabular-nums text-ink">
+                    {/* API trả `price` (order_items.price); `price_at_purchase` chưa từng có trong
+                        response nên trang này luôn hiện 0 đ. */}
+                    {formatPrice(Number(item.price ?? item.price_at_purchase ?? 0) * Number(item.quantity || 0), cur)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
