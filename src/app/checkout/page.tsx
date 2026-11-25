@@ -237,6 +237,7 @@ export default function CheckoutPage() {
               qrCode: d.qrCode,
               checkoutUrl: d.checkoutUrl,
               expiresAt: d.expiresAt,
+              isMock: d.isMock,
             };
           }
         } catch (linkErr: any) {

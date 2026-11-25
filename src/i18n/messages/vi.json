@@ -711,7 +711,11 @@
     "openPayos": "Mở trang PayOS",
     "cancelPayment": "Huỷ thanh toán",
     "cancelling": "Đang huỷ…",
-    "close": "Đóng"
+    "close": "Đóng",
+    "mockBadge": "Chế độ giả lập Staging (PAYOS_MOCK)",
+    "mockConfirm": "Giả lập thanh toán thành công",
+    "mockConfirming": "Đang xác nhận…",
+    "mockFailed": "Không giả lập được thanh toán."
   },
   "product": {
     "addedToCart": "Đã thêm vào giỏ.",

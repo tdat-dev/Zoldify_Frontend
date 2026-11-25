@@ -15,6 +15,7 @@ export interface PayosModalData {
   qrCode: string;
   checkoutUrl: string;
   expiresAt?: number;
+  isMock?: boolean;
 }
 
 interface PayosQrModalProps {
@@ -32,6 +33,8 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [phase, setPhase] = useState<'pending' | 'paid' | 'expired' | 'failed'>('pending');
   const [cancelling, setCancelling] = useState(false);
+  const [mocking, setMocking] = useState(false);
+  const [mockError, setMockError] = useState('');
   const [secondsLeft, setSecondsLeft] = useState<number>(15 * 60);
 
   // Render chuỗi VietQR thành ảnh data URL mỗi khi mở modal mới
@@ -137,6 +140,21 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
     }
   };
 
+  const handleMockConfirm = async () => {
+    setMockError('');
+    setMocking(true);
+    try {
+      await payosService.mockConfirm(String(data.orderCode));
+      setPhase('paid');
+      setTimeout(() => onPaid(), 700);
+    } catch (err: any) {
+      const m = err?.response?.data?.message;
+      setMockError((Array.isArray(m) ? m[0] : m) || t('mockFailed'));
+    } finally {
+      setMocking(false);
+    }
+  };
+
   return (
     <div
       role="dialog"
@@ -214,7 +232,30 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
 
         {phase !== 'paid' && (
           <div className="flex flex-col gap-2 border-t border-ink/10 px-5 py-4">
-            {data.checkoutUrl && (
+            {data.isMock && (
+              <>
+                <div className="flex items-center justify-center">
+                  <span className="rounded-control bg-state-pending-bg px-2.5 py-0.5 text-caption font-semibold text-state-pending-fg">
+                    {t('mockBadge')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleMockConfirm}
+                  disabled={mocking || cancelling}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-control bg-brand px-4 py-2.5 text-small font-semibold text-white transition-colors hover:bg-brand-dark disabled:opacity-60"
+                >
+                  {mocking && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                  {mocking ? t('mockConfirming') : t('mockConfirm')}
+                </button>
+                {mockError && (
+                  <p role="alert" className="text-center text-caption text-state-danger-fg">
+                    {mockError}
+                  </p>
+                )}
+              </>
+            )}
+            {data.checkoutUrl && !data.isMock && (
               <a
                 href={data.checkoutUrl}
                 target="_blank"
@@ -228,7 +269,7 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
             <button
               type="button"
               onClick={handleCancel}
-              disabled={cancelling}
+              disabled={cancelling || mocking}
               className="w-full rounded-control px-4 py-2 text-small font-semibold text-ink-muted transition-colors hover:bg-surface-sunken hover:text-ink disabled:opacity-60"
             >
               {cancelling ? t('cancelling') : t('cancelPayment')}

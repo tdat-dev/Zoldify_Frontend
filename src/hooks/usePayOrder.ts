@@ -70,6 +70,7 @@ export function usePayOrder(onSettled?: () => void) {
               qrCode: d.qrCode,
               checkoutUrl: d.checkoutUrl,
               expiresAt: d.expiresAt,
+              isMock: d.isMock,
             });
           } else {
             leaving = true;

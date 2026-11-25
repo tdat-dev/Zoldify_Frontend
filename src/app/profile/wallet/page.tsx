@@ -145,6 +145,7 @@ export default function WalletPage() {
           qrCode: d.qrCode,
           checkoutUrl: d.checkoutUrl,
           expiresAt: d.expiresAt,
+          isMock: d.isMock,
         });
         return;
       }
