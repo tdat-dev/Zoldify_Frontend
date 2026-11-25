@@ -8,6 +8,9 @@ export interface CreateAddressData {
   district: string;
   ward?: string;
   street: string;
+  ghn_province_id?: number;
+  ghn_district_id?: number;
+  ghn_ward_code?: string;
   is_default?: boolean;
 }
 

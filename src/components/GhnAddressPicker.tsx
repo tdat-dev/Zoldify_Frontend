@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
   ghnService,
+  resolveGhnLocation,
   type GhnProvince,
   type GhnDistrict,
   type GhnWard,
 } from '@/services/ghn.service';
-import { addressService } from '@/services/address.service';
+import { addressService, type Address } from '@/services/address.service';
 
 export interface GhnAddressSelection {
   receiver_name: string;
@@ -27,11 +29,8 @@ interface Props {
 
 /**
  * Bộ chọn địa chỉ NHẬN dùng danh mục GHN (ProvinceID/DistrictID/WardCode).
- *
- * Khác AddressPicker (dùng provinces.open-api.vn, chỉ có tên): ở đây phải là
- * danh mục GHN để đơn mang đúng ghn_district_id/ghn_ward_code — thứ GHN cần để
- * tính phí ship và tạo vận đơn. Mã hai nguồn không khớp nhau nên không thể
- * dùng lẫn.
+ * Tự điền sẵn từ sổ địa chỉ đã lưu (ưu tiên mã GHN, fallback khớp tên cho
+ * địa chỉ cũ chưa lưu mã GHN).
  */
 export default function GhnAddressPicker({ onSelect }: Props) {
   const t = useTranslations('addresses');
@@ -39,6 +38,8 @@ export default function GhnAddressPicker({ onSelect }: Props) {
   const [provinces, setProvinces] = useState<GhnProvince[]>([]);
   const [districts, setDistricts] = useState<GhnDistrict[]>([]);
   const [wards, setWards] = useState<GhnWard[]>([]);
+  const [savedList, setSavedList] = useState<Address[]>([]);
+  const [selectedSavedId, setSelectedSavedId] = useState<number | null>(null);
 
   const [form, setForm] = useState({
     receiver_name: '',
@@ -56,53 +57,6 @@ export default function GhnAddressPicker({ onSelect }: Props) {
     ghnService.getProvinces().then(setProvinces).catch(() => setProvinces([]));
   }, []);
 
-  // Điền sẵn địa chỉ MẶC ĐỊNH đã lưu nếu nó có đủ mã GHN. Trước đây người mua
-  // phải chọn lại tỉnh, quận, phường mỗi lần đặt dù đã lưu địa chỉ (cẩm nang
-  // bảo vệ 12/11 ghi là lỗi đã biết), và nút Mua ngay của trợ lý mua hàng mở
-  // thẳng trang này. Địa chỉ cũ không có mã GHN thì để trống như cũ.
-  const prefilled = useRef(false);
-  useEffect(() => {
-    if (prefilled.current || provinces.length === 0) return;
-    prefilled.current = true;
-    (async () => {
-      try {
-        const res = await addressService.getAll();
-        const list: any[] = res.data?.data?.result ?? res.data?.data ?? [];
-        // Ưu tiên địa chỉ mặc định; chưa đặt mặc định thì lấy địa chỉ đầu tiên đủ mã GHN
-        // (người chỉ lưu một địa chỉ thường không bấm "đặt làm mặc định").
-        const complete = list.filter((a) => a.ghn_province_id && a.ghn_district_id && a.ghn_ward_code);
-        const saved = complete.find((a) => a.is_default) ?? complete[0];
-        if (!saved) return;
-        const province = provinces.find((p) => p.ProvinceID === Number(saved.ghn_province_id));
-        if (!province) return;
-        const ds = await ghnService.getDistricts(province.ProvinceID);
-        const district = ds.find((d) => d.DistrictID === Number(saved.ghn_district_id));
-        if (!district) return;
-        const ws = await ghnService.getWards(district.DistrictID);
-        const ward = ws.find((w) => w.WardCode === String(saved.ghn_ward_code));
-        if (!ward) return;
-        setDistricts(ds);
-        setWards(ws);
-        const next = {
-          receiver_name: saved.recipient_name ?? '',
-          receiver_phone: saved.phone_number ?? '',
-          street: saved.street ?? '',
-          province_id: province.ProvinceID,
-          province_name: province.ProvinceName,
-          district_id: district.DistrictID,
-          district_name: district.DistrictName,
-          ward_code: ward.WardCode,
-          ward_name: ward.WardName,
-        };
-        setForm(next);
-        emit(next);
-      } catch {
-        // Chưa đăng nhập hoặc lỗi mạng: để người mua tự nhập như trước.
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provinces]);
-
   const emit = (f: typeof form) => {
     const shipping_address = [f.street, f.ward_name, f.district_name, f.province_name]
       .filter(Boolean)
@@ -117,6 +71,46 @@ export default function GhnAddressPicker({ onSelect }: Props) {
       ghn_ward_code: f.ward_code,
     });
   };
+
+  const applySaved = async (saved: Address, provList: GhnProvince[]) => {
+    setSelectedSavedId(saved.id);
+    const resolved = await resolveGhnLocation(provList, saved);
+    setDistricts(resolved.districts);
+    setWards(resolved.wards);
+    const next = {
+      receiver_name: saved.recipient_name ?? '',
+      receiver_phone: saved.phone_number ?? '',
+      street: saved.street ?? '',
+      province_id: resolved.province?.ProvinceID ?? 0,
+      province_name: resolved.province?.ProvinceName ?? '',
+      district_id: resolved.district?.DistrictID ?? 0,
+      district_name: resolved.district?.DistrictName ?? '',
+      ward_code: resolved.ward?.WardCode ?? '',
+      ward_name: resolved.ward?.WardName ?? '',
+    };
+    setForm(next);
+    emit(next);
+  };
+
+  // Điền sẵn địa chỉ MẶC ĐỊNH đã lưu (hoặc địa chỉ đầu tiên).
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || provinces.length === 0) return;
+    prefilled.current = true;
+    (async () => {
+      try {
+        const res = await addressService.getAll();
+        const list: Address[] = res.data?.data?.result ?? res.data?.data ?? [];
+        setSavedList(list);
+        if (list.length === 0) return;
+        const saved = list.find((a) => a.is_default) ?? list[0];
+        await applySaved(saved, provinces);
+      } catch {
+        // Chưa đăng nhập hoặc lỗi mạng: để người mua tự nhập như trước.
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinces]);
 
   const patch = (partial: Partial<typeof form>) => {
     const next = { ...form, ...partial };
@@ -166,6 +160,48 @@ export default function GhnAddressPicker({ onSelect }: Props) {
 
   return (
     <div className="space-y-3">
+      {savedList.length > 0 && (
+        <div className="rounded-control border border-ink/10 bg-surface-sunken/60 p-3">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-caption font-semibold text-ink-muted">{t('savedPick')}</span>
+            <Link href="/addresses" className="text-caption font-semibold text-brand hover:underline">
+              {t('manage')}
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {savedList.map((a) => {
+              const active = a.id === selectedSavedId;
+              return (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => applySaved(a, provinces)}
+                  aria-pressed={active}
+                  className={`max-w-full rounded-control border px-3 py-1.5 text-left text-small transition-colors ${
+                    active
+                      ? 'border-brand bg-brand-tint text-ink'
+                      : 'border-ink/16 bg-surface-card text-ink-muted hover:border-ink/30 hover:text-ink'
+                  }`}
+                >
+                  <span className="font-semibold text-ink">
+                    {a.label ? `${a.label} · ` : ''}
+                    {a.recipient_name}
+                  </span>
+                  {a.is_default && (
+                    <span className="ml-1.5 rounded bg-brand/15 px-1.5 py-0.5 text-caption font-semibold text-brand">
+                      {t('default')}
+                    </span>
+                  )}
+                  <span className="block truncate text-caption text-ink-muted">
+                    {[a.street, a.ward, a.district, a.province].filter(Boolean).join(', ')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label htmlFor="ghn-recipient" className="text-small font-semibold text-ink">
