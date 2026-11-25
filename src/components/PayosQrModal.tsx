@@ -86,10 +86,17 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
     }
     let cancelled = false;
     setPhase('pending');
-    QRCode.toDataURL(data.qrCode, {
-      width: 240,
-      margin: 2,
-      errorCorrectionLevel: 'M',
+    const payload = data.isMock
+      ? `00020101021238570010A00000072701270006${data.bin || '970422'}0113${data.accountNumber || '0000123456789'}0208QRIBFTTA530370454${String(Math.round(data.amount)).length.toString().padStart(2, '0')}${Math.round(data.amount)}5802VN62${String((data.description || `DH${data.orderCode}`).length + 4).padStart(2, '0')}08${String((data.description || `DH${data.orderCode}`).length).padStart(2, '0')}${data.description || `DH${data.orderCode}`}6304MOCK`
+      : data.qrCode;
+    QRCode.toDataURL(payload, {
+      width: 280,
+      margin: 1,
+      errorCorrectionLevel: 'H',
+      color: {
+        dark: '#0f2240',
+        light: '#ffffff',
+      },
     })
       .then((url) => {
         if (!cancelled) setQrDataUrl(url);
@@ -100,7 +107,7 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
     return () => {
       cancelled = true;
     };
-  }, [data?.qrCode, data?.orderCode]);
+  }, [data?.qrCode, data?.orderCode, data?.isMock, data?.bin, data?.accountNumber, data?.amount, data?.description]);
 
   // Đếm ngược thời hạn mã QR
   useEffect(() => {
@@ -276,16 +283,57 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
                   {formatPrice(data.amount)}
                 </p>
 
-                <div className="mt-4 flex h-[236px] w-[236px] items-center justify-center rounded-card border border-ink/12 bg-white p-2">
-                  {qrDataUrl ? (
-                    <img
-                      src={qrDataUrl}
-                      alt={t('qrAlt')}
-                      className="h-[220px] w-[220px] object-contain"
-                    />
-                  ) : (
-                    <Loader2 className="h-8 w-8 animate-spin text-ink-muted" aria-hidden="true" />
-                  )}
+                <div className="mt-4 w-full max-w-[264px] overflow-hidden rounded-2xl border border-ink/12 bg-white shadow-sm">
+                  {/* VietQR + Napas 247 header */}
+                  <div className="flex items-center justify-between border-b border-ink/8 bg-[#f8fafc] px-4 py-2.5">
+                    <div className="flex items-center gap-1 select-none" aria-label="VietQR">
+                      <span className="text-[15px] font-extrabold tracking-tight text-[#d92d20]">
+                        Viet
+                      </span>
+                      <span className="rounded bg-[#0f2240] px-1 py-0.5 text-[11px] font-extrabold leading-none tracking-wide text-white">
+                        QR
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 select-none text-[11px] font-bold tracking-tight text-[#0f2240]">
+                      <span>napas</span>
+                      <span className="rounded-sm bg-[#0b7a4b] px-1 py-0.5 text-[10px] font-extrabold leading-none text-white">
+                        247
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Framed QR matrix */}
+                  <div className="relative mx-auto my-3.5 flex h-[216px] w-[216px] items-center justify-center p-2.5">
+                    <span className="pointer-events-none absolute left-0 top-0 h-5 w-5 rounded-tl-md border-l-[3px] border-t-[3px] border-[#d92d20]" />
+                    <span className="pointer-events-none absolute right-0 top-0 h-5 w-5 rounded-tr-md border-r-[3px] border-t-[3px] border-[#d92d20]" />
+                    <span className="pointer-events-none absolute bottom-0 left-0 h-5 w-5 rounded-bl-md border-b-[3px] border-l-[3px] border-[#0f2240]" />
+                    <span className="pointer-events-none absolute bottom-0 right-0 h-5 w-5 rounded-br-md border-b-[3px] border-r-[3px] border-[#0f2240]" />
+                    {qrDataUrl ? (
+                      <>
+                        <img
+                          src={qrDataUrl}
+                          alt={t('qrAlt')}
+                          className="h-[196px] w-[196px] object-contain"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute flex h-8 w-8 items-center justify-center rounded-lg border-2 border-white bg-[#d92d20] text-[10px] font-black tracking-tighter text-white shadow-sm"
+                        >
+                          VQR
+                        </span>
+                      </>
+                    ) : (
+                      <Loader2 className="h-8 w-8 animate-spin text-ink-muted" aria-hidden="true" />
+                    )}
+                  </div>
+
+                  {/* Bank / PayOS footer strip */}
+                  <div className="border-t border-ink/8 bg-[#f8fafc] px-3 py-2 text-center">
+                    <p className="truncate text-[11px] font-semibold text-[#0f2240]">
+                      {bankDisplay ? `${bankDisplay} · ` : ''}
+                      {data.accountName || 'PayOS VietQR'}
+                    </p>
+                  </div>
                 </div>
 
                 <p className="mt-3 text-small text-ink-muted">{t('scanHint')}</p>
