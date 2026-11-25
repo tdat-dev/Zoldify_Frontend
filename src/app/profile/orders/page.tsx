@@ -250,31 +250,48 @@ export default function UserOrdersPage() {
                 </div>
 
                 <ul className="mt-4 flex flex-col gap-3">
-                  {items.slice(0, 2).map((item: any, idx: number) => (
-                    <li key={idx} className="flex items-center gap-3">
-                      <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
-                        {item.product_image ? (
-                          <img
-                            src={item.product_image}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            className="h-full w-full object-cover"
-                          />
+                  {items.slice(0, 2).map((item: any, idx: number) => {
+                    const productId = item.product_id ?? item.product?.id;
+                    const content = (
+                      <>
+                        <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-control bg-surface-sunken">
+                          {item.product_image ? (
+                            <img
+                              src={item.product_image}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover transition-opacity group-hover:opacity-90"
+                            />
+                          ) : (
+                            <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-small text-ink transition-colors group-hover:text-brand">
+                            {item.product_name}
+                          </span>
+                          <span className="block text-caption tabular-nums text-ink-muted">
+                            {t('quantity', { count: item.quantity })}
+                          </span>
+                        </span>
+                      </>
+                    );
+                    return (
+                      <li key={idx}>
+                        {productId ? (
+                          <Link
+                            href={`/product/${productId}`}
+                            className="group flex items-center gap-3"
+                          >
+                            {content}
+                          </Link>
                         ) : (
-                          <Package className="h-5 w-5 text-ink-faint" aria-hidden="true" />
+                          <div className="flex items-center gap-3">{content}</div>
                         )}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-small text-ink">
-                          {item.product_name}
-                        </span>
-                        <span className="block text-caption tabular-nums text-ink-muted">
-                          {t('quantity', { count: item.quantity })}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ul>
                 {extra > 0 && (
                   <p className="mt-2 text-small text-ink-muted">{t('moreItems', { count: extra })}</p>
