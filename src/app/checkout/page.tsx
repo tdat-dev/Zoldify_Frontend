@@ -8,12 +8,13 @@ import { cartService } from '@/services/cart.service';
 import { orderService } from '@/services/order.service';
 import { payosService } from '@/services/payos.service';
 import { paymentService } from '@/services/payment.service';
+import { addressService } from '@/services/address.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/Toast';
 import type { CreateOrderDto } from '@/api';
 import { useRouter, useSearchParams } from 'next/navigation';
-import GhnAddressPicker from '@/components/GhnAddressPicker';
+import GhnAddressPicker, { type GhnAddressSelection } from '@/components/GhnAddressPicker';
 import type { ShippingQuote } from '@/services/order.service';
 import { formatPrice } from '@/lib/format';
 
@@ -39,14 +40,18 @@ export default function CheckoutPage() {
   // nhận về đúng đơn đó.
   const idempotencyKey = useRef(taoKhoaChongTrung());
   const [note, setNote] = useState('');
-  const [addressInfo, setAddressInfo] = useState({
+  const [addressInfo, setAddressInfo] = useState<GhnAddressSelection>({
     receiver_name: '',
     receiver_phone: '',
     shipping_address: '',
     province: '',
     district: '',
+    ward: '',
+    street: '',
+    ghn_province_id: 0,
     ghn_district_id: 0,
     ghn_ward_code: '',
+    from_saved: false,
   });
 
   // Phí ship do server tính theo từng người bán (from = pickup người bán).
@@ -184,6 +189,25 @@ export default function CheckoutPage() {
       }, idempotencyKey.current);
       const order = orderRes.data?.data || orderRes.data;
       const orderId = order?.id;
+
+      // Nếu người mua chưa có địa chỉ trong sổ và nhập trực tiếp rồi bấm Đặt hàng
+      // luôn, tự lưu vào sổ địa chỉ mặc định cho lần mua sau (không chặn đơn nếu lỗi).
+      if (!addressInfo.from_saved && addressInfo.street) {
+        addressService
+          .create({
+            recipient_name: addressInfo.receiver_name.trim(),
+            phone_number: addressInfo.receiver_phone.trim(),
+            province: addressInfo.province,
+            district: addressInfo.district,
+            ward: addressInfo.ward || undefined,
+            street: addressInfo.street.trim(),
+            ghn_province_id: addressInfo.ghn_province_id || undefined,
+            ghn_district_id: addressInfo.ghn_district_id || undefined,
+            ghn_ward_code: addressInfo.ghn_ward_code || undefined,
+            is_default: true,
+          })
+          .catch(() => {});
+      }
 
       // Bước 2: Nếu là PayOS → tạo link thanh toán và redirect
       if (paymentMethod === 'payos') {
