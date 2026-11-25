@@ -715,7 +715,14 @@
     "mockBadge": "Staging Mock Mode (PAYOS_MOCK)",
     "mockConfirm": "Simulate successful payment",
     "mockConfirming": "Confirming…",
-    "mockFailed": "Could not simulate payment."
+    "mockFailed": "Could not simulate payment.",
+    "manualTitle": "Or transfer manually",
+    "bankLabel": "Bank",
+    "accountNumberLabel": "Account number",
+    "accountNameLabel": "Account holder",
+    "transferContentLabel": "Transfer note",
+    "copy": "Copy",
+    "copied": "Copied"
   },
   "product": {
     "addedToCart": "Added to your cart.",
