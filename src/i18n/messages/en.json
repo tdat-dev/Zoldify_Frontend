@@ -698,6 +698,21 @@
     "submit": "Place order",
     "backToCart": "Back to cart"
   },
+  "payosModal": {
+    "titleOrder": "Pay for order #{id}",
+    "titleTopup": "Top up Zoldify wallet",
+    "amountLabel": "Amount to transfer",
+    "qrAlt": "PayOS VietQR payment code",
+    "scanHint": "Open any banking app and scan this VietQR code to pay.",
+    "waiting": "Waiting for payment confirmation",
+    "paidSuccess": "Payment received!",
+    "expired": "This QR code has expired. Close and generate a new one.",
+    "cancelled": "Payment was cancelled.",
+    "openPayos": "Open PayOS page",
+    "cancelPayment": "Cancel payment",
+    "cancelling": "Cancelling…",
+    "close": "Close"
+  },
   "product": {
     "addedToCart": "Added to your cart.",
     "addToCartFailed": "Could not add it to your cart.",

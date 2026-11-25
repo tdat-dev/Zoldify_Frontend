@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useToast } from '@/components/Toast';
 import { payosService } from '@/services/payos.service';
 import { paymentService } from '@/services/payment.service';
+import type { PayosModalData } from '@/components/PayosQrModal';
 
 interface PayableOrder {
   id: number;
@@ -44,6 +45,7 @@ export function usePayOrder(onSettled?: () => void) {
   const { toast } = useToast();
   const busyRef = useRef(false);
   const [payingId, setPayingId] = useState<number | null>(null);
+  const [payosModal, setPayosModal] = useState<PayosModalData | null>(null);
 
   const pay = useCallback(
     async (order: PayableOrder) => {
@@ -57,10 +59,22 @@ export function usePayOrder(onSettled?: () => void) {
           toast(t('payWalletDone'), 'success');
         } else {
           const res = await payosService.createLink({ type: 'order', order_id: order.id });
-          const url = res.data?.data?.checkoutUrl;
-          if (!url) throw new Error('no checkoutUrl');
-          leaving = true;
-          window.location.href = url;
+          const d = res.data?.data;
+          if (!d?.qrCode && !d?.checkoutUrl) throw new Error('no checkoutUrl');
+          if (d.qrCode) {
+            setPayosModal({
+              type: 'order',
+              orderId: order.id,
+              orderCode: d.orderCode,
+              amount: d.amount,
+              qrCode: d.qrCode,
+              checkoutUrl: d.checkoutUrl,
+              expiresAt: d.expiresAt,
+            });
+          } else {
+            leaving = true;
+            window.location.href = d.checkoutUrl;
+          }
         }
       } catch (err: any) {
         // Câu của backend cụ thể hơn ("Số dư ví không đủ", "Đơn hàng đã được
@@ -80,5 +94,10 @@ export function usePayOrder(onSettled?: () => void) {
     [t, toast, onSettled],
   );
 
-  return { pay, payingId };
+  const closePayosModal = useCallback(() => {
+    setPayosModal(null);
+    onSettled?.();
+  }, [onSettled]);
+
+  return { pay, payingId, payosModal, closePayosModal };
 }
