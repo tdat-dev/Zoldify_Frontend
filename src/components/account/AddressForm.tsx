@@ -4,7 +4,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { provinceService } from '@/services/province.service';
+import {
+  ghnService,
+  resolveGhnLocation,
+  type GhnDistrict,
+  type GhnProvince,
+  type GhnWard,
+} from '@/services/ghn.service';
 import { useToast } from '@/components/Toast';
 
 /**
@@ -40,6 +46,9 @@ export type AddressValues = {
   district: string;
   ward: string;
   street: string;
+  ghn_province_id?: number;
+  ghn_district_id?: number;
+  ghn_ward_code?: string;
   is_default: boolean;
 };
 
@@ -51,6 +60,9 @@ const EMPTY: AddressValues = {
   district: '',
   ward: '',
   street: '',
+  ghn_province_id: undefined,
+  ghn_district_id: undefined,
+  ghn_ward_code: undefined,
   is_default: false,
 };
 
@@ -76,9 +88,9 @@ export function AddressForm({
   const tc = useTranslations('common');
 
   const [form, setForm] = useState<AddressValues>({ ...EMPTY, ...initial });
-  const [provinces, setProvinces] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [wards, setWards] = useState<any[]>([]);
+  const [provinces, setProvinces] = useState<GhnProvince[]>([]);
+  const [districts, setDistricts] = useState<GhnDistrict[]>([]);
+  const [wards, setWards] = useState<GhnWard[]>([]);
   const [errors, setErrors] = useState<Errors>({});
   const [saving, setSaving] = useState(false);
 
@@ -87,37 +99,74 @@ export function AddressForm({
     setErrors((e) => ({ ...e, [key]: undefined }));
   };
 
-  // Nạp tỉnh một lần, rồi khôi phục huyện/xã của địa chỉ đang sửa. Hai bản cũ
-  // làm việc này bằng hai cách khác nhau; ở đây chỉ một cách.
+  // Nạp danh mục GHN, rồi khôi phục tỉnh/quận/phường của địa chỉ đang sửa
+  // (ưu tiên mã GHN, fallback khớp tên cho địa chỉ cũ tạo trước khi dùng GHN).
   const load = useCallback(async () => {
-    const provs = await provinceService.getProvinces();
+    const provs = await ghnService.getProvinces();
     setProvinces(provs);
-    if (!initial?.province) return;
-    const p = provs.find((x: any) => x.name === initial.province);
-    if (!p) return;
-    const ds = await provinceService.getDistricts(p.code);
-    setDistricts(ds);
-    const d = ds.find((x: any) => x.name === initial.district);
-    if (d) setWards(await provinceService.getWards(d.code));
-  }, [initial?.province, initial?.district]);
+    if (!initial?.ghn_province_id && !initial?.province) return;
+    const resolved = await resolveGhnLocation(provs, initial);
+    setDistricts(resolved.districts);
+    setWards(resolved.wards);
+    setForm((f) => ({
+      ...f,
+      province: resolved.province?.ProvinceName ?? f.province,
+      district: resolved.district?.DistrictName ?? f.district,
+      ward: resolved.ward?.WardName ?? f.ward,
+      ghn_province_id: resolved.province?.ProvinceID ?? f.ghn_province_id,
+      ghn_district_id: resolved.district?.DistrictID ?? f.ghn_district_id,
+      ghn_ward_code: resolved.ward?.WardCode ?? f.ghn_ward_code,
+    }));
+  }, [
+    initial?.ghn_province_id,
+    initial?.ghn_district_id,
+    initial?.ghn_ward_code,
+    initial?.province,
+    initial?.district,
+    initial?.ward,
+  ]);
 
   useEffect(() => {
     load().catch(() => setProvinces([]));
   }, [load]);
 
-  const onProvince = async (name: string) => {
-    setForm((f) => ({ ...f, province: name, district: '', ward: '' }));
+  const onProvince = async (id: number) => {
+    const p = provinces.find((x) => x.ProvinceID === id);
+    setForm((f) => ({
+      ...f,
+      province: p?.ProvinceName ?? '',
+      district: '',
+      ward: '',
+      ghn_province_id: p?.ProvinceID,
+      ghn_district_id: undefined,
+      ghn_ward_code: undefined,
+    }));
     setErrors((e) => ({ ...e, province: undefined }));
-    const p = provinces.find((x: any) => x.name === name);
-    setDistricts(p ? await provinceService.getDistricts(p.code) : []);
+    setDistricts(p ? await ghnService.getDistricts(p.ProvinceID).catch(() => []) : []);
     setWards([]);
   };
 
-  const onDistrict = async (name: string) => {
-    setForm((f) => ({ ...f, district: name, ward: '' }));
+  const onDistrict = async (id: number) => {
+    const d = districts.find((x) => x.DistrictID === id);
+    setForm((f) => ({
+      ...f,
+      district: d?.DistrictName ?? '',
+      ward: '',
+      ghn_district_id: d?.DistrictID,
+      ghn_ward_code: undefined,
+    }));
     setErrors((e) => ({ ...e, district: undefined }));
-    const d = districts.find((x: any) => x.name === name);
-    setWards(d ? await provinceService.getWards(d.code) : []);
+    setWards(d ? await ghnService.getWards(d.DistrictID).catch(() => []) : []);
+  };
+
+  const onWard = (code: string) => {
+    const w = wards.find((x) => x.WardCode === code);
+    setForm((f) => ({
+      ...f,
+      ward: w?.WardName ?? '',
+      ghn_ward_code: w?.WardCode,
+    }));
+    setErrors((e) => ({ ...e, ward: undefined }));
   };
 
   const validate = (): Errors => {
@@ -126,8 +175,9 @@ export function AddressForm({
     const phone = form.phone_number.replace(/[\s.-]/g, '');
     if (!phone) e.phone_number = t('errPhone');
     else if (!/^\+?\d{9,11}$/.test(phone)) e.phone_number = t('errPhoneFormat');
-    if (!form.province) e.province = t('errProvince');
-    if (!form.district) e.district = t('errDistrict');
+    if (!form.ghn_province_id) e.province = t('errProvince');
+    if (!form.ghn_district_id) e.district = t('errDistrict');
+    if (!form.ghn_ward_code) e.ward = t('errWard');
     if (!form.street.trim()) e.street = t('errStreet');
     return e;
   };
@@ -244,15 +294,15 @@ export function AddressForm({
             </label>
             <select
               id="addr-province"
-              value={form.province}
-              onChange={(e) => onProvince(e.target.value)}
+              value={form.ghn_province_id ?? 0}
+              onChange={(e) => onProvince(Number(e.target.value))}
               aria-invalid={!!errors.province}
               className={field(errors.province)}
             >
-              <option value="">{t('choose')}</option>
-              {provinces.map((p: any) => (
-                <option key={p.code} value={p.name}>
-                  {p.name}
+              <option value={0}>{t('choose')}</option>
+              {provinces.map((p) => (
+                <option key={p.ProvinceID} value={p.ProvinceID}>
+                  {p.ProvinceName}
                 </option>
               ))}
             </select>
@@ -264,16 +314,16 @@ export function AddressForm({
             </label>
             <select
               id="addr-district"
-              value={form.district}
-              onChange={(e) => onDistrict(e.target.value)}
-              disabled={!form.province}
+              value={form.ghn_district_id ?? 0}
+              onChange={(e) => onDistrict(Number(e.target.value))}
+              disabled={!form.ghn_province_id}
               aria-invalid={!!errors.district}
               className={`${field(errors.district)} disabled:bg-surface-sunken disabled:text-ink-faint`}
             >
-              <option value="">{t('choose')}</option>
-              {districts.map((d: any) => (
-                <option key={d.code} value={d.name}>
-                  {d.name}
+              <option value={0}>{t('choose')}</option>
+              {districts.map((d) => (
+                <option key={d.DistrictID} value={d.DistrictID}>
+                  {d.DistrictName}
                 </option>
               ))}
             </select>
@@ -285,18 +335,20 @@ export function AddressForm({
             </label>
             <select
               id="addr-ward"
-              value={form.ward}
-              onChange={(e) => set('ward', e.target.value)}
-              disabled={!form.district}
-              className={`${field()} disabled:bg-surface-sunken disabled:text-ink-faint`}
+              value={form.ghn_ward_code ?? ''}
+              onChange={(e) => onWard(e.target.value)}
+              disabled={!form.ghn_district_id}
+              aria-invalid={!!errors.ward}
+              className={`${field(errors.ward)} disabled:bg-surface-sunken disabled:text-ink-faint`}
             >
               <option value="">{t('choose')}</option>
-              {wards.map((w: any) => (
-                <option key={w.code} value={w.name}>
-                  {w.name}
+              {wards.map((w) => (
+                <option key={w.WardCode} value={w.WardCode}>
+                  {w.WardName}
                 </option>
               ))}
             </select>
+            {errors.ward && <p className={errCls}>{errors.ward}</p>}
           </div>
         </div>
 

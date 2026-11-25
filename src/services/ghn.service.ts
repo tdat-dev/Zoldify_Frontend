@@ -51,3 +51,69 @@ export const ghnService = {
     return list;
   },
 };
+
+function normalizeAdminName(raw?: string | null): string {
+  if (!raw) return '';
+  return raw
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\u0111/g, 'd')
+    .replace(/^(thanh pho|tp\.?|tinh|quan|q\.?|huyen|h\.?|thi xa|tx\.?|phuong|p\.?|xa|thi tran|tt\.?)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function findByName<T>(list: T[], rawName: string | undefined | null, getName: (item: T) => string): T | undefined {
+  const target = normalizeAdminName(rawName);
+  if (!target) return undefined;
+  return list.find((item) => normalizeAdminName(getName(item)) === target);
+}
+
+export interface ResolvedGhnLocation {
+  province?: GhnProvince;
+  district?: GhnDistrict;
+  ward?: GhnWard;
+  districts: GhnDistrict[];
+  wards: GhnWard[];
+}
+
+/**
+ * Khớp một địa chỉ đã lưu sang danh mục GHN: ưu tiên mã GHN đã lưu,
+ * nếu thiếu (địa chỉ cũ tạo trước khi AddressForm dùng GHN) thì khớp theo tên.
+ */
+export async function resolveGhnLocation(
+  provinces: GhnProvince[],
+  input: {
+    province?: string | null;
+    district?: string | null;
+    ward?: string | null;
+    ghn_province_id?: number | null;
+    ghn_district_id?: number | null;
+    ghn_ward_code?: string | null;
+  },
+): Promise<ResolvedGhnLocation> {
+  const province =
+    (input.ghn_province_id
+      ? provinces.find((p) => p.ProvinceID === Number(input.ghn_province_id))
+      : undefined) ?? findByName(provinces, input.province, (p) => p.ProvinceName);
+
+  if (!province) return { districts: [], wards: [] };
+
+  const districts = await ghnService.getDistricts(province.ProvinceID).catch(() => []);
+  const district =
+    (input.ghn_district_id
+      ? districts.find((d) => d.DistrictID === Number(input.ghn_district_id))
+      : undefined) ?? findByName(districts, input.district, (d) => d.DistrictName);
+
+  if (!district) return { province, districts, wards: [] };
+
+  const wards = await ghnService.getWards(district.DistrictID).catch(() => []);
+  const ward =
+    (input.ghn_ward_code
+      ? wards.find((w) => w.WardCode === String(input.ghn_ward_code))
+      : undefined) ?? findByName(wards, input.ward, (w) => w.WardName);
+
+  return { province, district, ward, districts, wards };
+}

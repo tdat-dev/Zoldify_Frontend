@@ -36,6 +36,9 @@ export default function EditAddressPage() {
         district: a.district || '',
         ward: a.ward || '',
         street: a.street || '',
+        ghn_province_id: a.ghn_province_id ?? undefined,
+        ghn_district_id: a.ghn_district_id ?? undefined,
+        ghn_ward_code: a.ghn_ward_code ?? undefined,
         is_default: !!a.is_default,
       });
       setState('ready');
