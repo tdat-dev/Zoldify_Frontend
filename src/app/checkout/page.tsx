@@ -237,6 +237,10 @@ export default function CheckoutPage() {
               qrCode: d.qrCode,
               checkoutUrl: d.checkoutUrl,
               expiresAt: d.expiresAt,
+              bin: d.bin,
+              accountNumber: d.accountNumber,
+              accountName: d.accountName,
+              description: d.description,
               isMock: d.isMock,
             };
           }

@@ -13,6 +13,10 @@ export interface PayosCreateLinkResponse {
   orderCode: number;
   amount: number;
   expiresAt?: number;
+  bin?: string;
+  accountNumber?: string;
+  accountName?: string;
+  description?: string;
   isMock?: boolean;
 }
 

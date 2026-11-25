@@ -715,7 +715,14 @@
     "mockBadge": "Chế độ giả lập Staging (PAYOS_MOCK)",
     "mockConfirm": "Giả lập thanh toán thành công",
     "mockConfirming": "Đang xác nhận…",
-    "mockFailed": "Không giả lập được thanh toán."
+    "mockFailed": "Không giả lập được thanh toán.",
+    "manualTitle": "Hoặc chuyển khoản thủ công",
+    "bankLabel": "Ngân hàng",
+    "accountNumberLabel": "Số tài khoản",
+    "accountNameLabel": "Chủ tài khoản",
+    "transferContentLabel": "Nội dung CK",
+    "copy": "Sao chép",
+    "copied": "Đã chép"
   },
   "product": {
     "addedToCart": "Đã thêm vào giỏ.",
