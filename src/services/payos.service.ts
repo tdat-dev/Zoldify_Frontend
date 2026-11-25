@@ -13,6 +13,7 @@ export interface PayosCreateLinkResponse {
   orderCode: number;
   amount: number;
   expiresAt?: number;
+  isMock?: boolean;
 }
 
 export interface PayosOrderStatus {
@@ -43,6 +44,11 @@ export const payosService = {
   // Hủy payment link
   cancel(payosOrderCode: string) {
     return http.post('/payos/cancel', { payos_order_code: payosOrderCode });
+  },
+
+  // Giả lập thanh toán thành công (chỉ hoạt động khi staging bật PAYOS_MOCK=true)
+  mockConfirm(payosOrderCode: string) {
+    return http.post('/payos/mock-confirm', { payos_order_code: payosOrderCode });
   },
 
   refresh(orderId: number) {

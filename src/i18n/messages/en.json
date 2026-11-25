@@ -711,7 +711,11 @@
     "openPayos": "Open PayOS page",
     "cancelPayment": "Cancel payment",
     "cancelling": "Cancelling…",
-    "close": "Close"
+    "close": "Close",
+    "mockBadge": "Staging Mock Mode (PAYOS_MOCK)",
+    "mockConfirm": "Simulate successful payment",
+    "mockConfirming": "Confirming…",
+    "mockFailed": "Could not simulate payment."
   },
   "product": {
     "addedToCart": "Added to your cart.",
