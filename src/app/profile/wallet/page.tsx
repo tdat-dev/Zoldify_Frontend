@@ -12,6 +12,7 @@ import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
 import { moneyFlow, moneyLabelKey } from '@/lib/money-flow';
 import { EmptyState } from '@/components/EmptyState';
+import { PayosQrModal, type PayosModalData } from '@/components/PayosQrModal';
 import { TONE_CLASS } from '@/lib/status-tone';
 import { withdrawalStatusTone, isHoldingMoney } from '@/lib/withdrawal-status';
 
@@ -74,6 +75,7 @@ export default function WalletPage() {
   const [panel, setPanel] = useState<'none' | 'topup' | 'withdraw'>('none');
   const [topupAmount, setTopupAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [payosModal, setPayosModal] = useState<PayosModalData | null>(null);
 
   const [form, setForm] = useState({
     amount: '',
@@ -130,15 +132,26 @@ export default function WalletPage() {
     setSubmitting(true);
     try {
       const res = await payosService.createLink({ type: 'topup', amount });
-      const checkoutUrl = res.data?.data?.checkoutUrl;
-      if (!checkoutUrl) {
+      const d = res.data?.data;
+      if (!d?.qrCode && !d?.checkoutUrl) {
         toast(t('topupNoLink'), 'error');
-        setSubmitting(false);
         return;
       }
-      window.location.href = checkoutUrl;
+      if (d.qrCode) {
+        setPayosModal({
+          type: 'topup',
+          orderCode: d.orderCode,
+          amount: d.amount,
+          qrCode: d.qrCode,
+          checkoutUrl: d.checkoutUrl,
+          expiresAt: d.expiresAt,
+        });
+        return;
+      }
+      window.location.href = d.checkoutUrl;
     } catch (err: any) {
       toast(err.response?.data?.message || t('topupFailed'), 'error');
+    } finally {
       setSubmitting(false);
     }
   };
@@ -561,6 +574,16 @@ export default function WalletPage() {
           </ul>
         )}
       </section>
+      <PayosQrModal
+        data={payosModal}
+        onPaid={() => {
+          setPayosModal(null);
+          setPanel('none');
+          setTopupAmount('');
+          fetchData();
+        }}
+        onClose={() => setPayosModal(null)}
+      />
     </div>
   );
 }

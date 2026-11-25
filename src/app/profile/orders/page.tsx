@@ -8,6 +8,7 @@ import { Package } from 'lucide-react';
 import { orderService } from '@/services/order.service';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { canPayOrder, usePayOrder } from '@/hooks/usePayOrder';
+import { PayosQrModal } from '@/components/PayosQrModal';
 import { ChangePaymentMethod } from '@/components/orders/ChangePaymentMethod';
 import { useToast } from '@/components/Toast';
 import { formatPrice } from '@/lib/format';
@@ -72,7 +73,7 @@ export default function UserOrdersPage() {
     }
   }, [status]);
 
-  const { pay, payingId } = usePayOrder(fetchOrders);
+  const { pay, payingId, payosModal, closePayosModal } = usePayOrder(fetchOrders);
 
   useEffect(() => {
     if (allowed) fetchOrders();
@@ -325,6 +326,11 @@ export default function UserOrdersPage() {
           })}
         </ul>
       )}
+      <PayosQrModal
+        data={payosModal}
+        onPaid={closePayosModal}
+        onClose={closePayosModal}
+      />
     </div>
   );
 }

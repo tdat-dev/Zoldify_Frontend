@@ -15,6 +15,7 @@ import { useToast } from '@/components/Toast';
 import type { CreateOrderDto } from '@/api';
 import { useRouter, useSearchParams } from 'next/navigation';
 import GhnAddressPicker, { type GhnAddressSelection } from '@/components/GhnAddressPicker';
+import { PayosQrModal, type PayosModalData } from '@/components/PayosQrModal';
 import type { ShippingQuote } from '@/services/order.service';
 import { formatPrice } from '@/lib/format';
 
@@ -151,6 +152,7 @@ export default function CheckoutPage() {
   const [showAreaError, setShowAreaError] = useState(false);
   // POST /orders hết giờ chờ mà không có response: đơn có thể đã được tạo.
   const [lostResponse, setLostResponse] = useState(false);
+  const [payosModal, setPayosModal] = useState<PayosModalData | null>(null);
 
   const handleOrder = async () => {
     if (!areaComplete) {
@@ -221,17 +223,28 @@ export default function CheckoutPage() {
         // đã có và giỏ đã bị xoá, ở lại trang này chỉ còn nút "Đặt hàng" bấm ra
         // "Giỏ hàng trống". Đưa người mua tới trang đơn, ở đó có "Thanh toán
         // ngay" gọi lại đúng create-link này.
-        let checkoutUrl: string | undefined;
+        let linkData: PayosModalData | null = null;
         let linkReason: string | undefined;
         try {
           const payosRes = await payosService.createLink({ type: 'order', order_id: orderId });
-          checkoutUrl = payosRes.data?.data?.checkoutUrl;
+          const d = payosRes.data?.data;
+          if (d?.qrCode || d?.checkoutUrl) {
+            linkData = {
+              type: 'order',
+              orderId,
+              orderCode: d.orderCode,
+              amount: d.amount,
+              qrCode: d.qrCode,
+              checkoutUrl: d.checkoutUrl,
+              expiresAt: d.expiresAt,
+            };
+          }
         } catch (linkErr: any) {
           const m = linkErr.response?.data?.message;
           linkReason = Array.isArray(m) ? m[0] : m;
         }
         refreshCartCount();
-        if (!checkoutUrl) {
+        if (!linkData) {
           toast(
             t('createdUnpaid', { id: orderId, reason: linkReason || t('errNoPayLink') }),
             'error',
@@ -239,8 +252,11 @@ export default function CheckoutPage() {
           router.push(`/profile/orders/${orderId}`);
           return;
         }
-        // Redirect sang PayOS
-        window.location.href = checkoutUrl;
+        if (linkData.qrCode) {
+          setPayosModal(linkData);
+          return;
+        }
+        window.location.href = linkData.checkoutUrl;
         return;
       }
 
@@ -579,6 +595,18 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      <PayosQrModal
+        data={payosModal}
+        onPaid={() => {
+          setPayosModal(null);
+          router.push('/cart/success');
+        }}
+        onClose={() => {
+          const oid = payosModal?.orderId;
+          setPayosModal(null);
+          router.push(oid ? `/profile/orders/${oid}` : '/profile/orders');
+        }}
+      />
     </div>
   );
 }

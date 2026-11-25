@@ -698,6 +698,21 @@
     "submit": "Đặt hàng",
     "backToCart": "Quay lại giỏ hàng"
   },
+  "payosModal": {
+    "titleOrder": "Thanh toán đơn #{id}",
+    "titleTopup": "Nạp tiền vào ví Zoldify",
+    "amountLabel": "Số tiền cần chuyển",
+    "qrAlt": "Mã VietQR thanh toán PayOS",
+    "scanHint": "Mở app ngân hàng bất kỳ và quét mã VietQR để thanh toán.",
+    "waiting": "Đang chờ xác nhận thanh toán",
+    "paidSuccess": "Thanh toán thành công!",
+    "expired": "Mã QR đã hết hạn. Đóng cửa sổ này để tạo mã mới.",
+    "cancelled": "Giao dịch đã bị huỷ.",
+    "openPayos": "Mở trang PayOS",
+    "cancelPayment": "Huỷ thanh toán",
+    "cancelling": "Đang huỷ…",
+    "close": "Đóng"
+  },
   "product": {
     "addedToCart": "Đã thêm vào giỏ.",
     "addToCartFailed": "Chưa thêm được vào giỏ.",
