@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Plus, X, Loader2 } from 'lucide-react';
@@ -90,6 +91,15 @@ export default function GhnAddressPicker({ onSelect }: Props) {
   useEffect(() => {
     ghnService.getProvinces().then(setProvinces).catch(() => setProvinces([]));
   }, []);
+
+  useEffect(() => {
+    if (!modalOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [modalOpen]);
 
   const emitFromForm = (f: InlineFormState, fromSaved: boolean) => {
     const shipping_address = [f.street, f.ward_name, f.district_name, f.province_name]
@@ -488,131 +498,135 @@ export default function GhnAddressPicker({ onSelect }: Props) {
         </button>
       </div>
 
-      {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="addr-modal-title"
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-3 sm:p-4"
-        >
-          <div className="flex max-h-[90dvh] w-full max-w-[560px] flex-col overflow-hidden rounded-card bg-surface-card shadow-xl">
-            <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
-              <h3 id="addr-modal-title" className="text-h3 text-ink">
-                {modalMode === 'list'
-                  ? t('myAddresses')
-                  : modalMode === 'create'
-                    ? t('addNew')
-                    : t('editTitle')}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                aria-label={tc('cancel')}
-                className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+      {modalOpen &&
+        (typeof document !== 'undefined'
+          ? createPortal(
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="addr-modal-title"
+                className="fixed inset-0 z-modal flex items-center justify-center bg-black/45 p-3 sm:p-4"
               >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-
-            {modalMode === 'list' ? (
-              <>
-                <div className="flex-1 overflow-y-auto divide-y divide-ink/10 px-5">
-                  {savedList.map((a) => {
-                    const checked = a.id === pendingId;
-                    const line = [a.street, a.ward, a.district, a.province].filter(Boolean).join(', ');
-                    return (
-                      <div key={a.id} className="flex items-start gap-3 py-4">
-                        <input
-                          type="radio"
-                          name="checkout-saved-addr"
-                          checked={checked}
-                          onChange={() => setPendingId(a.id)}
-                          className="mt-1 h-4 w-4 shrink-0 accent-brand"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setPendingId(a.id)}
-                          className="min-w-0 flex-1 text-left"
-                        >
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className="text-body font-semibold text-ink">{a.recipient_name}</span>
-                            <span className="text-small tabular-nums text-ink-muted">{a.phone_number}</span>
-                            {a.is_default && (
-                              <span className="rounded-control border border-brand/40 bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand">
-                                {t('default')}
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-1 text-small text-ink-muted">{line}</p>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openModalEdit(a)}
-                          className="shrink-0 text-small font-semibold text-brand hover:underline"
-                        >
-                          {t('edit')}
-                        </button>
-                      </div>
-                    );
-                  })}
-                  <div className="flex items-center justify-between py-4">
+                <div className="flex max-h-[90dvh] w-full max-w-[560px] flex-col overflow-hidden rounded-card bg-surface-card shadow-xl">
+                  <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+                    <h3 id="addr-modal-title" className="text-h3 text-ink">
+                      {modalMode === 'list'
+                        ? t('myAddresses')
+                        : modalMode === 'create'
+                          ? t('addNew')
+                          : t('editTitle')}
+                    </h3>
                     <button
                       type="button"
-                      onClick={openModalCreate}
-                      className="inline-flex items-center gap-1.5 rounded-control border border-ink/20 px-3.5 py-2 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
+                      onClick={() => setModalOpen(false)}
+                      aria-label={tc('cancel')}
+                      className="rounded-control p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
                     >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
-                      {t('addNew')}
+                      <X className="h-5 w-5" aria-hidden="true" />
                     </button>
-                    <Link href="/addresses" className="text-caption text-ink-muted hover:text-brand">
-                      {t('manage')}
-                    </Link>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-end gap-2 border-t border-ink/10 px-5 py-3.5">
-                  <button
-                    type="button"
-                    onClick={() => setModalOpen(false)}
-                    className="rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink hover:bg-surface-sunken"
-                  >
-                    {tc('cancel')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleConfirmModal}
-                    className="rounded-control bg-brand px-5 py-2 text-small font-semibold text-white hover:bg-brand-dark"
-                  >
-                    {t('confirm')}
-                  </button>
+                  {modalMode === 'list' ? (
+                    <>
+                      <div className="flex-1 overflow-y-auto divide-y divide-ink/10 px-5">
+                        {savedList.map((a) => {
+                          const checked = a.id === pendingId;
+                          const line = [a.street, a.ward, a.district, a.province].filter(Boolean).join(', ');
+                          return (
+                            <div key={a.id} className="flex items-start gap-3 py-4">
+                              <input
+                                type="radio"
+                                name="checkout-saved-addr"
+                                checked={checked}
+                                onChange={() => setPendingId(a.id)}
+                                className="mt-1 h-4 w-4 shrink-0 accent-brand"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setPendingId(a.id)}
+                                className="min-w-0 flex-1 text-left"
+                              >
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                  <span className="text-body font-semibold text-ink">{a.recipient_name}</span>
+                                  <span className="text-small tabular-nums text-ink-muted">{a.phone_number}</span>
+                                  {a.is_default && (
+                                    <span className="rounded-control border border-brand/40 bg-brand-tint px-2 py-0.5 text-caption font-semibold text-brand">
+                                      {t('default')}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1 text-small text-ink-muted">{line}</p>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openModalEdit(a)}
+                                className="shrink-0 text-small font-semibold text-brand hover:underline"
+                              >
+                                {t('edit')}
+                              </button>
+                            </div>
+                          );
+                        })}
+                        <div className="flex items-center justify-between py-4">
+                          <button
+                            type="button"
+                            onClick={openModalCreate}
+                            className="inline-flex items-center gap-1.5 rounded-control border border-ink/20 px-3.5 py-2 text-small font-semibold text-ink transition-colors hover:bg-surface-sunken"
+                          >
+                            <Plus className="h-4 w-4" aria-hidden="true" />
+                            {t('addNew')}
+                          </button>
+                          <Link href="/addresses" className="text-caption text-ink-muted hover:text-brand">
+                            {t('manage')}
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 border-t border-ink/10 px-5 py-3.5">
+                        <button
+                          type="button"
+                          onClick={() => setModalOpen(false)}
+                          className="rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink hover:bg-surface-sunken"
+                        >
+                          {tc('cancel')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleConfirmModal}
+                          className="rounded-control bg-brand px-5 py-2 text-small font-semibold text-white hover:bg-brand-dark"
+                        >
+                          {t('confirm')}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex-1 overflow-y-auto px-5 py-4">{renderFormFields(false)}</div>
+                      <div className="flex items-center justify-end gap-2 border-t border-ink/10 px-5 py-3.5">
+                        <button
+                          type="button"
+                          onClick={() => setModalMode('list')}
+                          className="rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink hover:bg-surface-sunken"
+                        >
+                          {t('back')}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={savingForm}
+                          onClick={() => handleSaveAddress(modalMode)}
+                          className="inline-flex items-center gap-2 rounded-control bg-brand px-5 py-2 text-small font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
+                        >
+                          {savingForm && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                          {savingForm ? t('saving') : t('save')}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="flex-1 overflow-y-auto px-5 py-4">{renderFormFields(false)}</div>
-                <div className="flex items-center justify-end gap-2 border-t border-ink/10 px-5 py-3.5">
-                  <button
-                    type="button"
-                    onClick={() => setModalMode('list')}
-                    className="rounded-control border border-ink/16 px-4 py-2 text-small font-semibold text-ink hover:bg-surface-sunken"
-                  >
-                    {t('back')}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={savingForm}
-                    onClick={() => handleSaveAddress(modalMode)}
-                    className="inline-flex items-center gap-2 rounded-control bg-brand px-5 py-2 text-small font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
-                  >
-                    {savingForm && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-                    {savingForm ? t('saving') : t('save')}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+              </div>,
+              document.body,
+            )
+          : null)}
     </>
   );
 }

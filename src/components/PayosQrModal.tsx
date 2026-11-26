@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { Check, CheckCircle2, Copy, ExternalLink, Loader2, QrCode, X } from 'lucide-react';
 import QRCode from 'qrcode';
@@ -167,6 +168,16 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
     };
   }, [data, phase, onPaid]);
 
+  // Khoá scroll trang nền khi mở popup để Header/sticky không trôi lộn xộn
+  useEffect(() => {
+    if (!data) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [data]);
+
   if (!data) return null;
 
   const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
@@ -232,12 +243,12 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
     </div>
   );
 
-  return (
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="payos-modal-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+      className="fixed inset-0 z-modal flex items-center justify-center bg-black/50 p-3 sm:p-4"
     >
       <div
         className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-card bg-surface-card shadow-xl ${
@@ -407,4 +418,6 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
 }
