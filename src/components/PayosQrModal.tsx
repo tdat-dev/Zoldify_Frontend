@@ -237,14 +237,14 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="payos-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-3 sm:p-4"
     >
       <div
-        className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-card bg-surface-card shadow-xl ${
-          hasManualInfo && phase !== 'paid' ? 'max-w-[680px]' : 'max-w-[420px]'
+        className={`flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-card bg-surface-card shadow-xl ${
+          hasManualInfo && phase !== 'paid' ? 'max-w-[660px]' : 'max-w-[400px]'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-ink/10 px-5 py-3">
           <div className="flex items-center gap-2">
             <QrCode className="h-5 w-5 text-brand" aria-hidden="true" />
             <h2 id="payos-modal-title" className="text-h3 text-ink">
@@ -263,7 +263,7 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto px-5 py-4">
           {phase === 'paid' ? (
             <div className="my-6 flex flex-col items-center gap-2 text-center text-state-success-fg">
               <CheckCircle2 className="h-14 w-14" aria-hidden="true" />
@@ -271,19 +271,19 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
             </div>
           ) : (
             <div
-              className={`grid grid-cols-1 gap-6 ${
-                hasManualInfo ? 'sm:grid-cols-2 sm:items-start' : ''
+              className={`grid grid-cols-1 gap-4 sm:gap-5 ${
+                hasManualInfo ? 'sm:grid-cols-2 sm:items-center' : ''
               }`}
             >
               <div className="flex flex-col items-center text-center">
                 <p className="text-caption uppercase tracking-wide text-ink-muted">
                   {t('amountLabel')}
                 </p>
-                <p className="mt-1 text-h2 font-bold tabular-nums text-price">
+                <p className="mt-0.5 text-h2 font-bold tabular-nums text-price">
                   {formatPrice(data.amount)}
                 </p>
 
-                <div className="mt-4 flex w-full max-w-[272px] items-center justify-center overflow-hidden rounded-card border border-ink/12 bg-white">
+                <div className="mt-2.5 flex w-full max-w-[216px] items-center justify-center overflow-hidden rounded-card border border-ink/12 bg-white">
                   {vietQrUrl && !vietQrFailed ? (
                     <img
                       src={vietQrUrl}
@@ -295,27 +295,27 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
                     <img
                       src={qrDataUrl}
                       alt={t('qrAlt')}
-                      className="h-[240px] w-[240px] p-2 object-contain"
+                      className="h-[200px] w-[200px] p-2 object-contain"
                     />
                   ) : (
-                    <div className="flex h-[240px] w-[240px] items-center justify-center">
+                    <div className="flex h-[200px] w-[200px] items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-ink-muted" aria-hidden="true" />
                     </div>
                   )}
                 </div>
 
-                <p className="mt-3 text-small text-ink-muted">{t('scanHint')}</p>
+                <p className="mt-2 text-caption text-ink-muted">{t('scanHint')}</p>
 
                 {phase === 'expired' ? (
-                  <p role="alert" className="mt-2 text-small font-semibold text-state-danger-fg">
+                  <p role="alert" className="mt-1.5 text-small font-semibold text-state-danger-fg">
                     {t('expired')}
                   </p>
                 ) : phase === 'failed' ? (
-                  <p role="alert" className="mt-2 text-small font-semibold text-state-danger-fg">
+                  <p role="alert" className="mt-1.5 text-small font-semibold text-state-danger-fg">
                     {t('cancelled')}
                   </p>
                 ) : (
-                  <div className="mt-2.5 flex items-center gap-2 text-caption text-ink-muted">
+                  <div className="mt-1.5 flex items-center gap-1.5 text-caption text-ink-muted">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-brand" aria-hidden="true" />
                     <span>{t('waiting')}</span>
                     <span className="font-semibold tabular-nums text-ink">
@@ -359,7 +359,7 @@ export function PayosQrModal({ data, onPaid, onClose }: PayosQrModalProps) {
         </div>
 
         {phase !== 'paid' && (
-          <div className="flex flex-col gap-2 border-t border-ink/10 px-5 py-4">
+          <div className="flex shrink-0 flex-col gap-2 border-t border-ink/10 px-5 py-3">
             {data.isMock && (
               <>
                 <div className="flex items-center justify-center">
